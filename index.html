@@ -35,6 +35,10 @@
     text-shadow:0 0 6px var(--rose),0 0 16px var(--rose),0 0 40px rgba(255,92,138,.8);animation:flick 6s infinite}
   @keyframes flick{0%,93%,100%{opacity:1}94%{opacity:.5}95%{opacity:1}97%{opacity:.7}}
   .sub{font-size:11px;letter-spacing:.45em;color:var(--dim);margin-top:2px}
+  /* 手帳ボタン（右上） */
+  .notebtn{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));right:16px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,241,226,.4);
+    background:rgba(11,5,7,.45);color:var(--cream);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;backdrop-filter:blur(6px);cursor:pointer}
+  .notebtn small{display:block;font-weight:400;font-size:9px;letter-spacing:.05em;color:var(--dim)}
   /* 下部 */
   .bottom{position:relative;z-index:2;margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
   .status{font-size:12px;letter-spacing:.25em;color:var(--amber);min-height:16px}
@@ -48,6 +52,26 @@
   .btn.out{background:rgba(11,5,7,.5);color:var(--cream);border:1px solid rgba(255,241,226,.45);box-shadow:none;backdrop-filter:blur(6px)}
   .btn:disabled{opacity:.5}
   .err{font-size:12px;color:#ff9a9a;text-align:center;min-height:14px}
+  /* ママの手帳（モーダル） */
+  .sheet{position:fixed;inset:0;z-index:10;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
+  .sheet.open{display:flex}
+  .book{width:100%;max-width:480px;max-height:88%;overflow:auto;background:#1a0d12;border-radius:22px 22px 0 0;border-top:1px solid rgba(255,158,196,.35);
+    padding:18px 18px max(22px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.6)}
+  .book h2{font-family:"Shippori Mincho B1",serif;font-size:20px;letter-spacing:.2em;color:#ffe6ef;text-shadow:0 0 10px rgba(255,92,138,.6);text-align:center}
+  .book .lead{font-size:12px;color:var(--dim);text-align:center;margin:6px 0 14px;line-height:1.6}
+  .book label{display:block;font-size:12px;letter-spacing:.1em;color:var(--amber);margin:14px 0 6px}
+  .book textarea{width:100%;min-height:96px;border-radius:12px;border:1px solid rgba(255,241,226,.25);background:rgba(255,241,226,.06);color:var(--cream);
+    padding:10px 12px;font:14px/1.6 "Zen Kaku Gothic New",sans-serif;resize:vertical}
+  .visit{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
+  .visit .d{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--pink);letter-spacing:.08em}
+  .visit .d button{border:none;background:none;color:var(--dim);font-size:11px;cursor:pointer;padding:4px 6px}
+  .visit pre{white-space:pre-wrap;word-break:break-word;font:13px/1.6 "Zen Kaku Gothic New",sans-serif;color:var(--cream);margin-top:6px}
+  .empty{font-size:13px;color:var(--dim);text-align:center;padding:14px 0}
+  .row{display:flex;gap:10px;margin-top:16px}
+  .row button{flex:1;padding:13px;border-radius:999px;border:1px solid rgba(255,241,226,.35);background:none;color:var(--cream);font:700 14px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer}
+  .row button.primary{background:linear-gradient(90deg,#ff5c8a,#ffb85c);color:#2a0a12;border:none}
+  .row button.danger{color:#ff9a9a;border-color:rgba(255,154,154,.4)}
+  .saved{font-size:11px;color:var(--amber);text-align:center;min-height:14px;margin-top:6px}
 </style>
 </head>
 <body>
@@ -56,6 +80,8 @@
   <div class="veil"></div>
   <div class="glow"></div>
   <i class="bokeh b1"></i><i class="bokeh b2"></i><i class="bokeh b3"></i><i class="bokeh b4"></i>
+
+  <button class="notebtn" id="notebtn">手帳<small id="notecount">来店 0回</small></button>
 
   <div class="top">
     <div class="neon">トキエ</div>
@@ -69,28 +95,141 @@
     <div class="err" id="err"></div>
   </div>
 </div>
+
+<!-- ママの手帳 -->
+<div class="sheet" id="sheet">
+  <div class="book">
+    <h2>ママの手帳</h2>
+    <p class="lead">閉店しても忘れへんように、ママが書き留めとく帳面。<br>次に入店したとき、ママはこの手帳を読んでから迎えてくれる。</p>
+    <label>お客さんの基本情報（ママに最初から知っといてほしいこと）</label>
+    <textarea id="profile" placeholder="例：名前はタケオ。39歳、平塚。アプリを作ってる。酒は弱い（一時間に一ミリ）。"></textarea>
+    <div class="saved" id="saved"></div>
+    <label>これまでの来店メモ（新しい順・直近5回まで）</label>
+    <div id="visits"></div>
+    <div class="row">
+      <button class="danger" id="clearall">全部消す</button>
+      <button class="primary" id="closebook">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm";
   const AGENT_ID = "agent_7001m4xagrbxek580px43qgd8jza";
   const $ = (id) => document.getElementById(id);
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err");
   let conv=null;
-  function show(text,who){text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);}
+
+  /* ───────── ママの手帳（ブラウザ内に保存） ───────── */
+  const KEY="tokie_notebook_v1", MAX_VISITS=5, MAX_MEMORY_CHARS=3000;
+  const empty=()=>({profile:"",visits:[]});
+  function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[]}:empty();}catch(e){return empty();}}
+  function saveBook(b){try{localStorage.setItem(KEY,JSON.stringify(b));}catch(e){}}
+  const clip=(t,n)=>t.length>n?t.slice(0,n)+"…":t;
+  const jstDate=(d)=>d.toLocaleDateString("ja-JP",{year:"numeric",month:"numeric",day:"numeric",timeZone:"Asia/Tokyo"});
+  const jstTime=(d)=>d.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tokyo"});
+
+  // 1回の会話 → ざっくりメモ。お客さんが喋った内容を中心に（長い発言＝中身がある発言を優先）、最後のママの一言も添える
+  function digest(msgs){
+    const seen=new Set();
+    const users=msgs.filter(m=>m.who==="user").map(m=>m.text.trim()).filter(t=>t.length>=6&&!seen.has(t)&&seen.add(t));
+    let pick=users.map((t,i)=>({t,i}));
+    if(pick.length>16){pick=pick.slice().sort((a,b)=>b.t.length-a.t.length).slice(0,16).sort((a,b)=>a.i-b.i);}
+    const lines=pick.map(p=>"客: "+clip(p.t,80));
+    const ais=msgs.filter(m=>m.who==="ai").map(m=>m.text.trim()).filter(Boolean);
+    if(ais.length)lines.push("ママ(最後の一言): "+clip(ais[ais.length-1],60));
+    return lines.join("\n");
+  }
+
+  // 今の会話を手帳に書き込む（会話中は上書きし続けるので、途中でブラウザを閉じても残る）
+  let current=null; // {id,start,msgs}
+  function writeCurrent(){
+    if(!current||!current.msgs.some(m=>m.who==="user"))return;
+    const b=loadBook();
+    const mins=Math.max(1,Math.round((Date.now()-current.start)/60000));
+    const v={id:current.id,date:jstDate(new Date(current.start)),time:jstTime(new Date(current.start)),mins,memo:digest(current.msgs)};
+    const idx=b.visits.findIndex(x=>x.id===current.id);
+    if(idx>=0)b.visits[idx]=v;else b.visits.unshift(v);
+    b.visits=b.visits.slice(0,MAX_VISITS);
+    saveBook(b);renderCount();
+  }
+
+  // ママに渡す「記憶」を組み立てる（新しい来店から順に、長すぎたら古い方を切る）
+  function buildMemory(){
+    const b=loadBook();
+    const parts=[];
+    parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
+    if(!b.visits.length){parts.push("【これまでの来店メモ】\n（初来店。まだ何も書いてない）");}
+    else{
+      let body="";
+      for(const v of b.visits){
+        const block=`■${v.date} ${v.time}（${v.mins}分）\n${v.memo}\n`;
+        if((body+block).length>MAX_MEMORY_CHARS)break;
+        body+=block;
+      }
+      parts.push("【これまでの来店メモ（新しい順）】\n"+body.trim());
+    }
+    return parts.join("\n\n");
+  }
+  function lastVisitText(){
+    const b=loadBook();if(!b.visits.length)return "初来店";
+    const last=b.visits[0];const d=Math.round((new Date(jstDate(new Date()))-new Date(last.date))/86400000);
+    return d<=0?"今日":d===1?"昨日":`${d}日前`;
+  }
+  function renderCount(){const b=loadBook();$("notecount").textContent=`来店 ${b.visits.length}回`+(b.visits.length?`・${lastVisitText()}`:"");}
+
+  /* ───────── 手帳の画面 ───────── */
+  const sheet=$("sheet"),profileEl=$("profile"),visitsEl=$("visits"),savedEl=$("saved");
+  function renderBook(){
+    const b=loadBook();profileEl.value=b.profile;
+    visitsEl.innerHTML="";
+    if(!b.visits.length){visitsEl.innerHTML='<div class="empty">まだ来店メモはないよ。一回話して「お会計」したら書き込まれる。</div>';return;}
+    for(const v of b.visits){
+      const d=document.createElement("div");d.className="visit";
+      const head=document.createElement("div");head.className="d";
+      head.innerHTML=`<span>${v.date} ${v.time}・${v.mins}分</span>`;
+      const del=document.createElement("button");del.textContent="このメモを消す";
+      del.onclick=()=>{if(!confirm("この日のメモを消す？"))return;const bb=loadBook();bb.visits=bb.visits.filter(x=>x.id!==v.id);saveBook(bb);renderBook();renderCount();};
+      head.appendChild(del);
+      const pre=document.createElement("pre");pre.textContent=v.memo||"（メモなし）";
+      d.appendChild(head);d.appendChild(pre);visitsEl.appendChild(d);
+    }
+  }
+  let saveTimer=null;
+  profileEl.addEventListener("input",()=>{const b=loadBook();b.profile=profileEl.value;saveBook(b);savedEl.textContent="保存した";clearTimeout(saveTimer);saveTimer=setTimeout(()=>savedEl.textContent="",1500);});
+  $("notebtn").addEventListener("click",()=>{renderBook();sheet.classList.add("open");});
+  $("closebook").addEventListener("click",()=>sheet.classList.remove("open"));
+  sheet.addEventListener("click",(e)=>{if(e.target===sheet)sheet.classList.remove("open");});
+  $("clearall").addEventListener("click",()=>{if(!confirm("手帳を全部白紙にする？（基本情報も来店メモも消える）"))return;saveBook(empty());renderBook();renderCount();});
+  renderCount();
+
+  /* ───────── 会話 ───────── */
+  function show(text,who){text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);return text;}
   async function start(){
-    errEl.textContent="";btn.disabled=true;statusEl.textContent="のれんをくぐってる…";
+    errEl.textContent="";btn.disabled=true;statusEl.textContent="ママが手帳を読んでる…";
     try{
       await navigator.mediaDevices.getUserMedia({audio:true});
+      const memory=buildMemory();
+      const book=loadBook();
+      current={id:String(Date.now()),start:Date.now(),msgs:[]};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
+        dynamicVariables:{memory, visit_count:String(book.visits.length), last_visit:lastVisitText()},
         onConnect:()=>{stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;},
         onDisconnect:()=>end(),
-        onMessage:(m)=>{if(m&&m.message)show(m.message,m.source);},
+        onMessage:(m)=>{if(m&&m.message){const t=show(m.message,m.source);if(t&&current){current.msgs.push({who:m.source==="ai"?"ai":"user",text:t});writeCurrent();}}},
         onModeChange:(m)=>{const mode=m&&m.mode;stage.classList.toggle("speaking",mode==="speaking");statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";},
         onError:(e)=>{errEl.textContent="エラー："+(e&&e.message?e.message:e);}
       });
     }catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":("つながらへん："+(e&&e.message?e.message:e));end();}
   }
-  async function end(){try{if(conv)await conv.endSession();}catch(e){}conv=null;stage.classList.remove("speaking","on");statusEl.textContent="またおいでな";btn.textContent="入店する";btn.className="btn";btn.disabled=false;}
+  async function end(){
+    try{if(conv)await conv.endSession();}catch(e){}
+    conv=null;stage.classList.remove("speaking","on");
+    if(current){writeCurrent();current=null;statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);}
+    else statusEl.textContent="またおいでな";
+    btn.textContent="入店する";btn.className="btn";btn.disabled=false;
+  }
   btn.addEventListener("click",()=>conv?end():start());
 </script>
 </body>
