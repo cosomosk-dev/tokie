@@ -52,6 +52,16 @@
   .btn.out{background:rgba(11,5,7,.5);color:var(--cream);border:1px solid rgba(255,241,226,.45);box-shadow:none;backdrop-filter:blur(6px)}
   .btn:disabled{opacity:.5}
   .err{font-size:12px;color:#ff9a9a;text-align:center;min-height:14px}
+  /* 入れへんかった時のお知らせ（クレジット切れ・上限時間・回線切れ） */
+  .notice{display:none;width:100%;max-width:340px;padding:14px 16px;border-radius:16px;text-align:center;animation:fade .4s ease;
+    background:rgba(11,5,7,.72);border:1px solid rgba(255,184,92,.55);backdrop-filter:blur(8px);box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .notice.show{display:block}
+  .notice.credit{border-color:rgba(255,92,138,.7)}
+  .notice b{display:block;font-family:"Shippori Mincho B1",serif;font-size:16px;letter-spacing:.08em;color:#ffe6ef;margin-bottom:6px;text-shadow:0 0 10px rgba(255,92,138,.5)}
+  .notice p{font-size:12px;line-height:1.7;color:var(--cream)}
+  .notice a{display:inline-block;margin-top:10px;padding:9px 16px;border-radius:999px;background:var(--amber);color:#2a0a12;font-weight:700;font-size:12px;letter-spacing:.1em;text-decoration:none}
+  .notice small{display:block;margin-top:8px;font-size:10px;line-height:1.5;color:var(--dim);word-break:break-all}
+  .bottom.has-notice .caption{min-height:0}
   /* ママの手帳（モーダル） */
   .sheet{position:fixed;inset:0;z-index:10;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
   .sheet.open{display:flex}
@@ -88,8 +98,9 @@
     <div class="sub">SNACK TOKIE ・ 大阪 天満</div>
   </div>
 
-  <div class="bottom">
+  <div class="bottom" id="bottom">
     <div class="caption" id="caption"></div>
+    <div class="notice" id="notice"></div>
     <div class="status" id="status">本日も営業中</div>
     <button class="btn" id="btn">入店する</button>
     <div class="err" id="err"></div>
@@ -204,31 +215,87 @@
   renderCount();
 
   /* ───────── 会話 ───────── */
+  const notice=$("notice"),bottom=$("bottom");
+  const ELEVEN_SUB="https://elevenlabs.io/app/subscription";
+  let connectedAt=null, serverErr=null, ending=false;
   function show(text,who){text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);return text;}
+  function hideNotice(){notice.className="notice";notice.innerHTML="";bottom.classList.remove("has-notice");}
+  function showNotice(kind,title,body,link,detail){
+    notice.className="notice show "+kind;
+    notice.innerHTML="";
+    const b=document.createElement("b");b.textContent=title;notice.appendChild(b);
+    const p=document.createElement("p");p.textContent=body;notice.appendChild(p);
+    if(link){const a=document.createElement("a");a.href=link.href;a.target="_blank";a.rel="noopener";a.textContent=link.label;notice.appendChild(a);}
+    if(detail){const s=document.createElement("small");s.textContent="詳細: "+detail;notice.appendChild(s);}
+    bottom.classList.add("has-notice");
+  }
+  // 切れた理由を見分ける。ElevenLabsから返ってきた文言・サーバーエラー・つながる前に切れたか、で判定
+  function diagnose(d){
+    if(!d||d.reason==="user")return {kind:"user"};
+    const ctx=d.context||{};
+    const bits=[d.reason,d.message,d.closeCode,d.closeReason,ctx.type,ctx.reason,ctx.code,
+      serverErr&&serverErr.msg,serverErr&&serverErr.ctx&&serverErr.ctx.errorType,serverErr&&serverErr.ctx&&serverErr.ctx.code].filter(x=>x!==undefined&&x!==null&&x!=="");
+    const detail=bits.join(" / ");
+    const text=detail.toLowerCase();
+    if(ctx.type==="max_duration_exceeded"||/max_duration/.test(text))return {kind:"maxdur",detail};
+    if(/quota|credit|insufficient|402|payment|subscription|usage|billing/.test(text))return {kind:"credit",sure:true,detail};
+    if(/exceed|limit|unauthorized|401|403/.test(text))return {kind:"credit",sure:false,detail};
+    const talked=current&&current.msgs.some(m=>m.who==="user");
+    const elapsed=current?Date.now()-current.start:0;
+    if(!connectedAt||(!talked&&elapsed<25000))return {kind:"credit",sure:false,detail};   // 入店できずに即切れ＝ほぼクレジット切れ
+    return {kind:"dropped",detail};
+  }
   async function start(){
-    errEl.textContent="";btn.disabled=true;statusEl.textContent="ママが手帳を読んでる…";
+    errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent="ママが手帳を読んでる…";
+    connectedAt=null;serverErr=null;
     try{
-      await navigator.mediaDevices.getUserMedia({audio:true});
+      try{await navigator.mediaDevices.getUserMedia({audio:true});}
+      catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;return;}
       const memory=buildMemory();
       const book=loadBook();
       current={id:String(Date.now()),start:Date.now(),msgs:[]};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
         dynamicVariables:{memory, visit_count:String(book.visits.length), last_visit:lastVisitText()},
-        onConnect:()=>{stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;},
-        onDisconnect:()=>end(),
+        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;},
+        onDisconnect:(d)=>end(d),
         onMessage:(m)=>{if(m&&m.message){const t=show(m.message,m.source);if(t&&current){current.msgs.push({who:m.source==="ai"?"ai":"user",text:t});writeCurrent();}}},
         onModeChange:(m)=>{const mode=m&&m.mode;stage.classList.toggle("speaking",mode==="speaking");statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";},
-        onError:(e)=>{errEl.textContent="エラー："+(e&&e.message?e.message:e);}
+        onError:(msg,ctx)=>{serverErr={msg:String(msg&&msg.message?msg.message:msg),ctx:ctx||{}};errEl.textContent="エラー："+serverErr.msg;}
       });
-    }catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":("つながらへん："+(e&&e.message?e.message:e));end();}
+    }catch(e){
+      const msg=String(e&&e.message?e.message:e);
+      errEl.textContent="つながらへん："+msg;
+      end({reason:"error",message:msg,context:{type:"start_failed"}});
+    }
   }
-  async function end(){
-    try{if(conv)await conv.endSession();}catch(e){}
-    conv=null;stage.classList.remove("speaking","on");
-    if(current){writeCurrent();current=null;statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);}
-    else statusEl.textContent="またおいでな";
-    btn.textContent="入店する";btn.className="btn";btn.disabled=false;
+  async function end(d){
+    if(ending)return;ending=true;
+    const c=conv;conv=null;
+    try{if(c)await c.endSession();}catch(e){}
+    stage.classList.remove("speaking","on");
+    const r=diagnose(d);
+    if(current){writeCurrent();current=null;}
+    if(r.kind==="user"){
+      statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);
+    }else if(r.kind==="credit"){
+      errEl.textContent="";statusEl.textContent=r.sure?"クレジット切れ":"入店できへん（たぶんクレジット切れ）";
+      showNotice("credit",
+        r.sure?"ママ：堪忍な、クレジット切れや":"ママ：堪忍な、たぶんクレジット切れや",
+        "ElevenLabsの今月ぶんの通話時間を使い切ったみたい。追加クレジットを買うか、プランを一段上げたら、すぐまた入れる。",
+        {href:ELEVEN_SUB,label:"ElevenLabsの料金ページを開く"},r.detail);
+    }else if(r.kind==="maxdur"){
+      statusEl.textContent="1回の上限時間や";
+      showNotice("maxdur","ママ：今日はここまでやで",
+        "1回の会話の上限時間に達した。すぐ入店し直せば続きを話せる。もっと長くしたいならElevenLabsのAgent設定「Max conversation duration」を伸ばす。",
+        null,r.detail);
+    }else{
+      statusEl.textContent="回線が切れた";
+      showNotice("dropped","ママ：あら、切れてもうた",
+        "途中で回線が切れた。電波かElevenLabs側の都合。もう一回入店してみて。",
+        null,r.detail);
+    }
+    btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
   }
   btn.addEventListener("click",()=>conv?end():start());
 </script>
