@@ -75,7 +75,7 @@
   const $ = (id) => document.getElementById(id);
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err");
   let conv=null;
-  function show(text,who){const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);}
+  function show(text,who){text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);}
   async function start(){
     errEl.textContent="";btn.disabled=true;statusEl.textContent="のれんをくぐってる…";
     try{
