@@ -227,9 +227,10 @@
   }
 
   // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
-  function buildMemory(){
+  function buildMemory(extension){
     const b=loadBook();
     const parts=[];
+    if(extension)parts.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
     parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
     const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
     let used=parts[0].length;
@@ -347,17 +348,22 @@
     if(!connectedAt||(!talked&&elapsed<25000))return {kind:"credit",sure:false,detail};   // 入店できずに即切れ＝ほぼクレジット切れ
     return {kind:"dropped",detail};
   }
-  async function start(){
-    errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent="ママが手帳を読んでる…";
+  const GREETING="あら、おかえり。今日も来てくれたんやね、嬉しいわぁ。ほら、こっち座って。";
+  const GREETING_EXT="はい、延長な。ほんで、さっきの話の続きやけど…";
+  const MAX_AUTO_EXTENSIONS=5; // 2時間×(1+5)＝最長12時間まで自動で入り直す（切り忘れ防止）
+  let extensions=0;
+  async function start(extension){
+    if(!extension)extensions=0;
+    errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent=extension?"延長入るで…":"ママが手帳を読んでる…";
     connectedAt=null;serverErr=null;
     try{
       try{await navigator.mediaDevices.getUserMedia({audio:true});}
       catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;return;}
-      const memory=buildMemory();
+      const memory=buildMemory(extension);
       current={id:String(Date.now()),start:Date.now(),msgs:[]};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText()},
+        dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:extension?GREETING_EXT:GREETING},
         onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;},
         onDisconnect:(d)=>end(d),
         onMessage:(m)=>{if(m&&m.message){const t=show(m.message,m.source);if(t&&current){current.msgs.push({who:m.source==="ai"?"ai":"user",text:t});writeCurrent();}}},
@@ -386,9 +392,17 @@
         "ElevenLabsの今月ぶんの通話時間を使い切ったみたい。追加クレジットを買うか、プランを一段上げたら、すぐまた入れる。",
         {href:ELEVEN_SUB,label:"ElevenLabsの料金ページを開く"},r.detail);
     }else if(r.kind==="maxdur"){
-      statusEl.textContent="1回の上限時間や";
-      showNotice("maxdur","ママ：今日はここまでやで",
-        "1回の会話の上限時間に達した。すぐ入店し直せば続きを話せる（手帳は残ってる）。もっと長くしたいならElevenLabsのAgent設定「Max conversation duration」を伸ばす。",
+      if(extensions<MAX_AUTO_EXTENSIONS){
+        // 2時間の上限で切れた → 数秒後に自動で入り直す（ママは「延長な」で続きから）
+        extensions++;
+        statusEl.textContent="延長入るで…";
+        btn.textContent="お会計";btn.className="btn out";btn.disabled=true;ending=false;
+        setTimeout(()=>start(true),1500);
+        return;
+      }
+      statusEl.textContent="今日はもう閉店や";
+      showNotice("maxdur","ママ：今日はほんまにここまでやで",
+        "長時間つなぎっぱなしやったから、いったん閉店にした。また入店したら続きから話せる（手帳は残ってる）。",
         null,r.detail);
     }else{
       statusEl.textContent="回線が切れた";
@@ -398,7 +412,7 @@
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
   }
-  btn.addEventListener("click",()=>conv?end():start());
+  btn.addEventListener("click",()=>conv?end():start(false));
 </script>
 </body>
 </html>
