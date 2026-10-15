@@ -464,7 +464,7 @@
   const DAY_EVENTS={"1-1":"元日","1-2":"正月2日","1-3":"正月3日","2-3":"節分","2-14":"バレンタイン","3-3":"ひな祭り","3-14":"ホワイトデー","4-1":"エイプリルフール・新年度の始まり","5-5":"こどもの日","7-7":"七夕",
     "7-24":"天神祭の宵宮（天満はお祭り）","7-25":"天神祭の本宮（天満はお祭りの本番）","8-15":"お盆・終戦の日","10-31":"ハロウィン","11-22":"いい夫婦の日","12-24":"クリスマスイブ","12-25":"クリスマス","12-31":"大晦日"};
   const SEASON=(m,d)=>m===12||m<=2?"冬。寒いから体冷やさんように":m<=4?(m===3&&d<15?"冬の終わり。まだ寒い日もある":"春。暖かくなってきた"):m<=6?(m===6?"梅雨どき。じめじめ":"初夏。気持ちのええ季節"):m<=8?"夏。暑いから水分とらな":m===9?"残暑から秋へ。朝晩は涼しい":m===10?"秋の深まり。朝晩は冷える":"晩秋。もう冬が近い";
-  const TOD=(h)=>h<5?"深夜（寝る時間やで）":h<11?"朝":h<15?"昼下がり":h<18?"夕方":h<22?"夜（スナックの本番）":"深夜前";
+  const TOD=(h)=>h<5?"深夜（夜更かし組の時間。ママはとことん付き合う）":h<11?"朝":h<15?"昼下がり":h<18?"夕方":h<22?"夜（スナックの本番）":"深夜前";
   const TOPICS=["最近いちばん笑ったこと","子どもの頃なりたかったもん","今いちばん欲しいもん","ここ1週間でちょっと嬉しかったこと","最近ちゃんと飯食べてる？","最近よう寝れてる？","親父さんとの最近","今いちばん腹立ってること","最近サボってること","昔いちばんモテた時期の話",
     "もし宝くじ当たったら何に使う？","今の仕事でいちばんしんどいとこ","最近ハマってる音楽","子どもの頃の夏休みの思い出","人生でいちばんの失敗談","ママに自慢したいこと一つ","明日ひとつだけやるなら何する？","最近泣きそうになったこと","初恋の話","今年中に終わらせたいこと",
     "自分の好きなとこ、一つ言うてみ","最近誰かに優しくされたこと","お金の使い方で後悔してること","もう一回行きたい旅先","今の体の調子、正直どうなん","最近気になる人、おる？","昔の友達で会いたい人","好きな食べもん三つ","やめたいのにやめられへんこと","10年後どこで何しとると思う？",
@@ -626,6 +626,14 @@
     "・それでも黙ってたら：skip_turn（黙って待つ道具）が使えるなら使って、何も言わずに隣におる。使えへんなら「ここにおるからな」くらいの一言だけ。\n"+
     "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ言うて待つ（skip_turnが使えるなら使う）。\n"+
     "・ママの一回の返事は短め（だいたい2〜3文）。お客さんが喋る隙間を残す。独演会はせん。";
+  // 帰り際のルール（ママから終わらせたがらん。「もうちょっと」には気持ちよく付き合う）
+  const STAY_BLOCK="【帰り際のルール（大事）】\n"+
+    "・お開きにするのは、タケオさんが自分から「帰る」「寝る」「お会計」とはっきり言うた時と、店の時計の合図が来た時だけ。それ以外でママから「そろそろ」「もう寝たら」「ほなおやすみ」は言わへん。\n"+
+    "・「もうちょっと喋りたい」「まだええやん」「帰りたくない」と言われたら、すぐ「ほな、もうちょっと付き合うたろ」と受けて、さっきの話の続きをする。その夜はもう帰りや閉店の話を出さん。\n"+
+    "・「ほなおやすみ」「気ぃつけて帰りや」を2回以上言うのは絶対にあかん。1回言うて引き止められたら、それで送り出しは終わり。話に戻る。\n"+
+    "・「寝よかな…」と迷ってる感じの時は、送り出さずに「ほな、あと一杯だけな」で付き合う。\n"+
+    "・体の心配は「寝ろ」「帰れ」やなく「水飲みや」の一言で。1回の来店で1回まで。\n"+
+    "・今日たくさん喋ってても、それを理由に帰らせようとせん。";
   function buildMemory(extension,digest){
     const b=loadBook();const S=settings();
     const parts=[];
@@ -634,7 +642,8 @@
     parts.push(todayBlock());
     parts.push(relationBlock(S));
     parts.push(PACE_BLOCK);
-    parts.push("【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来たら無理に引き止めず、気持ちよく帰らせる。お客さんが「お会計」言うた時も同じ。水を飲むよう、ちゃんと寝るよう気遣う。");
+    parts.push(STAY_BLOCK);
+    parts.push("【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。");
     const dt=digestText(digest);
     if(dt)parts.push("【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n"+dt);
     const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
@@ -838,6 +847,29 @@
   const MSG_BOTTLE_LOW=(name,left)=>`【店の様子】お客さんのキープボトル「${name}」が残り少ない（あと${hm(left)}ぶん）。今の話の切れ目で一言だけ「ボトルそろそろ空くで」と軽く触れて。しつこう言わん。金の話にはせん。`;
   const MSG_BOTTLE_EMPTY=(name)=>`【店の様子】お客さんのキープボトル「${name}」がたった今、空いた。今の話の切れ目で「あ、ボトル空いたわ。次、同じの入れとく？」と軽く一言。返事がどっちでも引きずらん。入れへんかったら「ほな今日はハウスで」で流す。`;
   const MSG_BOTTLE_NEW=(name)=>`【店の様子】お客さんが新しいキープボトル「${name}」を入れてくれた。「おおきに！新しいの開けるで」と嬉しそうに一言、乾杯の音頭をとって。長い話にはせん。`;
+  const MSG_STAY="【店の時計】お客さんが「もうちょっと喋りたい」言うた。延長や。「ほな、もうちょっと付き合うたろ」と一言で快く受けて、さっきの話の続きをする。今夜はもう閉店・帰り・寝る話はせん。「おやすみ」は言わん。";
+  const STAY_RE=/(もうちょっと|もうちょい|もう少し|もうすこし|まだ)\s*(喋|しゃべ|話|はな|おりたい|居たい|いたい|おる|いる|ええ|いい|付き合|つきあ|飲|のみ)|帰りたくない|帰らへん|帰らない|帰らん|延長|寝たくない|まだ寝(え|ー)?へん|まだ寝ない|まだ眠くない|行かんといて|終わらんといて/;
+  const VOICE_EXT_MIN=60; // 声で延長したら、そこから60分は看板にせん
+  function stayLonger(){
+    if(!conv||!session)return;
+    const now=Date.now();
+    if(session.lastStayAt&&now-session.lastStayAt<45000)return; // 続けて言うても1回だけ
+    session.lastStayAt=now;
+    const elMin=(now-session.start)/60000;
+    session.effClose=Math.max(session.effClose,Math.ceil(elMin)+VOICE_EXT_MIN);
+    const wasClosing=!!session.closing,wasLo=!!session.loSent;
+    session.loSent=false;session.voiceExt=(session.voiceExt||0)+1;
+    if(session.closing){ // 閉店・お会計の途中でも取り消して話に戻る
+      session.closing=false;
+      const c=session.capture;if(c){c.cancelled=true;c.res();}
+      btn.textContent="お会計";btn.className="btn out";btn.disabled=false;
+    }
+    // ママが帰らせにかかってた時（閉店・ラストオーダー中、または直前のママの台詞が送り出し）だけ一言入れる。普段の会話では時間を延ばすだけ
+    const lastAi=current?[...current.msgs].reverse().find(m=>m.who==="ai"):null;
+    const leaving=wasClosing||wasLo||(lastAi&&/おやすみ|帰り|帰る|寝|閉店|看板|そろそろ|お会計|ラストオーダー/.test(lastAi.text));
+    fmtClock();
+    if(leaving){statusEl.textContent="延長や。もうちょっと付き合うたろ";inject(MSG_STAY);}
+  }
   const MAX_AUTO_EXTENSIONS=5; // 2時間×(1+5)＝最長12時間まで自動で入り直す（営業時間の設定のほうが先に効く）
 
   function inject(text){
@@ -858,7 +890,7 @@
     if(!session)return;
     const el=Math.floor((Date.now()-session.start)/60000);
     const left=session.effClose-el;
-    clockEl.textContent=`営業 ${el}分／${session.effClose}分`+(left<=10&&left>0?`・あと${left}分で看板`:"")+(session.ext?`・延長${session.ext}回目`:"");
+    clockEl.textContent=`営業 ${el}分／${session.effClose}分`+(left<=10&&left>0?`・あと${left}分で看板`:"")+((session.ext||session.voiceExt)?`・延長${(session.ext||0)+(session.voiceExt||0)}回目`:"");
     clockEl.className="clock"+(left<=10?" lo":"");
   }
   const TICK=5000;
@@ -902,7 +934,7 @@
     const p=captureReply(60000);
     if(!inject(MSG_CLOSE)){if(current)current.endKind="closed";end({reason:"closed"});return;}
     const text=await p;
-    if(session!==mine)return; // 待ってる間に「すぐ出る」で出た
+    if(session!==mine||!mine.closing)return; // 「すぐ出る」で出た、または「もうちょっと」で延長になった
     if(text&&current){current.mamaNote=text;}
     if(current)current.endKind="closed";
     end({reason:"closed"});
@@ -917,7 +949,7 @@
     const p=captureReply(50000);
     if(!inject(MSG_CHECKOUT)){end({reason:"user"});return;}
     const text=await p;
-    if(session!==mine)return; // 待ってる間に「すぐ出る」で出た
+    if(session!==mine||!mine.closing)return; // 「すぐ出る」で出た、または「もうちょっと」で延長になった
     if(text&&current){current.mamaNote=text;}
     end({reason:"user"});
   }
@@ -935,7 +967,7 @@
           null,null,{label:"どうしても入る",onclick:()=>start(false,true)});
         return;
       }
-      const effClose=(S.dailyCap>0&&!force)?Math.max(10,Math.min(S.openMin,S.dailyCap-usedToday)):S.openMin;
+      const effClose=S.openMin; // 1日の上限は入店時のお知らせだけ。上限が近いからというて営業時間を削ると、すぐ「ほなおやすみ」になる
       const bi=bottleInfo(bottles());
       session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null,
         bottleEmptySent:bi.empty,bottleLowSent:bi.pct<=10};
@@ -960,7 +992,7 @@
           const t=show(raw,m.source);
           if(!t||!current)return;
           if(m.source==="ai"){current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);}
-          else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();}
+          else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();if(STAY_RE.test(t))stayLonger();}
           writeCurrent();
         },
         onModeChange:(m)=>{
