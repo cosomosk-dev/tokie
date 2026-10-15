@@ -51,6 +51,34 @@
   .notebtn{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));right:16px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,241,226,.4);
     background:rgba(11,5,7,.45);color:var(--cream);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;backdrop-filter:blur(6px);cursor:pointer}
   .notebtn small{display:block;font-weight:400;font-size:9px;letter-spacing:.05em;color:var(--dim)}
+  /* ボトル棚ボタン（左上。瓶の中身が喋った分だけ減る） */
+  .bottlebtn{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));left:16px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 10px 6px;border-radius:16px;border:1px solid rgba(255,241,226,.4);
+    background:rgba(11,5,7,.45);color:var(--cream);font:700 11px "Zen Kaku Gothic New",sans-serif;letter-spacing:.1em;backdrop-filter:blur(6px);cursor:pointer;line-height:1.2}
+  .bottlebtn svg{display:block;filter:drop-shadow(0 0 5px rgba(255,184,92,.55))}
+  .bottlebtn small{display:block;font-weight:400;font-size:9px;letter-spacing:.02em;color:var(--dim)}
+  .bottlebtn.empty{border-color:rgba(255,92,138,.65);animation:pulse 2.4s ease-in-out infinite}
+  .bottlebtn.empty small{color:var(--rose)}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 rgba(255,92,138,0)}50%{box-shadow:0 0 16px rgba(255,92,138,.55)}}
+  /* ボトル棚（モーダル） */
+  .shelfcur{display:flex;gap:16px;align-items:center;margin-top:10px;padding:14px;border-radius:16px;background:linear-gradient(180deg,rgba(255,241,226,.07),rgba(255,241,226,.02));border:1px solid rgba(255,184,92,.3)}
+  .shelfcur>svg{flex:none;filter:drop-shadow(0 8px 16px rgba(0,0,0,.65))}
+  .shelfcur .info{flex:1;min-width:0}
+  .shelfcur .brand{font-family:"Shippori Mincho B1",serif;font-size:28px;letter-spacing:.2em;color:#ffe6ef;text-shadow:0 0 12px rgba(255,184,92,.55)}
+  .shelfcur .brand small{font-size:9px;letter-spacing:.3em;color:var(--dim);margin-left:6px}
+  .shelfcur .line{font-size:12px;color:var(--cream);line-height:1.7}
+  .shelfcur .line.big{font-family:"Shippori Mincho B1",serif;font-size:22px;color:#ffe6ef;margin-top:4px;line-height:1.3}
+  .shelfcur .line.big small{font-size:12px;color:var(--dim)}
+  .shelfcur .bar{height:6px;border-radius:3px;background:rgba(255,241,226,.12);margin:8px 0;overflow:hidden}
+  .shelfcur .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffb85c,#ff5c8a);border-radius:3px}
+  .shelfcur .mamasays{font:600 14px/1.7 "Shippori Mincho B1",serif;color:#ffe6ef;margin-top:6px}
+  .shelfcur .row{margin-top:10px}
+  .plank{height:10px;border-radius:3px;background:linear-gradient(180deg,#5a3320,#3a1f14);box-shadow:0 5px 12px rgba(0,0,0,.6)}
+  .empties{display:flex;gap:12px;overflow-x:auto;padding:10px 6px 6px;align-items:flex-end;min-height:72px}
+  .empties .e{flex:none;text-align:center;font-size:9px;color:var(--dim);line-height:1.45}
+  .empties .e svg{display:block;margin:0 auto 3px}
+  .set select{flex:none;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,241,226,.25);background:rgba(255,241,226,.08);color:var(--cream);font:700 13px "Zen Kaku Gothic New",sans-serif}
+  .set select option{color:#000}
+  .notice.bottle{border-color:rgba(255,184,92,.75)}
   /* 下部 */
   .bottom{position:relative;z-index:2;margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
   .status{font-size:12px;letter-spacing:.25em;color:var(--amber);min-height:16px;text-align:center}
@@ -133,6 +161,7 @@
   <i class="bokeh b1"></i><i class="bokeh b2"></i><i class="bokeh b3"></i><i class="bokeh b4"></i>
 
   <button class="notebtn" id="notebtn">手帳<small id="notecount">来店 0回</small></button>
+  <button class="bottlebtn" id="bottlebtn" aria-label="ボトル棚"></button>
 
   <div class="top">
     <div class="neon">トキエ</div>
@@ -180,14 +209,13 @@
     <div class="meter" id="meter"></div>
 
     <details>
-      <summary>営業の設定（時間・自動お会計・ボトル）</summary>
-      <p class="hint">全部このスマホ／PCの中に保存される。数字を変えたらすぐ効く（次の入店から）。</p>
+      <summary>営業の設定（時間・自動お会計）</summary>
+      <p class="hint">全部このスマホ／PCの中に保存される。数字を変えたらすぐ効く（次の入店から）。ボトルの銘柄・ネームタグは左上の「ボトル棚」で。</p>
       <div class="set"><div class="l">1回の営業時間（分）<small>この時間で看板。10分前にママから「ラストオーダーやで」の声がかかり、最後に今日のまとめと一言を言うて閉店する。</small></div><input type="number" id="s_open" min="15" max="720" step="5"></div>
       <div class="set"><div class="l">1日の上限（分）<small>今日しゃべった合計がこれを超えたら、その日はもう入店できへん（0＝上限なし）。体と財布のため。</small></div><input type="number" id="s_cap" min="0" max="1440" step="10"></div>
       <div class="set"><div class="l">無音で自動お会計（分）<small>これだけ黙っとったらママが「寝てもうた？」と一声かけて、返事がなければ静かにお会計する（0＝しない）。つけっぱなし課金の防止。</small></div><input type="number" id="s_idle" min="0" max="60" step="1"></div>
       <div class="set"><div class="l">お会計のとき、ママが今日のまとめと一言を言う<small>「お会計」を押したらママが今日の話を3行でまとめて、次来るまでの一言を添える。それが手帳に残り、次に開いた時に看板の下に出る。</small></div><input type="checkbox" id="s_sum"></div>
-      <div class="set"><div class="l">ボトルの名前<small>12回来店で1本空く設定。残りが少なくなるとママが「そろそろ新しいの入れる？」と言う。</small></div><input type="text" id="s_bottle" maxlength="20"></div>
-      <div class="set"><div class="l">原価の目安（円／分）<small>今月の利用のところに出る「ざっくり原価」の計算に使う。ElevenLabs Agentsは1分＝約12円。</small></div><input type="number" id="s_yen" min="0" max="100" step="0.5"></div>
+      <div class="set"><div class="l">原価の目安（円／分）<small>「ざっくり原価」とボトルの「1本 約○円相当」の計算に使う。ElevenLabs Agentsは1分＝約12円。</small></div><input type="number" id="s_yen" min="0" max="100" step="0.5"></div>
       <div class="saved" id="setsaved"></div>
     </details>
 
@@ -215,6 +243,29 @@
   </div>
 </div>
 
+<!-- ボトル棚 -->
+<div class="sheet" id="shelfsheet">
+  <div class="book">
+    <h2>ボトル棚</h2>
+    <p class="lead">ボトル＝先に入れとく、喋れる時間。喋った分だけ瓶の中身が減って、空いたらママが「次どうする？」と聞いてくる。<br>空けた瓶は「通った証」として棚に残る。</p>
+
+    <div id="shelfmain"></div>
+
+    <label>空き瓶（通った証）<span id="emptycount"></span></label>
+    <div class="empties" id="empties"></div>
+    <div class="plank"></div>
+
+    <label>次に入れるボトル</label>
+    <div class="set"><div class="l">銘柄<small id="brandhint"></small></div>
+      <select id="s_brand"><option value="temma">天満（300分）</option><option value="ao">蒼（600分）</option><option value="tsukikage">月影（1200分）</option></select></div>
+    <div class="set"><div class="l">ネームタグ<small>瓶にぶら下げる札の名前。</small></div><input type="text" id="s_tag" maxlength="8"></div>
+
+    <div class="row">
+      <button class="primary" id="closeshelf">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
   import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm";
   const AGENT_ID = "agent_7001m4xagrbxek580px43qgd8jza";
@@ -224,7 +275,7 @@
 
   /* ───────── 営業の設定（ブラウザ内保存。手帳を白紙にしても消えへん） ───────── */
   const SKEY="tokie_settings_v1";
-  const DEFAULTS={openMin:180, dailyCap:180, idleMin:5, summary:true, bottle:"角瓶", yenPerMin:12};
+  const DEFAULTS={openMin:180, dailyCap:180, idleMin:5, summary:true, brand:"ao", tagName:"タケオ", yenPerMin:12};
   function settings(){try{const s=JSON.parse(localStorage.getItem(SKEY)||"null");return Object.assign({},DEFAULTS,(s&&typeof s==="object")?s:{});}catch(e){return Object.assign({},DEFAULTS);}}
   function saveSettings(patch){const s=Object.assign(settings(),patch);try{localStorage.setItem(SKEY,JSON.stringify(s));}catch(e){}return s;}
 
@@ -368,13 +419,125 @@
     if(first&&[7,30,50,100,200,365,500,730,1000].includes(since))anniv.push(`初来店からちょうど${since}日`);
     if([10,30,50,100,200,300,500].includes(n))anniv.push(`来店${n}回目`);
     if(anniv.length)lines.push(`【記念日】今日は${anniv.join("、")}。乾杯の一言を。しつこうは言わんでええ。`);
-    const CUPS=12, used=(n-1)%CUPS, left=CUPS-used, no=Math.floor((n-1)/CUPS)+1;
-    let bottle=`【ボトル】${S.bottle||"角瓶"}（${no}本目）、残りあと${left}杯分。`;
-    if(n>1&&used===0)bottle+="今日から新しいボトル。「新しいの開けたで」と一言。";
-    else if(left<=2)bottle+="そろそろ空く。「次、新しいの入れとく？」と冗談めかして軽く聞いてもええ（金の話にはせん）。";
-    lines.push(bottle);
+    lines.push(bottleBlock(S));
     return lines.join("\n");
   }
+
+  /* ───────── ボトル棚（ボトル＝先に入れとく喋れる時間。つながってる間、喋った分だけ減る。手帳を白紙にしても残る） ───────── */
+  const BKEY="tokie_bottles_v1";
+  const BRANDS={
+    temma:{name:"天満",roma:"TEMMA",size:300,desc:"ハウスボトル。気軽な一本",glass:"rgba(255,241,226,.10)",liquid:"#e3a24a",tag:"#b8814a",tagText:"#2a0a12"},
+    ao:{name:"蒼",roma:"AO",size:600,desc:"店の定番。ええ色の瓶",glass:"rgba(70,110,190,.45)",liquid:"#e9ad52",tag:"#d7e0ea",tagText:"#1a2230"},
+    tsukikage:{name:"月影",roma:"TSUKIKAGE",size:1200,desc:"店でいちばんええやつ",glass:"rgba(20,10,16,.85)",liquid:"#f1c35a",tag:"#e6c068",tagText:"#2a0a12"}
+  };
+  const brandOf=(k)=>BRANDS[k]||BRANDS.ao;
+  const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  function newBottle(brand,no){return {brand:BRANDS[brand]?brand:"ao",no,openedAt:jstDate(new Date()),openedTs:Date.now(),usedMs:0};}
+  function saveBottles(B){try{localStorage.setItem(BKEY,JSON.stringify(B));}catch(e){}}
+  function bottles(){
+    let B=null;
+    try{const b=JSON.parse(localStorage.getItem(BKEY)||"null");if(b&&typeof b==="object"&&Array.isArray(b.empties))B=b;}catch(e){}
+    if(!B){B={current:null,empties:[]};}
+    if(!B.current){B.current=newBottle(settings().brand,B.empties.length+1);saveBottles(B);}
+    return B;
+  }
+  function bottleInfo(B){
+    const c=B.current;const b=brandOf(c.brand);
+    const used=Math.min(b.size,Math.floor((c.usedMs||0)/60000));const left=Math.max(0,b.size-used);
+    return {c,b,used,left,pct:Math.round(left/b.size*100),empty:(c.usedMs||0)>=b.size*60000,fresh:(c.usedMs||0)<5*60000&&c.openedAt===jstDate(new Date())};
+  }
+  function addBottleTime(ms){const B=bottles();B.current.usedMs=(B.current.usedMs||0)+ms;saveBottles(B);}
+  // 新しいボトルを入れる（今のは空き瓶として棚に残る）
+  function openBottle(brand){
+    const B=bottles();const c=B.current;const b=brandOf(c.brand);
+    B.empties.unshift({brand:c.brand,no:c.no,openedAt:c.openedAt,emptiedAt:jstDate(new Date()),mins:Math.round((c.usedMs||0)/60000),size:b.size});
+    B.current=newBottle(brand,B.empties.length+1);
+    saveBottles(B);renderBottleBtn();hideNotice();
+    if(conv)inject(MSG_BOTTLE_NEW(brandOf(brand).name));
+    return B;
+  }
+  function bottleBlock(S){
+    const B=bottles();const i=bottleInfo(B);
+    let t=`【ボトル】キープボトルは「${i.b.name}」（${i.c.no}本目・${i.c.openedAt}に入れた・ネームタグ「${S.tagName}」）。`;
+    if(i.empty)t+="もう空いてる（まだ次を入れてない）。今日はハウスボトルで飲んでる。会話の切れ目で「次のボトル、どうする？」と軽く一言（しつこう言わん・金の話にはせん）。";
+    else{
+      t+=`残り${i.left}分／${i.b.size}分（${i.pct}%）。`;
+      if(i.fresh)t+="今日入れたばっかり。「新しいの、おおきにな」と一言。";
+      else if(i.pct<=10)t+="そろそろ空く。会話の切れ目で「ボトルそろそろ空くで、次どうする？」と軽く一言（しつこう言わん・金の話にはせん）。";
+    }
+    const ne=B.empties.length;
+    if(ne)t+=`これまで空けたボトルは${ne}本`+([3,5,10,20,30,50,100].includes(ne)?"（ちょうど節目。ちょっと記念っぽく触れてもええ）":"")+"。";
+    return t;
+  }
+  // 瓶の絵（SVG）。pct＝中身の残り%。tag＝ネームタグの名前、dim＝空き瓶っぽく薄く
+  let svgSeq=0;
+  function bottleSVG(b,pct,w,h,opts){
+    opts=opts||{};const id="clip"+(++svgSeq);
+    const top=206,bot=68;const p=Math.max(0,Math.min(100,pct));
+    const liqY=top-(top-bot)*p/100;
+    const body="M36 16H54V58C54 66 75 70 75 86V196C75 206 68 212 58 212H32C22 212 15 206 15 196V86C15 70 36 66 36 58Z";
+    const two=b.name.length>1;
+    const tag=opts.tag?`<path d="M56 30L72 44" stroke="rgba(255,241,226,.6)" stroke-width="1.2" fill="none"/><rect x="60" y="40" width="30" height="18" rx="3" fill="${b.tag}" stroke="rgba(0,0,0,.3)"/>`+
+      `<text x="75" y="53" text-anchor="middle" font-size="${opts.tag.length>3?6.5:9}" font-weight="700" font-family="Zen Kaku Gothic New,sans-serif" fill="${b.tagText}">${esc(opts.tag)}</text>`:"";
+    return `<svg viewBox="0 0 92 220" width="${w}" height="${h}" aria-hidden="true"${opts.dim?' style="opacity:.5;filter:grayscale(.7)"':""}>`+
+      `<defs><clipPath id="${id}"><path d="${body}"/></clipPath></defs>`+
+      `<path d="${body}" fill="${b.glass}" stroke="rgba(255,241,226,.5)" stroke-width="1.5"/>`+
+      (p>0?`<rect x="0" y="${liqY}" width="92" height="${220-liqY}" fill="${b.liquid}" opacity=".92" clip-path="url(#${id})"/><rect x="0" y="${liqY}" width="92" height="2" fill="rgba(255,255,255,.4)" clip-path="url(#${id})"/>`:"")+
+      `<rect x="33" y="6" width="24" height="12" rx="3" fill="#3a2418" stroke="rgba(255,241,226,.45)"/>`+
+      `<rect x="23" y="108" width="44" height="62" rx="4" fill="rgba(255,246,236,.93)"/>`+
+      `<text x="45" y="${two?144:149}" text-anchor="middle" font-size="${two?18:27}" font-weight="800" font-family="Shippori Mincho B1,serif" fill="#2a0a12">${b.name}</text>`+
+      `<text x="45" y="162" text-anchor="middle" font-size="5.5" letter-spacing="1" font-family="Zen Kaku Gothic New,sans-serif" fill="#7a4a3a">SNACK TOKIE</text>`+
+      `<rect x="20" y="88" width="5" height="108" rx="2.5" fill="rgba(255,255,255,.16)"/>`+tag+`</svg>`;
+  }
+  const bottleBtn=$("bottlebtn"),shelf=$("shelfsheet");
+  function renderBottleBtn(){
+    const i=bottleInfo(bottles());
+    bottleBtn.className="bottlebtn"+(i.empty?" empty":"");
+    bottleBtn.innerHTML=bottleSVG(i.b,i.pct,20,48,{dim:i.empty})+`<span>${i.b.name}</span><small>${i.empty?"空いた":`${i.left}分`}</small>`;
+  }
+  function brandHint(){const b=brandOf($("s_brand").value);const S=settings();$("brandhint").textContent=`${b.desc}／${b.size}分＝約${Math.round(b.size*S.yenPerMin).toLocaleString()}円相当`;}
+  function renderShelf(){
+    const S=settings();const B=bottles();const i=bottleInfo(B);
+    $("s_brand").value=S.brand;if(document.activeElement!==$("s_tag"))$("s_tag").value=S.tagName;brandHint();
+    const main=$("shelfmain");main.innerHTML="";
+    const wrap=document.createElement("div");wrap.className="shelfcur";
+    wrap.innerHTML=bottleSVG(i.b,i.pct,100,240,{tag:S.tagName,dim:i.empty});
+    const info=document.createElement("div");info.className="info";
+    const yen=Math.round(i.b.size*S.yenPerMin).toLocaleString();
+    if(!i.empty){
+      info.innerHTML=`<div class="brand">${i.b.name}<small>${i.b.roma}</small></div>`+
+        `<div class="line">${i.c.no}本目・${i.c.openedAt} に入れた</div>`+
+        `<div class="line big">残り ${i.left}分<small>／${i.b.size}分</small></div>`+
+        `<div class="bar"><i style="width:${i.pct}%"></i></div>`+
+        `<div class="line">${i.pct<=10?"そろそろ空く。":""}1本 約${yen}円相当（${S.yenPerMin}円/分）</div>`;
+    }else{
+      const next=brandOf($("s_brand").value);
+      info.innerHTML=`<div class="brand">${i.b.name}<small>${i.b.roma}</small></div>`+
+        `<div class="line">${i.c.no}本目・${i.c.openedAt} に入れた → 空いた</div>`+
+        `<div class="line big">空</div>`+
+        `<div class="mamasays">「空いたで〜。次、どうする？<br>入れんでも今日はハウスで飲めるけど」</div>`+
+        `<div class="row"><button class="primary" id="putbottle">${next.name}を入れる</button></div>`;
+    }
+    wrap.appendChild(info);main.appendChild(wrap);
+    const pb=$("putbottle");if(pb)pb.onclick=()=>{openBottle($("s_brand").value);renderShelf();};
+    const em=$("empties");em.innerHTML="";
+    $("emptycount").textContent=`${B.empties.length}本`;
+    if(!B.empties.length){em.innerHTML='<div class="empty" style="width:100%">まだ0本。1本空けたらここに並ぶ。</div>';}
+    const md=(d)=>String(d||"").replace(/^\d+\//,"");
+    for(const e of B.empties){const d=document.createElement("div");d.className="e";d.innerHTML=bottleSVG(brandOf(e.brand),0,26,62,{dim:true})+`${e.no}本目<br>${md(e.openedAt)}〜${md(e.emptiedAt)}<br>${e.mins}分`;em.appendChild(d);}
+  }
+  // 入店前・会話中に出す「ボトル空いとるで」のお知らせ
+  function bottleNotice(){
+    const i=bottleInfo(bottles());if(!i.empty)return false;
+    showNotice("bottle","ママ：ボトル、空いとるで",`「${i.b.name}」が空いた（${i.c.no}本目・${i.c.openedAt}〜）。次どうする？入れんでも今日はハウスで飲めるで。`,null,null,
+      [{label:`同じの入れる（${i.b.name}）`,primary:true,onclick:()=>openBottle(i.c.brand)},{label:"銘柄を変える",onclick:()=>{renderShelf();shelf.classList.add("open");}}]);
+    return true;
+  }
+  bottleBtn.addEventListener("click",()=>{renderShelf();shelf.classList.add("open");});
+  $("closeshelf").addEventListener("click",()=>shelf.classList.remove("open"));
+  shelf.addEventListener("click",(e)=>{if(e.target===shelf)shelf.classList.remove("open");});
+  $("s_brand").addEventListener("change",()=>{saveSettings({brand:$("s_brand").value});renderShelf();});
+  $("s_tag").addEventListener("input",()=>{saveSettings({tagName:$("s_tag").value.trim().slice(0,8)||DEFAULTS.tagName});renderShelf();});
 
   // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、今日のこと・常連度、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
   function buildMemory(extension,digest){
@@ -431,7 +594,7 @@
   }
   function renderSettings(){
     const S=settings();
-    $("s_open").value=S.openMin;$("s_cap").value=S.dailyCap;$("s_idle").value=S.idleMin;$("s_sum").checked=!!S.summary;$("s_bottle").value=S.bottle;$("s_yen").value=S.yenPerMin;
+    $("s_open").value=S.openMin;$("s_cap").value=S.dailyCap;$("s_idle").value=S.idleMin;$("s_sum").checked=!!S.summary;$("s_yen").value=S.yenPerMin;
   }
   function renderBook(){
     const b=loadBook();profileEl.value=b.profile;profileLen.textContent=`${b.profile.length}文字`;
@@ -496,13 +659,13 @@
   let setTimer=null;
   function onSet(){
     saveSettings({openMin:num("s_open",15,720,DEFAULTS.openMin),dailyCap:num("s_cap",0,1440,DEFAULTS.dailyCap),idleMin:num("s_idle",0,60,DEFAULTS.idleMin),
-      summary:$("s_sum").checked,bottle:($("s_bottle").value.trim()||DEFAULTS.bottle).slice(0,20),yenPerMin:num("s_yen",0,100,DEFAULTS.yenPerMin)});
+      summary:$("s_sum").checked,yenPerMin:num("s_yen",0,100,DEFAULTS.yenPerMin)});
     $("setsaved").textContent="保存した（次の入店から効く）";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);renderStats();
   }
-  for(const id of ["s_open","s_cap","s_idle","s_sum","s_bottle","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
-  // 控え（バックアップ）
+  for(const id of ["s_open","s_cap","s_idle","s_sum","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
+  // 控え（バックアップ）。ボトル棚も一緒に入れとく
   $("copybook").addEventListener("click",async()=>{
-    const text="TOKIE_NOTEBOOK\n"+JSON.stringify(loadBook());
+    const text="TOKIE_NOTEBOOK\n"+JSON.stringify(Object.assign({},loadBook(),{bottles:bottles()}));
     try{await navigator.clipboard.writeText(text);$("notesaved").textContent="控えをコピーした。メモアプリ等に貼って残しといて";}
     catch(e){prompt("この文を全部コピーして控えにして",text);}
     setTimeout(()=>$("notesaved").textContent="",3000);
@@ -518,6 +681,8 @@
     const ids=new Set(b.visits.map(x=>x.id));
     for(const v of (Array.isArray(data.visits)?data.visits:[])){if(v&&v.id&&!ids.has(v.id)){b.visits.push(v);ids.add(v.id);}}
     b.visits.sort((a,c)=>String(c.id).replace(/^n/,"").localeCompare(String(a.id).replace(/^n/,""),undefined,{numeric:true}));
+    // ボトル棚は、こっちがまだ真っさら（空き瓶ゼロ・今の瓶ほぼ未使用）の時だけ控えのを使う
+    if(data.bottles&&Array.isArray(data.bottles.empties)&&data.bottles.current){const cur=bottles();if(!cur.empties.length&&(cur.current.usedMs||0)<60000){saveBottles(data.bottles);renderBottleBtn();}}
     if(saveBook(b)){$("restoretext").value="";$("restore").classList.remove("open");renderBook();renderCount();renderLetter();alert("控えから戻した");}
   });
   renderCount();renderLetter();
@@ -536,7 +701,7 @@
     const b=document.createElement("b");b.textContent=title;notice.appendChild(b);
     const p=document.createElement("p");p.textContent=body;notice.appendChild(p);
     if(link){const a=document.createElement("a");a.href=link.href;a.target="_blank";a.rel="noopener";a.textContent=link.label;notice.appendChild(a);}
-    if(extra){const bt=document.createElement("button");bt.className="ghost";bt.textContent=extra.label;bt.onclick=extra.onclick;notice.appendChild(bt);}
+    for(const x of (Array.isArray(extra)?extra:(extra?[extra]:[]))){const bt=document.createElement("button");bt.className=x.primary?"":"ghost";bt.textContent=x.label;bt.onclick=x.onclick;notice.appendChild(bt);}
     if(detail){const s=document.createElement("small");s.textContent="詳細: "+detail;notice.appendChild(s);}
     bottom.classList.add("has-notice");
   }
@@ -577,6 +742,9 @@
   const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、おやすみ。気ぃつけて帰りや」で締めて。";
   const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、気ぃつけて帰りや」で締めて。";
   const MSG_IDLE="【店の様子】お客さんがしばらく黙ってる。寝てもうたかもしれん。「あんた、寝てもうた？」と一言だけ、やさしく声かけて。長い話はせんといて。";
+  const MSG_BOTTLE_LOW=(name,left)=>`【店の様子】お客さんのキープボトル「${name}」が残り少ない（あと${left}分ぶん）。今の話の切れ目で一言だけ「ボトルそろそろ空くで」と軽く触れて。しつこう言わん。金の話にはせん。`;
+  const MSG_BOTTLE_EMPTY=(name)=>`【店の様子】お客さんのキープボトル「${name}」がたった今、空いた。今の話の切れ目で「あ、ボトル空いたわ。次、同じの入れとく？」と軽く一言。返事がどっちでも引きずらん。入れへんかったら「ほな今日はハウスで」で流す。`;
+  const MSG_BOTTLE_NEW=(name)=>`【店の様子】お客さんが新しいキープボトル「${name}」を入れてくれた。「おおきに！新しいの開けるで」と嬉しそうに一言、乾杯の音頭をとって。長い話にはせん。`;
   const MAX_AUTO_EXTENSIONS=5; // 2時間×(1+5)＝最長12時間まで自動で入り直す（営業時間の設定のほうが先に効く）
 
   function inject(text){
@@ -611,6 +779,8 @@
     const idleMs=now-userLastActive();
     // 無音の計測（ママも黙ってて、客も45秒以上喋ってない時間）
     if(listening&&idleMs>45000&&current){current.silentMs=(current.silentMs||0)+TICK;}
+    // ボトルの減り（つながってる間は黙っとっても減る＝ElevenLabsの課金と同じ）
+    addBottleTime(TICK);renderBottleBtn();
     if(session.closing||session.capture)return;
     const quiet=listening&&(now-session.lastVad>2000); // 客が喋ってる最中は合図を入れへん
     const el=now-session.start;
@@ -622,6 +792,12 @@
       if(session.idleNudgeAt&&userLastActive()>session.idleNudgeAt){session.idleNudgeAt=0;}
       if(!session.idleNudgeAt&&idleMs>=S.idleMin*60000&&quiet){session.idleNudgeAt=now;inject(MSG_IDLE);return;}
       if(session.idleNudgeAt&&now-session.idleNudgeAt>=90000&&quiet){if(current)current.endKind="idle";end({reason:"idle"});return;}
+    }
+    // ボトル：残り10%で一言、空いたら「次どうする？」（入店時点で既にそうやった分はママが手帳で知ってるので言わへん）
+    const bi=bottleInfo(bottles());
+    if(quiet){
+      if(bi.empty&&!session.bottleEmptySent){session.bottleEmptySent=true;inject(MSG_BOTTLE_EMPTY(bi.b.name));bottleNotice();return;}
+      if(!bi.empty&&bi.pct<=10&&!session.bottleLowSent){session.bottleLowSent=true;inject(MSG_BOTTLE_LOW(bi.b.name,bi.left));return;}
     }
   }
   async function closeByTime(){
@@ -665,7 +841,9 @@
         return;
       }
       const effClose=(S.dailyCap>0&&!force)?Math.max(10,Math.min(S.openMin,S.dailyCap-usedToday)):S.openMin;
-      session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null};
+      const bi=bottleInfo(bottles());
+      session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null,
+        bottleEmptySent:bi.empty,bottleLowSent:bi.pct<=10};
       current={id:String(Date.now()),start:session.start,msgs:[],silentMs:0,ext:0};
     }else if(session){
       session.capture=null;session.mode="listening";
@@ -756,9 +934,11 @@
         null,r.detail);
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
-    renderLetter();
+    renderLetter();renderBottleBtn();
+    if(r.kind==="user")bottleNotice();
   }
   btn.addEventListener("click",()=>conv?checkout():start(false,false));
+  renderBottleBtn();bottleNotice();
 </script>
 </body>
 </html>
