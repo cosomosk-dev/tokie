@@ -35,13 +35,25 @@
     text-shadow:0 0 6px var(--rose),0 0 16px var(--rose),0 0 40px rgba(255,92,138,.8);animation:flick 6s infinite}
   @keyframes flick{0%,93%,100%{opacity:1}94%{opacity:.5}95%{opacity:1}97%{opacity:.7}}
   .sub{font-size:11px;letter-spacing:.45em;color:var(--dim);margin-top:2px}
+  /* 店の時計（営業中だけ出る） */
+  .clock{display:none;position:relative;z-index:2;margin-top:8px;font-size:11px;letter-spacing:.15em;color:var(--dim);
+    padding:5px 12px;border-radius:999px;background:rgba(11,5,7,.45);border:1px solid rgba(255,241,226,.18);backdrop-filter:blur(6px)}
+  .stage.on .clock{display:inline-block}
+  .clock.lo{color:var(--amber);border-color:rgba(255,184,92,.5)}
+  /* 前回のママのひとこと（入店前だけ出る） */
+  .letter{display:none;position:relative;z-index:2;margin-top:16px;width:100%;max-width:340px;padding:12px 14px;border-radius:14px;cursor:pointer;
+    background:rgba(11,5,7,.5);border:1px solid rgba(255,158,196,.35);backdrop-filter:blur(6px);font-size:13px;line-height:1.75;color:#ffe6ef;animation:fade .6s ease}
+  .letter.show{display:block}
+  .stage.on .letter{display:none}
+  .letter b{display:block;font-size:10px;letter-spacing:.25em;color:var(--pink);margin-bottom:4px;font-weight:700}
+  .letter p{font-family:"Shippori Mincho B1",serif;font-weight:600;text-shadow:0 1px 8px rgba(0,0,0,.8)}
   /* 手帳ボタン（右上） */
   .notebtn{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));right:16px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,241,226,.4);
     background:rgba(11,5,7,.45);color:var(--cream);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;backdrop-filter:blur(6px);cursor:pointer}
   .notebtn small{display:block;font-weight:400;font-size:9px;letter-spacing:.05em;color:var(--dim)}
   /* 下部 */
   .bottom{position:relative;z-index:2;margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
-  .status{font-size:12px;letter-spacing:.25em;color:var(--amber);min-height:16px}
+  .status{font-size:12px;letter-spacing:.25em;color:var(--amber);min-height:16px;text-align:center}
   .caption{width:100%;display:flex;flex-direction:column;gap:8px;min-height:120px;justify-content:flex-end}
   .mama{font-family:"Shippori Mincho B1",serif;font-weight:600;font-size:24px;line-height:1.55;text-align:center;color:#fff8f2;
     text-shadow:0 2px 14px rgba(0,0,0,.9),0 0 24px rgba(255,92,138,.35);animation:fade .4s ease}
@@ -52,14 +64,15 @@
   .btn.out{background:rgba(11,5,7,.5);color:var(--cream);border:1px solid rgba(255,241,226,.45);box-shadow:none;backdrop-filter:blur(6px)}
   .btn:disabled{opacity:.5}
   .err{font-size:12px;color:#ff9a9a;text-align:center;min-height:14px}
-  /* 入れへんかった時のお知らせ（クレジット切れ・上限時間・回線切れ） */
+  /* 入れへんかった時のお知らせ（クレジット切れ・上限時間・回線切れ・閉店） */
   .notice{display:none;width:100%;max-width:340px;padding:14px 16px;border-radius:16px;text-align:center;animation:fade .4s ease;
     background:rgba(11,5,7,.72);border:1px solid rgba(255,184,92,.55);backdrop-filter:blur(8px);box-shadow:0 8px 30px rgba(0,0,0,.5)}
   .notice.show{display:block}
   .notice.credit{border-color:rgba(255,92,138,.7)}
   .notice b{display:block;font-family:"Shippori Mincho B1",serif;font-size:16px;letter-spacing:.08em;color:#ffe6ef;margin-bottom:6px;text-shadow:0 0 10px rgba(255,92,138,.5)}
   .notice p{font-size:12px;line-height:1.7;color:var(--cream)}
-  .notice a{display:inline-block;margin-top:10px;padding:9px 16px;border-radius:999px;background:var(--amber);color:#2a0a12;font-weight:700;font-size:12px;letter-spacing:.1em;text-decoration:none}
+  .notice a,.notice button{display:inline-block;margin:10px 4px 0;padding:9px 16px;border-radius:999px;background:var(--amber);color:#2a0a12;font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.1em;text-decoration:none;border:none;cursor:pointer}
+  .notice button.ghost{background:none;border:1px solid rgba(255,241,226,.35);color:var(--cream)}
   .notice small{display:block;margin-top:8px;font-size:10px;line-height:1.5;color:var(--dim);word-break:break-all}
   .bottom.has-notice .caption{min-height:0}
   /* ママの手帳（モーダル） */
@@ -81,6 +94,9 @@
   .visit.note .d{color:var(--amber)}
   .visit .d button{border:none;background:none;color:var(--dim);font-size:11px;cursor:pointer;padding:4px 6px}
   .visit pre{white-space:pre-wrap;word-break:break-word;font:13px/1.6 "Zen Kaku Gothic New",sans-serif;color:var(--cream);margin-top:6px;max-height:160px;overflow:auto}
+  .visit .mnote{margin-top:8px;padding:8px 10px;border-radius:10px;background:rgba(255,92,138,.1);border-left:3px solid var(--rose);
+    font:600 13px/1.7 "Shippori Mincho B1",serif;color:#ffe6ef;white-space:pre-wrap;word-break:break-word}
+  .visit .mnote i{display:block;font:400 10px "Zen Kaku Gothic New",sans-serif;letter-spacing:.2em;color:var(--pink);margin-bottom:2px;font-style:normal}
   .empty{font-size:13px;color:var(--dim);text-align:center;padding:14px 0}
   .row{display:flex;gap:10px;margin-top:12px}
   .row button{flex:1;padding:12px 8px;border-radius:999px;border:1px solid rgba(255,241,226,.35);background:none;color:var(--cream);font:700 13px "Zen Kaku Gothic New",sans-serif;letter-spacing:.1em;cursor:pointer}
@@ -96,6 +112,17 @@
   summary{font-size:12px;letter-spacing:.1em;color:var(--amber);cursor:pointer;list-style:none}
   summary::before{content:"▸ ";color:var(--dim)}
   details[open] summary::before{content:"▾ "}
+  /* 今月の利用（計測） */
+  .stats{margin-top:6px;padding:10px 12px;border-radius:12px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12);font-size:12px;line-height:1.8;color:var(--cream)}
+  .stats b{color:var(--amber);font-weight:700}
+  .stats .big{font-family:"Shippori Mincho B1",serif;font-size:18px;color:#ffe6ef}
+  /* 営業の設定 */
+  .set{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
+  .set .l{font-size:12px;color:var(--cream);line-height:1.5}
+  .set .l small{display:block;font-size:10px;color:var(--dim);line-height:1.5;margin-top:2px}
+  .set input[type=number],.set input[type=text]{width:84px;flex:none;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,241,226,.25);background:rgba(255,241,226,.08);color:var(--cream);font:700 14px "Zen Kaku Gothic New",sans-serif;text-align:center}
+  .set input[type=text]{width:110px;text-align:left}
+  .set input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--rose)}
 </style>
 </head>
 <body>
@@ -110,7 +137,10 @@
   <div class="top">
     <div class="neon">トキエ</div>
     <div class="sub">SNACK TOKIE ・ 大阪 天満</div>
+    <div class="clock" id="clock"></div>
   </div>
+
+  <div class="letter" id="letter"></div>
 
   <div class="bottom" id="bottom">
     <div class="caption" id="caption"></div>
@@ -126,6 +156,9 @@
   <div class="book">
     <h2>ママの手帳</h2>
     <p class="lead">閉店しても忘れへんように、ママが書き留めとく帳面。<br>次に入店したとき、ママはこの手帳を読んでから迎えてくれる。<br>この手帳は消さへん限りずっと残る。</p>
+
+    <label>今月の利用（計測）<span id="statsub"></span></label>
+    <div class="stats" id="stats"></div>
 
     <label>お客さんの基本情報（ママに最初から知っといてほしいこと）<span id="profilelen">0文字</span></label>
     <textarea id="profile" class="big" placeholder="1000文字くらいでOK。例：名前はタケオ。39歳、平塚。アプリを作ってる。酒は弱い。好きな話題は…"></textarea>
@@ -145,6 +178,18 @@
     <div id="visits"></div>
 
     <div class="meter" id="meter"></div>
+
+    <details>
+      <summary>営業の設定（時間・自動お会計・ボトル）</summary>
+      <p class="hint">全部このスマホ／PCの中に保存される。数字を変えたらすぐ効く（次の入店から）。</p>
+      <div class="set"><div class="l">1回の営業時間（分）<small>この時間で看板。10分前にママから「ラストオーダーやで」の声がかかり、最後に今日のまとめと一言を言うて閉店する。</small></div><input type="number" id="s_open" min="15" max="720" step="5"></div>
+      <div class="set"><div class="l">1日の上限（分）<small>今日しゃべった合計がこれを超えたら、その日はもう入店できへん（0＝上限なし）。体と財布のため。</small></div><input type="number" id="s_cap" min="0" max="1440" step="10"></div>
+      <div class="set"><div class="l">無音で自動お会計（分）<small>これだけ黙っとったらママが「寝てもうた？」と一声かけて、返事がなければ静かにお会計する（0＝しない）。つけっぱなし課金の防止。</small></div><input type="number" id="s_idle" min="0" max="60" step="1"></div>
+      <div class="set"><div class="l">お会計のとき、ママが今日のまとめと一言を言う<small>「お会計」を押したらママが今日の話を3行でまとめて、次来るまでの一言を添える。それが手帳に残り、次に開いた時に看板の下に出る。</small></div><input type="checkbox" id="s_sum"></div>
+      <div class="set"><div class="l">ボトルの名前<small>12回来店で1本空く設定。残りが少なくなるとママが「そろそろ新しいの入れる？」と言う。</small></div><input type="text" id="s_bottle" maxlength="20"></div>
+      <div class="set"><div class="l">原価の目安（円／分）<small>今月の利用のところに出る「ざっくり原価」の計算に使う。ElevenLabs Agentsは1分＝約12円。</small></div><input type="number" id="s_yen" min="0" max="100" step="0.5"></div>
+      <div class="saved" id="setsaved"></div>
+    </details>
 
     <details>
       <summary>控え（バックアップ）・白紙にする</summary>
@@ -174,8 +219,14 @@
   import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm";
   const AGENT_ID = "agent_7001m4xagrbxek580px43qgd8jza";
   const $ = (id) => document.getElementById(id);
-  const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err");
+  const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
+
+  /* ───────── 営業の設定（ブラウザ内保存。手帳を白紙にしても消えへん） ───────── */
+  const SKEY="tokie_settings_v1";
+  const DEFAULTS={openMin:180, dailyCap:180, idleMin:5, summary:true, bottle:"角瓶", yenPerMin:12};
+  function settings(){try{const s=JSON.parse(localStorage.getItem(SKEY)||"null");return Object.assign({},DEFAULTS,(s&&typeof s==="object")?s:{});}catch(e){return Object.assign({},DEFAULTS);}}
+  function saveSettings(patch){const s=Object.assign(settings(),patch);try{localStorage.setItem(SKEY,JSON.stringify(s));}catch(e){}return s;}
 
   /* ───────── ママの手帳（ブラウザ内に保存・上限なし・消さへん限り残る） ───────── */
   const KEY="tokie_notebook_v1";
@@ -226,6 +277,8 @@
   const clip=(t,n)=>t.length>n?t.slice(0,n)+"…":t;
   const jstDate=(d)=>d.toLocaleDateString("ja-JP",{year:"numeric",month:"numeric",day:"numeric",timeZone:"Asia/Tokyo"});
   const jstTime=(d)=>d.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tokyo"});
+  const jstParts=(d)=>{const p={};for(const x of new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",weekday:"short",hour12:false}).formatToParts(d))p[x.type]=x.value;return {y:+p.year,m:+p.month,d:+p.day,h:+p.hour%24,w:p.weekday};};
+  const dayDiff=(a,b)=>Math.round((new Date(a)-new Date(b))/86400000); // "2026/10/15" 形式どうしの差（日）
 
   // 1回の会話 → ざっくりメモ。お客さんが喋った内容を中心に（長い発言＝中身がある発言を優先）、最後のママの一言も添える
   function digest(msgs){
@@ -240,12 +293,15 @@
   }
 
   // 今の会話を手帳に書き込む（会話中は上書きし続けるので、途中でブラウザを閉じても残る）
-  let current=null; // {id,start,msgs}
+  let current=null; // {id,start,msgs,mamaNote,silentMs,ext,endKind}
   function writeCurrent(){
     if(!current||!current.msgs.some(m=>m.who==="user"))return;
     const b=loadBook();
     const mins=Math.max(1,Math.round((Date.now()-current.start)/60000));
-    const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),time:jstTime(new Date(current.start)),mins,memo:digest(current.msgs)};
+    const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),time:jstTime(new Date(current.start)),mins,
+      silent:Math.round((current.silentMs||0)/60000),ext:current.ext||0,memo:digest(current.msgs)};
+    if(current.mamaNote)v.mamaNote=current.mamaNote;
+    if(current.endKind)v.endKind=current.endKind;
     const idx=b.visits.findIndex(x=>x.id===current.id);
     if(idx>=0)b.visits[idx]=v;else b.visits.unshift(v);
     saveBook(b);renderCount();
@@ -259,12 +315,76 @@
     const ok=saveBook(b);renderCount();return ok;
   }
 
-  // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
+  /* ───────── 来店の数・常連度・記念日・ボトル・今日のこと（全部ゼロ円の演出。memoryに足すだけ） ───────── */
+  const visitsOnly=()=>loadBook().visits.filter(v=>v.kind!=="note");
+  function visitCount(){return visitsOnly().length;}
+  function firstVisitDate(){const v=visitsOnly();return v.length?v[v.length-1].date:null;}
+  function lastVisitText(){
+    const visits=visitsOnly();if(!visits.length)return "初来店";
+    const d=dayDiff(jstDate(new Date()),visits[0].date);
+    return d<=0?"今日":d===1?"昨日":`${d}日前`;
+  }
+  function usedOn(dateStr,exceptId){return visitsOnly().filter(v=>v.date===dateStr&&v.id!==exceptId).reduce((s,v)=>s+(v.mins||0),0);}
+  function renderCount(){const n=visitCount();$("notecount").textContent=`来店 ${n}回`+(n?`・${lastVisitText()}`:"");}
+
+  function rankOf(n){ // n＝今日で何回目の来店か
+    if(n<=1)return {name:"一見さん",tone:"まだ初対面に近い。丁寧めに、探り探りで、まず話を聞く"};
+    if(n<=4)return {name:"顔なじみ",tone:"少し砕けてええ。名前で呼んで、前の話を覚えてる感じを出す"};
+    if(n<=14)return {name:"常連",tone:"遠慮なくツッコんでええ。たまに弱音も聞いたる。言いにくいことも言う"};
+    if(n<=39)return {name:"常連の中の常連",tone:"身内みたいに。ええ時はちゃんと褒めて、あかん時はちゃんと叱る"};
+    return {name:"VIP（ボトルキープの主）",tone:"家族みたいに。長い付き合いの安心感。黙って隣におる時間があってもええ"};
+  }
+  const MONTH_TOPICS={1:"正月・初詣・成人式・寒さ本番",2:"節分・バレンタイン・いちばん寒い時期",3:"ひな祭り・ホワイトデー・卒業・年度末・花粉",4:"花見・新年度・新生活",5:"ゴールデンウィーク・母の日・五月病",6:"梅雨・父の日・蒸し暑さ",
+    7:"七夕・天神祭（天満の夏祭り、24・25日）・海開き・暑さ",8:"お盆・夏祭り・花火・甲子園・残暑",9:"敬老の日・お月見・台風・涼しくなる頃",10:"ハロウィン・運動会・秋祭り・新米・さんま・朝晩冷える",11:"文化の日・紅葉・ボジョレー・年末が見えてくる",12:"忘年会・クリスマス・大晦日・一年の振り返り"};
+  const DAY_EVENTS={"1-1":"元日","1-2":"正月2日","1-3":"正月3日","2-3":"節分","2-14":"バレンタイン","3-3":"ひな祭り","3-14":"ホワイトデー","4-1":"エイプリルフール・新年度の始まり","5-5":"こどもの日","7-7":"七夕",
+    "7-24":"天神祭の宵宮（天満はお祭り）","7-25":"天神祭の本宮（天満はお祭りの本番）","8-15":"お盆・終戦の日","10-31":"ハロウィン","11-22":"いい夫婦の日","12-24":"クリスマスイブ","12-25":"クリスマス","12-31":"大晦日"};
+  const SEASON=(m,d)=>m===12||m<=2?"冬。寒いから体冷やさんように":m<=4?(m===3&&d<15?"冬の終わり。まだ寒い日もある":"春。暖かくなってきた"):m<=6?(m===6?"梅雨どき。じめじめ":"初夏。気持ちのええ季節"):m<=8?"夏。暑いから水分とらな":m===9?"残暑から秋へ。朝晩は涼しい":m===10?"秋の深まり。朝晩は冷える":"晩秋。もう冬が近い";
+  const TOD=(h)=>h<5?"深夜（寝る時間やで）":h<11?"朝":h<15?"昼下がり":h<18?"夕方":h<22?"夜（スナックの本番）":"深夜前";
+  const TOPICS=["最近いちばん笑ったこと","子どもの頃なりたかったもん","今いちばん欲しいもん","ここ1週間でちょっと嬉しかったこと","最近ちゃんと飯食べてる？","最近よう寝れてる？","親父さんとの最近","今いちばん腹立ってること","最近サボってること","昔いちばんモテた時期の話",
+    "もし宝くじ当たったら何に使う？","今の仕事でいちばんしんどいとこ","最近ハマってる音楽","子どもの頃の夏休みの思い出","人生でいちばんの失敗談","ママに自慢したいこと一つ","明日ひとつだけやるなら何する？","最近泣きそうになったこと","初恋の話","今年中に終わらせたいこと",
+    "自分の好きなとこ、一つ言うてみ","最近誰かに優しくされたこと","お金の使い方で後悔してること","もう一回行きたい旅先","今の体の調子、正直どうなん","最近気になる人、おる？","昔の友達で会いたい人","好きな食べもん三つ","やめたいのにやめられへんこと","10年後どこで何しとると思う？",
+    "最近いちばん感動したこと","ママに聞いてほしい愚痴","今日一日でいちばんマシやったこと","小さい頃の夢と今の自分","最近できるようになったこと","今いちばん会いたい人","休みの日の理想の過ごし方","人に言われて嬉しかった言葉","最近のアプリの進み具合","最近の曲作り、どうなん",
+    "体のためにやってること一つ","今のお金の心配、正直どれくらい？","ママにツッコんでほしいこと","死ぬまでにやりたいこと三つ","今週がんばった自分を褒めるなら","最近見た夢（寝てる時の）","昔好きやったテレビ番組","今いちばんしんどい人間関係","最近読んだ・見たもんで残ってるやつ","今日ママに言うてない本音"];
+  function todayBlock(){
+    const p=jstParts(new Date());
+    const doy=Math.floor((Date.UTC(p.y,p.m-1,p.d)-Date.UTC(p.y,0,1))/86400000);
+    const ev=DAY_EVENTS[`${p.m}-${p.d}`];
+    return "【今日のこと】\n"+
+      `・${p.y}年${p.m}月${p.d}日（${p.w}）、今は${TOD(p.h)}（${p.h}時台）。季節は${SEASON(p.m,p.d)}。\n`+
+      (ev?`・今日は${ev}。話のついでに触れてもええ。\n`:"")+
+      `・この時期の話題：${MONTH_TOPICS[p.m]}\n`+
+      `・今日のお題（会話が途切れた時に自然に振ってもええ。無理に振らんでもええ）：「${TOPICS[doy%TOPICS.length]}」`;
+  }
+  function relationBlock(S){
+    const n=visitsOnly().filter(v=>!current||v.id!==current.id).length+1; // 今日で何回目（延長中でも数えが増えへんように）
+    const r=rankOf(n);
+    const first=firstVisitDate();
+    const today=jstDate(new Date());
+    const since=first?dayDiff(today,first):0;
+    const total=visitsOnly().reduce((s,v)=>s+(v.mins||0),0);
+    const usedToday=usedOn(today);
+    const lines=["【常連度】"+`今日で来店${n}回目`+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`];
+    const anniv=[];
+    if(first&&[7,30,50,100,200,365,500,730,1000].includes(since))anniv.push(`初来店からちょうど${since}日`);
+    if([10,30,50,100,200,300,500].includes(n))anniv.push(`来店${n}回目`);
+    if(anniv.length)lines.push(`【記念日】今日は${anniv.join("、")}。乾杯の一言を。しつこうは言わんでええ。`);
+    const CUPS=12, used=(n-1)%CUPS, left=CUPS-used, no=Math.floor((n-1)/CUPS)+1;
+    let bottle=`【ボトル】${S.bottle||"角瓶"}（${no}本目）、残りあと${left}杯分。`;
+    if(n>1&&used===0)bottle+="今日から新しいボトル。「新しいの開けたで」と一言。";
+    else if(left<=2)bottle+="そろそろ空く。「次、新しいの入れとく？」と冗談めかして軽く聞いてもええ（金の話にはせん）。";
+    lines.push(bottle);
+    return lines.join("\n");
+  }
+
+  // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、今日のこと・常連度、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
   function buildMemory(extension,digest){
-    const b=loadBook();
+    const b=loadBook();const S=settings();
     const parts=[];
     if(extension)parts.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
     parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
+    parts.push(todayBlock());
+    parts.push(relationBlock(S));
+    parts.push("【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来たら無理に引き止めず、気持ちよく帰らせる。お客さんが「お会計」言うた時も同じ。水を飲むよう、ちゃんと寝るよう気遣う。");
     const dt=digestText(digest);
     if(dt)parts.push("【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n"+dt);
     const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
@@ -282,7 +402,8 @@
     else{
       let body="";
       for(const v of visits){
-        const block=`■${v.date} ${v.time}（${v.mins}分）\n${v.memo}\n`;
+        const memo=v.mamaNote?("ママが書いたまとめ: "+v.mamaNote+"\n"+clipLines(v.memo,12)):v.memo;
+        const block=`■${v.date} ${v.time}（${v.mins}分）\n${memo}\n`;
         if(used+body.length+block.length>MAX_MEMORY_CHARS)break;
         body+=block;
       }
@@ -290,18 +411,31 @@
     }
     return parts.join("\n\n");
   }
-  function lastVisitText(){
-    const b=loadBook();const visits=b.visits.filter(v=>v.kind!=="note");if(!visits.length)return "初来店";
-    const last=visits[0];const d=Math.round((new Date(jstDate(new Date()))-new Date(last.date))/86400000);
-    return d<=0?"今日":d===1?"昨日":`${d}日前`;
-  }
-  function visitCount(){return loadBook().visits.filter(v=>v.kind!=="note").length;}
-  function renderCount(){const n=visitCount();$("notecount").textContent=`来店 ${n}回`+(n?`・${lastVisitText()}`:"");}
+  function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
   /* ───────── 手帳の画面 ───────── */
   const sheet=$("sheet"),profileEl=$("profile"),visitsEl=$("visits"),savedEl=$("saved"),profileLen=$("profilelen");
+  function renderStats(){
+    const S=settings();const p=jstParts(new Date());const today=jstDate(new Date());
+    const vs=visitsOnly();const month=vs.filter(v=>v.date.startsWith(`${p.y}/${p.m}/`));
+    const sum=(a,k)=>a.reduce((s,v)=>s+(v[k]||0),0);
+    const mMins=sum(month,"mins"),mSil=sum(month,"silent"),tMins=sum(vs,"mins");
+    const todayMins=usedOn(today);
+    const longest=month.reduce((m,v)=>Math.max(m,v.mins||0),0);
+    const avg=month.length?Math.round(mMins/month.length):0;
+    $("statsub").textContent=`${p.m}月`;
+    $("stats").innerHTML=
+      `<div><span class="big">${mMins.toLocaleString()}分</span>　来店<b>${month.length}</b>回・1回平均<b>${avg}</b>分・最長<b>${longest}</b>分</div>`+
+      `<div>うち黙っとった時間（無音）<b>${mSil}</b>分　／　ざっくり原価 <b>約${Math.round(mMins*S.yenPerMin).toLocaleString()}円</b>（${S.yenPerMin}円/分）</div>`+
+      `<div>今日 <b>${todayMins}</b>分`+(S.dailyCap?`（上限${S.dailyCap}分・あと<b>${Math.max(0,S.dailyCap-todayMins)}</b>分）`:"（上限なし）")+`　／　これまで全部で <b>${tMins.toLocaleString()}</b>分</div>`;
+  }
+  function renderSettings(){
+    const S=settings();
+    $("s_open").value=S.openMin;$("s_cap").value=S.dailyCap;$("s_idle").value=S.idleMin;$("s_sum").checked=!!S.summary;$("s_bottle").value=S.bottle;$("s_yen").value=S.yenPerMin;
+  }
   function renderBook(){
     const b=loadBook();profileEl.value=b.profile;profileLen.textContent=`${b.profile.length}文字`;
+    renderStats();renderSettings();
     visitsEl.innerHTML="";
     const n=visitCount(),m=b.visits.length-n;
     $("visitcount").textContent=`来店${n}回・手書き${m}件`;
@@ -309,12 +443,15 @@
     for(const v of b.visits){
       const d=document.createElement("div");d.className="visit"+(v.kind==="note"?" note":"");
       const head=document.createElement("div");head.className="d";
-      head.innerHTML=v.kind==="note"?`<span>✎ ${v.date} ${v.time}・手書きメモ</span>`:`<span>${v.date} ${v.time}・${v.mins}分</span>`;
+      const endTxt=v.endKind==="closed"?"・閉店":v.endKind==="idle"?"・寝落ち":v.endKind==="maxdur"?"・上限":"";
+      head.innerHTML=v.kind==="note"?`<span>✎ ${v.date} ${v.time}・手書きメモ</span>`:`<span>${v.date} ${v.time}・${v.mins}分${v.silent?`（無音${v.silent}分）`:""}${v.ext?`・延長${v.ext}回`:""}${endTxt}</span>`;
       const del=document.createElement("button");del.textContent="このメモを消す";
-      del.onclick=()=>{if(!confirm("このメモを消す？"))return;const bb=loadBook();bb.visits=bb.visits.filter(x=>x.id!==v.id);saveBook(bb);renderBook();renderCount();};
+      del.onclick=()=>{if(!confirm("このメモを消す？"))return;const bb=loadBook();bb.visits=bb.visits.filter(x=>x.id!==v.id);saveBook(bb);renderBook();renderCount();renderLetter();};
       head.appendChild(del);
+      d.appendChild(head);
+      if(v.mamaNote){const mn=document.createElement("div");mn.className="mnote";const i=document.createElement("i");i.textContent="ママの字";mn.appendChild(i);mn.appendChild(document.createTextNode(v.mamaNote));d.appendChild(mn);}
       const pre=document.createElement("pre");pre.textContent=v.memo||"（メモなし）";
-      d.appendChild(head);d.appendChild(pre);visitsEl.appendChild(d);
+      d.appendChild(pre);visitsEl.appendChild(d);
     }
     renderDigest();
     const mem=buildMemory(false,digestCache);const total=JSON.stringify(b).length;
@@ -333,6 +470,16 @@
       const pre=document.createElement("pre");pre.textContent=x.text;v.appendChild(pre);box.appendChild(v);
     }
   }
+  // 看板の下に出る「前回のママのひとこと」
+  function renderLetter(){
+    const v=visitsOnly().find(x=>x.mamaNote);
+    if(!v){letterEl.className="letter";letterEl.innerHTML="";return;}
+    letterEl.innerHTML="";
+    const b=document.createElement("b");b.textContent=`✉ 前回（${v.date}）のお会計で、ママが手帳に書いたこと`;
+    const p=document.createElement("p");p.textContent=clip(v.mamaNote,170);
+    letterEl.appendChild(b);letterEl.appendChild(p);letterEl.className="letter show";
+  }
+  letterEl.addEventListener("click",()=>{renderBook();sheet.classList.add("open");});
   let saveTimer=null;
   profileEl.addEventListener("input",()=>{const b=loadBook();b.profile=profileEl.value;profileLen.textContent=`${profileEl.value.length}文字`;if(saveBook(b))savedEl.textContent="保存した";clearTimeout(saveTimer);saveTimer=setTimeout(()=>savedEl.textContent="",1500);});
   $("addnote").addEventListener("click",()=>{
@@ -343,7 +490,16 @@
   $("notebtn").addEventListener("click",()=>{renderBook();sheet.classList.add("open");});
   $("closebook").addEventListener("click",()=>sheet.classList.remove("open"));
   sheet.addEventListener("click",(e)=>{if(e.target===sheet)sheet.classList.remove("open");});
-  $("clearall").addEventListener("click",()=>{if(!confirm("手帳を全部白紙にする？（基本情報も来店メモも手書きメモも消える。控えを取ってへんなら先に「控えをコピー」）"))return;saveBook(empty());renderBook();renderCount();});
+  $("clearall").addEventListener("click",()=>{if(!confirm("手帳を全部白紙にする？（基本情報も来店メモも手書きメモも消える。控えを取ってへんなら先に「控えをコピー」）"))return;saveBook(empty());renderBook();renderCount();renderLetter();});
+  // 営業の設定
+  const num=(id,min,max,def)=>{const v=parseFloat($(id).value);return isFinite(v)?Math.min(max,Math.max(min,v)):def;};
+  let setTimer=null;
+  function onSet(){
+    saveSettings({openMin:num("s_open",15,720,DEFAULTS.openMin),dailyCap:num("s_cap",0,1440,DEFAULTS.dailyCap),idleMin:num("s_idle",0,60,DEFAULTS.idleMin),
+      summary:$("s_sum").checked,bottle:($("s_bottle").value.trim()||DEFAULTS.bottle).slice(0,20),yenPerMin:num("s_yen",0,100,DEFAULTS.yenPerMin)});
+    $("setsaved").textContent="保存した（次の入店から効く）";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);renderStats();
+  }
+  for(const id of ["s_open","s_cap","s_idle","s_sum","s_bottle","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
   // 控え（バックアップ）
   $("copybook").addEventListener("click",async()=>{
     const text="TOKIE_NOTEBOOK\n"+JSON.stringify(loadBook());
@@ -362,28 +518,32 @@
     const ids=new Set(b.visits.map(x=>x.id));
     for(const v of (Array.isArray(data.visits)?data.visits:[])){if(v&&v.id&&!ids.has(v.id)){b.visits.push(v);ids.add(v.id);}}
     b.visits.sort((a,c)=>String(c.id).replace(/^n/,"").localeCompare(String(a.id).replace(/^n/,""),undefined,{numeric:true}));
-    if(saveBook(b)){$("restoretext").value="";$("restore").classList.remove("open");renderBook();renderCount();alert("控えから戻した");}
+    if(saveBook(b)){$("restoretext").value="";$("restore").classList.remove("open");renderBook();renderCount();renderLetter();alert("控えから戻した");}
   });
-  renderCount();
+  renderCount();renderLetter();
 
   /* ───────── 会話 ───────── */
   const notice=$("notice"),bottom=$("bottom");
   const ELEVEN_SUB="https://elevenlabs.io/app/subscription";
   let connectedAt=null, serverErr=null, ending=false;
+  let session=null; // 1回の来店ぶんの状態（延長しても引き継ぐ）
+  const norm=(t)=>String(t||"").replace(/\s+/g,"");
   function show(text,who){text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);return text;}
   function hideNotice(){notice.className="notice";notice.innerHTML="";bottom.classList.remove("has-notice");}
-  function showNotice(kind,title,body,link,detail){
+  function showNotice(kind,title,body,link,detail,extra){
     notice.className="notice show "+kind;
     notice.innerHTML="";
     const b=document.createElement("b");b.textContent=title;notice.appendChild(b);
     const p=document.createElement("p");p.textContent=body;notice.appendChild(p);
     if(link){const a=document.createElement("a");a.href=link.href;a.target="_blank";a.rel="noopener";a.textContent=link.label;notice.appendChild(a);}
+    if(extra){const bt=document.createElement("button");bt.className="ghost";bt.textContent=extra.label;bt.onclick=extra.onclick;notice.appendChild(bt);}
     if(detail){const s=document.createElement("small");s.textContent="詳細: "+detail;notice.appendChild(s);}
     bottom.classList.add("has-notice");
   }
   // 切れた理由を見分ける。ElevenLabsから返ってきた文言・サーバーエラー・つながる前に切れたか、で判定
   function diagnose(d){
     if(!d||d.reason==="user")return {kind:"user"};
+    if(d.reason==="closed"||d.reason==="idle"||d.reason==="dailycap")return {kind:d.reason};
     const ctx=d.context||{};
     const bits=[d.reason,d.message,d.closeCode,d.closeReason,ctx.type,ctx.reason,ctx.code,
       serverErr&&serverErr.msg,serverErr&&serverErr.ctx&&serverErr.ctx.errorType,serverErr&&serverErr.ctx&&serverErr.ctx.code].filter(x=>x!==undefined&&x!==null&&x!=="");
@@ -397,27 +557,147 @@
     if(!connectedAt||(!talked&&elapsed<25000))return {kind:"credit",sure:false,detail};   // 入店できずに即切れ＝ほぼクレジット切れ
     return {kind:"dropped",detail};
   }
+
+  /* ───────── 開店の一言（状況で変える） ───────── */
   const GREETING="あら、おかえり。今日も来てくれたんやね、嬉しいわぁ。ほら、こっち座って。";
   const GREETING_EXT="はい、延長な。ほんで、さっきの話の続きやけど…";
-  const MAX_AUTO_EXTENSIONS=5; // 2時間×(1+5)＝最長12時間まで自動で入り直す（切り忘れ防止）
-  let extensions=0;
-  async function start(extension){
-    if(!extension)extensions=0;
+  function makeGreeting(){
+    const h=jstParts(new Date()).h;const visits=visitsOnly();
+    if(!visits.length)return "いらっしゃい。初めてのお客さんやね。緊張せんでええから、まあこっち座り。";
+    const d=dayDiff(jstDate(new Date()),visits[0].date);
+    if(d<=0)return "あら、また来てくれたん？今日2回目やないの。嬉しいわぁ、ほらこっち。";
+    if(h<5)return "こんな時間に…眠れへんの？ええよ、ママ起きとるから。ほら座り。";
+    if(d>=14)return "ちょっと、あんた！久しぶりやないの。どこ行っとったん。はよ座り。";
+    if(d>=4)return "おかえり。しばらく顔見せへんから心配しとったんやで。ほら、こっち。";
+    return GREETING;
+  }
+
+  /* ───────── 店の時計の合図（ママに渡す文。字幕にもメモにも出さへん） ───────── */
+  const MSG_LO="【店の時計】ラストオーダーの時間になった（閉店10分前）。今の話の切れ目で、ママから自然に「そろそろ看板やで、ラストオーダーな」と切り出して。水飲んどきって気遣って、今日の話を軽く締めにかかる。追い出すんやなくて、気持ちよう帰らせる感じで。";
+  const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、おやすみ。気ぃつけて帰りや」で締めて。";
+  const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、気ぃつけて帰りや」で締めて。";
+  const MSG_IDLE="【店の様子】お客さんがしばらく黙ってる。寝てもうたかもしれん。「あんた、寝てもうた？」と一言だけ、やさしく声かけて。長い話はせんといて。";
+  const MAX_AUTO_EXTENSIONS=5; // 2時間×(1+5)＝最長12時間まで自動で入り直す（営業時間の設定のほうが先に効く）
+
+  function inject(text){
+    if(!conv||!session)return false;
+    try{session.injected.add(norm(text));conv.sendUserMessage(text);return true;}catch(e){return false;}
+  }
+  // ママの返事（声に出した分）をまとめて受け取る。喋り終わったら解決、最長 ms
+  function captureReply(ms){
+    return new Promise((resolve)=>{
+      const c={texts:[],spoke:false,done:false,t2:null};
+      c.res=()=>{if(c.done)return;c.done=true;clearTimeout(c.t);clearTimeout(c.t2);if(session&&session.capture===c)session.capture=null;resolve(c.texts.join(" ").trim());};
+      c.t=setTimeout(c.res,ms);
+      if(session)session.capture=c;else c.res();
+    });
+  }
+  const userLastActive=()=>session?Math.max(session.start,session.lastUser,session.lastVad):Date.now();
+  function fmtClock(){
+    if(!session)return;
+    const el=Math.floor((Date.now()-session.start)/60000);
+    const left=session.effClose-el;
+    clockEl.textContent=`営業 ${el}分／${session.effClose}分`+(left<=10&&left>0?`・あと${left}分で看板`:"")+(session.ext?`・延長${session.ext}回目`:"");
+    clockEl.className="clock"+(left<=10?" lo":"");
+  }
+  const TICK=5000;
+  function startTick(){stopTick();session.timer=setInterval(tick,TICK);fmtClock();}
+  function stopTick(){if(session&&session.timer){clearInterval(session.timer);session.timer=null;}}
+  function tick(){
+    if(!conv||!session||ending)return;
+    const now=Date.now();const S=settings();
+    fmtClock();
+    const listening=session.mode!=="speaking";
+    const idleMs=now-userLastActive();
+    // 無音の計測（ママも黙ってて、客も45秒以上喋ってない時間）
+    if(listening&&idleMs>45000&&current){current.silentMs=(current.silentMs||0)+TICK;}
+    if(session.closing||session.capture)return;
+    const quiet=listening&&(now-session.lastVad>2000); // 客が喋ってる最中は合図を入れへん
+    const el=now-session.start;
+    // 営業時間：10分前にラストオーダー、時間が来たら閉店
+    if(el>=session.effClose*60000&&quiet){closeByTime();return;}
+    if(!session.loSent&&session.effClose>12&&el>=(session.effClose-10)*60000&&quiet){session.loSent=true;inject(MSG_LO);statusEl.textContent="ラストオーダーやで";return;}
+    // 無音で自動お会計：まず一声、90秒待っても返事がなければお会計
+    if(S.idleMin>0){
+      if(session.idleNudgeAt&&userLastActive()>session.idleNudgeAt){session.idleNudgeAt=0;}
+      if(!session.idleNudgeAt&&idleMs>=S.idleMin*60000&&quiet){session.idleNudgeAt=now;inject(MSG_IDLE);return;}
+      if(session.idleNudgeAt&&now-session.idleNudgeAt>=90000&&quiet){if(current)current.endKind="idle";end({reason:"idle"});return;}
+    }
+  }
+  async function closeByTime(){
+    if(!conv||!session||session.closing)return;
+    const mine=session;
+    session.closing=true;btn.textContent="すぐ出る";statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
+    const p=captureReply(60000);
+    if(!inject(MSG_CLOSE)){if(current)current.endKind="closed";end({reason:"closed"});return;}
+    const text=await p;
+    if(session!==mine)return; // 待ってる間に「すぐ出る」で出た
+    if(text&&current){current.mamaNote=text;}
+    if(current)current.endKind="closed";
+    end({reason:"closed"});
+  }
+  async function checkout(){
+    if(!conv||!session)return;
+    if(session.closing){end({reason:"user"});return;} // 2回目＝すぐ出る
+    const S=settings();const userMsgs=current?current.msgs.filter(m=>m.who==="user").length:0;const el=Date.now()-session.start;
+    if(!S.summary||userMsgs<2||el<120000){end({reason:"user"});return;}
+    const mine=session;
+    session.closing=true;btn.textContent="すぐ出る";statusEl.textContent="ママが手帳に書いてる…";
+    const p=captureReply(50000);
+    if(!inject(MSG_CHECKOUT)){end({reason:"user"});return;}
+    const text=await p;
+    if(session!==mine)return; // 待ってる間に「すぐ出る」で出た
+    if(text&&current){current.mamaNote=text;}
+    end({reason:"user"});
+  }
+
+  async function start(extension,force){
     errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent=extension?"延長入るで…":"ママが手帳を読んでる…";
     connectedAt=null;serverErr=null;
+    const S=settings();const today=jstDate(new Date());
+    if(!extension){
+      const usedToday=usedOn(today);
+      if(!force&&S.dailyCap>0&&usedToday>=S.dailyCap){
+        statusEl.textContent="今日はもう閉店や";btn.disabled=false;
+        showNotice("maxdur","ママ：今日はもう閉店やで",
+          `今日はもう${usedToday}分しゃべった（1日の上限${S.dailyCap}分）。体のためにも今日はここまで。明日またおいで。`,
+          null,null,{label:"どうしても入る",onclick:()=>start(false,true)});
+        return;
+      }
+      const effClose=(S.dailyCap>0&&!force)?Math.max(10,Math.min(S.openMin,S.dailyCap-usedToday)):S.openMin;
+      session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null};
+      current={id:String(Date.now()),start:session.start,msgs:[],silentMs:0,ext:0};
+    }else if(session){
+      session.capture=null;session.mode="listening";
+    }
     try{
       try{await navigator.mediaDevices.getUserMedia({audio:true});}
-      catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;return;}
+      catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;session=null;current=null;return;}
       const digest=await loadDigest();
       const memory=buildMemory(extension,digest);
-      current={id:String(Date.now()),start:Date.now(),msgs:[]};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:extension?GREETING_EXT:GREETING},
-        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;},
+        dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:extension?GREETING_EXT:makeGreeting()},
+        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;startTick();},
         onDisconnect:(d)=>end(d),
-        onMessage:(m)=>{if(m&&m.message){const t=show(m.message,m.source);if(t&&current){current.msgs.push({who:m.source==="ai"?"ai":"user",text:t});writeCurrent();}}},
-        onModeChange:(m)=>{const mode=m&&m.mode;stage.classList.toggle("speaking",mode==="speaking");statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";},
+        onMessage:(m)=>{
+          if(!(m&&m.message))return;
+          const raw=String(m.message);
+          if(m.source!=="ai"&&session&&(session.injected.has(norm(raw))||/^【/.test(raw.trim())))return; // 店の時計の合図は客の発言やない
+          const t=show(raw,m.source);
+          if(!t||!current)return;
+          if(m.source==="ai"){current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);}
+          else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();}
+          writeCurrent();
+        },
+        onModeChange:(m)=>{
+          const mode=m&&m.mode;if(session)session.mode=mode;
+          stage.classList.toggle("speaking",mode==="speaking");
+          if(!(session&&session.closing))statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";
+          const c=session&&session.capture;
+          if(c){if(mode==="speaking"){c.spoke=true;clearTimeout(c.t2);}else if(c.spoke){clearTimeout(c.t2);c.t2=setTimeout(c.res,1500);}}
+        },
+        onVadScore:(v)=>{const s=(v&&typeof v==="object")?(v.vadScore??v.score??0):(typeof v==="number"?v:0);if(s>0.6&&session)session.lastVad=Date.now();},
         onError:(msg,ctx)=>{serverErr={msg:String(msg&&msg.message?msg.message:msg),ctx:ctx||{}};errEl.textContent="エラー："+serverErr.msg;}
       });
     }catch(e){
@@ -429,12 +709,35 @@
   async function end(d){
     if(ending)return;ending=true;
     const c=conv;conv=null;
+    stopTick();
     try{if(c)await c.endSession();}catch(e){}
     stage.classList.remove("speaking","on");
     const r=diagnose(d);
+    const S=settings();
+    if(r.kind==="maxdur"&&session&&current){
+      const el=Date.now()-session.start;
+      const active=S.idleMin===0||(Date.now()-userLastActive()<S.idleMin*60000);
+      if(session.ext<MAX_AUTO_EXTENSIONS&&el<(session.effClose-1)*60000&&active){
+        // 2時間の上限で切れた → 数秒後に自動で入り直す（ママは「延長な」で続きから。来店回数は増えへん）
+        session.ext++;current.ext=session.ext;writeCurrent();
+        statusEl.textContent="延長入るで…";
+        btn.textContent="お会計";btn.className="btn out";btn.disabled=true;ending=false;
+        setTimeout(()=>start(true),1500);
+        return;
+      }
+      if(!active&&current)current.endKind="idle";
+      else if(current)current.endKind="maxdur";
+    }
     if(current){writeCurrent();current=null;}
+    session=null;
     if(r.kind==="user"){
       statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);
+    }else if(r.kind==="closed"){
+      statusEl.textContent="今日はここまで。またおいでな";
+      showNotice("maxdur","ママ：ほな、おやすみ","営業時間になったから閉店にした。今日のまとめはママが手帳に書いといた（看板の下に出る）。",null,null);
+    }else if(r.kind==="idle"){
+      statusEl.textContent="寝てもうたみたいやから、静かにお会計しといた";
+      showNotice("maxdur","ママ：お疲れさん、ゆっくり寝ぇ","しばらく返事がなかったから、ママが静かにお会計しといた。つけっぱなし防止や。また入店したら続きから話せる。",null,null);
     }else if(r.kind==="credit"){
       errEl.textContent="";statusEl.textContent=r.sure?"クレジット切れ":"入店できへん（たぶんクレジット切れ）";
       showNotice("credit",
@@ -442,14 +745,6 @@
         "ElevenLabsの今月ぶんの通話時間を使い切ったみたい。追加クレジットを買うか、プランを一段上げたら、すぐまた入れる。",
         {href:ELEVEN_SUB,label:"ElevenLabsの料金ページを開く"},r.detail);
     }else if(r.kind==="maxdur"){
-      if(extensions<MAX_AUTO_EXTENSIONS){
-        // 2時間の上限で切れた → 数秒後に自動で入り直す（ママは「延長な」で続きから）
-        extensions++;
-        statusEl.textContent="延長入るで…";
-        btn.textContent="お会計";btn.className="btn out";btn.disabled=true;ending=false;
-        setTimeout(()=>start(true),1500);
-        return;
-      }
       statusEl.textContent="今日はもう閉店や";
       showNotice("maxdur","ママ：今日はほんまにここまでやで",
         "長時間つなぎっぱなしやったから、いったん閉店にした。また入店したら続きから話せる（手帳は残ってる）。",
@@ -461,8 +756,9 @@
         null,r.detail);
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
+    renderLetter();
   }
-  btn.addEventListener("click",()=>conv?end():start(false));
+  btn.addEventListener("click",()=>conv?checkout():start(false,false));
 </script>
 </body>
 </html>
