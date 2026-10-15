@@ -51,7 +51,7 @@
   .notebtn{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));right:16px;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,241,226,.4);
     background:rgba(11,5,7,.45);color:var(--cream);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;backdrop-filter:blur(6px);cursor:pointer}
   .notebtn small{display:block;font-weight:400;font-size:9px;letter-spacing:.05em;color:var(--dim)}
-  /* ボトル棚ボタン（左上。瓶の中身が喋った分だけ減る） */
+  /* ボトル棚ボタン（左上。瓶の中身が喋った分だけ減る。10秒超の無音はほぼ減らへん） */
   .bottlebtn{position:absolute;z-index:3;top:max(18px,env(safe-area-inset-top));left:16px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 10px 6px;border-radius:16px;border:1px solid rgba(255,241,226,.4);
     background:rgba(11,5,7,.45);color:var(--cream);font:700 11px "Zen Kaku Gothic New",sans-serif;letter-spacing:.1em;backdrop-filter:blur(6px);cursor:pointer;line-height:1.2}
   .bottlebtn svg{display:block;filter:drop-shadow(0 0 5px rgba(255,184,92,.55))}
@@ -283,6 +283,8 @@
   const KEY="tokie_notebook_v1";
   // ママに一度に渡す記憶の上限（文字）。手帳そのものは無制限に残るが、ママが毎回読む量だけはこれで区切る（長すぎると返事が遅く・高くなる）
   const MAX_MEMORY_CHARS=24000;
+  const SILENCE_DISCOUNT_AFTER=10000; // 10秒を超えた無音から割引
+  const SILENCE_RATE=0.05;            // 無音は通常の5%（95%引き）
   const empty=()=>({profile:"",visits:[]});
   function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[]}:empty();}catch(e){return empty();}}
   let saveWarned=false;
@@ -423,7 +425,7 @@
     return lines.join("\n");
   }
 
-  /* ───────── ボトル棚（ボトル＝先に入れとく喋れる時間。つながってる間、喋った分だけ減る。手帳を白紙にしても残る） ───────── */
+  /* ───────── ボトル棚（ボトル＝先に入れとく喋れる時間。喋った分だけ減る（10秒超の無音は5%だけ）。手帳を白紙にしても残る） ───────── */
   const BKEY="tokie_bottles_v1";
   const BRANDS={
     temma:{name:"天満",roma:"TEMMA",size:300,desc:"ハウスボトル。気軽な一本",glass:"rgba(255,241,226,.10)",liquid:"#e3a24a",tag:"#b8814a",tagText:"#2a0a12"},
@@ -540,6 +542,15 @@
   $("s_tag").addEventListener("input",()=>{saveSettings({tagName:$("s_tag").value.trim().slice(0,8)||DEFAULTS.tagName});renderShelf();});
 
   // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、今日のこと・常連度、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
+  // 間の取り方（「黙り込んで」と急かさへん。ほどよい間で会話を続ける）
+  const PACE_BLOCK="【間の取り方（いちばん大事）】\n"+
+    "・お客さんが話の途中で言葉に詰まっても、すぐ口を挟まへん。考えてる間は待つ。\n"+
+    "・お客さんが黙った時（返事がない・「…」だけの時）に「黙り込んで」「どうしたん」「なんで黙ってるの」「聞いてる？」みたいに、沈黙を指摘したり責めたりは絶対にせえへん。スナックでは黙って飲む時間も普通のこと。\n"+
+    "・黙った1回目：短い相槌か一言だけ（例「うん」「ゆっくりでええよ」「ほな、ママちょっと氷足しとくわ」）。\n"+
+    "・まだ黙ってたら：ママから軽い話題をひとつだけ振る（さっきの話の続きか、今日のお題）。質問攻めにはせん。1回に問いかけは1つまで。\n"+
+    "・それでも黙ってたら：skip_turn（黙って待つ道具）が使えるなら使って、何も言わずに隣におる。使えへんなら「ここにおるからな」くらいの一言だけ。\n"+
+    "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ言うて待つ（skip_turnが使えるなら使う）。\n"+
+    "・ママの一回の返事は短め（だいたい2〜3文）。お客さんが喋る隙間を残す。独演会はせん。";
   function buildMemory(extension,digest){
     const b=loadBook();const S=settings();
     const parts=[];
@@ -547,6 +558,7 @@
     parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
     parts.push(todayBlock());
     parts.push(relationBlock(S));
+    parts.push(PACE_BLOCK);
     parts.push("【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来たら無理に引き止めず、気持ちよく帰らせる。お客さんが「お会計」言うた時も同じ。水を飲むよう、ちゃんと寝るよう気遣う。");
     const dt=digestText(digest);
     if(dt)parts.push("【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n"+dt);
@@ -589,7 +601,7 @@
     $("statsub").textContent=`${p.m}月`;
     $("stats").innerHTML=
       `<div><span class="big">${mMins.toLocaleString()}分</span>　来店<b>${month.length}</b>回・1回平均<b>${avg}</b>分・最長<b>${longest}</b>分</div>`+
-      `<div>うち黙っとった時間（無音）<b>${mSil}</b>分　／　ざっくり原価 <b>約${Math.round(mMins*S.yenPerMin).toLocaleString()}円</b>（${S.yenPerMin}円/分）</div>`+
+      `<div>うち黙っとった時間（10秒超の無音）<b>${mSil}</b>分　／　ざっくり原価 <b>約${Math.round(Math.max(0,mMins-mSil*(1-SILENCE_RATE))*S.yenPerMin).toLocaleString()}円</b>（${S.yenPerMin}円/分・無音は95%引き）</div>`+
       `<div>今日 <b>${todayMins}</b>分`+(S.dailyCap?`（上限${S.dailyCap}分・あと<b>${Math.max(0,S.dailyCap-todayMins)}</b>分）`:"（上限なし）")+`　／　これまで全部で <b>${tMins.toLocaleString()}</b>分</div>`;
   }
   function renderSettings(){
@@ -777,10 +789,12 @@
     fmtClock();
     const listening=session.mode!=="speaking";
     const idleMs=now-userLastActive();
-    // 無音の計測（ママも黙ってて、客も45秒以上喋ってない時間）
-    if(listening&&idleMs>45000&&current){current.silentMs=(current.silentMs||0)+TICK;}
-    // ボトルの減り（つながってる間は黙っとっても減る＝ElevenLabsの課金と同じ）
-    addBottleTime(TICK);renderBottleBtn();
+    // 無音の計測：ママも客も10秒超しゃべってない時間（ElevenLabsは10秒超の無音を95%引きで課金する）
+    if(!listening)session.lastAi=now;
+    const silent=listening&&(now-Math.max(userLastActive(),session.lastAi||0))>SILENCE_DISCOUNT_AFTER;
+    if(silent&&current){current.silentMs=(current.silentMs||0)+TICK;}
+    // ボトルの減り：喋ってる間はそのまま、10秒超の無音は5%だけ（＝実際の課金と同じ割合）
+    addBottleTime(silent?TICK*SILENCE_RATE:TICK);renderBottleBtn();
     if(session.closing||session.capture)return;
     const quiet=listening&&(now-session.lastVad>2000); // 客が喋ってる最中は合図を入れへん
     const el=now-session.start;
@@ -869,7 +883,7 @@
           writeCurrent();
         },
         onModeChange:(m)=>{
-          const mode=m&&m.mode;if(session)session.mode=mode;
+          const mode=m&&m.mode;if(session){session.mode=mode;session.lastAi=Date.now();}
           stage.classList.toggle("speaking",mode==="speaking");
           if(!(session&&session.closing))statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";
           const c=session&&session.capture;
