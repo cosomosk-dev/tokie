@@ -65,23 +65,37 @@
   /* ママの手帳（モーダル） */
   .sheet{position:fixed;inset:0;z-index:10;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(3px)}
   .sheet.open{display:flex}
-  .book{width:100%;max-width:480px;max-height:88%;overflow:auto;background:#1a0d12;border-radius:22px 22px 0 0;border-top:1px solid rgba(255,158,196,.35);
+  .book{width:100%;max-width:480px;max-height:92%;overflow:auto;background:#1a0d12;border-radius:22px 22px 0 0;border-top:1px solid rgba(255,158,196,.35);
     padding:18px 18px max(22px,env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(0,0,0,.6)}
   .book h2{font-family:"Shippori Mincho B1",serif;font-size:20px;letter-spacing:.2em;color:#ffe6ef;text-shadow:0 0 10px rgba(255,92,138,.6);text-align:center}
-  .book .lead{font-size:12px;color:var(--dim);text-align:center;margin:6px 0 14px;line-height:1.6}
-  .book label{display:block;font-size:12px;letter-spacing:.1em;color:var(--amber);margin:14px 0 6px}
+  .book .lead{font-size:12px;color:var(--dim);text-align:center;margin:6px 0 10px;line-height:1.6}
+  .book label{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;letter-spacing:.1em;color:var(--amber);margin:16px 0 6px}
+  .book label span{font-size:10px;letter-spacing:.05em;color:var(--dim)}
   .book textarea{width:100%;min-height:96px;border-radius:12px;border:1px solid rgba(255,241,226,.25);background:rgba(255,241,226,.06);color:var(--cream);
     padding:10px 12px;font:14px/1.6 "Zen Kaku Gothic New",sans-serif;resize:vertical}
+  .book textarea.big{min-height:180px}
+  .hint{font-size:11px;color:var(--dim);line-height:1.6;margin-top:6px}
   .visit{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
+  .visit.note{border-color:rgba(255,184,92,.35);background:rgba(255,184,92,.06)}
   .visit .d{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--pink);letter-spacing:.08em}
+  .visit.note .d{color:var(--amber)}
   .visit .d button{border:none;background:none;color:var(--dim);font-size:11px;cursor:pointer;padding:4px 6px}
-  .visit pre{white-space:pre-wrap;word-break:break-word;font:13px/1.6 "Zen Kaku Gothic New",sans-serif;color:var(--cream);margin-top:6px}
+  .visit pre{white-space:pre-wrap;word-break:break-word;font:13px/1.6 "Zen Kaku Gothic New",sans-serif;color:var(--cream);margin-top:6px;max-height:160px;overflow:auto}
   .empty{font-size:13px;color:var(--dim);text-align:center;padding:14px 0}
-  .row{display:flex;gap:10px;margin-top:16px}
-  .row button{flex:1;padding:13px;border-radius:999px;border:1px solid rgba(255,241,226,.35);background:none;color:var(--cream);font:700 14px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer}
+  .row{display:flex;gap:10px;margin-top:12px}
+  .row button{flex:1;padding:12px 8px;border-radius:999px;border:1px solid rgba(255,241,226,.35);background:none;color:var(--cream);font:700 13px "Zen Kaku Gothic New",sans-serif;letter-spacing:.1em;cursor:pointer}
   .row button.primary{background:linear-gradient(90deg,#ff5c8a,#ffb85c);color:#2a0a12;border:none}
+  .row button.amber{border-color:rgba(255,184,92,.6);color:var(--amber)}
   .row button.danger{color:#ff9a9a;border-color:rgba(255,154,154,.4)}
+  .row button:disabled{opacity:.4}
   .saved{font-size:11px;color:var(--amber);text-align:center;min-height:14px;margin-top:6px}
+  .meter{font-size:11px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.6;padding-top:12px;border-top:1px dashed rgba(255,241,226,.15)}
+  .restore{display:none;margin-top:10px}
+  .restore.open{display:block}
+  details{margin-top:18px;border-top:1px dashed rgba(255,241,226,.15);padding-top:10px}
+  summary{font-size:12px;letter-spacing:.1em;color:var(--amber);cursor:pointer;list-style:none}
+  summary::before{content:"▸ ";color:var(--dim)}
+  details[open] summary::before{content:"▾ "}
 </style>
 </head>
 <body>
@@ -111,14 +125,43 @@
 <div class="sheet" id="sheet">
   <div class="book">
     <h2>ママの手帳</h2>
-    <p class="lead">閉店しても忘れへんように、ママが書き留めとく帳面。<br>次に入店したとき、ママはこの手帳を読んでから迎えてくれる。</p>
-    <label>お客さんの基本情報（ママに最初から知っといてほしいこと）</label>
-    <textarea id="profile" placeholder="例：名前はタケオ。39歳、平塚。アプリを作ってる。酒は弱い（一時間に一ミリ）。"></textarea>
+    <p class="lead">閉店しても忘れへんように、ママが書き留めとく帳面。<br>次に入店したとき、ママはこの手帳を読んでから迎えてくれる。<br>この手帳は消さへん限りずっと残る。</p>
+
+    <label>お客さんの基本情報（ママに最初から知っといてほしいこと）<span id="profilelen">0文字</span></label>
+    <textarea id="profile" class="big" placeholder="1000文字くらいでOK。例：名前はタケオ。39歳、平塚。アプリを作ってる。酒は弱い。好きな話題は…"></textarea>
     <div class="saved" id="saved"></div>
-    <label>これまでの来店メモ（新しい順・直近5回まで）</label>
-    <div id="visits"></div>
+
+    <label>ママに覚えといてほしいメモ（コピペOK・何回でも足せる）</label>
+    <textarea id="newnote" placeholder="他で話した内容（Claudeとのやりとり等）をそのまま貼って「手帳に書き足す」。"></textarea>
     <div class="row">
-      <button class="danger" id="clearall">全部消す</button>
+      <button class="amber" id="addnote">手帳に書き足す</button>
+    </div>
+    <div class="saved" id="notesaved"></div>
+
+    <label>これまでの来店メモと手書きメモ（新しい順・全部残る）<span id="visitcount"></span></label>
+    <div id="visits"></div>
+
+    <div class="meter" id="meter"></div>
+
+    <details>
+      <summary>控え（バックアップ）・白紙にする</summary>
+      <p class="hint">手帳はこのスマホ／PCのブラウザの中に保存してある。別の端末や、ブラウザのデータを消した時に備えて、たまに「控えをコピー」してメモアプリ等に貼っとくと安心。戻すときは「控えを貼って戻す」。</p>
+      <div class="row">
+        <button id="copybook">控えをコピー</button>
+        <button id="restoretoggle">控えを貼って戻す</button>
+      </div>
+      <div class="restore" id="restore">
+        <textarea id="restoretext" placeholder="コピーしといた控えをここに貼る"></textarea>
+        <div class="row">
+          <button class="amber" id="restorebtn">この控えで戻す（今の手帳に足す）</button>
+        </div>
+      </div>
+      <div class="row">
+        <button class="danger" id="clearall">手帳を全部白紙にする</button>
+      </div>
+    </details>
+
+    <div class="row">
       <button class="primary" id="closebook">閉じる</button>
     </div>
   </div>
@@ -131,11 +174,22 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err");
   let conv=null;
 
-  /* ───────── ママの手帳（ブラウザ内に保存） ───────── */
-  const KEY="tokie_notebook_v1", MAX_VISITS=5, MAX_MEMORY_CHARS=3000;
+  /* ───────── ママの手帳（ブラウザ内に保存・上限なし・消さへん限り残る） ───────── */
+  const KEY="tokie_notebook_v1";
+  // ママに一度に渡す記憶の上限（文字）。手帳そのものは無制限に残るが、ママが毎回読む量だけはこれで区切る（長すぎると返事が遅く・高くなる）
+  const MAX_MEMORY_CHARS=24000;
   const empty=()=>({profile:"",visits:[]});
   function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[]}:empty();}catch(e){return empty();}}
-  function saveBook(b){try{localStorage.setItem(KEY,JSON.stringify(b));}catch(e){}}
+  let saveWarned=false;
+  function saveBook(b){
+    try{localStorage.setItem(KEY,JSON.stringify(b));return true;}
+    catch(e){
+      if(!saveWarned){saveWarned=true;alert("手帳がいっぱいで書けへん。「控えをコピー」して控えを取ってから、古いメモを少し消してな。");}
+      return false;
+    }
+  }
+  // ブラウザに「このサイトのデータは勝手に消さんといて」と頼む（対応ブラウザのみ）
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{});}catch(e){}
   const clip=(t,n)=>t.length>n?t.slice(0,n)+"…":t;
   const jstDate=(d)=>d.toLocaleDateString("ja-JP",{year:"numeric",month:"numeric",day:"numeric",timeZone:"Asia/Tokyo"});
   const jstTime=(d)=>d.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tokyo"});
@@ -145,8 +199,8 @@
     const seen=new Set();
     const users=msgs.filter(m=>m.who==="user").map(m=>m.text.trim()).filter(t=>t.length>=6&&!seen.has(t)&&seen.add(t));
     let pick=users.map((t,i)=>({t,i}));
-    if(pick.length>16){pick=pick.slice().sort((a,b)=>b.t.length-a.t.length).slice(0,16).sort((a,b)=>a.i-b.i);}
-    const lines=pick.map(p=>"客: "+clip(p.t,80));
+    if(pick.length>40){pick=pick.slice().sort((a,b)=>b.t.length-a.t.length).slice(0,40).sort((a,b)=>a.i-b.i);}
+    const lines=pick.map(p=>"客: "+clip(p.t,100));
     const ais=msgs.filter(m=>m.who==="ai").map(m=>m.text.trim()).filter(Boolean);
     if(ais.length)lines.push("ママ(最後の一言): "+clip(ais[ais.length-1],60));
     return lines.join("\n");
@@ -158,60 +212,108 @@
     if(!current||!current.msgs.some(m=>m.who==="user"))return;
     const b=loadBook();
     const mins=Math.max(1,Math.round((Date.now()-current.start)/60000));
-    const v={id:current.id,date:jstDate(new Date(current.start)),time:jstTime(new Date(current.start)),mins,memo:digest(current.msgs)};
+    const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),time:jstTime(new Date(current.start)),mins,memo:digest(current.msgs)};
     const idx=b.visits.findIndex(x=>x.id===current.id);
     if(idx>=0)b.visits[idx]=v;else b.visits.unshift(v);
-    b.visits=b.visits.slice(0,MAX_VISITS);
     saveBook(b);renderCount();
   }
 
-  // ママに渡す「記憶」を組み立てる（新しい来店から順に、長すぎたら古い方を切る）
+  // 手書きメモ（コピペ）を手帳に足す
+  function addNote(text){
+    text=String(text||"").trim();if(!text)return false;
+    const b=loadBook();const now=new Date();
+    b.visits.unshift({id:"n"+Date.now(),kind:"note",date:jstDate(now),time:jstTime(now),mins:0,memo:text});
+    const ok=saveBook(b);renderCount();return ok;
+  }
+
+  // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
   function buildMemory(){
     const b=loadBook();
     const parts=[];
     parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
-    if(!b.visits.length){parts.push("【これまでの来店メモ】\n（初来店。まだ何も書いてない）");}
-    else{
+    const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
+    let used=parts[0].length;
+    if(notes.length){
       let body="";
-      for(const v of b.visits){
-        const block=`■${v.date} ${v.time}（${v.mins}分）\n${v.memo}\n`;
-        if((body+block).length>MAX_MEMORY_CHARS)break;
+      for(const n of notes){
+        const block=`■${n.date}に書いたメモ\n${n.memo}\n`;
+        if(used+body.length+block.length>MAX_MEMORY_CHARS)break;
         body+=block;
       }
-      parts.push("【これまでの来店メモ（新しい順）】\n"+body.trim());
+      if(body){parts.push("【お客さんについてママが書き留めたこと（新しい順）】\n"+body.trim());used+=body.length;}
+    }
+    if(!visits.length){parts.push("【これまでの来店メモ】\n（初来店。まだ何も書いてない）");}
+    else{
+      let body="";
+      for(const v of visits){
+        const block=`■${v.date} ${v.time}（${v.mins}分）\n${v.memo}\n`;
+        if(used+body.length+block.length>MAX_MEMORY_CHARS)break;
+        body+=block;
+      }
+      parts.push("【これまでの来店メモ（新しい順）】\n"+(body.trim()||"（古すぎて省略）"));
     }
     return parts.join("\n\n");
   }
   function lastVisitText(){
-    const b=loadBook();if(!b.visits.length)return "初来店";
-    const last=b.visits[0];const d=Math.round((new Date(jstDate(new Date()))-new Date(last.date))/86400000);
+    const b=loadBook();const visits=b.visits.filter(v=>v.kind!=="note");if(!visits.length)return "初来店";
+    const last=visits[0];const d=Math.round((new Date(jstDate(new Date()))-new Date(last.date))/86400000);
     return d<=0?"今日":d===1?"昨日":`${d}日前`;
   }
-  function renderCount(){const b=loadBook();$("notecount").textContent=`来店 ${b.visits.length}回`+(b.visits.length?`・${lastVisitText()}`:"");}
+  function visitCount(){return loadBook().visits.filter(v=>v.kind!=="note").length;}
+  function renderCount(){const n=visitCount();$("notecount").textContent=`来店 ${n}回`+(n?`・${lastVisitText()}`:"");}
 
   /* ───────── 手帳の画面 ───────── */
-  const sheet=$("sheet"),profileEl=$("profile"),visitsEl=$("visits"),savedEl=$("saved");
+  const sheet=$("sheet"),profileEl=$("profile"),visitsEl=$("visits"),savedEl=$("saved"),profileLen=$("profilelen");
   function renderBook(){
-    const b=loadBook();profileEl.value=b.profile;
+    const b=loadBook();profileEl.value=b.profile;profileLen.textContent=`${b.profile.length}文字`;
     visitsEl.innerHTML="";
-    if(!b.visits.length){visitsEl.innerHTML='<div class="empty">まだ来店メモはないよ。一回話して「お会計」したら書き込まれる。</div>';return;}
+    const n=visitCount(),m=b.visits.length-n;
+    $("visitcount").textContent=`来店${n}回・手書き${m}件`;
+    if(!b.visits.length){visitsEl.innerHTML='<div class="empty">まだ何もない。一回話して「お会計」したら来店メモが書き込まれる。</div>';}
     for(const v of b.visits){
-      const d=document.createElement("div");d.className="visit";
+      const d=document.createElement("div");d.className="visit"+(v.kind==="note"?" note":"");
       const head=document.createElement("div");head.className="d";
-      head.innerHTML=`<span>${v.date} ${v.time}・${v.mins}分</span>`;
+      head.innerHTML=v.kind==="note"?`<span>✎ ${v.date} ${v.time}・手書きメモ</span>`:`<span>${v.date} ${v.time}・${v.mins}分</span>`;
       const del=document.createElement("button");del.textContent="このメモを消す";
-      del.onclick=()=>{if(!confirm("この日のメモを消す？"))return;const bb=loadBook();bb.visits=bb.visits.filter(x=>x.id!==v.id);saveBook(bb);renderBook();renderCount();};
+      del.onclick=()=>{if(!confirm("このメモを消す？"))return;const bb=loadBook();bb.visits=bb.visits.filter(x=>x.id!==v.id);saveBook(bb);renderBook();renderCount();};
       head.appendChild(del);
       const pre=document.createElement("pre");pre.textContent=v.memo||"（メモなし）";
       d.appendChild(head);d.appendChild(pre);visitsEl.appendChild(d);
     }
+    const mem=buildMemory();const total=JSON.stringify(b).length;
+    $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（上限${MAX_MEMORY_CHARS.toLocaleString()}文字。超えた分は古い来店メモから省く）／手帳全体：${total.toLocaleString()}文字`;
   }
   let saveTimer=null;
-  profileEl.addEventListener("input",()=>{const b=loadBook();b.profile=profileEl.value;saveBook(b);savedEl.textContent="保存した";clearTimeout(saveTimer);saveTimer=setTimeout(()=>savedEl.textContent="",1500);});
+  profileEl.addEventListener("input",()=>{const b=loadBook();b.profile=profileEl.value;profileLen.textContent=`${profileEl.value.length}文字`;if(saveBook(b))savedEl.textContent="保存した";clearTimeout(saveTimer);saveTimer=setTimeout(()=>savedEl.textContent="",1500);});
+  $("addnote").addEventListener("click",()=>{
+    const t=$("newnote").value;
+    if(!t.trim()){$("notesaved").textContent="何か書いてから押してな";return;}
+    if(addNote(t)){$("newnote").value="";$("notesaved").textContent="手帳に書き足した";renderBook();setTimeout(()=>$("notesaved").textContent="",2000);}
+  });
   $("notebtn").addEventListener("click",()=>{renderBook();sheet.classList.add("open");});
   $("closebook").addEventListener("click",()=>sheet.classList.remove("open"));
   sheet.addEventListener("click",(e)=>{if(e.target===sheet)sheet.classList.remove("open");});
-  $("clearall").addEventListener("click",()=>{if(!confirm("手帳を全部白紙にする？（基本情報も来店メモも消える）"))return;saveBook(empty());renderBook();renderCount();});
+  $("clearall").addEventListener("click",()=>{if(!confirm("手帳を全部白紙にする？（基本情報も来店メモも手書きメモも消える。控えを取ってへんなら先に「控えをコピー」）"))return;saveBook(empty());renderBook();renderCount();});
+  // 控え（バックアップ）
+  $("copybook").addEventListener("click",async()=>{
+    const text="TOKIE_NOTEBOOK\n"+JSON.stringify(loadBook());
+    try{await navigator.clipboard.writeText(text);$("notesaved").textContent="控えをコピーした。メモアプリ等に貼って残しといて";}
+    catch(e){prompt("この文を全部コピーして控えにして",text);}
+    setTimeout(()=>$("notesaved").textContent="",3000);
+  });
+  $("restoretoggle").addEventListener("click",()=>$("restore").classList.toggle("open"));
+  $("restorebtn").addEventListener("click",()=>{
+    const raw=$("restoretext").value.trim();
+    let data=null;
+    try{data=JSON.parse(raw.replace(/^TOKIE_NOTEBOOK\s*/,""));}catch(e){}
+    if(!data||typeof data!=="object"){alert("控えの形が違うみたい。「控えをコピー」で出た文をそのまま貼ってな");return;}
+    const b=loadBook();
+    if(!b.profile.trim()&&data.profile)b.profile=String(data.profile);
+    const ids=new Set(b.visits.map(x=>x.id));
+    for(const v of (Array.isArray(data.visits)?data.visits:[])){if(v&&v.id&&!ids.has(v.id)){b.visits.push(v);ids.add(v.id);}}
+    b.visits.sort((a,c)=>String(c.id).replace(/^n/,"").localeCompare(String(a.id).replace(/^n/,""),undefined,{numeric:true}));
+    if(saveBook(b)){$("restoretext").value="";$("restore").classList.remove("open");renderBook();renderCount();alert("控えから戻した");}
+  });
   renderCount();
 
   /* ───────── 会話 ───────── */
@@ -252,11 +354,10 @@
       try{await navigator.mediaDevices.getUserMedia({audio:true});}
       catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;return;}
       const memory=buildMemory();
-      const book=loadBook();
       current={id:String(Date.now()),start:Date.now(),msgs:[]};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory, visit_count:String(book.visits.length), last_visit:lastVisitText()},
+        dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText()},
         onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;},
         onDisconnect:(d)=>end(d),
         onMessage:(m)=>{if(m&&m.message){const t=show(m.message,m.source);if(t&&current){current.msgs.push({who:m.source==="ai"?"ai":"user",text:t});writeCurrent();}}},
@@ -287,7 +388,7 @@
     }else if(r.kind==="maxdur"){
       statusEl.textContent="1回の上限時間や";
       showNotice("maxdur","ママ：今日はここまでやで",
-        "1回の会話の上限時間に達した。すぐ入店し直せば続きを話せる。もっと長くしたいならElevenLabsのAgent設定「Max conversation duration」を伸ばす。",
+        "1回の会話の上限時間に達した。すぐ入店し直せば続きを話せる（手帳は残ってる）。もっと長くしたいならElevenLabsのAgent設定「Max conversation duration」を伸ばす。",
         null,r.detail);
     }else{
       statusEl.textContent="回線が切れた";
