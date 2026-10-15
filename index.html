@@ -138,6 +138,9 @@
     </div>
     <div class="saved" id="notesaved"></div>
 
+    <label>Claudeから毎日届くメモ（自動）<span id="digeststatus"></span></label>
+    <div id="digestbox"></div>
+
     <label>これまでの来店メモと手書きメモ（新しい順・全部残る）<span id="visitcount"></span></label>
     <div id="visits"></div>
 
@@ -188,6 +191,36 @@
       return false;
     }
   }
+  /* ───────── Claudeから毎日届くメモ（暗号化して digest.enc に置いてある。鍵はこの端末だけに保存） ───────── */
+  const DKEY="tokie_digest_key", MAX_DIGEST_CHARS=6000;
+  try{
+    const m=location.hash.match(/k=([A-Za-z0-9_-]{20,})/);
+    if(m){localStorage.setItem(DKEY,m[1]);history.replaceState(null,"",location.pathname);}
+  }catch(e){}
+  const getDKey=()=>{try{return localStorage.getItem(DKEY)||"";}catch(e){return "";}};
+  const b64u=(s)=>{s=s.trim().replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";const bin=atob(s);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;};
+  let digestCache=null;
+  async function loadDigest(){
+    const k=getDKey();if(!k)return {status:"nokey"};
+    try{
+      const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),4000);
+      const res=await fetch("digest.enc?t="+Date.now(),{cache:"no-store",signal:ctl.signal});clearTimeout(t);
+      if(!res.ok)return {status:"none"};
+      const raw=b64u(await res.text());
+      const key=await crypto.subtle.importKey("raw",b64u(k),"AES-GCM",false,["decrypt"]);
+      const plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:raw.slice(0,12)},key,raw.slice(12));
+      const obj=JSON.parse(new TextDecoder().decode(plain));
+      digestCache={status:"ok",updated:obj.updated,days:Array.isArray(obj.days)?obj.days:[]};
+      return digestCache;
+    }catch(e){return digestCache||{status:"error",msg:String(e&&e.message?e.message:e)};}
+  }
+  function digestText(d){
+    if(!d||d.status!=="ok"||!d.days.length)return "";
+    let body="";
+    for(const x of d.days){const block=`■${x.date}\n${x.text}\n`;if((body+block).length>MAX_DIGEST_CHARS)break;body+=block;}
+    return body.trim();
+  }
+
   // ブラウザに「このサイトのデータは勝手に消さんといて」と頼む（対応ブラウザのみ）
   try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist().catch(()=>{});}catch(e){}
   const clip=(t,n)=>t.length>n?t.slice(0,n)+"…":t;
@@ -227,13 +260,15 @@
   }
 
   // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
-  function buildMemory(extension){
+  function buildMemory(extension,digest){
     const b=loadBook();
     const parts=[];
     if(extension)parts.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
     parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
+    const dt=digestText(digest);
+    if(dt)parts.push("【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n"+dt);
     const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
-    let used=parts[0].length;
+    let used=parts.join("\n\n").length;
     if(notes.length){
       let body="";
       for(const n of notes){
@@ -281,8 +316,22 @@
       const pre=document.createElement("pre");pre.textContent=v.memo||"（メモなし）";
       d.appendChild(head);d.appendChild(pre);visitsEl.appendChild(d);
     }
-    const mem=buildMemory();const total=JSON.stringify(b).length;
+    renderDigest();
+    const mem=buildMemory(false,digestCache);const total=JSON.stringify(b).length;
     $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（上限${MAX_MEMORY_CHARS.toLocaleString()}文字。超えた分は古い来店メモから省く）／手帳全体：${total.toLocaleString()}文字`;
+  }
+  async function renderDigest(){
+    const st=$("digeststatus"),box=$("digestbox");
+    const d=await loadDigest();
+    box.innerHTML="";
+    if(d.status==="nokey"){st.textContent="未連携";box.innerHTML='<div class="empty">まだつながってない。Claudeから届いた「連携リンク」をこのスマホで1回開いたら届くようになる。</div>';return;}
+    if(d.status!=="ok"||!d.days.length){st.textContent=d.status==="error"?"読めへん":"まだ届いてない";box.innerHTML='<div class="empty">毎日20時40分ごろ、その日のClaudeとのやりとりがここに届く。</div>';return;}
+    st.textContent=`最終 ${d.updated||""}`;
+    for(const x of d.days.slice(0,3)){
+      const v=document.createElement("div");v.className="visit note";
+      v.innerHTML=`<div class="d"><span>✉ ${x.date}・Claudeから</span></div>`;
+      const pre=document.createElement("pre");pre.textContent=x.text;v.appendChild(pre);box.appendChild(v);
+    }
   }
   let saveTimer=null;
   profileEl.addEventListener("input",()=>{const b=loadBook();b.profile=profileEl.value;profileLen.textContent=`${profileEl.value.length}文字`;if(saveBook(b))savedEl.textContent="保存した";clearTimeout(saveTimer);saveTimer=setTimeout(()=>savedEl.textContent="",1500);});
@@ -359,7 +408,8 @@
     try{
       try{await navigator.mediaDevices.getUserMedia({audio:true});}
       catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;return;}
-      const memory=buildMemory(extension);
+      const digest=await loadDigest();
+      const memory=buildMemory(extension,digest);
       current={id:String(Date.now()),start:Date.now(),msgs:[]};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
