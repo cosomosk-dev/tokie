@@ -150,6 +150,23 @@
   .set .l small{display:block;font-size:10px;color:var(--dim);line-height:1.5;margin-top:2px}
   .set input[type=number],.set input[type=text]{width:84px;flex:none;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,241,226,.25);background:rgba(255,241,226,.08);color:var(--cream);font:700 14px "Zen Kaku Gothic New",sans-serif;text-align:center}
   .set input[type=text]{width:110px;text-align:left}
+  /* お店の案内 */
+  .guidebtn{position:relative;z-index:2;margin-top:-4px;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,241,226,.3);background:rgba(11,5,7,.45);
+    color:var(--dim);font:700 11px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer;backdrop-filter:blur(6px)}
+  .stage.on .guidebtn{display:none}
+  .gsec{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
+  .gsec h3{font-family:"Shippori Mincho B1",serif;font-size:15px;letter-spacing:.1em;color:#ffe6ef;margin-bottom:6px}
+  .gsec h3 span{display:inline-block;width:22px;height:22px;line-height:22px;margin-right:8px;border-radius:50%;text-align:center;font:700 12px "Zen Kaku Gothic New",sans-serif;background:var(--rose);color:#2a0a12}
+  .gsec p,.gsec li{font-size:13px;line-height:1.75;color:var(--cream)}
+  .gsec ul{list-style:none;margin-top:4px}
+  .gsec li::before{content:"・";color:var(--pink)}
+  .gsec b{color:var(--amber)}
+  .gbottles{display:flex;gap:8px;margin-top:8px}
+  .gbottles div{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:rgba(11,5,7,.5);border:1px solid rgba(255,184,92,.3);font-size:11px;line-height:1.5;color:var(--dim)}
+  .gbottles svg{display:block;margin:0 auto 4px}
+  .gbottles b{display:block;font-family:"Shippori Mincho B1",serif;font-size:15px;color:#ffe6ef}
+  .gbottles em{display:block;font-style:normal;font-size:13px;font-weight:700;color:var(--amber)}
+  .mamaline{font:600 14px/1.8 "Shippori Mincho B1",serif;color:#ffe6ef;text-align:center;margin:8px 0 2px}
   .set input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--rose)}
 </style>
 </head>
@@ -176,6 +193,7 @@
     <div class="notice" id="notice"></div>
     <div class="status" id="status">本日も営業中</div>
     <button class="btn" id="btn">入店する</button>
+    <button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button>
     <div class="err" id="err"></div>
   </div>
 </div>
@@ -247,7 +265,7 @@
 <div class="sheet" id="shelfsheet">
   <div class="book">
     <h2>ボトル棚</h2>
-    <p class="lead">ボトル＝先に入れとく、喋れる時間。喋った分だけ瓶の中身が減って、空いたらママが「次どうする？」と聞いてくる。<br>空けた瓶は「通った証」として棚に残る。</p>
+    <p class="lead">ボトル＝先に入れとく「ママと喋れる時間」。瓶の中身が時間や。<br>喋ってる間だけ減って、黙ってる間（10秒以上）はほとんど減らへん。空いたらママが「次どうする？」と聞いてくる。<br>空けた瓶は「通った証」として棚に残る。</p>
 
     <div id="shelfmain"></div>
 
@@ -257,11 +275,63 @@
 
     <label>次に入れるボトル</label>
     <div class="set"><div class="l">銘柄<small id="brandhint"></small></div>
-      <select id="s_brand"><option value="temma">天満（300分）</option><option value="ao">蒼（600分）</option><option value="tsukikage">月影（1200分）</option></select></div>
+      <select id="s_brand"><option value="temma">天満（5時間）</option><option value="ao">蒼（10時間）</option><option value="tsukikage">月影（20時間）</option></select></div>
     <div class="set"><div class="l">ネームタグ<small>瓶にぶら下げる札の名前。</small></div><input type="text" id="s_tag" maxlength="8"></div>
 
     <div class="row">
       <button class="primary" id="closeshelf">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- お店の案内（はじめての人に最初に出す） -->
+<div class="sheet" id="guidesheet">
+  <div class="book">
+    <h2>スナックトキエへようこそ</h2>
+    <p class="mamaline">「いらっしゃい。大阪・天満の小さい店やけど、<br>ゆっくりしていき。使い方、ざっと教えとくな」</p>
+
+    <div class="gsec">
+      <h3><span>1</span>ここは何する店？</h3>
+      <p>関西弁のママ・トキエと<b>声でおしゃべり</b>する店。</p>
+      <ul>
+        <li>「入店する」を押して、マイクを許可するだけ</li>
+        <li>あとは普通に話しかけたらええ。聞くだけやなく、ツッコミも入れてくる</li>
+        <li>黙って飲んでてもええ。急かさへん</li>
+      </ul>
+    </div>
+
+    <div class="gsec">
+      <h3><span>2</span>ボトルキープってなに？</h3>
+      <p>ボトル＝<b>先に入れとく「ママと喋れる時間」</b>。瓶の中身が時間や。</p>
+      <div class="gbottles" id="gbottles"></div>
+      <ul style="margin-top:8px">
+        <li>減るのは<b>喋ってる間だけ</b>。黙ってる間（10秒以上）はほとんど減らへん</li>
+        <li>残りは左上の瓶に「残り○時間」で出る</li>
+        <li>残り少なくなったら、ママが教えてくれる</li>
+        <li>空けた瓶は「通った証」として棚に並ぶ</li>
+      </ul>
+    </div>
+
+    <div class="gsec">
+      <h3><span>3</span>ママの手帳</h3>
+      <ul>
+        <li>話したことはママが手帳に書いとく。次に来たら覚えてる</li>
+        <li>右上の「手帳」に自分のことを書いとくと、話が早い</li>
+      </ul>
+    </div>
+
+    <div class="gsec">
+      <h3><span>4</span>帰るとき</h3>
+      <ul>
+        <li>「お会計」を押したら、ママが今日の話をまとめて一言くれる</li>
+        <li>営業時間が来たら「ラストオーダー」の声がかかって閉店</li>
+        <li>寝落ちしても、しばらく返事がなかったら静かにお会計しとく</li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <button id="closeguide">閉じる</button>
+      <button class="primary" id="guidestart">わかった、入店する</button>
     </div>
   </div>
 </div>
@@ -377,6 +447,8 @@
     const d=dayDiff(jstDate(new Date()),visits[0].date);
     return d<=0?"今日":d===1?"昨日":`${d}日前`;
   }
+  // 今日すでに何回来てるか（今の来店は除く）
+  function visitsTodayBefore(){const t=jstDate(new Date());return visitsOnly().filter(v=>v.date===t&&(!current||v.id!==current.id)).length;}
   function usedOn(dateStr,exceptId){return visitsOnly().filter(v=>v.date===dateStr&&v.id!==exceptId).reduce((s,v)=>s+(v.mins||0),0);}
   function renderCount(){const n=visitCount();$("notecount").textContent=`来店 ${n}回`+(n?`・${lastVisitText()}`:"");}
 
@@ -416,7 +488,8 @@
     const since=first?dayDiff(today,first):0;
     const total=visitsOnly().reduce((s,v)=>s+(v.mins||0),0);
     const usedToday=usedOn(today);
-    const lines=["【常連度】"+`今日で来店${n}回目`+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`];
+    const today_n=visitsTodayBefore()+1;
+    const lines=["【常連度】"+`今日で来店${n}回目`+(today_n>=2?`（今日だけで${today_n}回目。挨拶やネタで「今日2回目」と決めつけず、この数を使う）`:"")+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`];
     const anniv=[];
     if(first&&[7,30,50,100,200,365,500,730,1000].includes(since))anniv.push(`初来店からちょうど${since}日`);
     if([10,30,50,100,200,300,500].includes(n))anniv.push(`来店${n}回目`);
@@ -433,6 +506,8 @@
     tsukikage:{name:"月影",roma:"TSUKIKAGE",size:1200,desc:"店でいちばんええやつ",glass:"rgba(20,10,16,.85)",liquid:"#f1c35a",tag:"#e6c068",tagText:"#2a0a12"}
   };
   const brandOf=(k)=>BRANDS[k]||BRANDS.ao;
+  // 分を「5時間」「4時間20分」「40分」で表示
+  const hm=(min)=>{min=Math.max(0,Math.round(min));const h=Math.floor(min/60),m=min%60;return h?(m?`${h}時間${m}分`:`${h}時間`):`${m}分`;};
   const esc=(s)=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   function newBottle(brand,no){return {brand:BRANDS[brand]?brand:"ao",no,openedAt:jstDate(new Date()),openedTs:Date.now(),usedMs:0};}
   function saveBottles(B){try{localStorage.setItem(BKEY,JSON.stringify(B));}catch(e){}}
@@ -463,7 +538,7 @@
     let t=`【ボトル】キープボトルは「${i.b.name}」（${i.c.no}本目・${i.c.openedAt}に入れた・ネームタグ「${S.tagName}」）。`;
     if(i.empty)t+="もう空いてる（まだ次を入れてない）。今日はハウスボトルで飲んでる。会話の切れ目で「次のボトル、どうする？」と軽く一言（しつこう言わん・金の話にはせん）。";
     else{
-      t+=`残り${i.left}分／${i.b.size}分（${i.pct}%）。`;
+      t+=`残り${hm(i.left)}／${hm(i.b.size)}（${i.pct}%）。`;
       if(i.fresh)t+="今日入れたばっかり。「新しいの、おおきにな」と一言。";
       else if(i.pct<=10)t+="そろそろ空く。会話の切れ目で「ボトルそろそろ空くで、次どうする？」と軽く一言（しつこう言わん・金の話にはせん）。";
     }
@@ -495,9 +570,9 @@
   function renderBottleBtn(){
     const i=bottleInfo(bottles());
     bottleBtn.className="bottlebtn"+(i.empty?" empty":"");
-    bottleBtn.innerHTML=bottleSVG(i.b,i.pct,20,48,{dim:i.empty})+`<span>${i.b.name}</span><small>${i.empty?"空いた":`${i.left}分`}</small>`;
+    bottleBtn.innerHTML=bottleSVG(i.b,i.pct,20,48,{dim:i.empty})+`<span>${i.b.name}</span><small>${i.empty?"空いた":`残り${hm(i.left)}`}</small>`;
   }
-  function brandHint(){const b=brandOf($("s_brand").value);const S=settings();$("brandhint").textContent=`${b.desc}／${b.size}分＝約${Math.round(b.size*S.yenPerMin).toLocaleString()}円相当`;}
+  function brandHint(){const b=brandOf($("s_brand").value);const S=settings();$("brandhint").textContent=`${b.desc}／${hm(b.size)}（毎日30分なら約${Math.round(b.size/30)}日）／原価 約${Math.round(b.size*S.yenPerMin).toLocaleString()}円相当`;}
   function renderShelf(){
     const S=settings();const B=bottles();const i=bottleInfo(B);
     $("s_brand").value=S.brand;if(document.activeElement!==$("s_tag"))$("s_tag").value=S.tagName;brandHint();
@@ -509,9 +584,9 @@
     if(!i.empty){
       info.innerHTML=`<div class="brand">${i.b.name}<small>${i.b.roma}</small></div>`+
         `<div class="line">${i.c.no}本目・${i.c.openedAt} に入れた</div>`+
-        `<div class="line big">残り ${i.left}分<small>／${i.b.size}分</small></div>`+
+        `<div class="line big">残り ${hm(i.left)}<small>／${hm(i.b.size)}</small></div>`+
         `<div class="bar"><i style="width:${i.pct}%"></i></div>`+
-        `<div class="line">${i.pct<=10?"そろそろ空く。":""}1本 約${yen}円相当（${S.yenPerMin}円/分）</div>`;
+        `<div class="line">${i.pct<=10?"そろそろ空く。":""}原価 約${yen}円（${S.yenPerMin}円/分・オーナー用の目安）</div>`;
     }else{
       const next=brandOf($("s_brand").value);
       info.innerHTML=`<div class="brand">${i.b.name}<small>${i.b.roma}</small></div>`+
@@ -742,7 +817,13 @@
     const h=jstParts(new Date()).h;const visits=visitsOnly();
     if(!visits.length)return "いらっしゃい。初めてのお客さんやね。緊張せんでええから、まあこっち座り。";
     const d=dayDiff(jstDate(new Date()),visits[0].date);
-    if(d<=0)return "あら、また来てくれたん？今日2回目やないの。嬉しいわぁ、ほらこっち。";
+    if(d<=0){
+      const n=visitsTodayBefore()+1; // 今日で何回目
+      if(n===2)return "あら、また来てくれたん？今日2回目やないの。嬉しいわぁ、ほらこっち。";
+      if(n===3)return "えっ、今日3回目？あんた、ママのこと好きすぎちゃう？（笑）ほら座り。";
+      if(n<=5)return `今日${n}回目やで、あんた（笑）。もう常連通り越して住んどるやん。ほら、いつもの席。`;
+      return `今日${n}回目！ほんまにもう、店に住み。ほら座り、続き聞いたるわ。`;
+    }
     if(h<5)return "こんな時間に…眠れへんの？ええよ、ママ起きとるから。ほら座り。";
     if(d>=14)return "ちょっと、あんた！久しぶりやないの。どこ行っとったん。はよ座り。";
     if(d>=4)return "おかえり。しばらく顔見せへんから心配しとったんやで。ほら、こっち。";
@@ -754,7 +835,7 @@
   const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、おやすみ。気ぃつけて帰りや」で締めて。";
   const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、気ぃつけて帰りや」で締めて。";
   const MSG_IDLE="【店の様子】お客さんがしばらく黙ってる。寝てもうたかもしれん。「あんた、寝てもうた？」と一言だけ、やさしく声かけて。長い話はせんといて。";
-  const MSG_BOTTLE_LOW=(name,left)=>`【店の様子】お客さんのキープボトル「${name}」が残り少ない（あと${left}分ぶん）。今の話の切れ目で一言だけ「ボトルそろそろ空くで」と軽く触れて。しつこう言わん。金の話にはせん。`;
+  const MSG_BOTTLE_LOW=(name,left)=>`【店の様子】お客さんのキープボトル「${name}」が残り少ない（あと${hm(left)}ぶん）。今の話の切れ目で一言だけ「ボトルそろそろ空くで」と軽く触れて。しつこう言わん。金の話にはせん。`;
   const MSG_BOTTLE_EMPTY=(name)=>`【店の様子】お客さんのキープボトル「${name}」がたった今、空いた。今の話の切れ目で「あ、ボトル空いたわ。次、同じの入れとく？」と軽く一言。返事がどっちでも引きずらん。入れへんかったら「ほな今日はハウスで」で流す。`;
   const MSG_BOTTLE_NEW=(name)=>`【店の様子】お客さんが新しいキープボトル「${name}」を入れてくれた。「おおきに！新しいの開けるで」と嬉しそうに一言、乾杯の音頭をとって。長い話にはせん。`;
   const MAX_AUTO_EXTENSIONS=5; // 2時間×(1+5)＝最長12時間まで自動で入り直す（営業時間の設定のほうが先に効く）
@@ -952,7 +1033,24 @@
     if(r.kind==="user")bottleNotice();
   }
   btn.addEventListener("click",()=>conv?checkout():start(false,false));
-  renderBottleBtn();bottleNotice();
+
+  /* ───────── お店の案内（はじめての人には最初に1回だけ自動で出す） ───────── */
+  const GKEY="tokie_guide_seen_v1",guide=$("guidesheet");
+  function openGuide(){
+    const g=$("gbottles");g.innerHTML="";
+    for(const k of ["temma","ao","tsukikage"]){const b=BRANDS[k];const d=document.createElement("div");
+      d.innerHTML=bottleSVG(b,100,24,58)+`<b>${b.name}</b><em>${hm(b.size)}</em>毎日30分なら<br>約${Math.round(b.size/30)}日もつ`;g.appendChild(d);}
+    guide.classList.add("open");
+  }
+  function closeGuide(){guide.classList.remove("open");try{localStorage.setItem(GKEY,"1");}catch(e){}}
+  $("guidebtn").addEventListener("click",openGuide);
+  $("closeguide").addEventListener("click",closeGuide);
+  $("guidestart").addEventListener("click",()=>{closeGuide();if(!conv)start(false,false);});
+  guide.addEventListener("click",(e)=>{if(e.target===guide)closeGuide();});
+
+  renderBottleBtn();
+  let seen=false;try{seen=!!localStorage.getItem(GKEY);}catch(e){}
+  if(!seen)openGuide();else bottleNotice();
 </script>
 </body>
 </html>
