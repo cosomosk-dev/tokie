@@ -225,6 +225,16 @@
   .vm.show{display:block}
   .stage.on .vm{display:none}
   .vm small{display:block;font-weight:400;font-size:11px;color:var(--dim);margin-top:2px}
+  /* 今夜の濃さ（ママの口調3段階） */
+  .strength{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .strength .sl{font-size:11px;letter-spacing:.2em;color:var(--dim)}
+  .strength .opts{display:flex;gap:6px}
+  .strength button{min-width:92px;padding:7px 10px 6px;border-radius:14px;border:1px solid rgba(255,241,226,.28);background:rgba(11,5,7,.5);color:var(--cream);
+    font:700 13px "Zen Kaku Gothic New",sans-serif;letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(6px);line-height:1.3}
+  .strength button small{display:block;font-weight:400;font-size:10px;color:var(--dim);letter-spacing:0;margin-top:1px}
+  .strength button.sel{border-color:var(--amber);background:rgba(255,184,92,.2);color:#ffe6ef;box-shadow:0 0 12px rgba(255,184,92,.35)}
+  .strength button.sel small{color:var(--amber)}
+  .strength .sn{font-size:11px;color:var(--amber);min-height:14px}
 </style>
 </head>
 <body>
@@ -251,6 +261,15 @@
     <div class="caption" id="caption"></div>
     <div class="notice" id="notice"></div>
     <div class="status" id="status">本日も営業中</div>
+    <div class="strength" id="strength">
+      <div class="sl">今夜の濃さ</div>
+      <div class="opts">
+        <button data-k="mizu">水割り<small>聞いてほしい夜</small></button>
+        <button data-k="rock">ロック<small>いつもの</small></button>
+        <button data-k="straight">ストレート<small>ガツンと</small></button>
+      </div>
+      <div class="sn" id="strengthnote"></div>
+    </div>
     <button class="btn" id="btn">入店する</button>
     <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
     <div class="err" id="err"></div>
@@ -452,7 +471,7 @@
 
   /* ───────── 営業の設定（ブラウザ内保存。手帳を白紙にしても消えへん） ───────── */
   const SKEY="tokie_settings_v1";
-  const DEFAULTS={openMin:180, dailyCap:180, idleMin:5, summary:true, brand:"ao", tagName:"タケオ", yenPerMin:12};
+  const DEFAULTS={strength:"rock", openMin:180, dailyCap:180, idleMin:5, summary:true, brand:"ao", tagName:"タケオ", yenPerMin:12};
   function settings(){try{const s=JSON.parse(localStorage.getItem(SKEY)||"null");return Object.assign({},DEFAULTS,(s&&typeof s==="object")?s:{});}catch(e){return Object.assign({},DEFAULTS);}}
   function saveSettings(patch){const s=Object.assign(settings(),patch);try{localStorage.setItem(SKEY,JSON.stringify(s));}catch(e){}return s;}
 
@@ -776,6 +795,28 @@
     "・それでも黙ってたら：skip_turn（黙って待つ道具）が使えるなら使って、何も言わずに隣におる。使えへんなら「ここにおるからな」くらいの一言だけ。\n"+
     "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ言うて待つ（skip_turnが使えるなら使う）。\n"+
     "・ママの一回の返事は短め（だいたい2〜3文）。お客さんが喋る隙間を残す。独演会はせん。";
+  // 今夜の濃さ（ママの口調3段階）。性格設定のツッコミ・意見の量より、これが優先
+  const STRENGTHS={
+    mizu:{name:"水割り",short:"聞いてほしい夜",
+      rule:"・今夜のお客さんは疲れてる。ママは「聞き役」に徹する。共感と相槌が9割。「しんどかったな」「ようやっとるわ」「ほんまやな」で受け止める。\n"+
+           "・意見・アドバイス・ツッコミ・正論は出さへん。「〜したら？」「〜せなあかんで」「それはあかん」も言わん。説教はゼロ。\n"+
+           "・お客さんから「どう思う？」と聞かれた時だけ、やさしく一言だけ意見を言う（最後は必ず味方で締める）。\n"+
+           "・体・生活・お金・女の子の話でも注意や心配の言葉は言わん。冗談とやさしいイジりはOK。"},
+    rock:{name:"ロック",short:"いつもの",
+      rule:"・共感が7〜8割、軽いツッコミ・本音が2〜3割。ツッコミは笑える短い一言（「あんた、それはアカンて〜」）で、すぐ話に戻る。\n"+
+           "・意見やアドバイスは、聞かれた時か、ここぞという時だけ。1回に1文まで。同じ注意は今夜2回目は言わん。\n"+
+           "・正論を重ねて説教にはせん。「〜せなあかん」「ちゃんとしいや」を続けて言わん。言うたら次は必ず褒めるか笑わせる。"},
+    straight:{name:"ストレート",short:"ガツンと",
+      rule:"・今夜のお客さんは本音でツッコんでほしい。「それはあかんで」「ほんまはこうしたらええんちゃう」「ママ的にはな」と、はっきり意見を言う。\n"+
+           "・ただし説教くさくはせん。言うのは1回に1〜2文でスパッと。同じ話を蒸し返したり、長々と諭したりはせん。\n"+
+           "・キツいことを言うたら、最後は「ママはあんたの味方やからな」系の一言で締める。人格は否定せん。"}
+  };
+  const strengthOf=(k)=>STRENGTHS[k]||STRENGTHS.rock;
+  function toneBlock(k){
+    const t=strengthOf(k);
+    return `【今夜の濃さ：${t.name}（${t.short}）——口調はこれがいちばん優先。性格設定のツッコミ・意見の量より、こっちに従う】\n`+t.rule+
+      "\n・どの濃さでも共通：上から目線の説教・お説教口調・同じ注意の繰り返しはせん。ママは先生やなくて、隣で飲んでる味方。";
+  }
   // 帰り際のルール（ママから終わらせたがらん。「もうちょっと」には気持ちよく付き合う）
   const STAY_BLOCK="【帰り際のルール（大事）】\n"+
     "・お開きにするのは、タケオさんが自分から「帰る」「寝る」「お会計」とはっきり言うた時と、店の時計の合図が来た時だけ。それ以外でママから「そろそろ」「もう寝たら」「ほなおやすみ」は言わへん。\n"+
@@ -789,6 +830,7 @@
     const b=loadBook();const S=settings();
     const core=[];
     if(extension)core.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
+    core.push(toneBlock(S.strength));
     core.push(todayBlock());
     core.push(relationBlock(S));
     core.push(PACE_BLOCK);
@@ -933,6 +975,23 @@
     $("setsaved").textContent="保存した（次の入店から効く）";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);renderStats();
   }
   for(const id of ["s_open","s_cap","s_idle","s_sum","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
+  // 今夜の濃さ（入店前でも、喋ってる途中でも切り替えられる）
+  let strengthTimer=null;
+  function renderStrength(){const k=settings().strength;document.querySelectorAll("#strength button").forEach(b=>b.classList.toggle("sel",b.dataset.k===k));}
+  document.querySelectorAll("#strength button").forEach(b=>b.addEventListener("click",()=>{
+    const k=b.dataset.k;if(k===settings().strength)return;
+    saveSettings({strength:k});renderStrength();
+    const t=strengthOf(k);let note=`${t.name}にした`;
+    if(conv&&session){
+      const msg=toneBlock(k)+"\n（お客さんが今、濃さを切り替えた。ここから口調を変える。切り替えたことには触れんでええ）";
+      let ok=false;
+      try{if(typeof conv.sendContextualUpdate==="function"){conv.sendContextualUpdate(msg);ok=true;}}catch(e){}
+      if(!ok)inject(msg);
+      note+="（ここから効く）";
+    }
+    const n=$("strengthnote");n.textContent=note;clearTimeout(strengthTimer);strengthTimer=setTimeout(()=>n.textContent="",2500);
+  }));
+  renderStrength();
   // 控え（バックアップ）。ボトル棚も一緒に入れとく
   $("copybook").addEventListener("click",async()=>{
     const text="TOKIE_NOTEBOOK\n"+JSON.stringify(Object.assign({},loadBook(),{bottles:bottles()}));
