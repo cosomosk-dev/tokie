@@ -213,6 +213,7 @@
   .menubtn{position:relative;z-index:2;padding:7px 16px;border-radius:999px;border:1px solid rgba(255,184,92,.55);background:rgba(11,5,7,.5);
     color:var(--amber);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer;backdrop-filter:blur(6px)}
   .menurow{display:flex;gap:10px;justify-content:center;align-items:center}
+  .ver{font-size:10px;color:var(--dim);text-align:center;opacity:.7;letter-spacing:.05em}
   .demotag{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,184,92,.18);border:1px solid rgba(255,184,92,.5);color:var(--amber);font-size:10px;letter-spacing:.1em}
   .mitems{display:flex;flex-direction:column;gap:8px;margin-top:8px}
   .mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
@@ -297,6 +298,7 @@
     <button class="btn" id="btn">入店する</button>
     <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
     <div class="err" id="err"></div>
+    <div class="ver" id="ver"></div>
   </div>
 </div>
 
@@ -505,6 +507,24 @@
   const $ = (id) => document.getElementById(id);
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
+  // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
+  const APP_VER="2026-10-16 23:40";
+  try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
+  async function checkUpdate(){
+    if(conv)return false;
+    try{
+      const r=await fetch(location.pathname+"?_="+Date.now(),{cache:"no-store"});
+      const m=(await r.text()).match(/APP_VER="([^"]+)"/);
+      if(!m||m[1]===APP_VER||conv)return false;
+      const tried=sessionStorage.getItem("tokie_reload_for");
+      sessionStorage.setItem("tokie_reload_for",m[1]);
+      if(tried===m[1])location.replace(location.pathname+"?v="+encodeURIComponent(m[1])+location.hash);
+      else location.reload();
+      return true;
+    }catch(e){return false;}
+  }
+  checkUpdate();
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")checkUpdate();});
 
   /* ───────── 営業の設定（ブラウザ内保存。手帳を白紙にしても消えへん） ───────── */
   const SKEY="tokie_settings_v1";
@@ -1358,6 +1378,7 @@
   }
 
   async function start(extension,force){
+    if(!extension&&await checkUpdate()){statusEl.textContent="新しい版に入れ替えるで…";return;}
     errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent=extension?"延長入るで…":"ママが手帳を読んでる…";
     connectedAt=null;serverErr=null;
     const S=settings();const today=todayBiz();
