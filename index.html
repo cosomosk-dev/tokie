@@ -235,6 +235,17 @@
   .strength button.sel{border-color:var(--amber);background:rgba(255,184,92,.2);color:#ffe6ef;box-shadow:0 0 12px rgba(255,184,92,.35)}
   .strength button.sel small{color:var(--amber)}
   .strength .sn{font-size:11px;color:var(--amber);min-height:14px}
+  /* 画面が低いスマホでも入店ボタンまで届くように：手紙は高さを抑えて中でスクロール、入店前は画面ごとスクロールもできる */
+  .letter{max-height:24vh;max-height:24dvh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .stage:not(.on){overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .stage:not(.on) .bottom{gap:10px}
+  .strength{flex-direction:row;flex-wrap:wrap;justify-content:center;gap:4px 8px}
+  .strength .sl{width:100%;text-align:center}
+  .strength .opts{gap:6px}
+  .strength button{min-width:86px;padding:6px 8px 5px;font-size:12px}
+  .strength .sn{width:100%;text-align:center;min-height:0}
+  .strength .sn:empty{display:none}
+  @media (max-height:760px){.letter{max-height:18vh;max-height:18dvh}.strength button small{display:none}}
 </style>
 </head>
 <body>
