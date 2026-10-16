@@ -508,7 +508,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-16 v3";
+  const APP_VER="2026-10-16 v4";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -883,6 +883,11 @@
     "・体の心配は「寝ろ」「帰れ」やなく「水飲みや」の一言で。1回の来店で1回まで。\n"+
     "・お客さんが「お会計」「帰るわ」「おやすみ」と言うたら、それは本気。引き止めんと、店の合図に従って気持ちよう締める。\n"+
     "・今日たくさん喋ってても、それを理由に帰らせようとせん。";
+  const CHECKOUT_BLOCK="【お会計のしかた（いちばん大事）】\n"+
+    "・お客さんが「お会計」「帰るわ」「おやすみ」「今日はここまで」と言うたら、その1回の返事で全部言い切る：\n"+
+    "  ①「はいよ、お会計な」 ②今夜話したことを3行くらいでまとめる（何の話をして、どんな様子やったか） ③次来るまでの一言（手紙みたいに、ママらしく） ④「ほな、またな」で締める。\n"+
+    "・途中で止めへん。「ちょっと待ってな」で区切らへん。まとめは必ず声に出して言う。\n"+
+    "・締めたら、もう何も言わん。「早よ寝」「寝え」とは言わん。";
   // 寝る話のルール（「早よ寝」を言わへん。寝る寝ないはお客さんが決める）
   const SLEEP_BLOCK="【寝る話のルール（いちばん大事・どの濃さでも守る）】\n"+
     "・タケオさんは薬がないと眠られへん体や。「早よ寝」「もう寝たら」「寝なあかんで」「夜更かしはあかん」「目ぇつむり」「体のために寝え」は、どんな流れでも絶対に言わへん。言われるのがいちばんしんどい。\n"+
@@ -909,6 +914,7 @@
     if(extension)core.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
     if(extension&&current)core.push(tonightBlock(30));
     core.push(SLEEP_BLOCK);
+    core.push(CHECKOUT_BLOCK);
     core.push(NOW_BLOCK);
     core.push(TRUTH_BLOCK);
     core.push(toneBlock(S.strength));
@@ -1273,14 +1279,7 @@
   function voiceCheckout(t){
     if(!session||session.closing||session.voiceCheckout)return;
     if(!CHECKOUT_RE.test(t)||NOT_CHECKOUT_RE.test(t))return;
-    const mine=session,at=Date.now();mine.voiceCheckout=at;
-    statusEl.textContent="お会計やな。ママがまとめるで（「もうちょっと」で取り消し）";
-    const wait=()=>{
-      if(session!==mine||mine.voiceCheckout!==at||mine.closing)return;
-      if(mine.mode==="speaking"&&Date.now()-at<20000){setTimeout(wait,400);return;}
-      setTimeout(()=>{if(session===mine&&mine.voiceCheckout===at&&!mine.closing)checkout();},900);
-    };
-    setTimeout(wait,1200);
+    checkout(true);
   }
   // 音楽タイム：マイクを休ませて、ママは静かに隣におる
   const musicBtn=$("musicbtn");
@@ -1300,7 +1299,9 @@
   // ママの返事（声に出した分）をまとめて受け取る。喋り終わったら解決、最長 ms
   function captureReply(ms){
     return new Promise((resolve)=>{
-      const c={texts:[],spoke:false,done:false,t2:null};
+      const c={texts:[],spoke:false,done:false,t2:null,speakAt:0};
+      // 字幕は先に全部届くので、声が喋り終わるまでの時間（1文字約0.13秒）も待つ
+      c.quietDone=()=>{const need=c.speakAt+c.texts.join("").length*130-Date.now();if(need>300){c.t2=setTimeout(c.quietDone,need);return;}c.res();};
       c.res=()=>{if(c.done)return;c.done=true;clearTimeout(c.t);clearTimeout(c.t2);if(session&&session.capture===c)session.capture=null;resolve(c.texts.join(" ").trim());};
       c.t=setTimeout(c.res,ms);
       if(session)session.capture=c;else c.res();
@@ -1359,21 +1360,38 @@
     if(session!==mine||!mine.closing)return; // 「すぐ出る」で出た、または「もうちょっと」で延長になった
     if(text&&current){current.mamaNote=text;}
     if(current)current.endKind="closed";
+    await new Promise(r=>setTimeout(r,900));
+    if(session!==mine||!mine.closing)return;
     end({reason:"closed"});
   }
-  async function checkout(){
+  async function checkout(byVoice){
     if(!conv||!session)return;
     if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
-    if(session.closing){end({reason:"user"});return;} // 2回目＝すぐ出る
+    if(session.closing){if(!byVoice)end({reason:"user"});return;} // 2回目のボタン＝すぐ出る
     const S=settings();const userMsgs=current?current.msgs.filter(m=>m.who==="user").length:0;const el=Date.now()-session.start;
-    if(!S.summary||userMsgs<2||el<120000){end({reason:"user"});return;}
+    const wantSummary=S.summary&&userMsgs>=2&&el>=120000;
+    if(!byVoice&&!wantSummary){end({reason:"user"});return;}
     const mine=session;
-    session.closing=true;btn.textContent="すぐ出る";statusEl.textContent="ママが手帳に書いてる…";
-    const p=captureReply(50000);
-    if(!inject(MSG_CHECKOUT)){end({reason:"user"});return;}
-    const text=await p;
-    if(session!==mine||!mine.closing)return; // 「すぐ出る」で出た、または「もうちょっと」で延長になった
-    if(text&&current){current.mamaNote=text;}
+    session.closing=true;session.voiceCheckout=Date.now();btn.textContent="すぐ出る";
+    statusEl.textContent=wantSummary?"ママが今日のまとめを言うてる…（「もうちょっと」で取り消し）":"ママが見送ってくれてる…";
+    let text="";
+    if(byVoice){
+      // 声の「お会計」はママにも聞こえてる。ママの返事（まとめ→一言→「ほな、またな」）を、最後まで喋り終わるまで待つ
+      text=await captureReply(70000);
+      if(session!==mine||!mine.closing)return; // 「すぐ出る」か「もうちょっと」
+      if(wantSummary&&text.length<80){ // まとめを言わんと締めた時だけ、もう一回頼む
+        const p=captureReply(60000);
+        if(inject(MSG_CHECKOUT)){const t2=await p;if(session!==mine||!mine.closing)return;text=(text+" "+t2).trim();}
+      }
+    }else{
+      const p=captureReply(60000);
+      if(!inject(MSG_CHECKOUT)){end({reason:"user"});return;}
+      text=await p;
+      if(session!==mine||!mine.closing)return;
+    }
+    if(text&&current&&wantSummary){current.mamaNote=text;}
+    await new Promise(r=>setTimeout(r,900)); // 最後の一音まで聞かせてから切る
+    if(session!==mine||!mine.closing)return;
     end({reason:"user"});
   }
 
@@ -1426,7 +1444,7 @@
           if(mode!=="speaking"&&capAnim&&capAnim.startAt)capToBottom(true);
           if(!(session&&session.closing))statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";
           const c=session&&session.capture;
-          if(c){if(mode==="speaking"){c.spoke=true;clearTimeout(c.t2);}else if(c.spoke){clearTimeout(c.t2);c.t2=setTimeout(c.res,1500);}}
+          if(c){if(mode==="speaking"){c.spoke=true;if(!c.speakAt)c.speakAt=Date.now();clearTimeout(c.t2);}else if(c.spoke){clearTimeout(c.t2);c.t2=setTimeout(c.quietDone,2500);}}
         },
         onVadScore:(v)=>{const s=(v&&typeof v==="object")?(v.vadScore??v.score??0):(typeof v==="number"?v:0);if(s>0.6&&session)session.lastVad=Date.now();},
         onError:(msg,ctx)=>{serverErr={msg:String(msg&&msg.message?msg.message:msg),ctx:ctx||{}};errEl.textContent="エラー："+serverErr.msg;}
