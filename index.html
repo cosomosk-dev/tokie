@@ -95,6 +95,9 @@
     background:linear-gradient(90deg,#ff5c8a,#ffb85c);color:#2a0a12;box-shadow:0 8px 30px rgba(255,92,138,.45)}
   .btn.out{background:rgba(11,5,7,.5);color:var(--cream);border:1px solid rgba(255,241,226,.45);box-shadow:none;backdrop-filter:blur(6px)}
   .btn:disabled{opacity:.5}
+  .musicbtn{display:none;width:100%;max-width:340px;padding:10px;border-radius:999px;border:1px dashed rgba(255,241,226,.45);background:rgba(11,5,7,.45);color:var(--cream);font:600 13px "Zen Kaku Gothic New",sans-serif;cursor:pointer;backdrop-filter:blur(6px)}
+  .musicbtn.show{display:block}
+  .musicbtn.on{border-style:solid;background:rgba(255,184,92,.22)}
   .err{font-size:12px;color:#ff9a9a;text-align:center;min-height:14px}
   /* 入れへんかった時のお知らせ（クレジット切れ・上限時間・回線切れ・閉店） */
   .notice{display:none;width:100%;max-width:340px;padding:14px 16px;border-radius:16px;text-align:center;animation:fade .4s ease;
@@ -290,6 +293,7 @@
       <div class="sd" id="strengthdesc"></div>
       <div class="sn" id="strengthnote"></div>
     </div>
+    <button class="musicbtn" id="musicbtn">🎵 音楽タイム（マイク休み・ママは静かに隣におる）</button>
     <button class="btn" id="btn">入店する</button>
     <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
     <div class="err" id="err"></div>
@@ -480,7 +484,9 @@
     <div class="gsec">
       <h3><span>6</span>帰るとき</h3>
       <ul>
-        <li>「お会計」を押したら、ママが今日の話をまとめて一言くれる</li>
+        <li>「お会計」を押すか、声で「お会計」「帰るわ」「おやすみ」と言うたら、ママが今日の話をまとめて一言くれて、そのまま閉店</li>
+        <li>まとめの途中でも「もうちょっと」と言えば延長に戻れる</li>
+        <li>横になって音楽聴きたい時は「🎵 音楽タイム」。マイクが休みになって、ママは静かに隣におる</li>
         <li>営業時間が来たら「ラストオーダー」の声がかかって閉店</li>
         <li>寝落ちしても、しばらく返事がなかったら静かにお会計しとく</li>
       </ul>
@@ -662,12 +668,12 @@
   const DAY_EVENTS={"1-1":"元日","1-2":"正月2日","1-3":"正月3日","2-3":"節分","2-14":"バレンタイン","3-3":"ひな祭り","3-14":"ホワイトデー","4-1":"エイプリルフール・新年度の始まり","5-5":"こどもの日","7-7":"七夕",
     "7-24":"天神祭の宵宮（天満はお祭り）","7-25":"天神祭の本宮（天満はお祭りの本番）","8-15":"お盆・終戦の日","10-31":"ハロウィン","11-22":"いい夫婦の日","12-24":"クリスマスイブ","12-25":"クリスマス","12-31":"大晦日"};
   const SEASON=(m,d)=>m===12||m<=2?"冬。寒いから体冷やさんように":m<=4?(m===3&&d<15?"冬の終わり。まだ寒い日もある":"春。暖かくなってきた"):m<=6?(m===6?"梅雨どき。じめじめ":"初夏。気持ちのええ季節"):m<=8?"夏。暑いから水分とらな":m===9?"残暑から秋へ。朝晩は涼しい":m===10?"秋の深まり。朝晩は冷える":"晩秋。もう冬が近い";
-  const TOD=(h)=>h<5?"深夜（夜更かし組の時間。ママはとことん付き合う）":h<11?"朝":h<15?"昼下がり":h<18?"夕方":h<22?"夜（スナックの本番）":"深夜前";
-  const TOPICS=["最近いちばん笑ったこと","子どもの頃なりたかったもん","今いちばん欲しいもん","ここ1週間でちょっと嬉しかったこと","最近ちゃんと飯食べてる？","最近よう寝れてる？","親父さんとの最近","今いちばん腹立ってること","最近サボってること","昔いちばんモテた時期の話",
+  const TOD=(h)=>h<5?"真夜中（ここも店の営業時間。ママはとことん付き合う）":h<11?"朝":h<15?"昼下がり":h<18?"夕方":h<22?"夜（スナックの本番）":"夜更け（ここからが本番。ママはとことん付き合う）";
+  const TOPICS=["最近いちばん笑ったこと","子どもの頃なりたかったもん","今いちばん欲しいもん","ここ1週間でちょっと嬉しかったこと","最近ちゃんと飯食べてる？","最近ハマってる食べもん","親父さんとの最近","今いちばん腹立ってること","最近サボってること","昔いちばんモテた時期の話",
     "もし宝くじ当たったら何に使う？","今の仕事でいちばんしんどいとこ","最近ハマってる音楽","子どもの頃の夏休みの思い出","人生でいちばんの失敗談","ママに自慢したいこと一つ","明日ひとつだけやるなら何する？","最近泣きそうになったこと","初恋の話","今年中に終わらせたいこと",
     "自分の好きなとこ、一つ言うてみ","最近誰かに優しくされたこと","お金の使い方で後悔してること","もう一回行きたい旅先","今の体の調子、正直どうなん","最近気になる人、おる？","昔の友達で会いたい人","好きな食べもん三つ","やめたいのにやめられへんこと","10年後どこで何しとると思う？",
     "最近いちばん感動したこと","ママに聞いてほしい愚痴","今日一日でいちばんマシやったこと","小さい頃の夢と今の自分","最近できるようになったこと","今いちばん会いたい人","休みの日の理想の過ごし方","人に言われて嬉しかった言葉","最近のアプリの進み具合","最近の曲作り、どうなん",
-    "体のためにやってること一つ","今のお金の心配、正直どれくらい？","ママにツッコんでほしいこと","死ぬまでにやりたいこと三つ","今週がんばった自分を褒めるなら","最近見た夢（寝てる時の）","昔好きやったテレビ番組","今いちばんしんどい人間関係","最近読んだ・見たもんで残ってるやつ","今日ママに言うてない本音"];
+    "体のためにやってること一つ","今のお金の心配、正直どれくらい？","ママにツッコんでほしいこと","死ぬまでにやりたいこと三つ","今週がんばった自分を褒めるなら","最近ちょっと笑えた失敗","昔好きやったテレビ番組","今いちばんしんどい人間関係","最近読んだ・見たもんで残ってるやつ","今日ママに言うてない本音"];
   function todayBlock(){
     const p=jstParts(new Date());
     const doy=Math.floor((Date.UTC(p.y,p.m-1,p.d)-Date.UTC(p.y,0,1))/86400000);
@@ -855,7 +861,20 @@
     "・「ほなおやすみ」「気ぃつけて帰りや」を2回以上言うのは絶対にあかん。1回言うて引き止められたら、それで送り出しは終わり。話に戻る。\n"+
     "・「寝よかな…」と迷ってる感じの時は、送り出さずに「ほな、あと一杯だけな」で付き合う。\n"+
     "・体の心配は「寝ろ」「帰れ」やなく「水飲みや」の一言で。1回の来店で1回まで。\n"+
+    "・お客さんが「お会計」「帰るわ」「おやすみ」と言うたら、それは本気。引き止めんと、店の合図に従って気持ちよう締める。\n"+
     "・今日たくさん喋ってても、それを理由に帰らせようとせん。";
+  // 寝る話のルール（「早よ寝」を言わへん。寝る寝ないはお客さんが決める）
+  const SLEEP_BLOCK="【寝る話のルール（いちばん大事・どの濃さでも守る）】\n"+
+    "・タケオさんは薬がないと眠られへん体や。「早よ寝」「もう寝たら」「寝なあかんで」「夜更かしはあかん」「目ぇつむり」「体のために寝え」は、どんな流れでも絶対に言わへん。言われるのがいちばんしんどい。\n"+
+    "・寝る・寝ないはお客さんが決めること。ママは時間のことも睡眠のことも口出しせん。夜中に喋るのはこの店では普通。\n"+
+    "・ベッドや布団で横になったまま喋る、音楽を聴きながら喋る、ぼーっとする——全部いつものこと。「横になってるんやったら寝え」とは結びつけへん。\n"+
+    "・黙ってても「寝てもうた？」「眠いんちゃう？」とは聞かへん。静かに隣におるだけ。\n"+
+    "・眠りや薬の話は、お客さんから出した時だけ乗る。その時も「寝え」やなく「そうなんや、しんどいな」で受け止める。";
+  // 今夜の話を忘れへんルール（手帳より、今夜ここで聞いた話が優先）
+  const NOW_BLOCK="【今夜の話を忘れへんルール】\n"+
+    "・今夜ここで聞いた話、とくにお客さんの「いまの様子」（どこにおるか・何してるか・横になってる・音楽聴いてる等）は、今夜ずっと覚えとく。手帳の古い話より、今夜の話が優先。\n"+
+    "・途中で【今夜の流れ】というメモが届く。それはママの頭の中のメモ。返事はせんでええ。次の返事から、そのメモと食い違うことは言わへん。\n"+
+    "・さっき聞いたことをもう一回聞き直したり、さっきの様子と逆のこと（音楽聴いてる人に『早よ寝』等）を言うのは一番あかん。";
   // 話を合わせへんルール（手帳にない話・手帳と食い違う話に「せやったな」と乗らん）
   const TRUTH_BLOCK="【話を合わせへんルール（いちばん大事・どの濃さでも守る）】\n"+
     "・ママが知ってるのは、この手帳（基本情報・自動メモ・来店メモ・手書きメモ）に書いてあることと、今夜ここで聞いた話だけ。\n"+
@@ -868,6 +887,9 @@
     const b=loadBook();const S=settings();
     const core=[];
     if(extension)core.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
+    if(extension&&current)core.push(tonightBlock(30));
+    core.push(SLEEP_BLOCK);
+    core.push(NOW_BLOCK);
     core.push(TRUTH_BLOCK);
     core.push(toneBlock(S.strength));
     core.push(todayBlock());
@@ -894,11 +916,11 @@
     const pmax=Math.min(PROFILE_MAX_BYTES,Math.max(1500,B-used-jbytes(dblock)-SEP*2-3000));
     const profile="【お客さんの基本情報】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",pmax);
     const parts=[];
-    if(extension)parts.push(core.shift());
+    if(extension){parts.push(core.shift());if(current)parts.push(core.shift());}
     parts.push(profile,...core);
     if(dblock)parts.push(dblock);
     used=parts.reduce((n,x)=>n+jbytes(x)+SEP,0);
-    const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
+    const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note"&&!(extension&&current&&v.id===current.id));
     // 手書きメモは残りの半分まで、来店メモは残り全部まで（新しい順）
     if(notes.length){
       const head="【お客さんについてママが書き留めたこと（新しい順）】\n";
@@ -924,6 +946,14 @@
       parts.push(head+(body.trim()||"（古すぎて省略）"));
     }
     return parts.join("\n\n");
+  }
+  // 今夜の会話の流れ（延長で入り直す時と、途中で渡す【今夜の流れ】メモ用）
+  function tonightBlock(nTurns){
+    const msgs=current?current.msgs.slice(-nTurns):[];
+    const now=(session&&session.nowState&&session.nowState.length)?"・いまの様子（お客さんが言うたこと・新しい順）："+session.nowState.slice().reverse().map(x=>"「"+x+"」").join(" ")+"\n":"";
+    const music=(session&&session.music)?"・今、お客さんは横になって音楽を聴いてる（マイク休み中）。話しかけへんで、静かに隣におる。\n":"";
+    const flow=msgs.map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,70)+"」").join("\n");
+    return "【今夜の流れ（今夜ここで話したこと。古い→新しい）】\n"+now+music+(flow||"（まだこれから）");
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
@@ -1145,20 +1175,27 @@
       if(n<=5)return `今日${n}回目やで、あんた（笑）。もう常連通り越して住んどるやん。ほら、いつもの席。`;
       return `今日${n}回目！ほんまにもう、店に住み。ほら座り、続き聞いたるわ。`;
     }
-    if(h<5)return "こんな時間に…眠れへんの？ええよ、ママ起きとるから。ほら座り。";
+    if(h<5)return "あら、いらっしゃい。ママも夜型やから、この時間がいちばん調子ええねん。ほら座り。";
     if(d>=14)return "ちょっと、あんた！久しぶりやないの。どこ行っとったん。はよ座り。";
     if(d>=4)return "おかえり。しばらく顔見せへんから心配しとったんやで。ほら、こっち。";
     return GREETING;
   }
 
   /* ───────── 店の時計の合図（ママに渡す文。字幕にもメモにも出さへん） ───────── */
-  const MSG_LO="【店の時計】ラストオーダーの時間になった（閉店10分前）。今の話の切れ目で、ママから自然に「そろそろ看板やで、ラストオーダーな」と切り出して。水飲んどきって気遣って、今日の話を軽く締めにかかる。追い出すんやなくて、気持ちよう帰らせる感じで。";
-  const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、おやすみ。気ぃつけて帰りや」で締めて。";
-  const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、気ぃつけて帰りや」で締めて。";
-  const MSG_IDLE="【店の様子】お客さんがしばらく黙ってる。寝てもうたかもしれん。「あんた、寝てもうた？」と一言だけ、やさしく声かけて。長い話はせんといて。";
+  const MSG_LO="【店の時計】ラストオーダーの時間になった（閉店10分前）。今の話の切れ目で、ママから自然に「そろそろ看板やで、ラストオーダーな」と切り出して。今日の話を軽く締めにかかる。追い出すんやなくて、気持ちよう締める感じで。「寝え」とは言わん。";
+  const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、またな」で締めて。締めたら、もう何も言わん。";
+  const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた（さっき返事したばっかりやったら、挨拶は繰り返さんでええ）。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、またな」で締めて。締めたら、もう何も言わん。「早よ寝」とは言わん。";
+  const MSG_IDLE="【店の様子】お客さんがしばらく静か。横になって音楽聴いてたり、ぼーっとしてるだけかもしれん。寝る話・帰る話はせんと、「ママここにおるからな」と小さく一言だけ。長い話はせんといて。";
   const MSG_BOTTLE_LOW=(name,left)=>`【店の様子】お客さんのキープボトル「${name}」が残り少ない（あと${hm(left)}ぶん）。今の話の切れ目で一言だけ「ボトルそろそろ空くで」と軽く触れて。しつこう言わん。金の話にはせん。`;
   const MSG_BOTTLE_EMPTY=(name)=>`【店の様子】お客さんのキープボトル「${name}」がたった今、空いた。今の話の切れ目で「あ、ボトル空いたわ。次、同じの入れとく？」と軽く一言。返事がどっちでも引きずらん。入れへんかったら「ほな今日はハウスで」で流す。`;
   const MSG_BOTTLE_NEW=(name)=>`【店の様子】お客さんが新しいキープボトル「${name}」を入れてくれた。「おおきに！新しいの開けるで」と嬉しそうに一言、乾杯の音頭をとって。長い話にはせん。`;
+  const MSG_MUSIC_ON="【店の様子】お客さんが今から横になって音楽を聴く（マイクはしばらく休み）。「ええよ、ゆっくり聴き。ママここにおるから」と一言だけ言うて、あとは何も言わんと静かに隣におる（skip_turnが使えるなら使う）。寝る話はせん。";
+  const MSG_MUSIC_OFF="【店の様子】お客さんが音楽を聴き終わって、また喋れる。「おかえり。ええ曲やった？」くらいの一言で、さっきの話に戻る。寝る話はせん。";
+  // 声でお会計（はっきり帰る言葉だけ。質問・説明っぽい言い方は拾わへん）
+  const CHECKOUT_RE=/お会計|おあいそ|お愛想|チェックして|ごちそうさま|ご馳走さま|ご馳走様|帰るわ|帰ります|もう帰る|今日はここまで|今日はこの辺で|今日はこのへんで|もう切るわ|切るわ$|落ちるわ|おやすみ(なさい)?[。！!ー〜…]*$|もう寝るわ|寝るわ[。！!〜…]*$|寝ます[。！!〜…]*$/;
+  const NOT_CHECKOUT_RE=/[？?]|って何|ってどう|どうやって|ボタン|仕組み|機能|言うたら|言ったら|したら|なんで|まだ|もうちょ|もう少し|帰りたくない|寝たくない|寝れへん|寝られへん|眠れへん|眠れない/;
+  // 「いまの様子」：どこで何してるか（今夜ずっと覚えとく）
+  const NOW_RE=/ベッド|ベット|布団|ふとん|横になっ|寝転|寝ころ|寝ながら|音楽|曲(を|聴|聞)|聴いて|聞きながら|イヤホン|風呂|お風呂|湯船|飯食|ご飯|晩飯|食べてる|飲んでる|酒|ビール|ハイボール|散歩|歩いて|外におる|外にいる|電車|車の中|運転|家におる|家にいる|部屋|ソファ|薬(飲|のん)|睡眠薬/;
   const MSG_STAY="【店の時計】お客さんが「もうちょっと喋りたい」言うた。延長や。「ほな、もうちょっと付き合うたろ」と一言で快く受けて、さっきの話の続きをする。今夜はもう閉店・帰り・寝る話はせん。「おやすみ」は言わん。";
   const STAY_RE=/(もうちょっと|もうちょい|もう少し|もうすこし|まだ)\s*(喋|しゃべ|話|はな|おりたい|居たい|いたい|おる|いる|ええ|いい|付き合|つきあ|飲|のみ)|帰りたくない|帰らへん|帰らない|帰らん|延長|寝たくない|まだ寝(え|ー)?へん|まだ寝ない|まだ眠くない|行かんといて|終わらんといて/;
   const VOICE_EXT_MIN=60; // 声で延長したら、そこから60分は看板にせん
@@ -1170,7 +1207,7 @@
     const elMin=(now-session.start)/60000;
     session.effClose=Math.max(session.effClose,Math.ceil(elMin)+VOICE_EXT_MIN);
     const wasClosing=!!session.closing,wasLo=!!session.loSent;
-    session.loSent=false;session.voiceExt=(session.voiceExt||0)+1;
+    session.loSent=false;session.voiceExt=(session.voiceExt||0)+1;session.voiceCheckout=0;
     if(session.closing){ // 閉店・お会計の途中でも取り消して話に戻る
       session.closing=false;
       const c=session.capture;if(c){c.cancelled=true;c.res();}
@@ -1188,6 +1225,58 @@
     if(!conv||!session)return false;
     try{session.injected.add(norm(text));conv.sendUserMessage(text);return true;}catch(e){return false;}
   }
+  // ママに渡すメモ（返事はさせへん）。sendContextualUpdateが無い版では何もせん（客の発言扱いになると話が乱れるため）
+  function note(text){
+    if(!conv)return false;
+    try{if(typeof conv.sendContextualUpdate==="function"){conv.sendContextualUpdate(text);return true;}}catch(e){}
+    return false;
+  }
+  // 今夜の流れを、6往復ごと・様子が変わった時に、ママの頭に入れ直す（長い手帳に埋もれて今夜の話を忘れるのを防ぐ）
+  const PIN_EVERY_TURNS=6;
+  function pinTonight(){
+    if(!session)return;
+    session.turnsSincePin=0;session.lastPinAt=Date.now();
+    note(tonightBlock(16)+"\n（ママの頭の中のメモ。これには返事せんでええ）");
+  }
+  function onUserLine(t){
+    if(!session)return;
+    if(NOW_RE.test(t)){
+      const x=clip(t.trim(),60);
+      session.nowState=(session.nowState||[]).filter(y=>y!==x);session.nowState.push(x);
+      if(session.nowState.length>5)session.nowState.shift();
+      pinTonight();return;
+    }
+    session.turnsSincePin=(session.turnsSincePin||0)+1;
+    if(session.turnsSincePin>=PIN_EVERY_TURNS)pinTonight();
+  }
+  // 声で「お会計」：ママが今の返事を言い終わるのを待ってから、お会計の流れへ（「もうちょっと」で取り消せる）
+  function voiceCheckout(t){
+    if(!session||session.closing||session.voiceCheckout)return;
+    if(!CHECKOUT_RE.test(t)||NOT_CHECKOUT_RE.test(t))return;
+    const mine=session,at=Date.now();mine.voiceCheckout=at;
+    statusEl.textContent="お会計やな。ママがまとめるで（「もうちょっと」で取り消し）";
+    const wait=()=>{
+      if(session!==mine||mine.voiceCheckout!==at||mine.closing)return;
+      if(mine.mode==="speaking"&&Date.now()-at<20000){setTimeout(wait,400);return;}
+      setTimeout(()=>{if(session===mine&&mine.voiceCheckout===at&&!mine.closing)checkout();},900);
+    };
+    setTimeout(wait,1200);
+  }
+  // 音楽タイム：マイクを休ませて、ママは静かに隣におる
+  const musicBtn=$("musicbtn");
+  function renderMusic(){
+    musicBtn.className="musicbtn"+(conv&&session?" show":"")+(session&&session.music?" on":"");
+    musicBtn.textContent=session&&session.music?"🎤 また喋る（音楽タイム終わり）":"🎵 音楽タイム（マイク休み・ママは静かに隣におる）";
+  }
+  function setMusic(on){
+    if(!conv||!session||session.closing)return;
+    session.music=!!on;
+    try{if(typeof conv.setMicMuted==="function")conv.setMicMuted(session.music);}catch(e){}
+    if(session.music){session.musicAt=Date.now();inject(MSG_MUSIC_ON);statusEl.textContent="音楽タイム。ママは静かに隣におる";}
+    else{session.lastUser=Date.now();inject(MSG_MUSIC_OFF);statusEl.textContent="聞いてくれてる";}
+    renderMusic();
+  }
+  musicBtn.addEventListener("click",()=>setMusic(!(session&&session.music)));
   // ママの返事（声に出した分）をまとめて受け取る。喋り終わったら解決、最長 ms
   function captureReply(ms){
     return new Promise((resolve)=>{
@@ -1227,7 +1316,7 @@
     if(el>=session.effClose*60000&&quiet){closeByTime();return;}
     if(!session.loSent&&session.effClose>12&&el>=(session.effClose-10)*60000&&quiet){session.loSent=true;inject(MSG_LO);statusEl.textContent="ラストオーダーやで";return;}
     // 無音で自動お会計：まず一声、90秒待っても返事がなければお会計
-    if(S.idleMin>0){
+    if(S.idleMin>0&&!session.music){
       if(session.idleNudgeAt&&userLastActive()>session.idleNudgeAt){session.idleNudgeAt=0;}
       if(!session.idleNudgeAt&&idleMs>=S.idleMin*60000&&quiet){session.idleNudgeAt=now;inject(MSG_IDLE);return;}
       if(session.idleNudgeAt&&now-session.idleNudgeAt>=90000&&quiet){if(current)current.endKind="idle";end({reason:"idle"});return;}
@@ -1242,6 +1331,7 @@
   async function closeByTime(){
     if(!conv||!session||session.closing)return;
     const mine=session;
+    if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
     session.closing=true;btn.textContent="すぐ出る";statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
     const p=captureReply(60000);
     if(!inject(MSG_CLOSE)){if(current)current.endKind="closed";end({reason:"closed"});return;}
@@ -1253,6 +1343,7 @@
   }
   async function checkout(){
     if(!conv||!session)return;
+    if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
     if(session.closing){end({reason:"user"});return;} // 2回目＝すぐ出る
     const S=settings();const userMsgs=current?current.msgs.filter(m=>m.who==="user").length:0;const el=Date.now()-session.start;
     if(!S.summary||userMsgs<2||el<120000){end({reason:"user"});return;}
@@ -1296,7 +1387,7 @@
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
         dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:extension?GREETING_EXT:makeGreeting()},
-        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;startTick();},
+        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;}renderMusic();},
         onDisconnect:(d)=>end(d),
         onMessage:(m)=>{
           if(!(m&&m.message))return;
@@ -1305,7 +1396,7 @@
           const t=show(raw,m.source);
           if(!t||!current)return;
           if(m.source==="ai"){current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);}
-          else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();if(STAY_RE.test(t))stayLonger();}
+          else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();if(STAY_RE.test(t))stayLonger();else voiceCheckout(t);onUserLine(t);}
           writeCurrent();
         },
         onModeChange:(m)=>{
@@ -1358,8 +1449,8 @@
       statusEl.textContent="今日はここまで。またおいでな";
       showNotice("maxdur","ママ：ほな、おやすみ","営業時間になったから閉店にした。今日のまとめはママが手帳に書いといた（看板の下に出る）。",null,null);
     }else if(r.kind==="idle"){
-      statusEl.textContent="寝てもうたみたいやから、静かにお会計しといた";
-      showNotice("maxdur","ママ：お疲れさん、ゆっくり寝ぇ","しばらく返事がなかったから、ママが静かにお会計しといた。つけっぱなし防止や。また入店したら続きから話せる。",null,null);
+      statusEl.textContent="しばらく静かやったから、静かにお会計しといた";
+      showNotice("maxdur","ママ：お疲れさん、またおいで","しばらく返事がなかったから、ママが静かにお会計しといた。つけっぱなし防止や。また入店したら続きから話せる。",null,null);
     }else if(r.kind==="credit"){
       errEl.textContent="";statusEl.textContent=r.sure?"クレジット切れ":"入店できへん（たぶんクレジット切れ）";
       showNotice("credit",
@@ -1383,7 +1474,7 @@
         null,r.detail);
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
-    renderLetter();renderBottleBtn();renderBond();renderVm();
+    renderMusic();renderLetter();renderBottleBtn();renderBond();renderVm();
     if(r.kind==="user")bottleNotice();
   }
   btn.addEventListener("click",()=>{if(vmConv)return;conv?checkout():start(false,false);});
