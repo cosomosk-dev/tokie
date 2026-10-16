@@ -460,6 +460,12 @@
   const KEY="tokie_notebook_v1";
   // ママに一度に渡す記憶の上限（文字）。手帳そのものは無制限に残るが、ママが毎回読む量だけはこれで区切る（長すぎると返事が遅く・高くなる）
   const MAX_MEMORY_CHARS=24000;
+  // ElevenLabsへ入店時に渡すデータは1回64,000バイトまで（超えると「cannot publish data packet larger than 64000 bytes」で入れへん）。
+  // 日本語は1文字3バイトなので文字数ではなくバイトで区切る。挨拶など他の項目の分も残して40,000バイトまで。
+  const MEMORY_BUDGET_BYTES=40000, PROFILE_MAX_BYTES=15000, DIGEST_MAX_BYTES=9000;
+  const _enc=new TextEncoder();
+  function jbytes(t){return _enc.encode(JSON.stringify(String(t||""))).length-2;}
+  function clipBytes(t,max){t=String(t||"");if(jbytes(t)<=max)return t;let lo=0,hi=t.length;while(lo<hi){const m=Math.ceil((lo+hi)/2);if(jbytes(t.slice(0,m))+4<=max)lo=m;else hi=m-1;}return t.slice(0,lo)+"…";}
   const SILENCE_DISCOUNT_AFTER=10000; // 10秒を超えた無音から割引
   const SILENCE_RATE=0.05;            // 無音は通常の5%（95%引き）
   const empty=()=>({profile:"",visits:[]});
@@ -778,39 +784,63 @@
     "・「寝よかな…」と迷ってる感じの時は、送り出さずに「ほな、あと一杯だけな」で付き合う。\n"+
     "・体の心配は「寝ろ」「帰れ」やなく「水飲みや」の一言で。1回の来店で1回まで。\n"+
     "・今日たくさん喋ってても、それを理由に帰らせようとせん。";
-  function buildMemory(extension,digest){
+  function buildMemory(extension,digest,budget){
+    const B=budget||MEMORY_BUDGET_BYTES;
     const b=loadBook();const S=settings();
+    const core=[];
+    if(extension)core.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
+    core.push(todayBlock());
+    core.push(relationBlock(S));
+    core.push(PACE_BLOCK);
+    core.push(STAY_BLOCK);
+    core.push("【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。");
+    const SEP=4; // 区切りの改行2つぶん（JSONで\n\n）
+    let used=core.reduce((n,x)=>n+jbytes(x)+SEP,0);
+    // 毎日の自動メモ：新しい日から、DIGEST_MAX_BYTESまで
+    let dblock="";
+    if(digest&&digest.status==="ok"&&digest.days&&digest.days.length){
+      const head="【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n";
+      const dmax=Math.min(DIGEST_MAX_BYTES,Math.max(0,B-used-8000));
+      let body="";
+      for(const x of digest.days){
+        const block=`■${x.date}\n${x.text}\n`;
+        if(jbytes(head+body+block)>dmax){if(!body)body=clipBytes(block,dmax-jbytes(head));break;}
+        body+=block;
+      }
+      if(body.trim())dblock=head+body.trim();
+    }
+    // 基本情報：長すぎたら後ろを省く（手帳の中身は消さへん。ママに渡す分だけ）
+    const pmax=Math.min(PROFILE_MAX_BYTES,Math.max(1500,B-used-jbytes(dblock)-SEP*2-3000));
+    const profile="【お客さんの基本情報】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",pmax);
     const parts=[];
-    if(extension)parts.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、下の来店メモの一番新しい話の続きから自然に話す。");
-    parts.push("【お客さんの基本情報】\n"+(b.profile.trim()||"（まだ書いてない）"));
-    parts.push(todayBlock());
-    parts.push(relationBlock(S));
-    parts.push(PACE_BLOCK);
-    parts.push(STAY_BLOCK);
-    parts.push("【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。");
-    const dt=digestText(digest);
-    if(dt)parts.push("【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n"+dt);
+    if(extension)parts.push(core.shift());
+    parts.push(profile,...core);
+    if(dblock)parts.push(dblock);
+    used=parts.reduce((n,x)=>n+jbytes(x)+SEP,0);
     const notes=b.visits.filter(v=>v.kind==="note"), visits=b.visits.filter(v=>v.kind!=="note");
-    let used=parts.join("\n\n").length;
+    // 手書きメモは残りの半分まで、来店メモは残り全部まで（新しい順）
     if(notes.length){
+      const head="【お客さんについてママが書き留めたこと（新しい順）】\n";
+      const cap=used+Math.floor((B-used)/2);
       let body="";
       for(const n of notes){
         const block=`■${n.date}に書いたメモ\n${n.memo}\n`;
-        if(used+body.length+block.length>MAX_MEMORY_CHARS)break;
+        if(used+jbytes(head+body+block)+SEP>cap)break;
         body+=block;
       }
-      if(body){parts.push("【お客さんについてママが書き留めたこと（新しい順）】\n"+body.trim());used+=body.length;}
+      if(body){const t=head+body.trim();parts.push(t);used+=jbytes(t)+SEP;}
     }
     if(!visits.length){parts.push("【これまでの来店メモ】\n（初来店。まだ何も書いてない）");}
     else{
+      const head="【これまでの来店メモ（新しい順）】\n";
       let body="";
       for(const v of visits){
         const memo=v.mamaNote?("ママが書いたまとめ: "+v.mamaNote+"\n"+clipLines(v.memo,12)):v.memo;
         const block=`■${v.date} ${v.time}（${v.mins}分）\n${memo}\n`;
-        if(used+body.length+block.length>MAX_MEMORY_CHARS)break;
+        if(used+jbytes(head+body+block)+SEP>B)break;
         body+=block;
       }
-      parts.push("【これまでの来店メモ（新しい順）】\n"+(body.trim()||"（古すぎて省略）"));
+      parts.push(head+(body.trim()||"（古すぎて省略）"));
     }
     return parts.join("\n\n");
   }
@@ -858,7 +888,7 @@
     }
     renderDigest();
     const mem=buildMemory(false,digestCache);const total=JSON.stringify(b).length;
-    $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（上限${MAX_MEMORY_CHARS.toLocaleString()}文字。超えた分は古い来店メモから省く）／手帳全体：${total.toLocaleString()}文字`;
+    $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（${Math.round(jbytes(mem)/1000)}KB／上限${MEMORY_BUDGET_BYTES/1000}KB。超えた分は古い来店メモから省く。手帳の中身は消えへん）／手帳全体：${total.toLocaleString()}文字`;
   }
   async function renderDigest(){
     const st=$("digeststatus"),box=$("digestbox");
@@ -992,6 +1022,7 @@
     const detail=bits.join(" / ");
     const text=detail.toLowerCase();
     if(ctx.type==="max_duration_exceeded"||/max_duration/.test(text))return {kind:"maxdur",detail};
+    if(/data packet larger|packet larger than|message too large|too large/.test(text))return {kind:"toobig",detail};
     if(/quota|credit|insufficient|402|payment|subscription|usage|billing/.test(text))return {kind:"credit",sure:true,detail};
     if(/exceed|limit|unauthorized|401|403/.test(text))return {kind:"credit",sure:false,detail};
     const talked=current&&current.msgs.some(m=>m.who==="user");
@@ -1235,6 +1266,11 @@
         r.sure?"ママ：堪忍な、クレジット切れや":"ママ：堪忍な、たぶんクレジット切れや",
         "ElevenLabsの今月ぶんの通話時間を使い切ったみたい。追加クレジットを買うか、プランを一段上げたら、すぐまた入れる。",
         {href:ELEVEN_SUB,label:"ElevenLabsの料金ページを開く"},r.detail);
+    }else if(r.kind==="toobig"){
+      statusEl.textContent="手帳が重すぎて入れへんかった";
+      showNotice("dropped","ママ：手帳が分厚うなりすぎたわ",
+        "クレジットは関係あらへん。ママに渡す手帳の量が多すぎて送れへんかった。渡す量は自動で減らすようにしてあるから、もう一回入店してみて。それでもあかんかったら、この画面をClaudeに見せて。",
+        null,r.detail);
     }else if(r.kind==="maxdur"){
       statusEl.textContent="今日はもう閉店や";
       showNotice("maxdur","ママ：今日はほんまにここまでやで",
@@ -1393,7 +1429,7 @@
       const digest=await loadDigest();
       vmConv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory:buildMemory(false,digest)+"\n\n"+MSG_VM, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
+        dynamicVariables:{memory:buildMemory(false,digest,MEMORY_BUDGET_BYTES-jbytes(MSG_VM)-8)+"\n\n"+MSG_VM, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
         onConnect:()=>{try{vmConv&&vmConv.setMicMuted&&vmConv.setMicMuted(true);}catch(e){}
           setTimeout(()=>{try{vmConv&&vmConv.sendUserMessage(MSG_VM);}catch(e){}},300);
           hardStop=setTimeout(()=>finish(true),75000);},
