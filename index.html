@@ -247,6 +247,12 @@
   .strength .sn:empty{display:none}
   .strength .sl .q{min-width:0;width:20px;height:20px;padding:0;margin-left:4px;border-radius:50%;font-size:11px;line-height:18px;vertical-align:1px;color:var(--amber);border-color:rgba(255,184,92,.6)}
   .strength .sd{width:100%;text-align:center;font-size:11px;line-height:1.5;color:var(--cream);text-shadow:0 1px 6px rgba(0,0,0,.9)}
+  /* 喋ってる最中は、お品書きまで画面に収める：濃さの見出し・説明を隠し、字幕を少し低く。それでも溢れたら画面ごとスクロール */
+  .stage.on{overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .stage.on .bottom{gap:10px}
+  .stage.on .strength .sl,.stage.on .strength .sd{display:none}
+  .stage.on .strength button small{display:none}
+  .stage.on .caption{max-height:30vh;max-height:30dvh;min-height:80px}
   @media (max-height:760px){.letter{max-height:18vh;max-height:18dvh}.strength button small{display:none}}
 </style>
 </head>
