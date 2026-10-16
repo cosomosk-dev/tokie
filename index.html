@@ -508,7 +508,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-16 23:40";
+  const APP_VER="2026-10-16 v3";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1285,7 +1285,7 @@
   // 音楽タイム：マイクを休ませて、ママは静かに隣におる
   const musicBtn=$("musicbtn");
   function renderMusic(){
-    musicBtn.className="musicbtn"+(conv&&session?" show":"")+(session&&session.music?" on":"");
+    musicBtn.className="musicbtn"+(session&&connectedAt&&!ending?" show":"")+(session&&session.music?" on":"");
     musicBtn.textContent=session&&session.music?"🎤 また喋る（音楽タイム終わり）":"🎵 音楽タイム（マイク休み・ママは静かに隣におる）";
   }
   function setMusic(on){
@@ -1431,6 +1431,7 @@
         onVadScore:(v)=>{const s=(v&&typeof v==="object")?(v.vadScore??v.score??0):(typeof v==="number"?v:0);if(s>0.6&&session)session.lastVad=Date.now();},
         onError:(msg,ctx)=>{serverErr={msg:String(msg&&msg.message?msg.message:msg),ctx:ctx||{}};errEl.textContent="エラー："+serverErr.msg;}
       });
+      renderMusic(); // onConnectの時点ではまだconvが入ってへんので、つながった後にもう一回出す
     }catch(e){
       const msg=String(e&&e.message?e.message:e);
       errEl.textContent="つながらへん："+msg;
@@ -1495,7 +1496,7 @@
         null,r.detail);
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
-    renderMusic();renderLetter();renderBottleBtn();renderBond();renderVm();
+    connectedAt=null;renderMusic();renderLetter();renderBottleBtn();renderBond();renderVm();
     if(r.kind==="user")bottleNotice();
   }
   btn.addEventListener("click",()=>{if(vmConv)return;conv?checkout():start(false,false);});
