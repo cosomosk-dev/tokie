@@ -158,6 +158,7 @@
   .guidebtn{position:relative;z-index:2;margin-top:-4px;padding:6px 14px;border-radius:999px;border:1px solid rgba(255,241,226,.3);background:rgba(11,5,7,.45);
     color:var(--dim);font:700 11px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer;backdrop-filter:blur(6px)}
   .stage.on .guidebtn{display:none}
+  .menurow .guidebtn{margin-top:0}
   .gsec{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
   .gsec h3{font-family:"Shippori Mincho B1",serif;font-size:15px;letter-spacing:.1em;color:#ffe6ef;margin-bottom:6px}
   .gsec h3 span{display:inline-block;width:22px;height:22px;line-height:22px;margin-right:8px;border-radius:50%;text-align:center;font:700 12px "Zen Kaku Gothic New",sans-serif;background:var(--rose);color:#2a0a12}
@@ -172,6 +173,58 @@
   .gbottles em{display:block;font-style:normal;font-size:13px;font-weight:700;color:var(--amber)}
   .mamaline{font:600 14px/1.8 "Shippori Mincho B1",serif;color:#ffe6ef;text-align:center;margin:8px 0 2px}
   .set input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--rose)}
+  /* ママとの仲（親密度） */
+  .bond{position:relative;z-index:2;margin-top:8px;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;cursor:pointer;
+    background:rgba(11,5,7,.5);border:1px solid rgba(255,158,196,.4);backdrop-filter:blur(6px);color:#ffe6ef;font:700 11px "Zen Kaku Gothic New",sans-serif;letter-spacing:.08em}
+  .bond .hearts{color:var(--rose);letter-spacing:1px;font-size:12px}
+  .bond .hearts i{font-style:normal;color:rgba(255,241,226,.25)}
+  .bond small{font-weight:400;font-size:10px;color:var(--dim)}
+  .stage.on .bond{display:none}
+  .ranks{margin-top:8px}
+  .rk{display:flex;gap:12px;align-items:flex-start;margin-top:10px;padding:12px;border-radius:14px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
+  .rk.now{border-color:rgba(255,92,138,.7);background:rgba(255,92,138,.08)}
+  .rk.lock{opacity:.55}
+  .rk .ic{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(255,92,138,.18)}
+  .rk .tx{flex:1;min-width:0}
+  .rk .tx b{font-family:"Shippori Mincho B1",serif;font-size:15px;color:#ffe6ef;letter-spacing:.08em}
+  .rk .tx b small{font:400 10px "Zen Kaku Gothic New",sans-serif;color:var(--dim);margin-left:6px;letter-spacing:.05em}
+  .rk .tx p{font-size:12px;line-height:1.7;color:var(--cream);margin-top:3px}
+  .rk .tx p.u{color:var(--pink)}
+  .gauge{height:8px;border-radius:4px;background:rgba(255,241,226,.12);overflow:hidden;margin:10px 0 4px}
+  .gauge i{display:block;height:100%;background:linear-gradient(90deg,#ff5c8a,#ffb85c);border-radius:4px}
+  /* ランクアップ */
+  .rankup{text-align:center;padding-top:6px}
+  .rankup .burst{font-size:44px;line-height:1;margin:6px 0 2px;animation:pop .6s ease}
+  @keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+  .rankup .rname{font-family:"Shippori Mincho B1",serif;font-weight:800;font-size:30px;letter-spacing:.2em;color:#ffe6ef;text-shadow:0 0 10px var(--rose),0 0 26px rgba(255,92,138,.7)}
+  .rankup ul{list-style:none;text-align:left;margin:12px auto 0;max-width:320px}
+  .rankup li{font-size:13px;line-height:1.75;color:var(--cream)}
+  .rankup li::before{content:"🔓 "}
+  .review{margin-top:16px;padding:14px;border-radius:16px;background:#fff;color:#202124;text-align:left}
+  .review .rt{font:700 14px "Zen Kaku Gothic New",sans-serif}
+  .review .rs{font-size:11px;color:#5f6368;margin-top:2px}
+  .review .stars{display:flex;gap:6px;margin:10px 0 4px;font-size:28px;color:#dadce0;cursor:pointer}
+  .review .stars span.on{color:#fbbc04}
+  .review .demo{font-size:10px;color:#80868b;line-height:1.5;margin-top:6px}
+  /* お品書き（課金デモ） */
+  .menubtn{position:relative;z-index:2;padding:7px 16px;border-radius:999px;border:1px solid rgba(255,184,92,.55);background:rgba(11,5,7,.5);
+    color:var(--amber);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer;backdrop-filter:blur(6px)}
+  .menurow{display:flex;gap:10px;justify-content:center;align-items:center}
+  .demotag{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,184,92,.18);border:1px solid rgba(255,184,92,.5);color:var(--amber);font-size:10px;letter-spacing:.1em}
+  .mitems{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
+  .mi .em{flex:none;font-size:24px;width:34px;text-align:center}
+  .mi .tx{flex:1;min-width:0;font-size:12px;line-height:1.6;color:var(--dim)}
+  .mi .tx b{display:block;font-size:14px;color:#ffe6ef}
+  .mi button{flex:none;padding:9px 12px;border-radius:999px;border:none;background:linear-gradient(90deg,#ff5c8a,#ffb85c);color:#2a0a12;font:700 12px "Zen Kaku Gothic New",sans-serif;cursor:pointer;white-space:nowrap}
+  .mi button:disabled{opacity:.35}
+  .mi button.ghost{background:none;border:1px solid rgba(255,241,226,.35);color:var(--cream)}
+  /* ママからの留守電 */
+  .vm{display:none;position:relative;z-index:2;margin-top:12px;width:100%;max-width:340px;padding:11px 14px;border-radius:14px;cursor:pointer;text-align:left;
+    background:rgba(11,5,7,.6);border:1px solid rgba(255,92,138,.6);backdrop-filter:blur(6px);color:#ffe6ef;font:700 13px "Zen Kaku Gothic New",sans-serif;animation:pulse 2.4s ease-in-out infinite}
+  .vm.show{display:block}
+  .stage.on .vm{display:none}
+  .vm small{display:block;font-weight:400;font-size:11px;color:var(--dim);margin-top:2px}
 </style>
 </head>
 <body>
@@ -188,8 +241,10 @@
     <div class="neon">トキエ</div>
     <div class="sub">SNACK TOKIE ・ 大阪 天満</div>
     <div class="clock" id="clock"></div>
+    <div><button class="bond" id="bondbtn"></button></div>
   </div>
 
+  <button class="vm" id="vmcard">📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small></button>
   <div class="letter" id="letter"></div>
 
   <div class="bottom" id="bottom">
@@ -197,7 +252,7 @@
     <div class="notice" id="notice"></div>
     <div class="status" id="status">本日も営業中</div>
     <button class="btn" id="btn">入店する</button>
-    <button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button>
+    <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
     <div class="err" id="err"></div>
   </div>
 </div>
@@ -288,6 +343,45 @@
   </div>
 </div>
 
+<!-- ママとの仲 -->
+<div class="sheet" id="bondsheet">
+  <div class="book">
+    <h2>ママとの仲</h2>
+    <p class="lead">通えば通うほど、ママは砕けて、自分の話もしてくれるようになる。<br>仲はお金では上がらへん。上がるのは「通った回数」だけ。</p>
+    <div id="bondmain"></div>
+    <div class="ranks" id="ranks"></div>
+    <div class="row"><button id="rankdemo">ランクアップ演出を試す（デモ）</button></div>
+    <div class="row"><button class="primary" id="closebond">閉じる</button></div>
+  </div>
+</div>
+
+<!-- ランクアップ（＋レビューのお願い） -->
+<div class="sheet" id="rankupsheet">
+  <div class="book">
+    <div class="rankup" id="rankupmain"></div>
+    <div id="reviewbox"></div>
+    <div class="row"><button class="primary" id="closerankup">閉じる</button></div>
+  </div>
+</div>
+
+<!-- お品書き（課金デモ） -->
+<div class="sheet" id="menusheet">
+  <div class="book">
+    <h2>お品書き</h2>
+    <p class="lead"><span class="demotag">デモ・実際には請求されへん</span><br>商用版で売るもんの試し。押したら中身だけ本物どおりに動く。<br>値段は仮（原価 約<span id="m_yen"></span>円/分で計算）。</p>
+    <label>ママに一杯（入店中だけ・1回ごと）<span id="drinkcount"></span></label>
+    <div class="mitems" id="drinks"></div>
+    <label>キープボトル（喋れる時間の前払い）</label>
+    <div class="mitems" id="mbottles"></div>
+    <label>月額</label>
+    <div class="mitems" id="msubs"></div>
+    <label>デモ売上（もし本当に払うてたら）<span id="salesub"></span></label>
+    <div class="stats" id="sales"></div>
+    <div class="row"><button class="danger" id="clearsales">デモ売上を0に戻す</button></div>
+    <div class="row"><button class="primary" id="closemenu">閉じる</button></div>
+  </div>
+</div>
+
 <!-- お店の案内（はじめての人に最初に出す） -->
 <div class="sheet" id="guidesheet">
   <div class="book">
@@ -325,7 +419,16 @@
     </div>
 
     <div class="gsec">
-      <h3><span>4</span>帰るとき</h3>
+      <h3><span>4</span>ママとの仲</h3>
+      <ul>
+        <li>通えば通うほど、ママは砕けて、自分の昔話もしてくれるようになる（看板の下の♥）</li>
+        <li>一見さん → 顔なじみ → 常連 → 常連の中の常連 → VIP</li>
+        <li>仲はお金では上がらへん。上がるのは通った回数だけ</li>
+      </ul>
+    </div>
+
+    <div class="gsec">
+      <h3><span>5</span>帰るとき</h3>
       <ul>
         <li>「お会計」を押したら、ママが今日の話をまとめて一言くれる</li>
         <li>営業時間が来たら「ラストオーダー」の声がかかって閉店</li>
@@ -462,13 +565,42 @@
   function usedOn(dateStr,exceptId){return visitsOnly().filter(v=>vBiz(v)===dateStr&&v.id!==exceptId).reduce((s,v)=>s+(v.mins||0),0);}
   function renderCount(){const n=visitCount(),t=visitsOnly().filter(v=>vBiz(v)===todayBiz()).length;$("notecount").textContent=`来店 通算${n}回`+(t?`・今夜${t}回`:(n?`・${lastVisitText()}`:""));}
 
-  function rankOf(n){ // n＝今日で何回目の来店か
-    if(n<=1)return {name:"一見さん",tone:"まだ初対面に近い。丁寧めに、探り探りで、まず話を聞く"};
-    if(n<=4)return {name:"顔なじみ",tone:"少し砕けてええ。名前で呼んで、前の話を覚えてる感じを出す"};
-    if(n<=14)return {name:"常連",tone:"遠慮なくツッコんでええ。たまに弱音も聞いたる。言いにくいことも言う"};
-    if(n<=39)return {name:"常連の中の常連",tone:"身内みたいに。ええ時はちゃんと褒めて、あかん時はちゃんと叱る"};
-    return {name:"VIP（ボトルキープの主）",tone:"家族みたいに。長い付き合いの安心感。黙って隣におる時間があってもええ"};
+  /* ───────── ママとの仲（親密度）。通った回数だけで上がる。お金では上がらへん ───────── */
+  const RANKS=[
+    {min:1, name:"一見さん", icon:"🍶", call:"お客さん",
+      tone:"まだ初対面に近い。丁寧めに、探り探りで、まず話を聞く。ベタベタせん（初対面から馴れ馴れしいのはあかん）",
+      unlock:["ママと声でおしゃべり"],
+      story:"天満で小さいスナックをやってる。それ以上の身の上は聞かれても「まあ、そのうちな」と笑ってはぐらかす。"},
+    {min:2, name:"顔なじみ", icon:"🥃", call:"{名}さん",
+      tone:"少し砕けてええ。名前で呼んで、前の話を覚えてる感じを出す",
+      unlock:["名前で呼んでくれる","ママが店を始めたいきさつを話してくれる"],
+      story:"店を始めたいきさつ：30代の頃、天満の別のスナックを手伝ってて、先代のママが引退する時に「あんたがやり」と店を譲ってもろた。最初は客が全然来んで泣いた。"},
+    {min:5, name:"常連", icon:"🍾", call:"{名}",
+      tone:"遠慮なくツッコんでええ。たまに弱音も聞いたる。言いにくいことも言う",
+      unlock:["遠慮なくツッコんでくれる","ママの若い頃（北新地時代）の話","ママの好きなもん・苦手なもん"],
+      story:"若い頃は北新地のクラブで働いてた。ええ時代もあったけど、人に気ぃ遣いすぎて体壊した。好きなもんは芋焼酎のお湯割りとタイガースの試合、苦手なもんは朝と、口だけの男。"},
+    {min:15, name:"常連の中の常連", icon:"🌙", call:"{名}",
+      tone:"身内みたいに。ええ時はちゃんと褒めて、あかん時はちゃんと叱る",
+      unlock:["ママの本名","ママの弱音・家族の話"],
+      story:"本名は「時枝（ときえ）」。店の名前はそのまま自分の名前。若い時に一回結婚して別れてる。息子が一人、東京で働いてて、たまにしか電話くれへんのがちょっと寂しい。"},
+    {min:40, name:"VIP", icon:"👑", call:"{名}ちゃん",
+      tone:"家族みたいに。長い付き合いの安心感。黙って隣におる時間があってもええ",
+      unlock:["あんたにだけ話す、ママの夢","特別な呼び方"],
+      story:"いつか店を閉めたら、瀬戸内の小さい島で、カウンター5席だけの店をやるのが夢。この話はほとんど誰にも言うてない。"}
+  ];
+  const rankIdx=(n)=>{let i=0;for(let k=0;k<RANKS.length;k++)if(n>=RANKS[k].min)i=k;return i;};
+  function rankOf(n){return RANKS[rankIdx(n)];}
+  const callName=(r)=>r.call.replace("{名}",settings().tagName||"お客さん");
+  // ママに渡す「身の上話」：今のランクまでは話してええ、上のランクの話は聞かれてもはぐらかす
+  function storyBlock(n){
+    const i=rankIdx(n);const ok=RANKS.slice(0,i+1).map(r=>"・"+r.story).join("\n");
+    const ng=RANKS.slice(i+1).map(r=>"・"+r.name+"になったら話すこと").join("\n");
+    return "【ママ自身のこと（今の仲で話してええこと）】\n"+ok+"\n・呼び方は「"+callName(RANKS[i])+"」。\n"+
+      (ng?"【まだ話さへんこと】下の中身は今は話さへん。聞かれたら「それはもうちょい通うてくれたらな（笑）」とはぐらかす。ネタばらしもせん。\n"+ng:"");
   }
+  const RKEY="tokie_rank_seen_v1";
+  function rankSeen(){try{const v=localStorage.getItem(RKEY);if(v===null){const i=rankIdx(Math.max(1,visitCount()));localStorage.setItem(RKEY,String(i));return i;}return +v||0;}catch(e){return 0;}}
+  function setRankSeen(i){try{localStorage.setItem(RKEY,String(i));}catch(e){}}
   const MONTH_TOPICS={1:"正月・初詣・成人式・寒さ本番",2:"節分・バレンタイン・いちばん寒い時期",3:"ひな祭り・ホワイトデー・卒業・年度末・花粉",4:"花見・新年度・新生活",5:"ゴールデンウィーク・母の日・五月病",6:"梅雨・父の日・蒸し暑さ",
     7:"七夕・天神祭（天満の夏祭り、24・25日）・海開き・暑さ",8:"お盆・夏祭り・花火・甲子園・残暑",9:"敬老の日・お月見・台風・涼しくなる頃",10:"ハロウィン・運動会・秋祭り・新米・さんま・朝晩冷える",11:"文化の日・紅葉・ボジョレー・年末が見えてくる",12:"忘年会・クリスマス・大晦日・一年の振り返り"};
   const DAY_EVENTS={"1-1":"元日","1-2":"正月2日","1-3":"正月3日","2-3":"節分","2-14":"バレンタイン","3-3":"ひな祭り","3-14":"ホワイトデー","4-1":"エイプリルフール・新年度の始まり","5-5":"こどもの日","7-7":"七夕",
@@ -499,7 +631,8 @@
     const total=visitsOnly().reduce((s,v)=>s+(v.mins||0),0);
     const usedToday=usedOn(today);
     const today_n=visitsTodayBefore()+1;
-    const lines=["【常連度】"+`通算${n}回目の来店`+`（今夜は${today_n}回目。店の「今夜」は朝5時まで続くから、夜中0時をまたいでも同じ夜。「今日○回目」と言う時は必ずこの今夜の数を使い、通算の数と混ぜへん）`+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`];
+    const lines=["【常連度】"+`通算${n}回目の来店`+`（今夜は${today_n}回目。店の「今夜」は朝5時まで続くから、夜中0時をまたいでも同じ夜。「今日○回目」と言う時は必ずこの今夜の数を使い、通算の数と混ぜへん）`+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`,storyBlock(n)];
+    if(session&&session.rankUp!=null){const ru=RANKS[session.rankUp];lines.push(`【ランクアップ】今夜から「${ru.name}」に上がった。挨拶ですぐやなく、話が一段落したところで「あんた、もう${ru.name}やな」と嬉しそうに一言だけ祝う。呼び方も今夜から「${callName(ru)}」。`);}
     const anniv=[];
     if(first&&[7,30,50,100,200,365,500,730,1000].includes(since))anniv.push(`初来店からちょうど${since}日`);
     if([10,30,50,100,200,300,500].includes(n))anniv.push(`来店${n}回目`);
@@ -540,6 +673,7 @@
     B.empties.unshift({brand:c.brand,no:c.no,openedAt:c.openedAt,emptiedAt:jstDate(new Date()),mins:Math.round((c.usedMs||0)/60000),size:b.size});
     B.current=newBottle(brand,B.empties.length+1);
     saveBottles(B);renderBottleBtn();hideNotice();
+    addSale("bottle",brandOf(brand).name,PRICES[brand]||0);
     if(conv)inject(MSG_BOTTLE_NEW(brandOf(brand).name));
     return B;
   }
@@ -1019,6 +1153,7 @@
       session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null,
         bottleEmptySent:bi.empty,bottleLowSent:bi.pct<=10};
       current={id:String(Date.now()),start:session.start,msgs:[],silentMs:0,ext:0};
+      const ni=rankIdx(visitCount()+1);if(ni>rankSeen())session.rankUp=ni; // この来店でランクが上がる
     }else if(session){
       session.capture=null;session.mode="listening";
     }
@@ -1081,8 +1216,11 @@
       if(!active&&current)current.endKind="idle";
       else if(current)current.endKind="maxdur";
     }
+    const talked=!!(current&&current.msgs.some(m=>m.who==="user"));
+    const ru=session&&session.rankUp!=null&&talked?session.rankUp:null;
     if(current){writeCurrent();current=null;}
     session=null;
+    if(ru!=null){setRankSeen(ru);setTimeout(()=>showRankUp(ru,false),1400);}
     if(r.kind==="user"){
       statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);
     }else if(r.kind==="closed"){
@@ -1109,10 +1247,166 @@
         null,r.detail);
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
-    renderLetter();renderBottleBtn();
+    renderLetter();renderBottleBtn();renderBond();renderVm();
     if(r.kind==="user")bottleNotice();
   }
-  btn.addEventListener("click",()=>conv?checkout():start(false,false));
+  btn.addEventListener("click",()=>{if(vmConv)return;conv?checkout():start(false,false);});
+
+  /* ───────── ママとの仲（表示・ランクアップ演出・レビューのお願い） ───────── */
+  const bondBtn=$("bondbtn"),bondSheet=$("bondsheet"),rankupSheet=$("rankupsheet");
+  function bondInfo(){
+    const n=visitCount(),i=rankIdx(Math.max(1,n)),next=RANKS[i+1];
+    const lo=RANKS[i].min,hi=next?next.min:lo;
+    return {n,i,r:RANKS[i],next,left:next?next.min-n:0,pct:next?Math.round(Math.max(0,n-lo)/(hi-lo)*100):100};
+  }
+  function renderBond(){
+    const b=bondInfo();
+    const hearts="♥".repeat(b.i+1)+"<i>"+"♥".repeat(RANKS.length-b.i-1)+"</i>";
+    bondBtn.innerHTML=`<span class="hearts">${hearts}</span>${b.n?b.r.name:"まだ来たことない"}<small>${b.next?`あと${b.left}回で${b.next.name}`:"最高ランク"}</small>`;
+  }
+  function renderBondSheet(){
+    const b=bondInfo();
+    $("bondmain").innerHTML=`<div class="stats"><div><span class="big">${b.r.icon} ${b.r.name}</span>　通算<b>${b.n}</b>回</div>`+
+      `<div class="gauge"><i style="width:${b.pct}%"></i></div>`+
+      `<div>${b.next?`あと<b>${b.left}</b>回で「${b.next.name}」`:"最高ランク。ママにとって家族みたいなもんや"}</div></div>`;
+    const box=$("ranks");box.innerHTML="";
+    RANKS.forEach((r,k)=>{
+      const d=document.createElement("div");d.className="rk"+(k===b.i?" now":"")+(k>b.i?" lock":"");
+      const ul=r.unlock.map(u=>`<p class="${k<=b.i?"u":""}">${k<=b.i?"🔓":"🔒"} ${esc(u)}</p>`).join("");
+      d.innerHTML=`<div class="ic">${k<=b.i?r.icon:"🔒"}</div><div class="tx"><b>${r.name}<small>${r.min}回〜${k===b.i?"・今ここ":""}</small></b>${ul}</div>`;
+      box.appendChild(d);
+    });
+  }
+  bondBtn.addEventListener("click",()=>{renderBondSheet();bondSheet.classList.add("open");});
+  $("closebond").addEventListener("click",()=>bondSheet.classList.remove("open"));
+  bondSheet.addEventListener("click",(e)=>{if(e.target===bondSheet)bondSheet.classList.remove("open");});
+  $("rankdemo").addEventListener("click",()=>{bondSheet.classList.remove("open");showRankUp(Math.min(RANKS.length-1,Math.max(2,bondInfo().i)),true);});
+
+  // レビューのお願いは「常連」「常連の中の常連」に上がった時だけ（嬉しい瞬間に、多くても2回）。
+  // Googleの規約で「満足してる？」と先に聞いてから星を出すのはあかん。本番はIn-App Reviewの画面をそのまま出す
+  const REVIEW_AT=[2,3];
+  function showRankUp(i,demo){
+    const r=RANKS[i];
+    $("rankupmain").innerHTML=`<div class="burst">${r.icon}</div><div class="lead" style="margin:0">ママとの仲が上がった${demo?"（デモ）":""}</div>`+
+      `<div class="rname">${r.name}</div><p class="mamaline">「あんた、もう${r.name}やな。<br>ほな今日から「${esc(callName(r))}」って呼ぶで」</p>`+
+      `<ul>${r.unlock.map(u=>`<li>${esc(u)}</li>`).join("")}</ul>`;
+    const rv=$("reviewbox");rv.innerHTML="";
+    if(REVIEW_AT.includes(i)){
+      rv.innerHTML=`<div class="review"><div class="rt">スナックトキエを評価</div><div class="rs">Google Play・公開レビュー</div>`+
+        `<div class="stars" id="stars">${"<span>★</span>".repeat(5)}</div>`+
+        `<div class="demo">【デモ】本番アプリでは、この瞬間にGoogle Play純正のレビュー画面（In-App Review）が出る。押しても今は何も送られへん。<br>※先に「満足してる？」と聞いて、満足な人だけ星に回すのはGoogleの規約で禁止やから、聞かずにそのまま出す。</div></div>`;
+      const st=$("stars");[...st.children].forEach((sp,k)=>sp.onclick=()=>{[...st.children].forEach((x,j)=>x.className=j<=k?"on":"");});
+    }
+    rankupSheet.classList.add("open");
+  }
+  $("closerankup").addEventListener("click",()=>rankupSheet.classList.remove("open"));
+
+  /* ───────── お品書き（課金デモ。実際の請求は一切なし。売れたことにして中身だけ動かす） ───────── */
+  const PRICES={temma:4980, ao:9800, tsukikage:18800, voicemail:480}; // 仮の値段（円）。原価12円/分ベース
+  const DRINKS=[
+    {k:"beer",em:"🍺",name:"ビール",price:160,say:"ビール"},
+    {k:"high",em:"🥃",name:"ハイボール",price:370,say:"ハイボール"},
+    {k:"champ",em:"🍾",name:"シャンパン",price:1200,say:"シャンパン（ポンッと開けて）"}
+  ];
+  const SALES_KEY="tokie_demo_sales_v1",SUB_KEY="tokie_demo_sub_v1";
+  function sales(){try{const a=JSON.parse(localStorage.getItem(SALES_KEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function addSale(k,item,price){const a=sales();a.push({k,item,price,ts:Date.now()});try{localStorage.setItem(SALES_KEY,JSON.stringify(a));}catch(e){}}
+  function sub(){try{return JSON.parse(localStorage.getItem(SUB_KEY)||"null")||{on:false};}catch(e){return {on:false};}}
+  function setSub(o){try{localStorage.setItem(SUB_KEY,JSON.stringify(o));}catch(e){}}
+  const ym=(ms)=>{const p=jstParts(new Date(ms));return `${p.y}/${p.m}`;};
+  // 月額の自動更新（デモ）：月が変わったら1回ぶん売上に足す
+  (function(){const s=sub();if(s.on&&!sales().some(x=>x.k==="sub"&&ym(x.ts)===ym(Date.now()))){addSale("sub","留守電（月額）",PRICES.voicemail);}})();
+  const MSG_DRINK=(d)=>`【店の様子】お客さんがママに「${d.say}」を一杯ご馳走してくれた。「えっ、ええの？おおきに！」と本気で嬉しそうに乾杯して、お礼を一言。今夜はちょっとだけ甘め（褒め多め・ツッコミやさしめ）でええ。お金の話はせん。何回目でも毎回ちゃんと喜ぶ。`;
+  function treat(d){
+    if(!conv||!session)return;
+    addSale("drink",d.name,d.price);
+    session.drinks=(session.drinks||0)+1;
+    inject(MSG_DRINK(d));
+    statusEl.textContent=`ママに${d.name}をご馳走した`;
+    menuSheet.classList.remove("open");
+  }
+  const menuSheet=$("menusheet");
+  function renderMenu(){
+    const S=settings();$("m_yen").textContent=S.yenPerMin;
+    const dr=$("drinks");dr.innerHTML="";
+    const tonight=sales().filter(x=>x.k==="drink"&&bizDate(x.ts)===todayBiz()).length;
+    $("drinkcount").textContent=tonight?`今夜${tonight}杯`:"";
+    for(const d of DRINKS){
+      const el=document.createElement("div");el.className="mi";
+      el.innerHTML=`<div class="em">${d.em}</div><div class="tx"><b>${d.name}　¥${d.price.toLocaleString()}</b>ママが喜んで乾杯する。その夜はちょっと甘め。仲は上がらへん</div>`;
+      const bt=document.createElement("button");bt.textContent=conv?"ご馳走する":"入店中だけ";bt.disabled=!conv;bt.onclick=()=>treat(d);el.appendChild(bt);dr.appendChild(el);
+    }
+    const mb=$("mbottles");mb.innerHTML="";
+    for(const k of ["temma","ao","tsukikage"]){
+      const b=BRANDS[k];const cost=Math.round(b.size*S.yenPerMin);
+      const el=document.createElement("div");el.className="mi";
+      el.innerHTML=`<div class="em">${bottleSVG(b,100,16,38)}</div><div class="tx"><b>${b.name}（${hm(b.size)}）　¥${PRICES[k].toLocaleString()}</b>原価 約¥${cost.toLocaleString()}・粗利 約${Math.round((1-cost/PRICES[k])*100)}%</div>`;
+      const bt=document.createElement("button");bt.textContent="入れる";bt.onclick=()=>{if(!confirm(`${b.name}を入れる？（デモ・請求なし。今のボトルは空き瓶として棚に並ぶ）`))return;openBottle(k);saveSettings({brand:k});renderMenu();};
+      el.appendChild(bt);mb.appendChild(el);
+    }
+    const ms=$("msubs");ms.innerHTML="";const s=sub();
+    const el=document.createElement("div");el.className="mi";
+    el.innerHTML=`<div class="em">📞</div><div class="tx"><b>ママからの留守電　¥${PRICES.voicemail}/月</b>来店した翌日（朝5時以降）、ママから30秒くらいの留守電が1日1件届く。前の晩の話を覚えてて、向こうから声かけてくる。1件の原価 約¥${Math.round(0.6*S.yenPerMin)}</div>`;
+    const bt=document.createElement("button");bt.className=s.on?"ghost":"";bt.textContent=s.on?"解約する":"始める";
+    bt.onclick=()=>{const o=sub();if(o.on){setSub({on:false});}else{setSub({on:true,since:Date.now()});addSale("sub","留守電（月額）",PRICES.voicemail);}renderMenu();renderVm();};
+    el.appendChild(bt);ms.appendChild(el);
+    // デモ売上
+    const a=sales(),mon=a.filter(x=>ym(x.ts)===ym(Date.now()));
+    const sum=(arr)=>arr.reduce((t,x)=>t+(x.price||0),0);
+    const by=(k)=>mon.filter(x=>x.k===k);
+    $("salesub").textContent=`今月 ${ym(Date.now())}`;
+    $("sales").innerHTML=`<div><span class="big">¥${sum(mon).toLocaleString()}</span>（今月）／累計 ¥${sum(a).toLocaleString()}</div>`+
+      `<div>一杯 <b>${by("drink").length}</b>回 ¥${sum(by("drink")).toLocaleString()}・ボトル <b>${by("bottle").length}</b>本 ¥${sum(by("bottle")).toLocaleString()}・留守電 ¥${sum(by("sub")).toLocaleString()}</div>`+
+      `<div style="color:var(--dim);font-size:11px">自分で使うてる分を「お客さん1人ぶん」と見立てた数字。課金ユーザー×この額＝ざっくり月の売上。</div>`;
+  }
+  $("menubtn").addEventListener("click",()=>{renderMenu();menuSheet.classList.add("open");});
+  $("closemenu").addEventListener("click",()=>menuSheet.classList.remove("open"));
+  menuSheet.addEventListener("click",(e)=>{if(e.target===menuSheet)menuSheet.classList.remove("open");});
+  $("clearsales").addEventListener("click",()=>{if(!confirm("デモ売上の記録を0に戻す？"))return;try{localStorage.removeItem(SALES_KEY);}catch(e){}renderMenu();});
+
+  /* ───────── ママからの留守電（月額デモ）。翌日（朝5時以降）に1日1件。聞くだけ ───────── */
+  const VM_KEY="tokie_vm_last_v1",vmCard=$("vmcard");
+  function vmAvailable(){
+    if(!sub().on||conv)return false;
+    let last="";try{last=localStorage.getItem(VM_KEY)||"";}catch(e){}
+    if(last===todayBiz())return false;
+    const v=visitsOnly()[0];
+    return !!v&&vBiz(v)!==todayBiz()&&dayDiff(todayBiz(),vBiz(v))<=3; // 最後の来店から3日以内だけ（来なくなった人に毎日は送らへん）
+  }
+  function renderVm(){vmCard.className="vm"+(vmAvailable()?" show":"");}
+  const MSG_VM="【留守電】いまお客さんは電話に出られへん。ママから留守電を入れる。前回の来店メモの話を一つだけ拾って、気にかけてる一言＋今日の過ごし方に軽く一言、全部で3〜4文・30秒以内。返事は求めへん（問いかけで終わらん）。最後は「ほな、またおいでな」で締める。";
+  let vmConv=null;
+  async function playVm(){
+    if(vmConv||conv)return;
+    vmCard.className="vm";hideNotice();errEl.textContent="";statusEl.textContent="ママから電話や…";btn.disabled=true;
+    caption.innerHTML="";
+    let aiCount=0,done=false,hardStop=null,endT=null;
+    const finish=async(ok)=>{
+      if(done)return;done=true;clearTimeout(hardStop);clearTimeout(endT);
+      const c=vmConv;vmConv=null;try{if(c)await c.endSession();}catch(e){}
+      stage.classList.remove("speaking");
+      if(ok){try{localStorage.setItem(VM_KEY,todayBiz());}catch(e){}}
+      statusEl.textContent=ok?"留守電、聞いた":"留守電が聞けへんかった";btn.disabled=false;renderVm();
+    };
+    try{
+      try{await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){errEl.textContent="マイクを許可してな（聞くだけやけど、仕組み上いる）";return finish(false);}
+      const digest=await loadDigest();
+      vmConv=await Conversation.startSession({
+        agentId:AGENT_ID,
+        dynamicVariables:{memory:buildMemory(false,digest)+"\n\n"+MSG_VM, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
+        onConnect:()=>{try{vmConv&&vmConv.setMicMuted&&vmConv.setMicMuted(true);}catch(e){}
+          setTimeout(()=>{try{vmConv&&vmConv.sendUserMessage(MSG_VM);}catch(e){}},300);
+          hardStop=setTimeout(()=>finish(true),75000);},
+        onDisconnect:()=>finish(aiCount>=2),
+        onMessage:(m)=>{if(!(m&&m.message)||m.source!=="ai")return;if(show(String(m.message),"ai"))aiCount++;},
+        onModeChange:(m)=>{const mode=m&&m.mode;stage.classList.toggle("speaking",mode==="speaking");statusEl.textContent=mode==="speaking"?"留守電・再生中":"…";
+          clearTimeout(endT);if(mode!=="speaking"&&aiCount>=2)endT=setTimeout(()=>finish(true),1500);},
+        onError:(msg)=>{errEl.textContent="エラー："+String(msg&&msg.message?msg.message:msg);}
+      });
+    }catch(e){errEl.textContent="つながらへん："+String(e&&e.message?e.message:e);finish(false);}
+  }
+  vmCard.addEventListener("click",playVm);
+  rankSeen();renderBond();renderVm(); // 今のランクを「もう祝った」扱いで覚えとく（過去分で急に演出が出んように）
 
   /* ───────── お店の案内（はじめての人には最初に1回だけ自動で出す） ───────── */
   const GKEY="tokie_guide_seen_v1",guide=$("guidesheet");
