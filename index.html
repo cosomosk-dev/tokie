@@ -82,7 +82,11 @@
   /* 下部 */
   .bottom{position:relative;z-index:2;margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
   .status{font-size:12px;letter-spacing:.25em;color:var(--amber);min-height:16px;text-align:center}
-  .caption{width:100%;display:flex;flex-direction:column;gap:8px;min-height:120px;justify-content:flex-end}
+  .caption{width:100%;display:flex;flex-direction:column;gap:8px;min-height:120px;max-height:40vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:14px 4px 4px;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 26px,#000 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 26px,#000 100%)}
+  .caption::-webkit-scrollbar{display:none}
+  .caption>:first-child{margin-top:auto} /* 短い時は下に寄せる（flex-endやと上が切れてスクロールできへん） */
+  .mama.long{font-size:20px;line-height:1.6}
   .mama{font-family:"Shippori Mincho B1",serif;font-weight:600;font-size:24px;line-height:1.55;text-align:center;color:#fff8f2;
     text-shadow:0 2px 14px rgba(0,0,0,.9),0 0 24px rgba(255,92,138,.35);animation:fade .4s ease}
   .you{font-size:14px;text-align:center;color:var(--dim);text-shadow:0 1px 8px rgba(0,0,0,.9);animation:fade .4s ease}
@@ -402,6 +406,12 @@
   const jstTime=(d)=>d.toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Tokyo"});
   const jstParts=(d)=>{const p={};for(const x of new Intl.DateTimeFormat("ja-JP",{timeZone:"Asia/Tokyo",year:"numeric",month:"numeric",day:"numeric",hour:"numeric",weekday:"short",hour12:false}).formatToParts(d))p[x.type]=x.value;return {y:+p.year,m:+p.month,d:+p.day,h:+p.hour%24,w:p.weekday};};
   const dayDiff=(a,b)=>Math.round((new Date(a)-new Date(b))/86400000); // "2026/10/15" 形式どうしの差（日）
+  // スナックの「今日」は朝5時で切り替え。深夜0時をまたいでも同じ夜の来店として数える
+  const BIZ_CUT_H=5;
+  const bizDate=(ms)=>jstDate(new Date(ms-BIZ_CUT_H*3600000));
+  const todayBiz=()=>bizDate(Date.now());
+  const vStartMs=(v)=>{const n=Number(v&&v.id);return Number.isFinite(n)&&n>1e12?n:null;};
+  const vBiz=(v)=>v.biz||(vStartMs(v)?bizDate(vStartMs(v)):v.date); // 昔のメモ（bizなし）も開始時刻から割り出す
 
   // 1回の会話 → ざっくりメモ。お客さんが喋った内容を中心に（長い発言＝中身がある発言を優先）、最後のママの一言も添える
   function digest(msgs){
@@ -421,7 +431,7 @@
     if(!current||!current.msgs.some(m=>m.who==="user"))return;
     const b=loadBook();
     const mins=Math.max(1,Math.round((Date.now()-current.start)/60000));
-    const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),time:jstTime(new Date(current.start)),mins,
+    const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),biz:bizDate(current.start),time:jstTime(new Date(current.start)),mins,
       silent:Math.round((current.silentMs||0)/60000),ext:current.ext||0,memo:digest(current.msgs)};
     if(current.mamaNote)v.mamaNote=current.mamaNote;
     if(current.endKind)v.endKind=current.endKind;
@@ -444,13 +454,13 @@
   function firstVisitDate(){const v=visitsOnly();return v.length?v[v.length-1].date:null;}
   function lastVisitText(){
     const visits=visitsOnly();if(!visits.length)return "初来店";
-    const d=dayDiff(jstDate(new Date()),visits[0].date);
-    return d<=0?"今日":d===1?"昨日":`${d}日前`;
+    const d=dayDiff(todayBiz(),vBiz(visits[0]));
+    return d<=0?"今夜":d===1?"昨日":`${d}日前`;
   }
   // 今日すでに何回来てるか（今の来店は除く）
-  function visitsTodayBefore(){const t=jstDate(new Date());return visitsOnly().filter(v=>v.date===t&&(!current||v.id!==current.id)).length;}
-  function usedOn(dateStr,exceptId){return visitsOnly().filter(v=>v.date===dateStr&&v.id!==exceptId).reduce((s,v)=>s+(v.mins||0),0);}
-  function renderCount(){const n=visitCount();$("notecount").textContent=`来店 ${n}回`+(n?`・${lastVisitText()}`:"");}
+  function visitsTodayBefore(){const t=todayBiz();return visitsOnly().filter(v=>vBiz(v)===t&&(!current||v.id!==current.id)).length;}
+  function usedOn(dateStr,exceptId){return visitsOnly().filter(v=>vBiz(v)===dateStr&&v.id!==exceptId).reduce((s,v)=>s+(v.mins||0),0);}
+  function renderCount(){const n=visitCount(),t=visitsOnly().filter(v=>vBiz(v)===todayBiz()).length;$("notecount").textContent=`来店 通算${n}回`+(t?`・今夜${t}回`:(n?`・${lastVisitText()}`:""));}
 
   function rankOf(n){ // n＝今日で何回目の来店か
     if(n<=1)return {name:"一見さん",tone:"まだ初対面に近い。丁寧めに、探り探りで、まず話を聞く"};
@@ -484,12 +494,12 @@
     const n=visitsOnly().filter(v=>!current||v.id!==current.id).length+1; // 今日で何回目（延長中でも数えが増えへんように）
     const r=rankOf(n);
     const first=firstVisitDate();
-    const today=jstDate(new Date());
-    const since=first?dayDiff(today,first):0;
+    const today=todayBiz();
+    const since=first?dayDiff(jstDate(new Date()),first):0;
     const total=visitsOnly().reduce((s,v)=>s+(v.mins||0),0);
     const usedToday=usedOn(today);
     const today_n=visitsTodayBefore()+1;
-    const lines=["【常連度】"+`今日で来店${n}回目`+(today_n>=2?`（今日だけで${today_n}回目。挨拶やネタで「今日2回目」と決めつけず、この数を使う）`:"")+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`];
+    const lines=["【常連度】"+`通算${n}回目の来店`+`（今夜は${today_n}回目。店の「今夜」は朝5時まで続くから、夜中0時をまたいでも同じ夜。「今日○回目」と言う時は必ずこの今夜の数を使い、通算の数と混ぜへん）`+(first?`・初来店から${since}日・これまでの合計${total}分`:"")+(usedToday?`・今日はもう${usedToday}分しゃべってる`:"")+` → ${r.name}。`,`・口調の目安：${r.tone}`];
     const anniv=[];
     if(first&&[7,30,50,100,200,365,500,730,1000].includes(since))anniv.push(`初来店からちょうど${since}日`);
     if([10,30,50,100,200,300,500].includes(n))anniv.push(`来店${n}回目`);
@@ -675,7 +685,7 @@
   /* ───────── 手帳の画面 ───────── */
   const sheet=$("sheet"),profileEl=$("profile"),visitsEl=$("visits"),savedEl=$("saved"),profileLen=$("profilelen");
   function renderStats(){
-    const S=settings();const p=jstParts(new Date());const today=jstDate(new Date());
+    const S=settings();const p=jstParts(new Date());const today=todayBiz();
     const vs=visitsOnly();const month=vs.filter(v=>v.date.startsWith(`${p.y}/${p.m}/`));
     const sum=(a,k)=>a.reduce((s,v)=>s+(v[k]||0),0);
     const mMins=sum(month,"mins"),mSil=sum(month,"silent"),tMins=sum(vs,"mins");
@@ -789,7 +799,44 @@
   let connectedAt=null, serverErr=null, ending=false;
   let session=null; // 1回の来店ぶんの状態（延長しても引き継ぐ）
   const norm=(t)=>String(t||"").replace(/\s+/g,"");
-  function show(text,who){text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;const d=document.createElement("div");d.className=who==="ai"?"mama":"you";d.textContent=text;caption.appendChild(d);while(caption.children.length>2)caption.removeChild(caption.firstChild);return text;}
+  /* 字幕：長い台詞は枠の中でスクロール。ママが喋る速さに合わせて自動で下がる。指で触ったら5秒はそっちを優先 */
+  const CAP_KEEP=8;      // 枠に残す台詞の数（上にスクロールすれば少し前も読める）
+  const CAP_CPS=8.5;     // ママが1秒に喋る文字数の目安（速さ1.1前後）
+  let capAnim=null, capHoldUntil=0;
+  const capHold=()=>{capHoldUntil=Date.now()+5000;};
+  caption.addEventListener("touchstart",capHold,{passive:true});
+  caption.addEventListener("wheel",capHold,{passive:true});
+  const capMax=()=>Math.max(0,caption.scrollHeight-caption.clientHeight);
+  function capToBottom(smooth){capAnim=null;if(Date.now()<capHoldUntil)return;try{caption.scrollTo({top:caption.scrollHeight,behavior:smooth?"smooth":"auto"});}catch(e){caption.scrollTop=caption.scrollHeight;}}
+  function capFollow(el,len){
+    if(Date.now()>=capHoldUntil){
+      const top=el.getBoundingClientRect().top-caption.getBoundingClientRect().top+caption.scrollTop-14;
+      caption.scrollTop=Math.max(0,Math.min(top,capMax())); // まず台詞の頭を見せる
+    }
+    capAnim={el,from:caption.scrollTop,dur:Math.max(1500,len/CAP_CPS*1000),born:Date.now(),startAt:0,last:Date.now()};
+    requestAnimationFrame(capStep);
+  }
+  function capStep(){
+    const a=capAnim;if(!a)return;
+    const now=Date.now(),dt=now-a.last;a.last=now;
+    if(!a.startAt){
+      // 声が出始めたら動かす（声が来えへんでも2.5秒で動かす）
+      if((session&&session.mode==="speaking")||now-a.born>2500)a.startAt=now;else{requestAnimationFrame(capStep);return;}
+    }
+    if(now<capHoldUntil){a.startAt+=dt;requestAnimationFrame(capStep);return;} // 指で触ってる間は止める
+    const max=capMax();
+    if(max<=a.from){capAnim=null;return;} // 全部見えてる
+    const p=Math.min(1,(now-a.startAt)/a.dur);
+    caption.scrollTop=a.from+(max-a.from)*p;
+    if(p<1)requestAnimationFrame(capStep);else capAnim=null;
+  }
+  function show(text,who){
+    text=String(text).replace(/\[[^\]]*\]/g,"").replace(/\s{2,}/g," ").trim();if(!text)return;
+    const d=document.createElement("div");d.className=(who==="ai"?"mama":"you")+(who==="ai"&&text.length>60?" long":"");d.textContent=text;
+    caption.appendChild(d);while(caption.children.length>CAP_KEEP)caption.removeChild(caption.firstChild);
+    if(who==="ai")capFollow(d,text.length);else capToBottom(true);
+    return text;
+  }
   function hideNotice(){notice.className="notice";notice.innerHTML="";bottom.classList.remove("has-notice");}
   function showNotice(kind,title,body,link,detail,extra){
     notice.className="notice show "+kind;
@@ -825,7 +872,7 @@
   function makeGreeting(){
     const h=jstParts(new Date()).h;const visits=visitsOnly();
     if(!visits.length)return "いらっしゃい。初めてのお客さんやね。緊張せんでええから、まあこっち座り。";
-    const d=dayDiff(jstDate(new Date()),visits[0].date);
+    const d=dayDiff(todayBiz(),vBiz(visits[0]));
     if(d<=0){
       const n=visitsTodayBefore()+1; // 今日で何回目
       if(n===2)return "あら、また来てくれたん？今日2回目やないの。嬉しいわぁ、ほらこっち。";
@@ -957,7 +1004,7 @@
   async function start(extension,force){
     errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent=extension?"延長入るで…":"ママが手帳を読んでる…";
     connectedAt=null;serverErr=null;
-    const S=settings();const today=jstDate(new Date());
+    const S=settings();const today=todayBiz();
     if(!extension){
       const usedToday=usedOn(today);
       if(!force&&S.dailyCap>0&&usedToday>=S.dailyCap){
@@ -998,6 +1045,7 @@
         onModeChange:(m)=>{
           const mode=m&&m.mode;if(session){session.mode=mode;session.lastAi=Date.now();}
           stage.classList.toggle("speaking",mode==="speaking");
+          if(mode!=="speaking"&&capAnim&&capAnim.startAt)capToBottom(true);
           if(!(session&&session.closing))statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";
           const c=session&&session.capture;
           if(c){if(mode==="speaking"){c.spoke=true;clearTimeout(c.t2);}else if(c.spoke){clearTimeout(c.t2);c.t2=setTimeout(c.res,1500);}}
