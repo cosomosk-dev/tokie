@@ -245,6 +245,8 @@
   .strength button{min-width:86px;padding:6px 8px 5px;font-size:12px}
   .strength .sn{width:100%;text-align:center;min-height:0}
   .strength .sn:empty{display:none}
+  .strength .sl .q{min-width:0;width:20px;height:20px;padding:0;margin-left:4px;border-radius:50%;font-size:11px;line-height:18px;vertical-align:1px;color:var(--amber);border-color:rgba(255,184,92,.6)}
+  .strength .sd{width:100%;text-align:center;font-size:11px;line-height:1.5;color:var(--cream);text-shadow:0 1px 6px rgba(0,0,0,.9)}
   @media (max-height:760px){.letter{max-height:18vh;max-height:18dvh}.strength button small{display:none}}
 </style>
 </head>
@@ -273,12 +275,13 @@
     <div class="notice" id="notice"></div>
     <div class="status" id="status">本日も営業中</div>
     <div class="strength" id="strength">
-      <div class="sl">今夜の濃さ</div>
+      <div class="sl">今夜の濃さ ＝ ママの口調 <button class="q" id="strengthq" aria-label="今夜の濃さの説明">？</button></div>
       <div class="opts">
         <button data-k="mizu">水割り<small>聞いてほしい夜</small></button>
         <button data-k="rock">ロック<small>いつもの</small></button>
         <button data-k="straight">ストレート<small>ガツンと</small></button>
       </div>
+      <div class="sd" id="strengthdesc"></div>
       <div class="sn" id="strengthnote"></div>
     </div>
     <button class="btn" id="btn">入店する</button>
@@ -423,13 +426,24 @@
       <p>関西弁のママ・トキエと<b>声でおしゃべり</b>する店。</p>
       <ul>
         <li>「入店する」を押して、マイクを許可するだけ</li>
-        <li>あとは普通に話しかけたらええ。聞くだけやなく、ツッコミも入れてくる</li>
+        <li>あとは普通に話しかけたらええ。ツッコミの強さは「今夜の濃さ」で選べる</li>
         <li>黙って飲んでてもええ。急かさへん</li>
       </ul>
     </div>
 
+    <div class="gsec" id="guidestrength">
+      <h3><span>2</span>「今夜の濃さ」ってなに？</h3>
+      <p>入店ボタンの上の3つは、お酒やなくて<b>ママの話し方の濃さ</b>。その夜の気分で選んでな。</p>
+      <ul>
+        <li><b>水割り</b>…聞いてほしい夜に。ママはひたすら聞き役。意見やツッコミはなし、説教もゼロ</li>
+        <li><b>ロック</b>…いつもの感じ。共感多めで、たまに笑えるツッコミ</li>
+        <li><b>ストレート</b>…ガツンと言うてほしい夜に。本音ではっきり意見する（でも最後は味方）</li>
+        <li>喋ってる途中でも押したら、そこから口調が変わる。選んだのは次も覚えとく</li>
+      </ul>
+    </div>
+
     <div class="gsec">
-      <h3><span>2</span>ボトルキープってなに？</h3>
+      <h3><span>3</span>ボトルキープってなに？</h3>
       <p>ボトル＝<b>先に入れとく「ママと喋れる時間」</b>。瓶の中身が時間や。</p>
       <div class="gbottles" id="gbottles"></div>
       <ul style="margin-top:8px">
@@ -441,7 +455,7 @@
     </div>
 
     <div class="gsec">
-      <h3><span>3</span>ママの手帳</h3>
+      <h3><span>4</span>ママの手帳</h3>
       <ul>
         <li>話したことはママが手帳に書いとく。次に来たら覚えてる</li>
         <li>右上の「手帳」に自分のことを書いとくと、話が早い</li>
@@ -449,7 +463,7 @@
     </div>
 
     <div class="gsec">
-      <h3><span>4</span>ママとの仲</h3>
+      <h3><span>5</span>ママとの仲</h3>
       <ul>
         <li>通えば通うほど、ママは砕けて、自分の昔話もしてくれるようになる（看板の下の♥）</li>
         <li>一見さん → 顔なじみ → 常連 → 常連の中の常連 → VIP</li>
@@ -458,7 +472,7 @@
     </div>
 
     <div class="gsec">
-      <h3><span>5</span>帰るとき</h3>
+      <h3><span>6</span>帰るとき</h3>
       <ul>
         <li>「お会計」を押したら、ママが今日の話をまとめて一言くれる</li>
         <li>営業時間が来たら「ラストオーダー」の声がかかって閉店</li>
@@ -988,8 +1002,10 @@
   for(const id of ["s_open","s_cap","s_idle","s_sum","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
   // 今夜の濃さ（入店前でも、喋ってる途中でも切り替えられる）
   let strengthTimer=null;
-  function renderStrength(){const k=settings().strength;document.querySelectorAll("#strength button").forEach(b=>b.classList.toggle("sel",b.dataset.k===k));}
-  document.querySelectorAll("#strength button").forEach(b=>b.addEventListener("click",()=>{
+  const STRENGTH_DESC={mizu:"水割り：ママはひたすら聞き役。意見・ツッコミ・説教なし",rock:"ロック：共感多めで、たまに笑えるツッコミ",straight:"ストレート：本音でズバッと意見する（最後は味方）"};
+  function renderStrength(){const k=settings().strength;document.querySelectorAll("#strength .opts button").forEach(b=>b.classList.toggle("sel",b.dataset.k===k));$("strengthdesc").textContent=STRENGTH_DESC[k]||STRENGTH_DESC.rock;}
+  $("strengthq").addEventListener("click",()=>{$("guidebtn").click();setTimeout(()=>{const g=$("guidestrength");if(g)g.scrollIntoView({behavior:"smooth",block:"start"});},250);});
+  document.querySelectorAll("#strength .opts button").forEach(b=>b.addEventListener("click",()=>{
     const k=b.dataset.k;if(k===settings().strength)return;
     saveSettings({strength:k});renderStrength();
     const t=strengthOf(k);let note=`${t.name}にした`;
