@@ -457,7 +457,7 @@
     <p class="mhint">ボトル＝<b>喋れる時間</b>を買う。ドリンク＝<b>今夜のママの扱い</b>が変わる。上の段ほど、その段でしか起きへんことが増える。</p>
     <label>ドリンク（入店中だけ・今夜の扱いが変わる）<span id="ordernow"></span></label>
     <div class="mitems" id="orders"></div>
-    <p class="mhint">商用版の値段の目安：生160円／ハイボール480円／泡1,500円／金泡4,800円／黒金9,800円（月1回まで）・ママに一杯320円。ここの値段はデモで差を体感する用。</p>
+    <p class="mhint">リアルのスナック1回（3,000〜5,000円）より圧倒的に安く。いちばん高い黒金でもスナック1回ぶん以下（商用版は月1回まで）。</p>
     <label>ママに一杯（入店中だけ・1晩3杯まで）<span id="drinkcount"></span></label>
     <div class="mitems" id="drinks"></div>
     <label>キープボトル（喋れる時間の前払い）</label>
@@ -565,7 +565,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-17 v5";
+  const APP_VER="2026-10-17 v6";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -707,11 +707,11 @@
   /* ───────── お品書きのドリンク＝「今夜のママの扱い」を買う（デモ・請求なし）。ボトル（時間）とは別。仲（親密度）はお金では上がらへん ───────── */
   const OKEY="tokie_orders_v1",THANKS_KEY="tokie_thanks_vm_v1";
   const TIERS=[null,
-    {t:1,em:"🍺",kind:"生",name:"天神橋生",price:300,keep:"その一言だけ",does:"「はい生ひとつ〜、おつかれさん」。いつもの客。特別扱いはなし"},
-    {t:2,em:"🥃",kind:"ハイボール",name:"堂島ハイ",price:800,keep:"10分",does:"ママがカウンターから出て隣に座る。10分だけ、自分の話は控えて聞き役に徹する"},
-    {t:3,em:"🍾",kind:"泡",name:"北新地スパークリング",price:3000,keep:"その夜ずっと",does:"ポンッと開けて、ママが名前を呼んで乾杯。今夜ずっとお祝いモード。手帳に銀文字。ママの分込み"},
-    {t:4,em:"✨",kind:"金泡",name:"月光",price:10000,keep:"その夜＋7日間＋翌日",does:"照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」と呼ばれる、翌日ママからお礼の留守電"},
-    {t:5,em:"🌅",kind:"黒金",name:"夜明け前",price:30000,keep:"ずっと",does:"店でいちばんの一本。看板の裏にネームプレートが掛かって、開けた日が店の記念日になる（商用版は月1回まで）"}
+    {t:1,em:"🍺",kind:"生",name:"天神橋生",price:120,keep:"その一言だけ",does:"「はい生ひとつ〜、おつかれさん」。いつもの客。特別扱いはなし"},
+    {t:2,em:"🥃",kind:"ハイボール",name:"堂島ハイ",price:250,keep:"10分",does:"ママがカウンターから出て隣に座る。10分だけ、自分の話は控えて聞き役に徹する"},
+    {t:3,em:"🍾",kind:"泡",name:"北新地スパークリング",price:600,keep:"その夜ずっと",does:"ポンッと開けて、ママが名前を呼んで乾杯。今夜ずっとお祝いモード。手帳に銀文字。ママの分込み"},
+    {t:4,em:"✨",kind:"金泡",name:"月光",price:1500,keep:"その夜＋7日間＋翌日",does:"照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」と呼ばれる、翌日ママからお礼の留守電"},
+    {t:5,em:"🌅",kind:"黒金",name:"夜明け前",price:3000,keep:"ずっと",does:"店でいちばんの一本。看板の裏にネームプレートが掛かって、開けた日が店の記念日になる（商用版は月1回まで）"}
   ];
   const SEAT_MIN=10,TITLE_DAYS=7;
   const tierLabel=(t)=>`${TIERS[t].kind}「${TIERS[t].name}」`;
@@ -1695,7 +1695,7 @@
 
   /* ───────── お品書き（課金デモ。実際の請求は一切なし。売れたことにして中身だけ動かす） ───────── */
   const PRICES={temma:4980, ao:9800, tsukikage:18800, voicemail:480}; // 仮の値段（円）。原価12円/分ベース
-  const MAMA_DRINK={em:"🍶",name:"ママに一杯",price:500,max:3};
+  const MAMA_DRINK={em:"🍶",name:"ママに一杯",price:120,max:3};
   const SALES_KEY="tokie_demo_sales_v1",SUB_KEY="tokie_demo_sub_v1";
   function sales(){try{const a=JSON.parse(localStorage.getItem(SALES_KEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
   function addSale(k,item,price){const a=sales();a.push({k,item,price,ts:Date.now()});try{localStorage.setItem(SALES_KEY,JSON.stringify(a));}catch(e){}}
