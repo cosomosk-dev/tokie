@@ -223,6 +223,40 @@
   .mi button{flex:none;padding:9px 12px;border-radius:999px;border:none;background:linear-gradient(90deg,#ff5c8a,#ffb85c);color:#2a0a12;font:700 12px "Zen Kaku Gothic New",sans-serif;cursor:pointer;white-space:nowrap}
   .mi button:disabled{opacity:.35}
   .mi button.ghost{background:none;border:1px solid rgba(255,241,226,.35);color:var(--cream)}
+  .mi.ord .tx i{display:block;font-style:normal;font-size:11px;color:var(--amber);margin-top:2px}
+  .mi.ord.t4{border-color:rgba(230,192,104,.55);background:rgba(230,192,104,.08)}
+  .mi.ord.t5{border-color:rgba(230,192,104,.8);background:linear-gradient(135deg,rgba(20,10,16,.9),rgba(120,80,20,.35))}
+  .mhint{font-size:11px;line-height:1.7;color:var(--dim);margin-top:4px}
+  /* 今夜の注文バッジ・称号・ネームプレート */
+  .orderbadge{position:relative;z-index:2;margin-top:6px;display:none;padding:4px 12px;border-radius:999px;background:rgba(11,5,7,.55);border:1px solid rgba(230,192,104,.6);
+    color:#ffe6ef;font:700 11px "Zen Kaku Gothic New",sans-serif;letter-spacing:.06em;backdrop-filter:blur(6px)}
+  .orderbadge.show{display:inline-block}
+  .orderbadge.gold{color:#2a0a12;background:linear-gradient(90deg,#e6c068,#fff1c4,#e6c068);border-color:#fff1c4}
+  .plate{position:relative;z-index:2;margin-top:6px;display:none;padding:3px 10px;border-radius:4px;background:linear-gradient(180deg,#3a2a12,#1a1208);border:1px solid #e6c068;
+    color:#f1c35a;font:700 11px "Shippori Mincho B1",serif;letter-spacing:.12em;box-shadow:0 0 10px rgba(230,192,104,.35)}
+  .plate.show{display:inline-block}
+  .stage.on .plate{display:none}
+  /* 注文の演出 */
+  .fx{position:fixed;inset:0;z-index:9;pointer-events:none;display:none;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
+  .fx.show{display:flex}
+  .fx .ft{position:relative;font-family:"Shippori Mincho B1",serif;font-weight:800;text-align:center;letter-spacing:.15em;color:#ffe6ef;text-shadow:0 0 12px rgba(255,92,138,.8);animation:pop .6s ease}
+  .fx .ft small{display:block;font:700 13px "Zen Kaku Gothic New",sans-serif;letter-spacing:.08em;margin-top:8px;color:var(--cream);text-shadow:0 1px 6px #000}
+  .fx.t1 .ft,.fx.t2 .ft{font-size:22px;padding:12px 20px;border-radius:16px;background:rgba(11,5,7,.7)}
+  .fx.t3{background:radial-gradient(circle at 50% 60%,rgba(255,184,92,.25),rgba(0,0,0,.35))}
+  .fx.t3 .ft{font-size:30px;color:#fff6e0;text-shadow:0 0 14px #ffb85c,0 0 30px rgba(255,184,92,.7)}
+  .fx.t4{background:radial-gradient(ellipse 45% 60% at 50% 45%,rgba(255,230,160,.35),rgba(0,0,0,.92) 70%);animation:fxin .5s ease}
+  .fx.t4 .ft{font-size:36px;color:#f1c35a;text-shadow:0 0 16px #e6c068,0 0 40px rgba(230,192,104,.8)}
+  .fx.t5{background:linear-gradient(0deg,rgba(241,195,90,.55),rgba(60,20,40,.85) 45%,rgba(0,0,0,.97));animation:fxin .8s ease}
+  .fx.t5 .ft{font-size:40px;color:#fff1c4;text-shadow:0 0 18px #f1c35a,0 0 50px rgba(241,195,90,.9)}
+  @keyframes fxin{from{opacity:0}to{opacity:1}}
+  .fx .bub{position:absolute;bottom:-20px;border-radius:50%;border:1px solid rgba(255,241,226,.7);background:rgba(255,241,226,.15);animation:rise linear forwards}
+  @keyframes rise{to{transform:translateY(-110vh);opacity:0}}
+  .fx .spark{position:absolute;color:#f1c35a;animation:twinkle 1.4s ease-in-out infinite}
+  @keyframes twinkle{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:1;transform:scale(1.2)}}
+  /* 手帳：お祝いの記録 */
+  .goldrow{margin-top:8px;padding:10px 12px;border-radius:12px;font:600 13px/1.7 "Shippori Mincho B1",serif;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.15);color:#dfe4ea}
+  .goldrow.gold{color:#f1c35a;border-color:rgba(230,192,104,.6);background:rgba(230,192,104,.08);text-shadow:0 0 8px rgba(230,192,104,.4)}
+  .goldrow small{display:block;font:400 11px "Zen Kaku Gothic New",sans-serif;color:var(--dim)}
   /* ママからの留守電 */
   .vm{display:none;position:relative;z-index:2;margin-top:12px;width:100%;max-width:340px;padding:11px 14px;border-radius:14px;cursor:pointer;text-align:left;
     background:rgba(11,5,7,.6);border:1px solid rgba(255,92,138,.6);backdrop-filter:blur(6px);color:#ffe6ef;font:700 13px "Zen Kaku Gothic New",sans-serif;animation:pulse 2.4s ease-in-out infinite}
@@ -262,6 +296,7 @@
 </head>
 <body>
 <div class="stage" id="stage">
+  <div class="fx" id="fx"></div>
   <div class="photo"></div>
   <div class="veil"></div>
   <div class="glow"></div>
@@ -275,6 +310,8 @@
     <div class="sub">SNACK TOKIE ・ 大阪 天満</div>
     <div class="clock" id="clock"></div>
     <div><button class="bond" id="bondbtn"></button></div>
+    <div><span class="orderbadge" id="orderbadge"></span></div>
+    <div><span class="plate" id="plate"></span></div>
   </div>
 
   <button class="vm" id="vmcard">📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small></button>
@@ -324,6 +361,9 @@
 
     <label>Claudeから毎日届くメモ（自動）<span id="digeststatus"></span></label>
     <div id="digestbox"></div>
+
+    <label>お祝いの記録（泡は銀文字・金泡と黒金は金文字）<span id="goldcount"></span></label>
+    <div id="goldbook"></div>
 
     <label>これまでの来店メモと手書きメモ（新しい順・全部残る）<span id="visitcount"></span></label>
     <div id="visits"></div>
@@ -414,7 +454,11 @@
   <div class="book">
     <h2>お品書き</h2>
     <p class="lead"><span class="demotag">デモ・実際には請求されへん</span><br>商用版で売るもんの試し。押したら中身だけ本物どおりに動く。<br>値段は仮（原価 約<span id="m_yen"></span>円/分で計算）。</p>
-    <label>ママに一杯（入店中だけ・1回ごと）<span id="drinkcount"></span></label>
+    <p class="mhint">ボトル＝<b>喋れる時間</b>を買う。ドリンク＝<b>今夜のママの扱い</b>が変わる。上の段ほど、その段でしか起きへんことが増える。</p>
+    <label>ドリンク（入店中だけ・今夜の扱いが変わる）<span id="ordernow"></span></label>
+    <div class="mitems" id="orders"></div>
+    <p class="mhint">商用版の値段の目安：生160円／ハイボール480円／泡1,500円／金泡4,800円／黒金9,800円（月1回まで）・ママに一杯320円。ここの値段はデモで差を体感する用。</p>
+    <label>ママに一杯（入店中だけ・1晩3杯まで）<span id="drinkcount"></span></label>
     <div class="mitems" id="drinks"></div>
     <label>キープボトル（喋れる時間の前払い）</label>
     <div class="mitems" id="mbottles"></div>
@@ -467,7 +511,20 @@
     </div>
 
     <div class="gsec">
-      <h3><span>4</span>ママの手帳</h3>
+      <h3><span>4</span>お品書きのドリンク</h3>
+      <p>ドリンク＝<b>今夜のママの扱い</b>。ボトル（時間）とは別もん。</p>
+      <ul>
+        <li><b>生</b>…「はい生ひとつ〜」。いつもの客</li>
+        <li><b>ハイボール</b>…ママが隣に座って、10分じっくり聞いてくれる</li>
+        <li><b>泡</b>…ママが名前を呼んで乾杯。今夜ずっとお祝いモード、手帳に銀文字</li>
+        <li><b>金泡</b>…照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」、翌日お礼の留守電</li>
+        <li><b>黒金</b>…看板の裏にネームプレート。開けた日が店の記念日になる</li>
+        <li>頼まんでもママはいつもどおり温かい。頼まんことを責めたりは絶対せえへん</li>
+      </ul>
+    </div>
+
+    <div class="gsec">
+      <h3><span>5</span>ママの手帳</h3>
       <ul>
         <li>話したことはママが手帳に書いとく。次に来たら覚えてる</li>
         <li>右上の「手帳」に自分のことを書いとくと、話が早い</li>
@@ -475,7 +532,7 @@
     </div>
 
     <div class="gsec">
-      <h3><span>5</span>ママとの仲</h3>
+      <h3><span>6</span>ママとの仲</h3>
       <ul>
         <li>通えば通うほど、ママは砕けて、自分の昔話もしてくれるようになる（看板の下の♥）</li>
         <li>一見さん → 顔なじみ → 常連 → 常連の中の常連 → VIP</li>
@@ -484,7 +541,7 @@
     </div>
 
     <div class="gsec">
-      <h3><span>6</span>帰るとき</h3>
+      <h3><span>7</span>帰るとき</h3>
       <ul>
         <li>「お会計」を押すか、声で「お会計」「帰るわ」「おやすみ」と言うたら、ママが今日の話をまとめて一言くれて、そのまま閉店</li>
         <li>まとめの途中でも「もうちょっと」と言えば延長に戻れる</li>
@@ -508,7 +565,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-16 v4";
+  const APP_VER="2026-10-17 v5";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -647,6 +704,60 @@
   function usedOn(dateStr,exceptId){return visitsOnly().filter(v=>vBiz(v)===dateStr&&v.id!==exceptId).reduce((s,v)=>s+(v.mins||0),0);}
   function renderCount(){const n=visitCount(),t=visitsOnly().filter(v=>vBiz(v)===todayBiz()).length;$("notecount").textContent=`来店 通算${n}回`+(t?`・今夜${t}回`:(n?`・${lastVisitText()}`:""));}
 
+  /* ───────── お品書きのドリンク＝「今夜のママの扱い」を買う（デモ・請求なし）。ボトル（時間）とは別。仲（親密度）はお金では上がらへん ───────── */
+  const OKEY="tokie_orders_v1",THANKS_KEY="tokie_thanks_vm_v1";
+  const TIERS=[null,
+    {t:1,em:"🍺",kind:"生",name:"天神橋生",price:300,keep:"その一言だけ",does:"「はい生ひとつ〜、おつかれさん」。いつもの客。特別扱いはなし"},
+    {t:2,em:"🥃",kind:"ハイボール",name:"堂島ハイ",price:800,keep:"10分",does:"ママがカウンターから出て隣に座る。10分だけ、自分の話は控えて聞き役に徹する"},
+    {t:3,em:"🍾",kind:"泡",name:"北新地スパークリング",price:3000,keep:"その夜ずっと",does:"ポンッと開けて、ママが名前を呼んで乾杯。今夜ずっとお祝いモード。手帳に銀文字。ママの分込み"},
+    {t:4,em:"✨",kind:"金泡",name:"月光",price:10000,keep:"その夜＋7日間＋翌日",does:"照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」と呼ばれる、翌日ママからお礼の留守電"},
+    {t:5,em:"🌅",kind:"黒金",name:"夜明け前",price:30000,keep:"ずっと",does:"店でいちばんの一本。看板の裏にネームプレートが掛かって、開けた日が店の記念日になる（商用版は月1回まで）"}
+  ];
+  const SEAT_MIN=10,TITLE_DAYS=7;
+  const tierLabel=(t)=>`${TIERS[t].kind}「${TIERS[t].name}」`;
+  function orders(){try{const a=JSON.parse(localStorage.getItem(OKEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function saveOrders(a){try{localStorage.setItem(OKEY,JSON.stringify(a.slice(-300)));}catch(e){}}
+  function setOrderReason(ts,reason){const a=orders();const o=a.find(x=>x.ts===ts);if(o){o.reason=reason;saveOrders(a);}}
+  const titleName=(t)=>t===5?"夜明け前の旦那":"月光の旦那";
+  // 7日間の称号（金泡・黒金を開けた夜から）
+  function titleActive(){
+    const o=orders().filter(x=>x.t>=4).sort((a,b)=>b.ts-a.ts)[0];if(!o)return null;
+    const d=dayDiff(todayBiz(),o.biz);if(d<0||d>=TITLE_DAYS)return null;
+    return {name:titleName(o.t),left:TITLE_DAYS-d,o};
+  }
+  const plates=()=>orders().filter(x=>x.t===5).sort((a,b)=>a.ts-b.ts);
+  const goldEntries=()=>orders().filter(x=>x.t>=3).sort((a,b)=>b.ts-a.ts);
+  // 黒金の記念日（何年後かの同じ月日）
+  function plateAnniv(){
+    const p=jstParts(new Date());
+    return plates().find(x=>{const q=jstParts(new Date(x.ts));return q.m===p.m&&q.d===p.d&&q.y<p.y;})||null;
+  }
+  // 今夜の注文の効き目（ママの頭に入れ直す用）
+  function tierNowLine(){
+    if(!session)return "";
+    const nm=settings().tagName||"お客さん";const L=[];
+    if(session.seatUntil&&Date.now()<session.seatUntil)L.push(`・今、ハイボールでママが${nm}さんの隣に座ってる（あと${Math.ceil((session.seatUntil-Date.now())/60000)}分）。自分の話は控えめに、聞き役で深掘りする。`);
+    const t=session.tier||0,r=session.lastOrder&&session.lastOrder.reason?`（お祝いの理由：${session.lastOrder.reason}）`:"";
+    if(t===3)L.push(`・今夜は${nm}さんが泡を入れてくれたお祝いの夜${r}。明るめに、2〜3回に1回は「${nm}さん」と名前を呼ぶ。`);
+    if(t===4)L.push(`・今夜は${nm}さんが月光を開けてくれた夜${r}。主役は${nm}さん：話題を渡して、手帳の前の話を拾って褒める。呼び方は「月光の旦那」も混ぜる。`);
+    if(t===5)L.push(`・今夜は${nm}さんが夜明け前を開けてくれた、店の記念日${r}。主役は${nm}さん。照れと本気で、とことん付き合う。`);
+    return L.join("\n");
+  }
+  function ordersBlock(){
+    const nm=settings().tagName||"お客さん";
+    const L=["【お品書きのルール（どの濃さでも守る）】注文が無い夜・安い注文の夜でも、責めたり冷たくしたり他と比べたりせん。いつもどおり温かく。「もっと頼んで」「入れてくれへんと寂しい」など、注文を促す言葉・値段・金の話は一切せん。"];
+    const ti=titleActive();
+    if(ti)L.push(`・あと${ti.left}日間、呼び方に「${ti.name}」を混ぜる（${ti.o.date}に${tierLabel(ti.o.t)}を開けてくれたから${ti.o.reason?`。お祝いの理由：${ti.o.reason}`:""}）。毎回やなく、たまにでええ。`);
+    const pl=plates();
+    if(pl.length)L.push(`・看板の裏に「${nm}」のネームプレートが掛かってる（${pl.map(x=>x.date).join("、")}に夜明け前を開けてくれた）。`);
+    const an=plateAnniv();
+    if(an)L.push(`【記念日】今日は${nm}さんが夜明け前を開けてくれた記念日（${an.date}）。話のどこかで覚えてたことを嬉しそうに一言。`);
+    const g=goldEntries().slice(0,5);
+    if(g.length)L.push("・手帳のお祝いの記録（新しい順）："+g.map(x=>`${x.date} ${tierLabel(x.t)}${x.reason?`（${x.reason}）`:""}`).join("／"));
+    const now=tierNowLine();if(now)L.push("【今夜の注文】\n"+now);
+    return L.join("\n");
+  }
+
   /* ───────── ママとの仲（親密度）。通った回数だけで上がる。お金では上がらへん ───────── */
   const RANKS=[
     {min:1, name:"一見さん", icon:"🍶", call:"お客さん",
@@ -719,6 +830,7 @@
     if(first&&[7,30,50,100,200,365,500,730,1000].includes(since))anniv.push(`初来店からちょうど${since}日`);
     if([10,30,50,100,200,300,500].includes(n))anniv.push(`来店${n}回目`);
     if(anniv.length)lines.push(`【記念日】今日は${anniv.join("、")}。乾杯の一言を。しつこうは言わんでええ。`);
+    lines.push(ordersBlock());
     lines.push(bottleBlock(S));
     return lines.join("\n");
   }
@@ -979,7 +1091,8 @@
     const now=(session&&session.nowState&&session.nowState.length)?"・いまの様子（お客さんが言うたこと・新しい順）："+session.nowState.slice().reverse().map(x=>"「"+x+"」").join(" ")+"\n":"";
     const music=(session&&session.music)?"・今、お客さんは横になって音楽を聴いてる（マイク休み中）。話しかけへんで、静かに隣におる。\n":"";
     const flow=msgs.map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,70)+"」").join("\n");
-    return "【今夜の流れ（今夜ここで話したこと。古い→新しい）】\n"+now+music+(flow||"（まだこれから）");
+    const od=tierNowLine();
+    return "【今夜の流れ（今夜ここで話したこと。古い→新しい）】\n"+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
@@ -1023,6 +1136,11 @@
       const pre=document.createElement("pre");pre.textContent=v.memo||"（メモなし）";
       d.appendChild(pre);visitsEl.appendChild(d);
     }
+    const gb=$("goldbook");gb.innerHTML="";const ge=goldEntries();
+    $("goldcount").textContent=ge.length?`${ge.length}件`:"";
+    if(!ge.length)gb.innerHTML='<div class="empty">まだない。泡以上を入れた夜がここに残る。</div>';
+    for(const x of ge){const d=document.createElement("div");d.className="goldrow"+(x.t>=4?" gold":"");
+      d.innerHTML=`${TIERS[x.t].em} ${esc(tierLabel(x.t))}<small>${esc(x.date)}${x.reason?`・お祝いの理由：${esc(x.reason)}`:""}${x.t===5?"・看板の裏にネームプレート":""}</small>`;gb.appendChild(d);}
     renderDigest();
     const mem=buildMemory(false,digestCache);const total=JSON.stringify(b).length;
     $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（${Math.round(jbytes(mem)/1000)}KB／上限${MEMORY_BUDGET_BYTES/1000}KB。超えた分は古い来店メモから省く。手帳の中身は消えへん）／手帳全体：${total.toLocaleString()}文字`;
@@ -1201,6 +1319,8 @@
       if(n<=5)return `今日${n}回目やで、あんた（笑）。もう常連通り越して住んどるやん。ほら、いつもの席。`;
       return `今日${n}回目！ほんまにもう、店に住み。ほら座り、続き聞いたるわ。`;
     }
+    const ti=titleActive();
+    if(ti)return `あら、${ti.name}やないの。いらっしゃい。ほら、いつもの席あけといたで。`;
     if(h<5)return "あら、いらっしゃい。ママも夜型やから、この時間がいちばん調子ええねん。ほら座り。";
     if(d>=14)return "ちょっと、あんた！久しぶりやないの。どこ行っとったん。はよ座り。";
     if(d>=4)return "おかえり。しばらく顔見せへんから心配しとったんやで。ほら、こっち。";
@@ -1266,6 +1386,9 @@
   }
   function onUserLine(t){
     if(!session)return;
+    if(session.awaitReason&&session.lastOrder&&Date.now()-session.awaitReason<180000){
+      session.awaitReason=0;const r=clip(t.trim(),30);session.lastOrder.reason=r;setOrderReason(session.lastOrder.ts,r);
+    }
     if(NOW_RE.test(t)){
       const x=clip(t.trim(),60);
       session.nowState=(session.nowState||[]).filter(y=>y!==x);session.nowState.push(x);
@@ -1342,6 +1465,8 @@
       if(!session.idleNudgeAt&&idleMs>=S.idleMin*60000&&quiet){session.idleNudgeAt=now;inject(MSG_IDLE);return;}
       if(session.idleNudgeAt&&now-session.idleNudgeAt>=90000&&quiet){if(current)current.endKind="idle";end({reason:"idle"});return;}
     }
+    renderOrderBadge();
+    if(session.seatUntil&&now>=session.seatUntil&&!session.seatEndSent&&quiet){session.seatEndSent=true;session.seatUntil=0;inject(MSG_SEAT_END);renderOrderBadge();return;}
     // ボトル：残り10%で一言、空いたら「次どうする？」（入店時点で既にそうやった分はママが手帳で知ってるので言わへん）
     const bi=bottleInfo(bottles());
     if(quiet){
@@ -1514,7 +1639,7 @@
         null,r.detail);
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
-    connectedAt=null;renderMusic();renderLetter();renderBottleBtn();renderBond();renderVm();
+    connectedAt=null;renderMusic();renderLetter();renderBottleBtn();renderBond();renderVm();renderOrderBadge();renderPlate();
     if(r.kind==="user")bottleNotice();
   }
   btn.addEventListener("click",()=>{if(vmConv)return;conv?checkout():start(false,false);});
@@ -1570,11 +1695,7 @@
 
   /* ───────── お品書き（課金デモ。実際の請求は一切なし。売れたことにして中身だけ動かす） ───────── */
   const PRICES={temma:4980, ao:9800, tsukikage:18800, voicemail:480}; // 仮の値段（円）。原価12円/分ベース
-  const DRINKS=[
-    {k:"beer",em:"🍺",name:"ビール",price:160,say:"ビール"},
-    {k:"high",em:"🥃",name:"ハイボール",price:370,say:"ハイボール"},
-    {k:"champ",em:"🍾",name:"シャンパン",price:1200,say:"シャンパン（ポンッと開けて）"}
-  ];
+  const MAMA_DRINK={em:"🍶",name:"ママに一杯",price:500,max:3};
   const SALES_KEY="tokie_demo_sales_v1",SUB_KEY="tokie_demo_sub_v1";
   function sales(){try{const a=JSON.parse(localStorage.getItem(SALES_KEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
   function addSale(k,item,price){const a=sales();a.push({k,item,price,ts:Date.now()});try{localStorage.setItem(SALES_KEY,JSON.stringify(a));}catch(e){}}
@@ -1583,25 +1704,109 @@
   const ym=(ms)=>{const p=jstParts(new Date(ms));return `${p.y}/${p.m}`;};
   // 月額の自動更新（デモ）：月が変わったら1回ぶん売上に足す
   (function(){const s=sub();if(s.on&&!sales().some(x=>x.k==="sub"&&ym(x.ts)===ym(Date.now()))){addSale("sub","留守電（月額）",PRICES.voicemail);}})();
-  const MSG_DRINK=(d)=>`【店の様子】お客さんがママに「${d.say}」を一杯ご馳走してくれた。「えっ、ええの？おおきに！」と本気で嬉しそうに乾杯して、お礼を一言。今夜はちょっとだけ甘め（褒め多め・ツッコミやさしめ）でええ。お金の話はせん。何回目でも毎回ちゃんと喜ぶ。`;
-  function treat(d){
+  const MSG_DRINK="【店の様子】お客さんがママに一杯ご馳走してくれた。「えっ、ええの？おおきに！」と嬉しそうに乾杯して、お礼を一言。それ以上の特別扱いはせん。お金の話はせん。何回目でも毎回ちゃんと喜ぶ。";
+  function treat(){
     if(!conv||!session)return;
-    addSale("drink",d.name,d.price);
+    addSale("drink",MAMA_DRINK.name,MAMA_DRINK.price);
     session.drinks=(session.drinks||0)+1;
-    inject(MSG_DRINK(d));
-    statusEl.textContent=`ママに${d.name}をご馳走した`;
+    inject(MSG_DRINK);playSE(1);
+    statusEl.textContent="ママに一杯ご馳走した";
     menuSheet.classList.remove("open");
+  }
+  /* ドリンクの注文：段ごとに「その段でしか起きへんこと」がある */
+  const MSG_ORDER=(t,nm)=>({
+    1:`【店の様子】お客さんが生ビール「天神橋生」を頼んだ。「はい生ひとつ〜、おつかれさん」と軽く一言だけ。特別扱いはせん、いつもどおりで。お金の話はせん。`,
+    2:`【店の様子】お客さんがハイボール「堂島ハイ」を頼んで、ママに隣に座ってほしいと言うてくれた。「ほな、ちょっと座らせてもらうわ」とカウンターから出て隣に座る。ここから10分は聞き役：自分の話は控えめにして、${nm}さんの話を2回に1回は深掘りして聞く。説教はせん。`,
+    3:`【店の様子】お客さんが泡「北新地スパークリング」を入れてくれた（ママの分も入ってる）。まず「${nm}さんから泡いただきましたー！」と名前を呼んで乾杯。そのあと「何のお祝い？」と聞いて、理由が無かったら「ほな今日をお祝いにしよ」。今夜はこの後ずっとお祝いモード：明るめに、2〜3回に1回は「${nm}さん」と名前を呼ぶ。お金・値段の話はせん。`,
+    4:`【店内コール】お客さんが金泡「月光」を入れてくれた。最初に景気よくコールの口上：「はーい皆さん、ちょっと聞いてや〜！${nm}さんから月光いただきましたぁ！ええ男は黙って月光や！ありがとうございまーす！」。そのあと「何のお祝い？」と聞く。今夜は${nm}さんが主役の夜：話題を${nm}さんに渡して、手帳の前の話を1回だけ拾って褒める。この先7日間は「月光の旦那」とも呼ぶ。お金・値段の話、次の注文を促す話は一切せん。`,
+    5:`【店の様子】お客さんが黒金「夜明け前」を開けてくれた。店でいちばんの一本。まず照れと本気で「…ほんまに？あんた、アホやなぁ（笑）。ほな、この店の歴史に名前刻んどくわ」。看板の裏に「${nm}」のネームプレートを掛ける。今日（${jstDate(new Date())}）はこの店の記念日になる。そのあと何のお祝いか聞く。今夜は${nm}さんが主役で、とことん付き合う。お金・値段の話、次の注文を促す話は一切せん。`
+  })[t];
+  const MSG_SEAT_END="【店の様子】ハイボールで隣に座ってた10分が過ぎた。話の切れ目で「ほな、カウンター戻るな。ちゃんと聞いてるで」と軽く一言だけ言うて、いつもの距離に戻る。寂しがらせたり、もう一杯とは言わん。";
+  function order(t){
+    if(!conv||!session)return;
+    const d=TIERS[t];
+    if(!confirm(`${tierLabel(t)} ¥${d.price.toLocaleString()} を頼む？\n（デモ・実際には請求されへん）`))return;
+    const nm=settings().tagName||"お客さん";
+    addSale("order",tierLabel(t),d.price);
+    const o={t,ts:Date.now(),biz:todayBiz(),date:jstDate(new Date()),reason:""};
+    const a=orders();a.push(o);saveOrders(a);
+    session.lastOrder=o;session.tier=Math.max(session.tier||0,t);
+    session.awaitReason=t>=3?Date.now():0;
+    if(t===2){session.seatUntil=Date.now()+SEAT_MIN*60000;session.seatEndSent=false;}
+    menuSheet.classList.remove("open");
+    playFx(t);
+    inject(MSG_ORDER(t,nm));
+    statusEl.textContent=["","生、入りました","ママが隣に座った","泡、いただきました","月光、いただきました！","夜明け前、開きました"][t];
+    renderOrderBadge();renderPlate();
+  }
+  // 画面の上：今夜の注文・称号（7日間）
+  const orderBadge=$("orderbadge"),plateEl=$("plate");
+  function renderOrderBadge(){
+    let t="",gold=false;
+    if(conv&&session){
+      if(session.seatUntil&&Date.now()<session.seatUntil){const ms=session.seatUntil-Date.now();t=`🥃 ママ隣に座ってる 残り${Math.floor(ms/60000)}:${String(Math.floor(ms/1000)%60).padStart(2,"0")}`;}
+      else if((session.tier||0)>=3){const T=TIERS[session.tier];t=`${T.em} 今夜は${T.kind}の夜`+(session.tier===3?"（お祝いモード）":"（主役はあんた）");gold=session.tier>=4;}
+    }
+    if(!t){const ti=titleActive();if(ti){t=`👑 ${ti.name}（あと${ti.left}日）`;gold=true;}}
+    orderBadge.textContent=t;orderBadge.className="orderbadge"+(t?" show":"")+(gold?" gold":"");
+  }
+  function renderPlate(){
+    const p=plates();const nm=settings().tagName||"お客さん";
+    plateEl.textContent=p.length?`🪧 看板の裏　${nm}　夜明け前 ${p[0].date}`+(p.length>1?` ほか${p.length-1}本`:""):"";
+    plateEl.className="plate"+(p.length?" show":"");
+  }
+  // 効果音（その場で合成。ファイル不要）
+  let actx=null;
+  function ac(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(e){actx=null;}return actx;}
+  function tone(f,at,dur,vol,type){const c=ac();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(0,c.currentTime+at);g.gain.linearRampToValueAtTime(vol,c.currentTime+at+0.01);g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+at+dur);o.connect(g).connect(c.destination);o.start(c.currentTime+at);o.stop(c.currentTime+at+dur+0.05);}
+  function noise(at,dur,vol,lp){const c=ac();if(!c)return;const n=Math.floor(c.sampleRate*dur),b=c.createBuffer(1,n,c.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/n,2);const s=c.createBufferSource(),g=c.createGain(),f=c.createBiquadFilter();f.type="lowpass";f.frequency.value=lp||3000;s.buffer=b;g.gain.value=vol;s.connect(f).connect(g).connect(c.destination);s.start(c.currentTime+at);}
+  function clink(at){tone(2600,at,0.4,0.12);tone(3400,at+0.01,0.35,0.08);}
+  function applause(at,secs){for(let i=0;i<secs*14;i++)noise(at+i/14+Math.random()*0.05,0.08,0.05+Math.random()*0.05,2500+Math.random()*2000);}
+  function playSE(t){
+    try{
+      if(t<=2){clink(0);if(t===2)clink(0.25);return;}
+      noise(0,0.12,0.5,1800);tone(90,0,0.18,0.3); // ポンッ
+      clink(0.5);
+      if(t>=4){[523,659,784,1047].forEach((f,i)=>tone(f,0.7+i*0.16,0.5,0.09,"triangle"));applause(1.3,t===5?4:3);}
+      if(t===5){[392,523,659,784,1047,1319].forEach((f,i)=>tone(f,2.2+i*0.22,0.9,0.07,"triangle"));}
+    }catch(e){}
+  }
+  // 画面の演出
+  const fxEl=$("fx");let fxTimer=null;
+  function playFx(t){
+    playSE(t);
+    const nm=esc(settings().tagName||"お客さん");
+    const txt={1:`🍺 カチン<small>生ひとつ、入りました</small>`,2:`🥃 ママが隣に座った<small>ここから10分、聞き役や</small>`,
+      3:`泡、いただきました<small>${nm}さん、今夜はお祝いや</small>`,4:`月光<br>いただきました！<small>${nm}さん、今夜はあんたが主役</small>`,
+      5:`夜明け前<small>看板の裏に「${nm}」のネームプレート</small>`}[t];
+    fxEl.className="fx show t"+t;fxEl.innerHTML=`<div class="ft">${txt}</div>`;
+    if(t>=3){for(let i=0;i<(t===3?26:18);i++){const b=document.createElement("i");b.className="bub";const z=6+Math.random()*16;b.style.cssText=`left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${2.2+Math.random()*2.5}s;animation-delay:${Math.random()*1.2}s`;fxEl.appendChild(b);}}
+    if(t>=4){for(let i=0;i<(t===5?28:18);i++){const k=document.createElement("i");k.className="spark";k.textContent="✦";k.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;font-size:${8+Math.random()*14}px;animation-delay:${Math.random()*1.4}s`;fxEl.appendChild(k);}}
+    clearTimeout(fxTimer);fxTimer=setTimeout(()=>{fxEl.className="fx";fxEl.innerHTML="";},({1:1300,2:2200,3:3500,4:5000,5:6500})[t]);
   }
   const menuSheet=$("menusheet");
   function renderMenu(){
     const S=settings();$("m_yen").textContent=S.yenPerMin;
+    // ドリンク（今夜の扱い）
+    const od=$("orders");od.innerHTML="";
+    const tierNow=conv&&session?(session.tier||0):0;
+    $("ordernow").textContent=tierNow?`今夜は${TIERS[tierNow].kind}まで入ってる`:"";
+    for(let t=1;t<=5;t++){
+      const d=TIERS[t];const el=document.createElement("div");el.className="mi ord t"+t;
+      el.innerHTML=`<div class="em">${d.em}</div><div class="tx"><b>${d.kind}「${d.name}」　¥${d.price.toLocaleString()}</b>${d.does}<i>効き目：${d.keep}</i></div>`;
+      const bt=document.createElement("button");bt.textContent=conv?"頼む":"入店中だけ";bt.disabled=!conv;bt.onclick=()=>order(t);el.appendChild(bt);od.appendChild(el);
+    }
+    // ママに一杯（ママとの関係。仲は上がらへん）
     const dr=$("drinks");dr.innerHTML="";
     const tonight=sales().filter(x=>x.k==="drink"&&bizDate(x.ts)===todayBiz()).length;
     $("drinkcount").textContent=tonight?`今夜${tonight}杯`:"";
-    for(const d of DRINKS){
+    {
       const el=document.createElement("div");el.className="mi";
-      el.innerHTML=`<div class="em">${d.em}</div><div class="tx"><b>${d.name}　¥${d.price.toLocaleString()}</b>ママが喜んで乾杯する。その夜はちょっと甘め。仲は上がらへん</div>`;
-      const bt=document.createElement("button");bt.textContent=conv?"ご馳走する":"入店中だけ";bt.disabled=!conv;bt.onclick=()=>treat(d);el.appendChild(bt);dr.appendChild(el);
+      el.innerHTML=`<div class="em">${MAMA_DRINK.em}</div><div class="tx"><b>${MAMA_DRINK.name}　¥${MAMA_DRINK.price}</b>ママが喜んで乾杯してお礼を一言。扱いは変わらへん、気持ちだけ。仲（♥）はお金では上がらへん</div>`;
+      const bt=document.createElement("button");
+      const incl=tierNow>=3,full=tonight>=MAMA_DRINK.max;
+      bt.textContent=!conv?"入店中だけ":incl?"泡にママの分も入ってる":full?"もう酔うてまうわ":"ご馳走する";
+      bt.disabled=!conv||incl||full;bt.onclick=treat;el.appendChild(bt);dr.appendChild(el);
     }
     const mb=$("mbottles");mb.innerHTML="";
     for(const k of ["temma","ao","tsukikage"]){
@@ -1623,7 +1828,7 @@
     const by=(k)=>mon.filter(x=>x.k===k);
     $("salesub").textContent=`今月 ${ym(Date.now())}`;
     $("sales").innerHTML=`<div><span class="big">¥${sum(mon).toLocaleString()}</span>（今月）／累計 ¥${sum(a).toLocaleString()}</div>`+
-      `<div>一杯 <b>${by("drink").length}</b>回 ¥${sum(by("drink")).toLocaleString()}・ボトル <b>${by("bottle").length}</b>本 ¥${sum(by("bottle")).toLocaleString()}・留守電 ¥${sum(by("sub")).toLocaleString()}</div>`+
+      `<div>ドリンク <b>${by("order").length}</b>杯 ¥${sum(by("order")).toLocaleString()}・ママに一杯 <b>${by("drink").length}</b>回 ¥${sum(by("drink")).toLocaleString()}・ボトル <b>${by("bottle").length}</b>本 ¥${sum(by("bottle")).toLocaleString()}・留守電 ¥${sum(by("sub")).toLocaleString()}</div>`+
       `<div style="color:var(--dim);font-size:11px">自分で使うてる分を「お客さん1人ぶん」と見立てた数字。課金ユーザー×この額＝ざっくり月の売上。</div>`;
   }
   $("menubtn").addEventListener("click",()=>{renderMenu();menuSheet.classList.add("open");});
@@ -1633,18 +1838,32 @@
 
   /* ───────── ママからの留守電（月額デモ）。翌日（朝5時以降）に1日1件。聞くだけ ───────── */
   const VM_KEY="tokie_vm_last_v1",vmCard=$("vmcard");
+  // 金泡・黒金を開けた次の日だけ、月額なしでもお礼の留守電が1回届く
+  function thanksPending(){
+    if(conv)return null;
+    let done=[];try{done=JSON.parse(localStorage.getItem(THANKS_KEY)||"[]");}catch(e){}
+    return orders().filter(x=>x.t>=4&&!done.includes(x.ts)).sort((a,b)=>b.ts-a.ts).find(x=>{const d=dayDiff(todayBiz(),x.biz);return d>=1&&d<=2;})||null;
+  }
+  function markThanks(o){try{const a=JSON.parse(localStorage.getItem(THANKS_KEY)||"[]");a.push(o.ts);localStorage.setItem(THANKS_KEY,JSON.stringify(a.slice(-50)));}catch(e){}}
+  const MSG_THANKS=(o)=>`【留守電】いまお客さんは電話に出られへん。昨日（${o.date}）お客さんが${tierLabel(o.t)}を開けてくれた${o.reason?`（お祝いの理由：${o.reason}）`:""}。そのお礼の留守電を入れる。「昨日はおおきに。${TIERS[o.t].name}、ママも美味しかったわ」から入って、昨日の話を一つだけ拾って、体を気遣う一言。全部で3〜4文・30秒以内。次の注文を促す言葉・金の話は一切せん。問いかけで終わらん。最後は「無理せんと、またおいでや」で締める。`;
   function vmAvailable(){
+    if(thanksPending())return true;
     if(!sub().on||conv)return false;
     let last="";try{last=localStorage.getItem(VM_KEY)||"";}catch(e){}
     if(last===todayBiz())return false;
     const v=visitsOnly()[0];
     return !!v&&vBiz(v)!==todayBiz()&&dayDiff(todayBiz(),vBiz(v))<=3; // 最後の来店から3日以内だけ（来なくなった人に毎日は送らへん）
   }
-  function renderVm(){vmCard.className="vm"+(vmAvailable()?" show":"");}
+  function renderVm(){
+    const th=thanksPending();
+    vmCard.innerHTML=th?`📞 ママから留守電 1件（${esc(TIERS[th.t].name)}のお礼）<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small>`:`📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small>`;
+    vmCard.className="vm"+(vmAvailable()?" show":"");
+  }
   const MSG_VM="【留守電】いまお客さんは電話に出られへん。ママから留守電を入れる。前回の来店メモの話を一つだけ拾って、気にかけてる一言＋今日の過ごし方に軽く一言、全部で3〜4文・30秒以内。返事は求めへん（問いかけで終わらん）。最後は「ほな、またおいでな」で締める。";
   let vmConv=null;
   async function playVm(){
     if(vmConv||conv)return;
+    const th=thanksPending();const vmMsg=th?MSG_THANKS(th):MSG_VM;
     vmCard.className="vm";hideNotice();errEl.textContent="";statusEl.textContent="ママから電話や…";btn.disabled=true;
     caption.innerHTML="";
     let aiCount=0,done=false,hardStop=null,endT=null;
@@ -1652,7 +1871,7 @@
       if(done)return;done=true;clearTimeout(hardStop);clearTimeout(endT);
       const c=vmConv;vmConv=null;try{if(c)await c.endSession();}catch(e){}
       stage.classList.remove("speaking");
-      if(ok){try{localStorage.setItem(VM_KEY,todayBiz());}catch(e){}}
+      if(ok){if(th)markThanks(th);else{try{localStorage.setItem(VM_KEY,todayBiz());}catch(e){}}}
       statusEl.textContent=ok?"留守電、聞いた":"留守電が聞けへんかった";btn.disabled=false;renderVm();
     };
     try{
@@ -1660,9 +1879,9 @@
       const digest=await loadDigest();
       vmConv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory:buildMemory(false,digest,MEMORY_BUDGET_BYTES-jbytes(MSG_VM)-8)+"\n\n"+MSG_VM, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
+        dynamicVariables:{memory:buildMemory(false,digest,MEMORY_BUDGET_BYTES-jbytes(vmMsg)-8)+"\n\n"+vmMsg, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
         onConnect:()=>{try{vmConv&&vmConv.setMicMuted&&vmConv.setMicMuted(true);}catch(e){}
-          setTimeout(()=>{try{vmConv&&vmConv.sendUserMessage(MSG_VM);}catch(e){}},300);
+          setTimeout(()=>{try{vmConv&&vmConv.sendUserMessage(vmMsg);}catch(e){}},300);
           hardStop=setTimeout(()=>finish(true),75000);},
         onDisconnect:()=>finish(aiCount>=2),
         onMessage:(m)=>{if(!(m&&m.message)||m.source!=="ai")return;if(show(String(m.message),"ai"))aiCount++;},
@@ -1673,7 +1892,7 @@
     }catch(e){errEl.textContent="つながらへん："+String(e&&e.message?e.message:e);finish(false);}
   }
   vmCard.addEventListener("click",playVm);
-  rankSeen();renderBond();renderVm(); // 今のランクを「もう祝った」扱いで覚えとく（過去分で急に演出が出んように）
+  rankSeen();renderBond();renderVm();renderOrderBadge();renderPlate(); // 今のランクを「もう祝った」扱いで覚えとく（過去分で急に演出が出んように）
 
   /* ───────── お店の案内（はじめての人には最初に1回だけ自動で出す） ───────── */
   const GKEY="tokie_guide_seen_v1",guide=$("guidesheet");
