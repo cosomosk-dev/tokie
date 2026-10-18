@@ -569,7 +569,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'一緒にいて、落ち着くこと',o:'「落ち着く、ね。あんたみたいな子、長く続くのよ」',x:{a:2},sc:{C:2,B:1},nak:'国の調査でも、女が結婚相手に一番求めるのは「人柄」。あんたは正統派よ。'},
         {t:'正直、経済力',o:'「正直でよろしい。口に出さないだけで、みんなそう思ってる」',x:{m:2},sc:{A:2,B:1},nak:'年収を「重要」と答える子は約9割。あんたは正直なだけ。'},
-        {t:'ドキドキすること',o:'「ときめき派ね。…飽きっぽくないでしょうね？」',x:{t:2},sc:{D:2,A:1},nak:'ときめきで決める子は、交際4か月で成婚するのよ。早いわよ〜。'},
+        {t:'ドキドキすること',o:'「ときめき派ね。…飽きっぽくないでしょうね？」',x:{t:2},sc:{D:3},nak:'ときめきで決める子は、交際4か月で成婚するのよ。早いわよ〜。'},
       ]},
     {who:'N',ep:'千代子の3つの質問 ②',title:'理想の休日は？',
       text:'「じゃあ2つ目。結婚して最初の日曜日。何してたい？」',
@@ -583,7 +583,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'自分と同じくらいでいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{a:1,c:1},sc:{C:2,D:1},nak:'年収300万以上なら乗り越えられる、って子が9割。あんたは現実が見えてる。'},
         {t:'500万は欲しい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:1,c:1},sc:{B:2,C:1},nak:'求める年収は500万円台が一番多いの。あんたは多数派よ。'},
-        {t:'多ければ多いほどいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:2},sc:{A:2},nak:'いいわよ、欲張りで。でもね、タイプじゃない1,000万より、普通の500万を選ぶ子が7割なの。覚えときなさい。'},
+        {t:'多ければ多いほどいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:2},sc:{A:3},nak:'いいわよ、欲張りで。でもね、タイプじゃない1,000万より、普通の500万を選ぶ子が7割なの。覚えときなさい。'},
       ]},
     {who:'A',ep:'お見合い 1人目',title:'秘書が、迎えに来た',
       text:'ホテルのラウンジ。黒塗りの車から降りた初老の男性が言った。「秘書の田辺です。高橋がお待ちです」。窓際の彼は、あなたを見た瞬間、紅茶をこぼした。',
@@ -925,27 +925,29 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#reset-all').addEventListener('click',()=>{if(!confirm('遊んだ記録をすべて消して、最初からやり直しますか？'))return;try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
 
   // ================= 序章 =================
+  const SEQ=()=>{const qs=PRO.filter(x=>x.who==='N');const om=PRO.filter(x=>x.who!=='N').slice().sort((p,q)=>(proScore[q.who]||0)-(proScore[p.who]||0));return qs.concat(om);};
   function renderPro(){
-    const sc=PRO[pi];
-    $('#p-pos').textContent=`${pi+1} / ${PRO.length}`;
-    $('#p-dots').innerHTML=PRO.map((_,i)=>`<i class="${i<pi?'on':i===pi?'now':''}"></i>`).join('');
+    const seq=SEQ(),sc=seq[pi];
+    $('#p-pos').textContent=`${pi+1} / ${seq.length}`;
+    $('#p-dots').innerHTML=seq.map((_,i)=>`<i class="${i<pi?'on':i===pi?'now':''}"></i>`).join('');
+    const qn=seq.filter(x=>x.who==='N').length;
     if(sc.who==='N'){$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img('N','千代子')}</div><b>仲人・千代子</b><span>成婚300組の毒舌仲人</span></div>`;}
     else{const p=byId(sc.who);$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img(p.id,p.name)}</div><b>${esc(p.name)}(${p.age})</b><span>${esc(p.job)} ・ ${p.income}</span></div>`;}
     $('#p-card').classList.toggle('qcard',sc.who==='N');
-    $('#p-ep').textContent=sc.ep;$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
+    $('#p-ep').textContent=sc.who==='N'?sc.ep:`お見合い ${pi-qn+1}人目`+(pi===qn?' ・ 千代子のイチオシ':'');$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
     $('#p-choices').innerHTML=sc.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${['A','B','C'][i]}</span><span>${esc(h.t)}</span></button>`).join('');
     $$('#p-choices button').forEach(b=>b.addEventListener('click',()=>proChoose(+b.dataset.i)));
     $('#p-after').hidden=true;window.scrollTo(0,0);
   }
   function proChoose(i){
     if(!$('#p-after').hidden)return;
-    const h=PRO[pi].ch[i];addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
+    const h=SEQ()[pi].ch[i];addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
     $$('#p-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
     $('#p-out').textContent=typeof h.o==='function'?h.o():h.o;nako('#nako-pro',h.nak,true);
-    $('#p-next').textContent=pi===PRO.length-1?'お見合いでのあなたを見る':'次のお見合いへ';
+    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'イチオシの'+byId(seq[pi+1].who).name.split(' ').pop()+'に会う':'次のお見合いへ'));
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
-  $('#p-next').addEventListener('click',()=>{if(pi<PRO.length-1){pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
+  $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;
