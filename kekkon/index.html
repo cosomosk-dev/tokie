@@ -312,6 +312,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .moshi b{font-family:var(--font-mincho);font-size:.84rem;line-height:1.3}
 .moshi .q{color:var(--gold);font-weight:700}
 .adov{position:fixed;inset:0;background:rgba(20,10,15,.86);z-index:50;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;text-align:center;padding:24px}
+.jobs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.jobs button{min-height:40px;padding:6px 12px;font-size:.86rem;border-radius:999px;border-color:var(--line);background:var(--white)}.jobs button.on{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
 .linkbtn{background:none;border:none;color:var(--ink-2);text-decoration:underline;font-size:.82rem;min-height:36px;padding:4px}
 .album{font-size:.86rem;line-height:1.7}
 .album li{margin-bottom:4px}
@@ -329,11 +330,11 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="eyebrow">Four introductions, four secrets.</div>
       <div class="t" style="margin-top:4px">紹介された4人。<br><em>全員に、秘密がある。</em></div>
       <div class="s">選んだ夫で、20年後の総資産が激変する。<br>あなたは、誰と結婚する？</div>
-      <div class="chips"><span>無料で遊べる</span><span>1人 全15話</span><span>結末は全12種類</span></div>
+      <div class="chips"><span>無料で遊べる</span><span>1人 全10話</span><span>結末は全12種類</span></div>
     </div>
     <div class="nako" id="nako-intro"></div>
     <div class="card stack">
-      <label class="f" for="my-name" id="name-wrap">あなたの名前<input id="my-name" value="ミユ" maxlength="10" autocomplete="off"></label>
+      <div id="name-wrap" class="stack" style="gap:12px"><label class="f" for="my-name">あなたの名前<input id="my-name" value="ミユ" maxlength="10" autocomplete="off"></label><div class="f">あなたの職業<div class="jobs" id="jobs"></div><span class="small muted" style="font-size:.72rem">結婚相談所で成婚した人に多い職業から選べます(IBJ成婚白書2025)</span></div></div>
       <button class="btn-rose btn-block" id="start" style="min-height:62px;font-size:1.14rem">千代子に紹介してもらう</button>
       <p class="small muted" id="intro-sub" style="text-align:center"></p>
     </div>
@@ -362,7 +363,7 @@ details.alb summary::-webkit-details-marker{display:none}
   <section id="s-pmini" hidden class="stack">
     <div class="top"><div class="brand">お見合いでのあなた</div><span class="eyebrow">Preview</span></div>
     <div class="diag">
-      <div class="lab">4人と会って見えた、あなたの傾向</div>
+      <div class="lab">5人と会って見えた、あなたの傾向</div>
       <div id="pm-radar"></div>
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="pm-type" style="font-size:1.5rem"></div>
@@ -453,7 +454,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="small muted" id="r-with"></div>
       <div class="ttl" id="r-title"></div>
       <p class="story" id="r-story"></p>
-      <div class="savbox" style="margin-top:14px"><div class="k">20年後の総資産</div><div class="v" id="r-sav"></div><div class="mul" id="r-mul"></div></div>
+      <div class="savbox" style="margin-top:14px"><div class="k">20年後のふたりの総資産</div><div class="v" id="r-sav"></div><div class="mul" id="r-mul"></div></div>
       <div class="report" id="r-report"></div>
     </div>
     <div class="nako" id="nako-result"></div>
@@ -496,7 +497,7 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="card stack">
       <div><div class="eyebrow">Collection</div><h3>エンディング図鑑 <span class="mono" id="z-n"></span></h3><p class="small muted" id="z-sub"></p></div>
       <div class="slots" id="r-slots"></div>
-      <details class="alb"><summary>📖 あなたが選んだ15の道を見る</summary><ol class="album" id="r-album"></ol></details>
+      <details class="alb"><summary>📖 あなたが選んだ10の道を見る</summary><ol class="album" id="r-album"></ol></details>
       <button class="btn-line btn-block" id="r-again">同じ夫と、最初から読み直す</button>
       <button class="btn-line btn-block" id="r-top">トップにもどる</button>
     </div>
@@ -517,7 +518,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const P=[
     {id:'A',name:'高橋 誠一郎',age:39,job:'不動産オーナー・資産家',catch:'都内にビル4棟、執事つき。',income:'年収 8,000万円',looks:2,
       quote:'お金で困らせることは、一生ない。…ただ、一つだけ、まだ言えないことがある。',tags:['執事つき','読書家','なぜか緊張している'],
-      lock:'お見合いの席で、なぜかあなたの好きな本を読んでいた。',
+      lock:'お見合いの席で、あなたを見た瞬間に紅茶をこぼした。',
       nak:'39歳、ビル持ち、執事つき。この人ね、紹介した時から様子が変なのよ。あんたの写真を見た瞬間、紅茶をこぼしたわ。'},
     {id:'B',name:'黒田 剛',age:33,job:'総合商社・エリート',catch:'ゴリラ系商社マン。来年はドバイ。',income:'年収 1,200万円',looks:2,
       quote:'ついてきてほしい！！ …あ、すみません、声が大きくて。',tags:['声がでかい','体力おばけ','指が太い'],
@@ -542,9 +543,9 @@ details.alb summary::-webkit-details-marker{display:none}
         {t:'「正直、経済力は大事です」',o:'「正直でよろしい。9割の子がそう思ってる。口に出さないだけ」',x:{m:2},nak:'お金の話ができる女は強いのよ。結婚相談所じゃ、最後に勝つのはそういう子。'},
       ]},
     {who:'A',ep:'序章2',title:'執事が、迎えに来た',
-      text:'ホテルのラウンジ。黒塗りの車から降りた執事が言った。「高橋がお待ちです」。窓際の彼は、なぜか、あなたが一番好きな本を読んでいた。',
+      text:'ホテルのラウンジ。黒塗りの車から降りた執事が言った。「高橋がお待ちです」。窓際の彼は、あなたを見た瞬間、紅茶をこぼした。',
       ch:[
-        {t:'「その本、私も好きなんです」',o:'彼は一瞬、泣きそうな顔をした。「…知ってます」と小さく言って、すぐに「いや、なんでもない」とごまかした。',x:{t:2,a:1},nak:'出たわよ、「知ってます」。あんた、どこでこの人と会ってんのよ。'},
+        {t:'「大丈夫ですか？」とハンカチを出す',o:'彼はハンカチを受け取って、なぜか泣きそうな顔をした。「…やっぱり、優しい人だ」。…やっぱり？',x:{a:2,t:1},nak:'出たわよ、「やっぱり」。あんた、どこでこの人と会ってんのよ。'},
         {t:'「執事さんって、本物ですか？」',o:'「本物です」と彼は笑った。「…正直、あなたの前だと、僕より彼のほうが落ち着いてる」',x:{m:1,t:1},nak:'初対面で執事に食いつく。いいわね、その図太さ。'},
       ]},
     {who:'B',ep:'序章3',title:'声が、でかい',
@@ -567,141 +568,110 @@ details.alb summary::-webkit-details-marker{display:none}
       ]},
   ];
 
-  // ================= 本編:誠一郎ルート(全15話) =================
-  // d: sav=総資産(万円) home=住まい L=愛情 T=ときめき / f: 分岐フラグ / pre: その間に起きたこと / twist: 予想外
+  // ================= あなたの職業(IBJ成婚白書2025で成婚者に多い職業をもとに) =================
+  const JOBS={
+    office:{n:'会社員(事務)',daily:'毎朝8時の電車で通って、書類と会議に追われる毎日',rise:'課長',dream:'小さなカフェ'},
+    nurse:{n:'看護師',daily:'夜勤明けに、そのまま眠れない日もある毎日',rise:'看護師長',dream:'訪問看護の事業所'},
+    civil:{n:'公務員',daily:'市役所の窓口で、たくさんの人の困りごとを聞く毎日',rise:'係長',dream:'地域のカフェ'},
+    teacher:{n:'先生・保育士',daily:'子どもたちの「先生！」に囲まれる毎日',rise:'主任',dream:'英語の学童保育'},
+    beauty:{n:'美容・アパレル',daily:'立ちっぱなしで、お客さんをきれいにする毎日',rise:'店長',dream:'自分のサロン'},
+    it:{n:'IT・クリエイター',daily:'パソコン1台で、締め切りと戦う毎日',rise:'プロジェクトリーダー',dream:'自分の会社'},
+  };
+  const J=()=>JOBS[pers.job]||JOBS.office;
+
+  // ================= 本編:誠一郎ルート(全10話) =================
+  // d: sav=ふたりの総資産(万円) home=住まい L=愛情 T=ときめき / f: 分岐フラグ / pre: その間に起きたこと / twist: 予想外
   const EP={A:[
     {year:'交際1か月',title:'函館まで、晩ごはん',img:'airport',
       text:()=>'二度目のデート。「晩ごはん、函館でどうですか」。連れていかれたのは羽田の端の、小さなジェット機。執事が言った。「旦那様が人をお乗せするのは、初めてです」',
       ch:[
         {t:'乗る。人生で一回くらい',o:'窓の下に夜景が流れていく。函館の寿司屋で、彼はあなたの好物ばかり頼んだ。…言ってないのに。',d:{T:12},x:{t:3},
-          nak:'ジェットで晩ごはん。…あんた、もう普通の男と付き合えないわよ。',hook:'帰りの機内。眠ったふりをしていると、執事が小声で言った。「10年、長かったですね」。…10年？'},
+          nak:'ジェットで晩ごはん。…あんた、もう普通の男と付き合えないわよ。',hook:'帰りの機内。眠ったふりをしていると、執事が彼に小声で言った。「3年、探した甲斐がありましたね」。…3年？'},
         {t:'「駅前の焼き鳥屋がいいです」',o:'彼は生まれて初めて焼き鳥屋ののれんをくぐった。煙にむせて、つくねを3本おかわりした。帰り道、ずっと笑っていた。',d:{L:12},x:{a:3},
-          nak:'ジェットを断って焼き鳥。この男、今夜、完全に落ちたわよ。',hook:'店を出ると黒塗りの車。執事がドアを開けながら、彼に小声で言った。「10年、長かったですね」。…10年？'},
+          nak:'ジェットを断って焼き鳥。この男、今夜、完全に落ちたわよ。',hook:'店を出ると黒塗りの車。執事がドアを開けながら、彼に小声で言った。「3年、探した甲斐がありましたね」。…3年？'},
       ]},
-    {year:'交際半年',title:'婚前契約書',img:'budget',
-      text:()=>'「10年って、何のこと？」と聞いても、彼は笑ってごまかした。半年後のプロポーズの夜。指輪と一緒に、分厚い封筒が出てきた。中身は婚前契約書。「離婚したら、妻には1円も渡らない」。「…一族の決まりなんです」',
+    {year:'交際半年',title:'寿司屋のプロポーズ',img:'hero',
+      text:()=>'「3年って、何のこと？」と聞いても、彼は笑ってごまかした。半年後。彼が予約したのは、函館のあの寿司屋。カウンター越しに、大将が小さな箱を出した。彼の声は震えていた。「…結婚してください」',
       ch:[
-        {t:'笑って、サインする',o:'ペンを置いた瞬間、彼は契約書を暖炉に放り込んだ。「試すようなことをして、ごめん。何も持たずに来てくれる人と、結婚したかった」',d:{L:12},x:{a:2,c:1},f:'sign',
-          nak:'燃やすなら最初から出すなっての。でも、あんたの度胸は合格よ。',hook:'結婚式の招待客リスト。知らない名前が一つ。「高橋キヨ(92)」。横に赤字で「必ず最前列に」'},
-        {t:'「契約で結婚はしない」と破り捨てる',o:'彼は破れた紙を見て、声を出して笑った。翌朝、あなたの口座に見たことのない桁。メモが一枚。「契約なしの結婚に、乾杯」',d:{sav:5000,T:8},x:{s:2,m:1},f:'rip',twist:true,
-          nak:'破った女に5,000万！ 普通は逆よ。この男、壊れてるわ。いい意味で。',hook:'結婚式の招待客リスト。知らない名前が一つ。「高橋キヨ(92)」。横に赤字で「必ず最前列に」'},
+        {t:'その場で「はい」',o:'大将が泣いた。彼も泣いた。カウンターの常連が全員拍手した。あなたが一番、落ち着いていた。',d:{L:10,T:8},x:{t:2,a:1},
+          nak:'寿司屋で即答。あんた、迷わない女ね。そういう子は婚活が早いのよ。',hook:'結婚式の最前列。着物の老婦人が、あなたを見て涙ぐんでいた。夫の祖母、キヨ(92)だった。'},
+        {t:'「1つだけ聞かせて。なんで私なの？」',o:'彼は長いこと黙って、「…結婚式の日に、祖母が話します」とだけ言った。それから、もう一度箱を差し出した。あなたは、受け取った。',d:{T:12},x:{s:2,a:1},
+          nak:'プロポーズで理由を聞く。慎重ね。でも、その答えは聞く価値あるわよ。',hook:'結婚式の最前列。着物の老婦人が、あなたを見て涙ぐんでいた。夫の祖母、キヨ(92)だった。'},
       ]},
-    {year:'結婚式',title:'祖母の乾杯',img:'hero',
-      text:()=>'軽井沢の小さな教会。最前列に、着物の老婦人。夫の祖母・キヨ(92)。乾杯のとき、キヨがグラスを上げた。「誠一郎を10年待たせたお嬢さんに、乾杯」。会場がざわついた。',
+    {year:'結婚式',title:'祖母の涙',img:'hero',
+      text:()=>'キヨは、あなたの手を両手で包んだ。「やっと会えたわね。あの日は、本当にありがとう」。…あの日？ あなたには、何のことかわからない。夫は、そっと目をそらした。',
       ch:[
-        {t:'その場で夫に「10年って何？」と聞く',o:'夫は真っ赤になって、マイクを持ったまま固まった。「…式が終わったら、話す」。会場は大爆笑。キヨだけが、満足そうにうなずいた。',d:{T:10},x:{t:2,s:1},
-          nak:'式の最中に問い詰める花嫁。あたし300組見てきたけど、初めてよ。',hook:'でも夫は話さなかった。新居の鍵を渡しながら、一つだけ言った。「書斎にだけは、入らないで」'},
-        {t:'キヨの隣に座って、話を聞く',o:'キヨはあなたの手を握った。「あの子はね、言えないことの方が多い子なのよ」。小さくて、温かい手だった。',d:{L:8},x:{a:2,c:1},
-          nak:'おばあちゃんを先に落とす。…あんた、うちの相談所で働かない？',hook:'新居の鍵を渡しながら、夫が一つだけ言った。「書斎にだけは、入らないで」'},
+        {t:'「あの日って、何ですか？」と聞く',o:'キヨはいたずらっぽく笑った。「それは、誠一郎に聞きなさい。あの子、あなたに言いたいことが山ほどあるのよ」',d:{T:8},x:{t:1,s:1},
+          nak:'式の最中に聞く花嫁。度胸あるわね。',hook:'新居の鍵を渡しながら、夫が一つだけ言った。「書斎にだけは、入らないで」'},
+        {t:'何も聞かず、キヨの隣で式を楽しむ',o:'キヨは式のあいだずっと、あなたの手を離さなかった。小さくて、温かい手だった。',d:{L:8},x:{a:2,c:1},
+          nak:'おばあちゃんを先に味方にする。…あんた、うちの相談所で働かない？',hook:'新居の鍵を渡しながら、夫が一つだけ言った。「書斎にだけは、入らないで」'},
       ]},
     {year:'結婚1年目',title:'開かずの書斎',img:'house',
-      pre:{title:'結婚しました',text:'都内の豪邸に引っ越し。執事、シェフ、庭師つき。家事はゼロ。夫の資産は、あなたの資産にもなった。',d:{sav:400000,home:'都内の豪邸(執事つき)'}},
-      text:()=>'夢みたいな新婚生活。ただ、夜中になると、書斎のドアの下から明かりがもれている。夫は毎晩そこにこもり、朝には目が赤い。',
+      pre:{title:'結婚しました',text:'都内の豪邸に引っ越し。執事、シェフ、庭師つき。法律では、結婚前からの財産は夫婦それぞれのもの(夫婦別産制)。でも、暮らしはまるごと一緒になった。',d:{sav:400000,home:'都内の豪邸(執事つき)'}},
+      reveal:'3年前、駅のホームで倒れたキヨを、救急車が来るまで支えていたのは、あなただった。それを見ていた誠一郎は、ひとめぼれ。名前も聞けないまま3年探して、千代子の相談所にたどり着いた。お見合いは、偶然じゃなかった。',
+      text:()=>'夫が出張の夜。書斎のドアが、少しだけ開いていた。机の上に、千代子の相談所の申込書。「探している人がいます」。添えられていたのは、あなたの似顔絵。描いたのは、夫だった。',
       ch:[
-        {t:'こっそり、書斎に入る',o:'壁一面の額縁。中身は、あなたが10年前に書いたボランティア新聞の記事の切り抜き。一枚残らず、丁寧に。',d:{T:14},x:{t:2,s:1},f:'peek',
-          nak:'怖っ！ …いや、待って。ちょっと泣けるかも。',hook:'3年目の春。92歳のキヨが、杖をついて一人で屋敷に来た。「今日は、本当のことを話しに来たの」'},
-        {t:'約束を守って、「私の部屋」をもらう',o:'日当たりのいい部屋をもらった。夫は毎日、そのドアの前で少しだけ立ち止まる。ノックはしない。それが、少しうれしかった。',d:{L:8},x:{a:1,c:2},f:'trust',
-          nak:'開けない女。いい女ぶってるけど、気になって寝れてないでしょ。',hook:'3年目の春。92歳のキヨが、杖をついて一人で屋敷に来た。「今日は、本当のことを話しに来たの」'},
+        {t:'帰ってきた夫を、黙って抱きしめる',o:'夫は固まって、それから子どもみたいに泣いた。「…気持ち悪いって、言われると思ってた」。言うわけない。',d:{L:14,T:6},x:{a:3},f:'hug',
+          nak:'3年探した男を、黙って抱きしめる。あんた、正解よ。',hook:'次の春。夫が言った。「君の仕事、続けてもいいし、辞めてもいい。君が決めて」'},
+        {t:'千代子の相談所に乗り込む',o:'「グルだったんですね！」。千代子は扇子で顔をあおいだ。「3年、毎週来たのよ、あの男。根負けしたわ」。…怒る気が、どこかへ行った。',d:{T:12},x:{s:2,t:1},f:'chiyo',
+          nak:'そうよ、あたしよ。成婚300組、全部が偶然なわけないでしょ。',hook:'次の春。夫が言った。「君の仕事、続けてもいいし、辞めてもいい。君が決めて」'},
       ]},
-    {year:'結婚3年目',title:'祖母の遺言',img:'care',
-      reveal:'誠一郎は10年前から、あなたに片思いしていた。そして結婚は、遺産相続の「条件」だった。',
-      text:s=>'「誠一郎はね、"心から愛する人と結婚したら"、高橋家の全財産を継ぐことになってるの」。'+(s.f.peek?'書斎の切り抜きの意味が、やっとわかった。':'書斎の明かりの意味が、やっとわかった。')+'10年前、夫はあなたの記事を読んで、ずっとあなたを探していた。キヨがあなたを見た。「あなた、本当に愛されてる？ それとも、遺産の"条件"？」',
+    {year:'結婚2年目',title:'わたしの仕事',img:'budget',
+      text:()=>'あなたの仕事は、'+J().n+'。'+J().daily+'。夫と暮らす今は、働かなくても生活には困らない。夫は本気で言った。「どっちを選んでも、全力で応援する」',
       ch:[
-        {t:'「愛されてます。証明しましょうか」',o:'キヨは声を出して笑った。「その目なら、合格」。夫は真っ赤になって、庭に逃げた。',d:{L:12},x:{a:3},f:'believe',
-          nak:'言い切った！ あんた、仲人やらない？',hook:'その年の秋。あなたの会社に、新しいオーナーが来た。…夫だった。'},
-        {t:'「…正直、わかりません」',o:'夫は何も言わなかった。その夜、初めて別々の部屋で寝た。翌朝、テーブルにメモ。「どうするかは、君が決めていい」',d:{L:-8},x:{s:2},f:'doubt',
-          nak:'バカ正直！ でもね、疑うのも愛のうちよ。…たぶんね。',hook:'その年の秋。あなたの会社に、新しいオーナーが来た。…夫だった。'},
-      ]},
-    {year:'結婚3年目',title:'社長の奥さん',img:'budget',
-      text:()=>'「君の会社、赤字だったから。ついでに買った」。夫は悪びれない。翌日から、同僚の目が変わった。給湯室でひそひそ。「社長の奥さんだって」「何しても怒られないよね」',
-      ch:[
-        {t:'会社を辞めて、好きなことを探す',o:'朝はシェフの朝食、昼はエステ、夜は夫と映画。退屈で、死にそうなほど幸せ。…3か月で飽きた。',d:{T:-4,L:4},x:{c:1,m:1},f:'quit',
-          nak:'専業主婦・執事つき。日本中の女が殴りに来るわよ。…で、飽きたの？ 贅沢ね。',hook:'年末、一族の新年会の招待状が届いた。キヨの字で一行だけ。「覚悟して来なさい」'},
-        {t:'夫の名前を出さず、実力で出世する',o:'社内で夫の名前は一度も出さなかった。2年後、あなたは自分の力で部長になった。辞令を渡す夫の手が、震えていた。',d:{sav:1500,T:8},x:{s:3},f:'career',
-          nak:'旦那の会社で旦那に頼らず出世。可愛げはないけど、あたしは好きよ。',hook:'年末、一族の新年会の招待状が届いた。キヨの字で一行だけ。「覚悟して来なさい」'},
+        {t:'仕事を続けて、上を目指す',o:()=>'3年後、あなたは自分の力で'+J().rise+'になった。お祝いの花束は、なぜか執事のが一番大きかった。',d:{sav:1200,T:6},x:{s:3},f:'career',
+          nak:'夫の財布に頼らず出世。可愛げはないけど、あたしは好きよ。',hook:'年末、一族の新年会の招待状が届いた。キヨの字で一行だけ。「覚悟して来なさい」'},
+        {t:()=>'辞めて、ずっとやりたかった「'+J().dream+'」を始める',o:()=>'夫に出資してもらって、'+J().dream+'を開いた。初年度は赤字。でも3年目、予約が半年先まで埋まった。',d:{sav:8000,T:10},x:{s:2,m:1},f:'shop',twist:true,
+          nak:'夫のお金で夢を始めて、ちゃんと黒字にした。最高の使い方よ。',hook:'年末、一族の新年会の招待状が届いた。キヨの字で一行だけ。「覚悟して来なさい」'},
       ]},
     {year:'結婚4年目',title:'一族の新年会',img:'house',
-      text:()=>'高橋家の新年会。親族40人。叔母たちが、あなたの着物の値段を当てっこしている。「庶民のお嬢さんにしては、まあまあね」。夫はキヨの介助で、遠くの席。',
+      text:()=>'高橋家の新年会。親族40人。叔母たちが、あなたの着物の値段を当てっこしている。「庶民のお嬢さんにしては、まあまあね」。夫は、遠くの席で親戚につかまっている。',
       ch:[
         {t:'笑顔で「お褒めいただき光栄です」',o:'叔母たちは拍子抜けした顔。帰り際、一番口の悪い叔母が、こっそり自分の帯留めをくれた。「…根性あるじゃない」',d:{L:4},x:{a:1,c:2},
-          nak:'義実家の嫌味は、笑って受け流すのが一番効くのよ。教科書どおり。',hook:'帰り道。叔父の剛三が、夫の肩に手を置いた。「この結婚、偽装だろう？ 裁判で白黒つけようか」'},
+          nak:'義実家の嫌味は、笑って受け流すのが一番効くのよ。教科書どおり。',hook:'帰り道。叔父の剛三が、夫に聞こえるように言った。「金目当ての嫁が」。夫は、生まれて初めて本気で怒った。'},
         {t:'「この着物、夫が選んだんです。センス、ないですよね」',o:'一瞬の沈黙のあと、親族40人が爆笑した。遠くの席で夫が頭を抱えていた。キヨは涙を流して笑っていた。',d:{T:8},x:{s:2,t:1},
-          nak:'夫を差し出して笑いを取る！ 嫁の最強カードね。',hook:'帰り道。叔父の剛三が、夫の肩に手を置いた。「この結婚、偽装だろう？ 裁判で白黒つけようか」'},
+          nak:'夫を差し出して笑いを取る！ 嫁の最強カードね。',hook:'帰り道。叔父の剛三が、夫に聞こえるように言った。「金目当ての嫁が」。夫は、生まれて初めて本気で怒った。'},
       ]},
-    {year:'結婚5年目',title:'叔父の罠',img:'budget',
-      pre:s=>s.f.believe?{title:'その間に…',text:'キヨから遅い結婚祝い。軽井沢の別荘(3億円)が、あなたの名義になった。',d:{sav:30000,home:'都内の豪邸+軽井沢の別荘'}}
-        :{title:'その間に…',text:'夫と別々の部屋で寝る日が増えた。屋敷は広すぎて、廊下ですれ違っても目が合わない日がある。',d:{L:-6,T:-6}},
-      text:()=>'叔父・剛三が裁判を起こした。「遺産目当ての偽装結婚だ。遺言は無効」。判決が出るまで、夫の財産はすべて凍結。カードも、口座も、止まった。',
+    {year:'結婚6年目',title:'名前ノート',img:'baby',
+      text:()=>'「子ども、どうしたい？」。夫は答えを急かさない。ただ、ノートに書いた名前の候補は毎晩1個ずつ増えている。今夜の候補は「誠子」。…自分の名前を入れるな。',
       ch:[
-        {t:'法廷に立って、証言する',o:s=>'証言台で、あなたは'+(s.f.peek?'書斎の切り抜きの話をした。10年分、一枚残らず。':'出会った日の、あの本の話をした。')+'裁判長が少しだけ笑った。1年後、勝訴。叔父が持っていた一族の持ち分まで、こちらに来た。',d:{sav:150000,L:10},x:{s:2,a:1},f:'fight',twist:true,
-          nak:'法廷でのろける女、初めて見たわ。裁判長も笑うわよ、そりゃ。',hook:'裁判が終わった夜。夫が、名前が100個書かれたノートを見せてきた。「…これ、子どもの名前の候補」'},
-        {t:'争わず、半分渡して和解する',o:'叔父に20億。夫は黙って判をついた。帰りの車で、夫がぽつりと言った。「…君との時間のほうが、高い」',d:{sav:-200000,L:6},x:{c:2,a:1},f:'settle',
-          nak:'20億で平和を買った。高い？ 安い？ あたしにはわからないわ、その桁は。',hook:'和解した夜。夫が、名前が100個書かれたノートを見せてきた。「…これ、子どもの名前の候補」'},
+        {t:'家族を増やす',o:'2年後、双子が生まれた。夫は名前ノートを3冊使い切り、結局、あなたが決めた名前に泣いて賛成した。執事が、生まれて初めておむつを替えた。',d:{L:10,T:4},x:{c:3},f:'kids',
+          nak:'双子！ ノート3冊は重いけど、こういう重さはいいのよ。',hook:'結婚10年目。キヨが、眠るように亡くなった。遺言書に、あなたの名前があった。'},
+        {t:'二人の人生を、とことん楽しむ',o:'世界中の本屋をめぐる旅に出た。リスボン、ブエノスアイレス、京都。夫はどの国でも、あなたが好きな本の翻訳版を探した。',d:{T:12,sav:-3000},x:{t:2,s:1},f:'two',
+          nak:'二人きりで世界一周。それも立派な家族のかたちよ。',hook:'結婚10年目。キヨが、眠るように亡くなった。遺言書に、あなたの名前があった。'},
       ]},
-    {year:'結婚7年目',title:'名前ノート',img:'baby',
-      text:()=>'「子ども、どうしたい？」。夫は答えを急かさない。ただ、ノートの名前は毎晩1個ずつ増えている。今夜の候補は「誠子」。…自分の名前を入れるな。',
+    {year:'結婚10年目',title:'キヨの遺言',img:'care',
+      text:()=>'遺言書にはこうあった。「軽井沢の別荘(3億円)を、孫の妻に遺贈する」。遺贈とは、相続人ではない人にも、遺言で財産を渡せる仕組み。ところが叔父の剛三が言い出した。「わしはキヨの息子だ。遺留分をもらう」。遺留分とは、子どもなどに法律で保障された、最低限の取り分のことだ。',
       ch:[
-        {t:'家族を増やす',o:'2年後、双子が生まれた。夫は名前ノートを3冊使い切り、結局、あなたが決めた名前に泣いて賛成した。執事が、生まれて初めてオムツを替えた。',d:{L:10,T:4},x:{c:3},f:'kids',
-          nak:'双子！ ノート3冊は重いけど、こういう重さはいいのよ。',hook:'結婚10年目。キヨが、眠るように亡くなった。遺言の最後の一行に、一族40人がざわついた。'},
-        {t:'二人の人生を、とことん楽しむ',o:'世界中の本屋をめぐる旅に出た。リスボン、ブエノスアイレス、京都。夫はどの国でも、あなたの好きな本の翻訳版を探した。',d:{T:12,sav:-3000},x:{t:2,s:1},f:'two',
-          nak:'二人きりで世界一周。それも立派な家族のかたちよ。',hook:'結婚10年目。キヨが、眠るように亡くなった。遺言の最後の一行に、一族40人がざわついた。'},
+        {t:'別荘を受け取り、叔父に遺留分のお金を払う',o:'弁護士を通して、叔父に法律どおりのお金を払った。別荘は、あなたのものになった。でも、叔父とはそれきり、口をきいていない。',d:{sav:20000,home:'都内の豪邸+軽井沢の別荘'},x:{m:2,s:1},f:'pay',
+          nak:'法律どおり払って、別荘を守る。強いわね。…でも、親戚はお金じゃ戻らないのよ。',hook:'数年後。夫が言った。「そういえば昔、瀬戸内の無人島を買ったんだ。いつか君と行こうと思って」'},
+        {t:'別荘は受け取らず、叔父に譲る',o:'遺贈は、受け取らないこともできる(遺贈の放棄)。別荘は叔父のものになった。翌週、叔父が菓子折りを持って現れた。「…すまなかった。キヨは、あんたを選んで正解だった」',d:{L:8,T:4},x:{a:2,c:1},f:'give',
+          nak:'3億を手放して、叔父を味方にした。あんた、一族で一番の大物ね。',hook:'数年後。夫が言った。「そういえば昔、瀬戸内の無人島を買ったんだ。いつか君と行こうと思って」'},
       ]},
-    {year:'結婚10年目',title:'当主の座',img:'budget',
-      text:s=>'「高橋家の当主は、誠一郎の妻とする」。'+(s.f.doubt?'「わからない」と言った私を、キヨは選んでいた。':'')+'当主になれば、一族40人と資産のすべてを背負う。断れば、夫と二人、ふつうの暮らし。',
+    {year:'結婚14年目',title:'夕日の島',img:'airport',
+      text:()=>'夕日がきれいなだけの、小さな無人島。二人で初めて渡った翌月、世界的なホテルチェーンから連絡が来た。「この島を、まるごと買わせてください。リゾートにしたいんです」。提示された金額は、ふたりの総資産の9倍だった。',
       ch:[
-        {t:'当主を、引き受ける',o:'40人の前で挨拶した。足が震えた。夫は一番うしろの席で、誰より大きく拍手していた。',d:{sav:100000},x:{m:2,s:1},f:'head',
-          nak:'玉の輿どころか、輿ごと乗っ取ったわね。',hook:'当主として蔵を整理していた日。古いアルバムから、写真が一枚落ちた。若い夫と、知らない女性。…あなたにそっくりな。'},
-        {t:'断って、夫と小さな家に引っ越す',o:'資産のほとんどを一族に返した。執事もシェフもいない3LDK。夫は生まれて初めて目玉焼きを焦がした。二人で、お腹が痛くなるまで笑った。',d:s=>({sav:20000-s.sav,home:'3LDKのマンション',L:12,T:10}),x:{a:2,c:1},f:'small',twist:true,
-          nak:'億を捨てて3LDK！ あたしなら絶対やらない。でも、あんたの顔、今が一番いいわ。',hook:'引っ越しの荷物から、写真が一枚落ちた。若い夫と、知らない女性。…あなたにそっくりな。'},
+        {t:'島を売る',o:'契約書のゼロの数を、夫は3回数え直した。ふたりの総資産が、一晩で10倍になった。',d:s=>({sav:s.sav*9}),x:{m:3},f:'sell',twist:true,
+          nak:'10倍！ 島ひとつで！ …あたし、仲人やめて島探そうかしら。',hook:'結婚20年目。夫の59歳の誕生日。夫が、古い木箱を抱えてきた。「…ずっと、渡せなかったもの」'},
+        {t:'売らずに市に寄付して、自然公園にする',o:'島は市に寄付して、誰でも行ける自然公園になった。灯台に、二人の名前が刻まれた。公園を守る基金に、資産の半分を入れた。',d:s=>({sav:-Math.round(s.sav/2),T:10,L:6}),x:{a:1,t:2,s:1},f:'keep',
+          nak:'半分手放して、灯台に名前。損得じゃないのよ、こういうのは。',hook:'結婚20年目。夫の59歳の誕生日。夫が、古い木箱を抱えてきた。「…ずっと、渡せなかったもの」'},
       ]},
-    {year:'結婚12年目',title:'そっくりな女',img:'hero',
-      text:()=>'写真の裏の日付は、22年前。若い夫の隣で笑う女性は、どう見てもあなた。でも、あなたにその記憶はない。一族の噂では、夫には昔「婚約者」がいて、突然いなくなったという。',
+    {year:'結婚20年目',title:'1,095日の日記',img:'hero',
+      text:()=>'木箱の中身は、あなたを探していた3年間の日記。毎朝、あの駅のホームに立った記録。全部で1,095日分。最後のページは、お見合いの前の夜。「明日、やっと会える」',
       ch:[
-        {t:'写真を、夫に突きつける',o:'夫は観念した。「…それ、君だよ。ボランティアの打ち上げで一度だけ話した。君は覚えてない。一族のお見合いを全部断るために、10年『婚約者がいる』って言い張ってた」',d:{T:14,L:6},x:{t:2,a:1},f:'ask',twist:true,
-          nak:'婚約者は、あんた本人！ 10年、勝手に婚約してたの？ 重っ！ …でも、泣けるわ。',hook:'翌月。夫が言った。「そういえば昔、誰も欲しがらない無人島を買ったんだ。君が記事で『いつか行きたい』って書いてた島」'},
-        {t:'何も聞かず、アルバムに戻す',o:'聞けなかった。夫の寝顔を見ながら思った。写真の女性みたいに、私も昔、あんなふうに笑っていたのかな。',d:{T:-6,L:-4},x:{c:1},f:'silent',
-          nak:'聞かない女。強いのか、怖いのか。あたしなら胸ぐらつかむわね。',hook:'翌月。夫が言った。「そういえば昔、誰も欲しがらない無人島を買ったんだ。君が記事で『いつか行きたい』って書いてた島」'},
-      ]},
-    {year:'結婚14年目',title:'無人島の地下',img:'airport',
-      text:s=>'夫が'+(s.f.small?'たった一つだけ手放さなかった':'すっかり忘れていた')+'財産。瀬戸内の小さな無人島。調査に来た学者が、震える声で言った。「この島の地下、レアメタルの鉱脈です。世界でも数か所しかない」',
-      ch:[
-        {t:'開発の権利を売る',o:'世界中の企業が手を挙げた。契約書のゼロの数を、夫は3回数え直した。総資産が、一晩で10倍になった。',d:s=>({sav:s.sav*9}),x:{m:3},f:'sell',twist:true,
-          nak:'10倍！ 島ひとつで！ …あたし、仲人やめて島探そうかしら。',hook:'島の話がニュースになった。新聞社から連絡。「奥様、昔ボランティア新聞を書いていましたよね。連載、しませんか」'},
-        {t:'島を守って、自然保護区にする',o:'島はそのまま残した。管理費で資産は半分になった。島の灯台に、二人の名前が刻まれた。夏になると二人で島に渡り、記事に書いたとおりの夕日を見る。',d:s=>({sav:-Math.round(s.sav/2),T:10,L:6}),x:{a:1,t:2,s:1},f:'keep',
-          nak:'半分捨てて、灯台に名前。損得じゃないのよ、こういうのは。',hook:'島の話がニュースになった。新聞社から連絡。「奥様、昔ボランティア新聞を書いていましたよね。連載、しませんか」'},
-      ]},
-    {year:'結婚16年目',title:'もう一度、書く',img:'house',
-      text:()=>'20年ぶりに、記事を書くことになった。テーマは自由。夫は、自分のことを書かれるのが恥ずかしくて、3日間そわそわしている。',
-      ch:[
-        {t:'自分の名前で、自分の話を書く',o:'連載のタイトルは「私が選んだ人生」。読者からの手紙が段ボールで届いた。夫は全部読んで、全部に付箋を貼った。',d:{sav:800,T:6},x:{s:3},
-          nak:'旦那の付箋！ …ファン1号は、いつだって旦那よ。',hook:'連載の最終回の日。キヨの遺品から、あなた宛ての封筒が見つかった。「誠一郎の妻へ。結婚20年目に開けること」'},
-        {t:'夫と二人で、交代で書く',o:'夫の文章は、ひどく下手だった。でも、毎回最後の一行だけは、うまかった。「今日も、隣に君がいる」',d:{L:10},x:{c:2,a:1},
-          nak:'交換日記を新聞でやる夫婦。のろけの公開処刑ね。好きよ。',hook:'連載の最終回の日。キヨの遺品から、あなた宛ての封筒が見つかった。「誠一郎の妻へ。結婚20年目に開けること」'},
-      ]},
-    {year:'結婚19年目',title:'キヨの封筒',img:'care',
-      text:()=>'封筒は、まだ開けていない。20年目まで、あと1年。夫は「一緒に開けよう」と言う。でも、キヨの字は、なぜかあなた一人に向けて書かれている気がした。',
-      ch:[
-        {t:'約束どおり、20年目に夫と開ける',o:'1年待った。手紙には一行だけ。「あの子を救ったのは、10年前のあなたの記事。あなたを選んだのは、あなた自身よ」。夫は声を出して泣いた。',d:{L:12},x:{a:2,c:1},
-          nak:'92歳の置き土産。…あたしもあんな手紙、書けるかしら。',hook:'結婚20年目。夫の59歳の誕生日。夫が、古い木箱を抱えてきた。「…ずっと、渡せなかったもの」'},
-        {t:'こっそり、一人で開ける',o:'手紙は二枚。一枚目は夫への言葉。二枚目は、あなたにだけ。「この家に、あなたが合わせる必要はない。好きに生きなさい」。あなたは手紙を、そっと戻した。',d:{T:6},x:{s:2},
-          nak:'一人で開ける女。…それでいいのよ。手紙ってのは、そういうもの。',hook:'結婚20年目。夫の59歳の誕生日。夫が、古い木箱を抱えてきた。「…ずっと、渡せなかったもの」'},
-      ]},
-    {year:'結婚20年目',title:'520通の手紙',img:'hero',
-      text:s=>'木箱の中身は、出会う前の10年間に書いて、一度も出さなかった手紙。'+(s.f.silent?'あの写真のことも、全部そこに書いてあった。':'')+'全部で、520通。',
-      ch:[
-        {t:'毎晩、一通ずつ読む',o:'1通目は、ひどく下手な字だった。「はじめまして。あなたの記事を読みました」。520通目の日付は、昨日だった。',d:{L:10,T:10},x:{a:2,t:1},
-          nak:'520通…。重っ！ でもね、重い男って、最後に勝つのよ。'},
-        {t:'「次は、私が書くね」と箱を閉じる',o:'その夜から、521通目を書き始めた。今度は、あなたから夫へ。',d:{L:8,T:8},x:{s:1,c:1,t:1},
-          nak:'返事を書く女。20年かけて、やっと両思いの手紙ね。'},
+        {t:'毎晩、1日ずつ読む',o:'1日目は、ひどく下手な字だった。「今日、ひとめぼれした。名前を聞けなかった。最悪だ」。あなたは声を出して笑って、少しだけ泣いた。',d:{L:10,T:10},x:{a:2,t:1},
+          nak:'1,095日…。重っ！ でもね、重い男って、最後に勝つのよ。'},
+        {t:'「次は、私が書くね」と箱を閉じる',o:'その夜から、あなたの日記が始まった。1日目。「今日、夫が59歳になった。まだ、ときめく」',d:{L:8,T:8},x:{s:1,c:1,t:1},
+          nak:'返事を書く女。20年かけて、やっと両思いの日記ね。'},
       ]},
   ]};
 
   // ================= 結末(誠一郎3種) =================
   const RANK={happy:'ハッピー',bitter:'ビター',masaka:'まさか',secret:'隠し'};
   const END={A:[
-    {id:'A3',k:'masaka',t:'平成生まれの、女帝',s:'裁判に勝ち、一族40人を束ねる当主になった。夫は今も、一番うしろの席で、誰より大きく拍手している。10年片思いされた相手は、一族の女帝になった。',nak:'玉の輿に乗るんじゃなくて、輿を作っちゃった。前代未聞よ。',test:s=>s.f.head&&s.f.fight},
-    {id:'A2',k:'bitter',t:'豪邸の、静かな夜',s:'ビル、別荘、執事、シェフ。足りないものは何もない。ただ、あの写真のことだけは、20年間ずっと聞けないままだった。',nak:'お金で埋まらない穴って、あるのよ。…まだ間に合うけどね。',test:s=>s.f.silent&&!s.f.small},
-    {id:'A1',k:'happy',t:'10年越しの片思い、完結',s:'書斎には、今もあなたの記事が飾ってある。10年の片思いは、20年の両思いになった。',nak:'重い男を、軽やかに受け止めた。あんたの勝ちよ。',test:()=>true},
+    {id:'A3',k:'masaka',t:'夢も島も、ぜんぶ叶えた女社長',s:()=>'夫のお金で始めた小さな'+J().dream+'は、20年で全国に広がった。島を売ったお金で、海外にも。夫は今も、あなたのお店の一番の常連だ。',nak:'玉の輿に乗るどころか、自分の輿を作っちゃった。前代未聞よ。',test:s=>s.f.shop&&s.f.sell},
+    {id:'A2',k:'bitter',t:'豪邸の、静かな夜',s:()=>'豪邸、別荘、執事、シェフ。お金は、使い切れないほどある。ただ、一族の誰も、もう家に遊びに来ない。',nak:'お金で埋まらない穴って、あるのよ。…まだ間に合うけどね。',test:s=>s.f.pay&&s.f.sell},
+    {id:'A1',k:'happy',t:'3年越しのひとめぼれ、完結',s:()=>'駅のホームで始まった3年の片思いは、20年の両思いになった。夫は今でも、あの駅を通るたびに、あなたの手を握る。',nak:'重い男を、軽やかに受け止めた。あんたの勝ちよ。',test:()=>true},
   ]};
 
   // ================= 婚活診断 =================
@@ -738,7 +708,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ---------- 保存 ----------
-  const KEY='wedding-story-v5';
+  const KEY='wedding-story-v6';
   let pers={name:'ミユ',coll:[],plays:0,asked:false,askedMid:false,pro:null,routes:{}};
   try{const r=localStorage.getItem(KEY);if(r)pers=Object.assign(pers,JSON.parse(r));}catch(e){}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(pers));}catch(e){}};
@@ -768,7 +738,7 @@ details.alb summary::-webkit-details-marker{display:none}
   // ---------- 表示 ----------
   function statHTML(s){
     const mul=s.sav/START.sav;
-    return `<div class="savbox"><div class="k">総資産</div><div class="v" id="sav-v">${yen(s.sav)}</div>${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}</div>
+    return `<div class="savbox"><div class="k">ふたりの総資産</div><div class="v" id="sav-v">${yen(s.sav)}</div>${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}</div>
       <div class="icons"><span class="L">♥ 愛情 ${clamp(s.L)}</span><span class="T">✦ ときめき ${clamp(s.T)}</span><span>⌂ ${esc(s.home)}</span></div>`;
   }
   function rollSav(from,to){
@@ -780,8 +750,8 @@ details.alb summary::-webkit-details-marker{display:none}
   function popHTML(b,a){
     const d=a.sav-b.sav;if(!d)return '';
     const big=Math.abs(d)>=10000||(b.sav>0&&(a.sav>=b.sav*5||a.sav<=b.sav*0.5));
-    const tag=d>0?(big?'ケタちがい！':'臨時収入'):(big?'大損…':'出費');
-    return `<div class="savpop ${d>0?'up':'dn'}"><small>総資産 ${tag}</small>${d>0?'+':'−'}${yen(Math.abs(d))}</div>`;
+    const tag=d>0?(big?'ケタちがい！':'アップ'):(big?'大損…':'出費');
+    return `<div class="savpop ${d>0?'up':'dn'}"><small>ふたりの総資産 ${tag}</small>${d>0?'+':'−'}${yen(Math.abs(d))}</div>`;
   }
   function chipsHTML(b,a){
     const out=[];
@@ -797,6 +767,9 @@ details.alb summary::-webkit-details-marker{display:none}
   let me=pers.name||'ミユ',cur=null,st=null,ci=0,pi=0,proX=null;
   $('#hero-img').src=IMG.hero||'';
   $('#my-name').value=me;
+  if(!pers.job)pers.job='office';
+  function renderJobs(){$('#jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<button type="button" data-k="${k}" class="${pers.job===k?'on':''}">${esc(j.n)}</button>`).join('');$$('#jobs button').forEach(b=>b.addEventListener('click',()=>{pers.job=b.dataset.k;renderJobs();}));}
+  renderJobs();
   function R(id){id=id||cur.id;return pers.routes[id]||(pers.routes[id]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});}
   function renderIntro(){
     nako('#nako-intro','成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。');
@@ -918,7 +891,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const im=$('#g-img');im.src=IMG[c.img]||'';im.alt=c.title;
     $('#g-ep').textContent='第'+(ci+1)+'話'+(c.reveal?' ・ 秘密解禁':'');$('#g-title').textContent=c.title;
     $('#g-scene').textContent=c.text(st);
-    $('#g-choices').innerHTML=c.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${i?'B':'A'}</span><span>${esc(h.t)}</span></button>`).join('');
+    $('#g-choices').innerHTML=c.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${i?'B':'A'}</span><span>${esc(resolve(h.t,st))}</span></button>`).join('');
     $$('#g-choices button').forEach(b=>b.addEventListener('click',()=>choose(+b.dataset.i)));
     $('#g-after').hidden=true;window.scrollTo(0,0);
   }
@@ -959,7 +932,7 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#r-face').innerHTML=img(cur.id,cur.name);
     $('#r-with').textContent=me+' × '+cur.name+'('+cur.job+')と結婚して、20年';
     const seal=$('#r-seal');seal.className='seal'+(e.k==='bitter'?' bitter':e.k==='masaka'?' masaka':'');seal.textContent=RANK[e.k];
-    $('#r-title').textContent=e.t;$('#r-story').textContent=e.s;
+    $('#r-title').textContent=e.t;$('#r-story').textContent=resolve(e.s,st);
     $('#r-sav').textContent=yen(st.sav);
     const mul=st.sav/START.sav;$('#r-mul').textContent=`スタートの${yen(START.sav)}から ${mul>=1?(mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1))+' 倍':''}`;
     $('#r-report').innerHTML='<div class="k" style="margin-bottom:6px">20年前のあなた → 今のあなた</div>'+[['住まい',START.home,st.home],['愛情',START.L,clamp(st.L)],['ときめき',START.T,clamp(st.T)]].map(([k,a,b])=>`<div class="rrow"><span class="rk">${k}</span><span class="rf">${esc(a)}</span><span class="ra">→</span><span class="rt">${esc(b)}</span></div>`).join('');
@@ -976,11 +949,11 @@ details.alb summary::-webkit-details-marker{display:none}
     const n=pers.coll.length;$('#z-n').textContent=n+'/12';$('#z-sub').textContent='誠一郎との結末 '+END.A.filter(x=>pers.coll.includes(x.id)).length+'/3 ・ 選び方を変えると、ちがう結末';
     $('#r-slots').style.gridTemplateColumns='repeat(3,1fr)';
     $('#r-slots').innerHTML=END.A.map(x=>{const on=pers.coll.includes(x.id);return `<div class="slot ${on?'':'lock'} ${x.id===e.id?'cur':''}"><span>${RANK[x.k]}</span><b>${on?esc(x.t):'？？？'}</b></div>`;}).join('');
-    $('#r-album').innerHTML=EP[cur.id].map((c,i)=>{const h=c.ch[r.picks[i]];return `<li><b>${esc(c.title)}</b>:${esc(h?h.t:'')}</li>`;}).join('');
+    $('#r-album').innerHTML=EP[cur.id].map((c,i)=>{const h=c.ch[r.picks[i]];return `<li><b>${esc(c.title)}</b>:${esc(h?resolve(h.t,st):'')}</li>`;}).join('');
     show('s-result');
     if(isNew)setTimeout(()=>toast('図鑑に新しい結末が追加されました'),600);
   }
-  function shareText(){return `#ウェディングストーリー で、${cur.name}(${cur.job})と結婚して20年。\n総資産 ${yen(START.sav)} → ${yen(st.sav)}\n結末「${lastEnd.t}」\nわたしの婚活タイプは「${lastType.n}」。\n紹介された4人、全員に秘密がある。あなたなら誰を選ぶ？`;}
+  function shareText(){return `#ウェディングストーリー で、${cur.name}(${cur.job})と結婚して20年。\nふたりの総資産 ${yen(START.sav)} → ${yen(st.sav)}\n結末「${lastEnd.t}」\nわたしの婚活タイプは「${lastType.n}」。\n紹介された4人、全員に秘密がある。あなたなら誰を選ぶ？`;}
   $('#rv-yes').addEventListener('click',()=>{pers.asked=true;save();$('#review').hidden=true;toast('本番ではここでストアの★画面が出ます。ありがとう');});
   $('#rv-no').addEventListener('click',()=>{pers.asked=true;save();$('#review').hidden=true;});
   $('#r-again').addEventListener('click',()=>{const r=R();pers.routes[cur.id]={ci:0,st:Object.assign(clone(START),{f:{},x:clone(pers.pro?pers.pro.x:{})}),picks:[],unlocked:r.bought?99:0,freeAt:null,bought:r.bought,adDay:r.adDay||'',preApplied:false,done:false};save();resume();});
@@ -1023,7 +996,7 @@ details.alb summary::-webkit-details-marker{display:none}
         tx('わたしの婚活タイプ',W/2,480,30,GOT,'#B8921C',700);
         const s1=fit(ty.n,W-240,92,MIN);tx(ty.n,W/2,585,s1,MIN,'#C92A62');
         radar(W/2,930,230);
-        tx('20年後の総資産',W/2,1300,32,GOT,'#8E6E7B',700);
+        tx('20年後のふたりの総資産',W/2,1300,32,GOT,'#8E6E7B',700);
         const mv=yen(START.sav)+' → '+yen(st.sav);const s3=fit(mv,W-220,70,MIN);tx(mv,W/2,1390,s3,MIN,'#B8921C');
         tx('紹介された4人。全員に、秘密がある。',W/2,1500,38,MIN,'#3B2430');
       }
