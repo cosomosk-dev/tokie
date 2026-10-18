@@ -160,6 +160,40 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .toast{position:fixed;z-index:20;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:999px;font-weight:700;font-size:15px;max-width:calc(100% - 32px);text-align:center}
 .vis{position:absolute;left:-9999px;top:0}
 @media (max-width:370px){.greet .g{font-size:24px}.streak b{font-size:52px}}
+
+/* ===== デモ再生 ===== */
+.demo .play{background:var(--shu);color:#fff;border-color:var(--shu)}
+body.demoing .demo button{pointer-events:none;opacity:.6}
+body.demoing .demo .stop{pointer-events:auto;opacity:1}
+.finger{position:fixed;left:70%;top:80%;width:48px;height:48px;border-radius:50%;background:rgba(30,27,34,.28);border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:60;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s cubic-bezier(.4,0,.2,1),top .7s cubic-bezier(.4,0,.2,1),transform .15s}
+.finger.press{transform:translate(-50%,-50%) scale(.72)}
+.caption{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:55;width:min(440px,calc(100% - 28px));background:rgba(30,27,34,.94);color:#FFFDF9;border-radius:22px;padding:14px 18px;text-align:center;font-family:var(--font-mincho);font-weight:800;font-size:20px;line-height:1.45;box-shadow:0 14px 34px -12px rgba(0,0,0,.5)}
+.caption small{display:block;font-family:var(--font-gothic);font-weight:500;font-size:14px;opacity:.82;margin-top:4px}
+.notif{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:58;width:min(420px,calc(100% - 24px));background:#FFFDF9;color:#1E1B22;border-radius:20px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 34px -10px rgba(0,0,0,.4);transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.notif.show{transform:translate(-50%,0)}
+.notif .petimg{width:44px;flex-shrink:0}
+.notif b{display:block;font-size:13px;color:#615B66;font-weight:500}
+.notif span{font-weight:700;font-size:16px}
+.phone{position:fixed;inset:0;z-index:57;display:flex;align-items:center;justify-content:center;background:rgba(30,27,34,.45);opacity:0;pointer-events:none;transition:opacity .35s;padding:20px}
+.phone.show{opacity:1}
+.phone .card{width:min(320px,100%);background:#FFFDF9;color:#1E1B22;border-radius:26px;padding:16px;box-shadow:0 20px 50px -14px rgba(0,0,0,.5)}
+.phone .to{text-align:center;font-weight:700;font-size:15px}
+.phone .to small{display:block;color:#615B66;font-weight:500;font-size:12px}
+.phone .msg{margin-top:12px;background:#ECE7DF;border-radius:18px 18px 18px 6px;padding:12px 14px;font-size:16px;line-height:1.55}
+.endcard{position:fixed;inset:0;z-index:70;background:#D9442B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;opacity:0;pointer-events:none;transition:opacity .5s;padding:24px}
+.endcard.show{opacity:1;pointer-events:auto}
+.endcard .petimg{width:150px;box-shadow:0 0 0 6px #fff}
+.endcard .t{font-family:var(--font-mincho);font-weight:800;font-size:30px;letter-spacing:.2em}
+.endcard .cp{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all}
+.endcard .row{display:flex;gap:10px;margin-top:8px}
+.endcard button{border:2px solid #fff;border-radius:999px;padding:10px 20px;font-weight:700;font-size:16px;color:#fff}
+.endcard button.w{background:#fff;color:#D9442B}
+.intro{position:fixed;inset:0;z-index:70;background:#1E1B22;color:#FFFDF9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;opacity:0;pointer-events:none;transition:opacity .5s;padding:24px}
+.intro.show{opacity:1}
+.intro .dot{width:14px;height:14px;border-radius:50%;background:#F0634A}
+.intro .l1{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.45;word-break:keep-all}
+.intro .l2{font-size:18px;opacity:0;transition:opacity .6s}
+.intro.two .l2{opacity:.85}
 @media (prefers-reduced-motion: reduce){.sun::before,.pet-btn .petimg,.pet-btn.jump .petimg,.seal{animation:none !important}.ans:active{transform:none}}
 </style>
 
@@ -177,6 +211,7 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 <div class="wrap">
   <div class="demo">
     <div class="row">
+      <button class="play" id="d-demo">▶ デモを見る</button>
       <span class="lbl">試作メニュー</span>
       <button id="d-parent" aria-pressed="true">親の画面</button>
       <button id="d-family" aria-pressed="false">家族の画面</button>
@@ -245,6 +280,12 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 </div>
 
 <div class="toast" id="toast" hidden></div>
+<div class="finger" id="finger" hidden></div>
+<div class="caption" id="caption" hidden></div>
+<div class="notif" id="notif"><span id="notif-pet"></span><div><b>ワンポチ ・ いま</b><span id="notif-tx"></span></div></div>
+<div class="phone" id="phone"><div class="card"><div class="to" id="phone-to"></div><div class="msg" id="phone-msg"></div></div></div>
+<div class="intro" id="intro"><div class="dot"></div><div class="l1">ひとり暮らしの、<br>生存確認。</div><div class="l2">毎日1問に、答えるだけ。</div></div>
+<div class="endcard" id="endcard"><div id="end-pet"></div><div class="t">ワンポチ</div><div class="cp">毎日1問の、生存確認。<br>答えなければ、家族に知らせる。</div><div class="row"><button id="end-again">もう一度見る</button><button class="w" id="end-close">さわってみる</button></div></div>
 <textarea class="vis" id="clip" aria-hidden="true" tabindex="-1"></textarea>
 
 <script>
@@ -385,7 +426,8 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
     try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); return; } } }catch(e){}
     fresh();
   }
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  var demo=false;
+  function save(){ if(demo) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
   function streak(){
     var n=0, start=S.answers[key(today())]?0:1;
     for(var i=start;i<400;i++){ if(S.answers[key(daysAgo(i))]) n++; else break; }
@@ -559,16 +601,92 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
   el('d-reset').addEventListener('click', function(){ fresh(); save(); renderAll(); show('parent'); toast('はじめに戻しました'); });
 
   var toastTimer;
-  function toast(msg){ var t=el('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.hidden=true; }, 2600); }
+  function toast(msg){ if(demo) return; var t=el('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.hidden=true; }, 2600); }
 
   function renderAll(){
     var d=today();
     el('d-day').textContent=(S.dayOffset===0?'きょう':'+'+S.dayOffset+'日')+'（'+(d.getMonth()+1)+'/'+d.getDate()+' '+WDK[d.getDay()]+'）';
     renderParent(); renderFamily();
   }
+
+  // ---------- デモ再生（保存データは触らない） ----------
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+  var fg=el('finger'), cap=el('caption'), stopReq=false;
+  function chk(){ if(stopReq) throw new Error('stop'); }
+  function say(t,sub){ cap.hidden=false; cap.innerHTML=t+(sub?'<small>'+sub+'</small>':''); }
+  async function focus(node, off){ var y=node.getBoundingClientRect().top+window.scrollY-(off==null?90:off); window.scrollTo({top:Math.max(0,y),behavior:'smooth'}); await sleep(850); chk(); }
+  async function point(node){ var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(850); chk(); }
+  async function tap(node){ await point(node); fg.classList.add('press'); await sleep(170); fg.classList.remove('press'); node.click(); await sleep(300); chk(); }
+  async function runDemo(){
+    if(demo) return;
+    var saved=JSON.stringify(S), view=el('parent').hidden?'family':'parent';
+    demo=true; stopReq=false; document.body.classList.add('demoing'); el('d-demo').textContent='■ とめる'; el('d-demo').classList.add('stop');
+    try{
+      fresh(); S.settings.animal='panda'; renderAll(); show('parent'); window.scrollTo(0,0);
+      var it=el('intro'); it.classList.add('show'); await sleep(1600); it.classList.add('two'); await sleep(2200); it.classList.remove('show','two'); await sleep(500); chk();
+
+      // 1. 親の画面
+      el('notif-pet').innerHTML=pet('panda',[]); el('notif-tx').textContent='パンが きょうの1問を 持ってきたよ';
+      say('毎朝、相棒が「きょうの1問」を持ってくる','時間は 朝・昼・夜から えらべる'); el('notif').classList.add('show'); await sleep(2600); el('notif').classList.remove('show'); chk();
+      say('相棒は、なでると よろこぶ'); await tap(el('p-pet')); await sleep(1400); chk();
+      await focus(el('p-qcard'),70);
+      say('答える ＝「生きてるよ」の合図','まちがえても「わからない」でもOK'); await sleep(1500); chk();
+      var q=questionFor(today()); await tap(el('choice-'+q.a)); await sleep(900); fg.hidden=true;
+      await focus(el('p-result'),20);
+      say('これで生存確認、完了。<br>家族に「無事」が とどく'); await sleep(2600); chk();
+
+      // 2. 家族の画面
+      window.scrollTo({top:0,behavior:'smooth'}); await sleep(700);
+      say('家族のスマホでは、こう見える'); await tap(el('d-family')); await sleep(400); window.scrollTo(0,0);
+      await point(el('f-status')); fg.hidden=true;
+      say('「きょうも無事です」と、知らせが届く','LINEがなくても SMSで届く'); await sleep(2600); chk();
+      await focus(el('f-week'),140);
+      say('1週間の「無事」が、ひと目で'); await sleep(2000); chk();
+      await focus(el('f-gifts'),170);
+      say('着せ替えは、家族からのプレゼント','1つ100円。親は何も操作しない'); await sleep(1200);
+      await tap(el('gift-straw')); await sleep(1300); fg.hidden=true; chk();
+
+      // 3. 次の日
+      window.scrollTo({top:0,behavior:'smooth'}); await sleep(700);
+      say('次の日'); await tap(el('d-next')); await tap(el('d-parent')); await sleep(400);
+      await focus(el('p-qcard'),70);
+      say('わからない日も、押せば「無事」'); await tap(el('choice-dunno')); await sleep(900); fg.hidden=true; window.scrollTo({top:0,behavior:'smooth'}); await sleep(900);
+      await focus(el('p-result'),20);
+      say('プレゼントの麦わら帽子を、相棒が かぶってくる','「誰がくれたか」も 親の画面に出る'); await sleep(3000); chk();
+
+      // 4. 答えない日が続いたら
+      window.scrollTo({top:0,behavior:'smooth'}); await sleep(700);
+      say('もし、2日 答えがなかったら…'); await sleep(1400);
+      S.dayOffset+=3; renderAll(); await tap(el('d-family')); window.scrollTo(0,0); fg.hidden=true; await sleep(500);
+      var st=S.settings;
+      el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>SMS</small>';
+      el('phone-msg').textContent='【ワンポチ】'+st.parentName+'さんが2日答えていません。電話してみてください。';
+      el('phone').classList.add('show'); say('家族に知らせが届く','電話番号つき。すぐかけられる'); await sleep(3000); el('phone').classList.remove('show'); await sleep(400); chk();
+      await point(el('f-status')); fg.hidden=true; await sleep(1200);
+
+      // 5. 設定
+      await focus(el('s-relation'),200);
+      say('設定は、家族だけが さわる','親の画面には、メニューも設定も出ない'); await sleep(2200); chk();
+      await focus(el('s-animal'),120);
+      say('相棒は 4匹から えらべる'); await tap(el('s-animal-rabbit')); await sleep(900); await tap(el('s-animal-panda')); await sleep(500); chk();
+      await focus(el('s-alert'),120);
+      say('知らせるのは「次の日・2日後・3日後」','むずかしい時間の設定は なし'); await point(el('s-alert-2')); await sleep(1500); fg.hidden=true; chk();
+      await focus(el('f-send'),260);
+      say('親のスマホには、リンクを送るだけ','登録も コード入力も なし'); await tap(el('f-send')); await sleep(2600); fg.hidden=true; chk();
+
+      cap.hidden=true; el('end-pet').innerHTML=pet('panda',['straw'],true); el('endcard').classList.add('show');
+    }catch(e){ el('endcard').classList.remove('show'); }
+    fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('phone').classList.remove('show'); el('intro').classList.remove('show','two');
+    S=JSON.parse(saved); demo=false; document.body.classList.remove('demoing'); el('d-demo').textContent='▶ デモを見る'; el('d-demo').classList.remove('stop');
+    renderAll(); show(view); if(stopReq) window.scrollTo(0,0);
+  }
+  el('d-demo').addEventListener('click', function(){ if(demo){ stopReq=true; } else runDemo(); });
+  el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(runDemo,300); });
+  el('end-close').addEventListener('click', function(){ el('endcard').classList.remove('show'); show('parent'); window.scrollTo(0,0); });
   load(); renderAll();
   var v='parent'; try{ v=localStorage.getItem(KEY+'_view')||'parent'; }catch(e){}
   show(v);
+  if(location.hash==='#demo') setTimeout(runDemo,500);
 })();
 </script>
 
