@@ -296,6 +296,9 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .diag .td{line-height:1.8;font-size:.98rem}
 .diag .tm{font-size:.9rem;color:var(--ink-2)}
 .datab{background:var(--white);border-radius:18px;padding:12px 14px;text-align:left;font-size:.92rem;line-height:1.7;border:1px solid var(--line)}
+.compat{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.compat div{background:var(--bg-2);border-radius:12px;padding:6px 4px;text-align:center;font-size:.78rem;line-height:1.3}
+.compat div b{display:block;font-size:1.25rem;color:var(--rose-deep)}
 .datab .src{display:block;font-size:.7rem;color:var(--ink-2);margin-top:4px}
 .prcard{background:var(--white);border:1.5px solid var(--gold-line);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:10px;position:relative}
 .prcard .prb{position:absolute;right:14px;top:12px;font-size:.68rem;font-weight:700;color:var(--ink-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
@@ -370,11 +373,12 @@ details.alb summary::-webkit-details-marker{display:none}
   <section id="s-pmini" hidden class="stack">
     <div class="top"><div class="brand">お見合いでのあなた</div><span class="eyebrow">Preview</span></div>
     <div class="diag">
-      <div class="lab">3つの質問と4人のお見合いで見えた、あなたの傾向</div>
+      <div class="lab">結婚観診断(仮) ・ 3つの質問と4人のお見合いから</div>
       <div id="pm-radar"></div>
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="pm-type" style="font-size:1.5rem"></div>
       <p class="td" id="pm-desc"></p>
+      <div class="datab"><b>4人との相性(早見表)</b><div class="compat" id="pm-compat"></div></div>
       <p class="small muted">これは「お見合い」だけの仮の診断。結婚して20年たつと、完成版が出ます。</p>
     </div>
     <div class="nako" id="nako-pmini"></div>
@@ -488,16 +492,18 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="nako" id="nako-result"></div>
 
     <div class="diag">
-      <div class="lab">婚活診断 ・ あなたが選んだ道から見えた、あなた</div>
+      <div class="lab">結婚観診断 ・ あなたが選んだ道から出た、あなたの結婚観タイプ</div>
       <div id="r-radar"></div>
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="t-name"></div>
       <div id="t-rare"></div>
       <p class="td" id="t-desc"></p>
-      <p class="tm" id="t-match"></p>
+      <div class="datab"><b>相性のいい相手</b><br><span id="t-match"></span></div>
+      <div class="datab"><b>4人との相性(早見表)</b><div class="compat" id="t-compat"></div></div>
+      <div class="datab"><b>婚活アドバイス</b><br><span id="t-adv"></span></div>
       <div class="datab"><b>千代子の婚活データ</b><br><span id="t-data"></span><span class="src" id="t-src"></span></div>
       <div class="datab" id="ibj-box"><b>千代子の婚活データ②(2025年に成婚した19,112名)</b><div id="ibj-list" style="margin-top:6px;display:grid;gap:6px"></div><span class="src" id="ibj-src"></span></div>
-      <p class="small muted" style="font-size:.7rem">グレーの線は、国の調査(第16回出生動向基本調査・2021年)で女性が結婚相手に重視する順番(人柄→家事・育児の姿勢→仕事への理解→経済力)をもとにした目安です。「ときめき」は調査項目にないため参考値です。</p>
+      <p class="small muted" style="font-size:.7rem">5つの軸は、婚活アプリや相談所のプロフィール条件(性格・価値観／家事・育児／仕事への理解／経済力／外見・フィーリング)に合わせています。グレーの線は、国の調査(第16回出生動向基本調査・2021年)で女性が結婚相手に重視する順番をもとにした目安。「ときめき」は調査項目にないため参考値です。</p>
     </div>
 
     <div class="card stack">
@@ -812,31 +818,45 @@ details.alb summary::-webkit-details-marker{display:none}
   ]};
 
   // ================= 婚活診断 =================
-  const AX=[['a','相性'],['c','協力'],['s','自分らしさ'],['m','お金'],['t','ときめき']];
-  // 目安: 出生動向基本調査(2021)の重視順 人柄>家事育児>仕事への理解>経済力 / ときめきは参考値
+  const AX=[['a','価値観'],['c','家庭'],['s','自立'],['m','経済力'],['t','ときめき']];
   const AVG={a:84,c:74,s:64,m:58,t:52};
   const IBJ=[['成婚した人の決め方','お見合い11回・交際4か月(124日)で決断'],['成婚カップルの世帯年収','8割が1,000万円超(夫婦の合算)'],['夫婦の年の差','平均2.77歳。妻が年上は16.8%で、8年で約1.9倍'],['男性の年収と成婚率','500万円台が最多。800万を超えると頭打ち']];
   const IBJ_SRC='出典:IBJ結婚みらい研究所「2025年 IBJ成婚白書」(2025年に成婚した19,112名の活動データ)';
   const TYPES={
-    a:{n:'溺愛され姫',d:'心が通う人とだけ、深くつながりたいタイプ。重い愛を、軽やかに受け止められる。',m:'相性がいい夫:何年でも一途に想ってくれる人',
+    a:{n:'価値観重視タイプ',d:'条件より「この人と一緒にいて落ち着くか」で決めるタイプ。結婚相手に求めるもので一番多い「人柄重視」の王道。',
+       m:'口数は少なくても、何年たっても同じ態度でいてくれる人',
+       adv:'プロフィールの条件検索より、まず会う。あなたの決め手は、会わないと分からない。お見合い11回を目安に。',
        data:'女性が結婚相手に一番重視するのは「人柄」。あんたは、ど真ん中の正統派よ。',src:'出典:国立社会保障・人口問題研究所「第16回出生動向基本調査」(2021年)',
        cat:'価値観や相性で相手を紹介してくれる結婚相談所'},
-    c:{n:'最強パートナー妻',d:'恋人より「チーム」になれる人を選ぶタイプ。二人で暮らしを作るのが上手。',m:'相性がいい夫:家事も子育ても半分こできる人',
+    c:{n:'家庭重視タイプ',d:'恋人というより「チーム」になれる人を選ぶタイプ。家事も育児も半分こが前提で、暮らしを一緒に作るのが上手。',
+       m:'家事・育児に前向きで、家計の話を嫌がらない人',
+       adv:'デートで「家事、どうしてる？」を早めに聞く。相手の家事・育児の姿勢を重視する女性は7割。あなたは多数派。',
        data:'相手の「家事・育児の姿勢」を重視する女性は70.2%。前の調査の57.7%から一気に増えたの。時代はあんたの味方よ。',src:'出典:国立社会保障・人口問題研究所「第16回出生動向基本調査」(2021年)',
        cat:'担当の仲人が二人三脚で伴走してくれる結婚相談所'},
-    s:{n:'自由すぎる花嫁',d:'結婚しても、自分の名前で生きるタイプ。誰かの「妻」だけでは終わらない。',m:'相性がいい夫:あなたの仕事と夢を応援できる人',
+    s:{n:'自立志向タイプ',d:'結婚しても、自分の仕事と自分の名前で生きるタイプ。相手に経済的に依存しないし、させない。',
+       m:'あなたの仕事と夢を応援して、自分の時間も大事にできる人',
+       adv:'年収は公開する。公開した女性は成婚率が約2倍(IBJ)。共働き前提で話せる相手に絞ると早い。',
        data:'女性の理想の生き方、「仕事と子育ての両立」が国の調査で初めて1位になったの。あんたは時代の先頭よ。',src:'出典:国立社会保障・人口問題研究所「第16回出生動向基本調査」(2021年)',
        cat:'忙しくても続けやすい、オンライン完結型の結婚相談所'},
-    m:{n:'したたか玉の輿妻',d:'夢も見るけど、通帳も見る。最後に、ちゃんと勝つタイプ。',m:'相性がいい夫:お金の話を隠さない人',
+    m:{n:'経済力重視タイプ',d:'ときめきも大事だけど、通帳も見る。現実的に判断して、最後にちゃんと勝つタイプ。',
+       m:'お金の話を隠さず、数字で説明できる人',
+       adv:'年収800万を超えると成婚率は頭打ち(IBJ)。「500〜700万で家事をする人」まで広げると、会える人数が一気に増える。',
        data:'相手の年収を「重要」と答える独身女性は約9割。口に出さないだけ。あんたは正直なだけよ。',src:'出典:結婚相談所Presia「お金と結婚に関する意識調査2025」',
        cat:'経営者や専門職の会員が多い結婚相談所'},
-    t:{n:'一生恋する妻',d:'何年たってもドキドキしたいタイプ。ときめきを、自分で作れる人。',m:'相性がいい夫:毎年プロポーズし直してくれる人',
+    t:{n:'恋愛重視タイプ',d:'何年たってもドキドキしたいタイプ。会った瞬間のフィーリングと直感を信じる。',
+       m:'記念日を覚えていて、毎年プロポーズし直してくれる人',
+       adv:'直感は正しい。ただし交際4か月を過ぎたら決める。成婚した人の決断は124日(IBJ)。',
        data:'相談所で成婚した人の交際期間は、およそ4か月(124日)。4か月を過ぎると決まる確率は下がる一方。ときめきで一気に決めるのは、実は王道よ。',src:'出典:IBJ結婚みらい研究所「2025年 IBJ成婚白書」(成婚者19,112名)',
        cat:'パーティーやイベントで出会いが多い婚活サービス'},
-    all:{n:'ぜんぶ欲しい姫',rare:true,d:'愛も、お金も、自由も、ときめきも。どれも手放さなかった。欲張りは、才能。',m:'相性がいい夫:あなたの欲張りを面白がれる人',
+    all:{n:'バランス型',rare:true,d:'価値観も、家庭も、自立も、経済力も、ときめきも。全部そろえて、どれも手放さなかった欲張りタイプ。',
+       m:'あなたの欲張りを、面白がれる人',
+       adv:'条件が多い人ほど「会う数」で勝つ。成婚した人の8割は、お見合い25回以内×交際半年以内(IBJ)。',
        data:'相談所で成婚した人のお見合いは11回。成婚しなかった人の2.7倍会ってるの。欲張りな子ほど、たくさん会って決めてる。',src:'出典:IBJ結婚みらい研究所「2025年 IBJ成婚白書」(成婚者19,112名)',
        cat:'会員数が多い大手の結婚相談所'},
   };
+  // 4人との相性(早見表) ◎○△
+  const COMPAT={a:{C:'◎',A:'○',D:'○',B:'△'},c:{C:'◎',D:'○',A:'△',B:'△'},s:{B:'◎',D:'○',A:'○',C:'○'},m:{A:'◎',B:'◎',C:'△',D:'△'},t:{D:'◎',A:'○',B:'○',C:'△'},all:{C:'◎',A:'○',B:'○',D:'○'}};
+
   // ================= 共通 =================
   const START={sav:300,home:'1Kの賃貸',L:30,T:30};
   const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
@@ -860,6 +880,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const addX=(x,add)=>{for(const k in add)x[k]=(x[k]||0)+add[k];return x;};
   function scores(x){const vals=AX.map(([k])=>x[k]||0);const mx=Math.max(1,...vals);const o={};AX.forEach(([k])=>{o[k]=Math.round(35+65*(x[k]||0)/mx);});return o;}
   function typeKey(sc){const v=AX.map(([k])=>sc[k]);if(Math.min(...v)>=82)return 'all';let best='a';AX.forEach(([k])=>{if(sc[k]>sc[best])best=k;});return best;}
+  function compatHTML(tk){const c=COMPAT[tk]||{};return ['C','D','B','A'].map(id=>`<div><b>${c[id]||'○'}</b>${esc(byId(id).name.split(' ').pop())}</div>`).join('');}
   function radarSVG(sc){
     const W=320,H=300,cx=160,cy=152,R=100;
     const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(a)*R*v/100,cy+Math.sin(a)*R*v/100];};
@@ -955,7 +976,7 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
-    $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;
+    $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
     nako('#nako-pmini','4人とも、まだ秘密を隠してるわよ。誰に指輪を渡すかで、20年後の総資産もグラフの形も、まるで変わる。…さ、決めなさい。');
     show('s-pmini');
   }
@@ -1093,7 +1114,7 @@ details.alb summary::-webkit-details-marker{display:none}
     nako('#nako-result',e.nak,true);
     $('#r-radar').innerHTML=radarSVG(sc);
     $('#t-name').textContent=ty.n;$('#t-rare').innerHTML=ty.rare?'<span class="rare">レアタイプ</span>':'';
-    $('#t-desc').textContent=ty.d;$('#t-match').textContent=ty.m;$('#t-data').textContent=ty.data;$('#t-src').textContent=ty.src;
+    $('#t-desc').textContent=ty.d;$('#t-match').textContent=ty.m;$('#t-adv').textContent=ty.adv;$('#t-compat').innerHTML=compatHTML(tk);$('#t-data').textContent=ty.data;$('#t-src').textContent=ty.src;
     $('#ibj-list').innerHTML=IBJ.map(([k,v])=>`<div><span class="small" style="color:var(--rose);font-weight:700">${esc(k)}</span><br>${esc(v)}</div>`).join('');$('#ibj-src').textContent=IBJ_SRC;
     $('#r-share').textContent=shareText();
     nako('#nako-pr','物語はここまで。本物を探すなら、「'+ty.n+'」のあんたには「'+ty.cat+'」が合うわ。あたしが選んどいたから、のぞくだけのぞいてみなさい。');
