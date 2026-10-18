@@ -161,22 +161,26 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .vis{position:absolute;left:-9999px;top:0}
 @media (max-width:370px){.greet .g{font-size:24px}.streak b{font-size:52px}}
 
-/* ===== 相棒えらび ===== */
-.choose{display:flex;flex-direction:column;gap:16px}
-.choose h1{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.35;word-break:keep-all}
-.choose .lead{color:var(--ink-2);font-size:17px}
-.pets{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.petcard{background:var(--white);border:1.5px solid var(--line);border-radius:28px;padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .12s}
+/* ===== 相棒えらび（スマホ1画面に収める） ===== */
+.choose{display:flex;flex-direction:column;gap:clamp(8px,1.6vh,14px)}
+.choose h1{font-family:var(--font-mincho);font-weight:800;font-size:clamp(22px,3.4vh,28px);line-height:1.3;word-break:keep-all}
+.choose .lead{color:var(--ink-2);font-size:15px;margin-top:-4px}
+.pets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.petcard{background:var(--white);border:1.5px solid var(--line);border-radius:24px;padding:clamp(6px,1.2vh,12px) 6px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .12s}
 .petcard:active{transform:scale(.97)}
-.petcard .petimg{width:min(132px,100%)}
-.petcard .nm{font-family:var(--font-mincho);font-weight:800;font-size:24px;margin-top:6px}
-.petcard .kind{font-size:13px;font-weight:700;color:var(--shu)}
-.petcard .ds{font-size:14px;color:var(--ink-2);line-height:1.4;word-break:keep-all}
+.petcard .petimg{width:clamp(64px,12.5vh,112px)}
+.petcard .nm{font-family:var(--font-mincho);font-weight:800;font-size:21px;line-height:1.3;margin-top:2px}
+.petcard .kind{font-size:13px;font-weight:700;color:var(--ink-2)}
 .petcard[aria-pressed="true"]{border-color:var(--shu);border-width:3px;background:var(--shu-soft)}
 .petcard[aria-pressed="true"] .petimg{box-shadow:0 0 0 4px var(--shu)}
-.pick-ok{border-radius:999px;padding:16px 20px;font-family:var(--font-mincho);font-weight:800;font-size:22px;background:var(--shu);border-color:var(--shu);color:#fff;box-shadow:0 14px 30px -14px rgba(217,68,43,.8)}
+.petcard[aria-pressed="true"] .kind{color:var(--shu)}
+.pick-ok{border-radius:999px;padding:clamp(10px,1.8vh,15px) 20px;font-family:var(--font-mincho);font-weight:800;font-size:21px;background:var(--shu);border-color:var(--shu);color:#fff;box-shadow:0 14px 30px -14px rgba(217,68,43,.8)}
 .pick-ok:disabled{background:var(--paper-2);border-color:var(--line);color:var(--ink-2);box-shadow:none;cursor:default}
-.choose .later{text-align:center;font-size:14px;color:var(--ink-2)}
+.choose .later{text-align:center;font-size:13px;color:var(--ink-2);margin-top:-4px}
+body.choosing .brand{display:none}
+body.choosing .demo .row+.row{display:none}
+@media (max-height:660px){.choose .lead,.choose .later{display:none}}
+.caption.top{bottom:auto;top:calc(12px + env(safe-area-inset-top,0px))}
 
 /* ===== デモ再生 ===== */
 .demo .play{background:var(--shu);color:#fff;border-color:var(--shu)}
@@ -237,15 +241,15 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
     <div class="row">
       <span class="lbl">時間を動かす</span>
       <button id="d-next">1日すすめる</button>
-      <button id="d-reset">はじめから（相棒えらび）</button>
+      <button id="d-reset">はじめから</button>
     </div>
   </div>
 
   <!-- ===== 相棒えらび（いちばん最初の1回だけ） ===== -->
   <section id="choose" class="choose" hidden>
     <div class="brand"><span class="nm">ワンポチ</span><span class="pill">生存確認</span></div>
-    <h1>相棒を、ひとり<br>えらんでね</h1>
-    <p class="lead">毎日「きょうの1問」を持ってくる子です。</p>
+    <h1>相棒を、ひとり えらんでね</h1>
+    <p class="lead">毎日「きょうの1問」を持ってくる子です</p>
     <div class="pets" id="pets"></div>
     <button class="pick-ok" id="pick-ok" type="button" disabled>この子にする</button>
     <p class="later">あとから家族の画面でも変えられます</p>
@@ -622,7 +626,7 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
     ['dog','cat','panda','rabbit'].forEach(function(a){
       var b=document.createElement('button'); b.type='button'; b.className='petcard'; b.id='pick-'+a;
       b.setAttribute('aria-pressed', pick===a?'true':'false');
-      b.innerHTML=pet(a,[],pick===a)+'<span class="nm">'+ANIMALS[a].name+'</span><span class="kind">'+ANIMALS[a].kind+'</span><span class="ds">'+ANIMALS[a].ds+'</span>';
+      b.innerHTML=pet(a,[],pick===a)+'<span class="nm">'+ANIMALS[a].name+'</span><span class="kind">'+ANIMALS[a].kind+'</span>';
       b.addEventListener('click', function(){ pick=a; renderChoose(); });
       box.appendChild(b);
     });
@@ -637,7 +641,7 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
     if(v!=='choose' && !S.chosen) v='choose';
     view=v;
     if(v==='choose'){ pick=null; renderChoose(); }
-    el('choose').hidden=v!=='choose';
+    el('choose').hidden=v!=='choose'; document.body.classList.toggle('choosing', v==='choose');
     el('parent').hidden=v!=='parent'; el('family').hidden=v!=='family';
     el('d-parent').setAttribute('aria-pressed', v==='parent'?'true':'false');
     el('d-family').setAttribute('aria-pressed', v==='family'?'true':'false');
@@ -674,9 +678,9 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
       var it=el('intro'); it.classList.add('show'); await sleep(1600); it.classList.add('two'); await sleep(2200); it.classList.remove('show','two'); await sleep(500); chk();
 
       // 0. 相棒えらび
-      say('まず、相棒を ひとり えらぶ','ポチ・タマ・パン・ミミ'); await sleep(1600); chk();
+      cap.classList.add('top'); say('まず、相棒を ひとり えらぶ','ポチ・タマ・パン・ミミ'); await sleep(1600); chk();
       await tap(el('pick-cat')); await sleep(500); await tap(el('pick-panda')); await sleep(700);
-      say('えらんだら「この子にする」'); await tap(el('pick-ok')); await sleep(1400); fg.hidden=true; chk();
+      say('えらんだら「この子にする」'); await tap(el('pick-ok')); cap.classList.remove('top'); await sleep(1400); fg.hidden=true; chk();
 
       // 1. 親の画面
       el('notif-pet').innerHTML=pet('panda',[]); el('notif-tx').textContent='パンが きょうの1問を 持ってきたよ';
@@ -729,7 +733,7 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 
       cap.hidden=true; el('end-pet').innerHTML=pet('panda',['straw'],true); el('endcard').classList.add('show');
     }catch(e){ el('endcard').classList.remove('show'); }
-    fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('phone').classList.remove('show'); el('intro').classList.remove('show','two');
+    fg.hidden=true; cap.hidden=true; cap.classList.remove('top'); el('notif').classList.remove('show'); el('phone').classList.remove('show'); el('intro').classList.remove('show','two');
     S=JSON.parse(saved); demo=false; document.body.classList.remove('demoing'); el('d-demo').textContent='▶ デモを見る'; el('d-demo').classList.remove('stop');
     renderAll(); show(back); window.scrollTo(0,0);
   }
