@@ -593,7 +593,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-18 v10";
+  const APP_VER="2026-10-18 v11";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1550,7 +1550,7 @@
       end({reason:"user"});return;
     }
     const S=settings();const userMsgs=current?current.msgs.filter(m=>m.who==="user").length:0;const el=Date.now()-session.start;
-    const wantSummary=S.summary&&userMsgs>=2&&el>=120000;
+    const wantSummary=S.summary&&userMsgs>=1; // 1回でも喋ってたら、短い来店でも必ず振り返りを言う（前は2分未満・2発言未満やと黙って閉店してた）
     if(!byVoice&&!wantSummary){end({reason:"user"});return;}
     const mine=session;
     session.closing=true;session.voiceCheckout=Date.now();armQuickExit(mine);
