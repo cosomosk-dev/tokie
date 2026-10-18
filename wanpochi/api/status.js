@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
   const st = String(f.CallStatus || '');
   console.log('call status:', st, 'duration:', f.CallDuration);
   if (['no-answer', 'busy', 'failed', 'canceled'].includes(st)) {
-    await P.sms(c, '【ワンポチ】' + c.parentName + 'さんは電話に出ませんでした（' + P.timeJST() + '）。あとでもう一度かけます。');
+    await P.sms(c, '【ワンポチ】' + c.parentName + 'さんは電話に出ませんでした（' + P.timeJST() + '）。時間をおいて、もう一度かけてみてください。');
   }
   res.status(200).send('ok');
 };
