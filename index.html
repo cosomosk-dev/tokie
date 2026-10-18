@@ -593,7 +593,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-18 v9";
+  const APP_VER="2026-10-18 v10";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1523,7 +1523,7 @@
     if(!conv||!session||session.closing)return;
     const mine=session;
     if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
-    session.closing=true;btn.textContent="すぐ出る";statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
+    session.closing=true;armQuickExit(mine);statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
     const p=captureReply(60000);
     if(!inject(MSG_CLOSE+billLine())){if(current)current.endKind="closed";end({reason:"closed"});return;}
     const text=await p;
@@ -1534,15 +1534,26 @@
     if(session!==mine||!mine.closing)return;
     end({reason:"closed"});
   }
+  // お会計・閉店のまとめ中は、最初の12秒「すぐ出る」を押せへんようにする（お会計ボタンの2度押しでまとめが切れるのを防ぐ）
+  const QUICK_EXIT_LOCK=12000;
+  function armQuickExit(mine){
+    btn.textContent="まとめを聞いてる…";btn.disabled=true;
+    setTimeout(()=>{if(session===mine&&mine.closing&&conv){btn.textContent="すぐ出る";btn.disabled=false;}},QUICK_EXIT_LOCK);
+  }
   async function checkout(byVoice){
     if(!conv||!session)return;
     if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
-    if(session.closing){if(!byVoice)end({reason:"user"});return;} // 2回目のボタン＝すぐ出る
+    if(session.closing){ // 2回目のボタン＝すぐ出る（間違えて2回押してまとめが消えんように、確認してから）
+      if(byVoice)return;
+      if(btn.disabled)return;
+      if(!confirm("ママのまとめ、途中で切って出る？\n（最後まで聞くなら「キャンセル」）"))return;
+      end({reason:"user"});return;
+    }
     const S=settings();const userMsgs=current?current.msgs.filter(m=>m.who==="user").length:0;const el=Date.now()-session.start;
     const wantSummary=S.summary&&userMsgs>=2&&el>=120000;
     if(!byVoice&&!wantSummary){end({reason:"user"});return;}
     const mine=session;
-    session.closing=true;session.voiceCheckout=Date.now();btn.textContent="すぐ出る";
+    session.closing=true;session.voiceCheckout=Date.now();armQuickExit(mine);
     statusEl.textContent=wantSummary?"ママが今日のまとめを言うてる…（「もうちょっと」で取り消し）":"ママが見送ってくれてる…";
     let text="";
     if(byVoice){
@@ -1901,7 +1912,8 @@
   }
   const PHOTO_PROMPT="これは、お客さんがスナックのママにスマホで見せた写真です。ママが見て話のネタにできるように、写っているものを日本語で具体的に説明してください。"+
     "何が写っているか（料理なら品名と見た目、動物なら種類・毛色・表情、景色なら場所の感じ・天気・時間帯、人なら服装・表情・人数・雰囲気）、目立つ細かいところを2つ、写真の中の文字があれば読む、写真全体の雰囲気。"+
-    "写っている人が誰かや名前は推測しない。3〜4文・200字以内。前置きや箇条書きは不要。";
+    "最後に1文で、写真としての出来（ピント・明るさ・構図・表情・背景の散らかり具合）の良い点と惜しい点を正直に書く。"+
+    "写っている人が誰かや名前は推測しない。4〜5文・300字以内。前置きや箇条書きは不要。";
   async function geminiDescribe(b64){
     const key=gKey();if(!key)throw {kind:"nokey"};
     let saved="";try{saved=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}
@@ -1937,6 +1949,12 @@
     4:`店内コール風に「ちょっと皆さん見てや〜、${nm}さんの写真！」と景気よく自慢してあげる。具体的なところを2つ拾って褒めて、話を${nm}さんに渡す。`,
     5:`「…ええ写真やなぁ」としみじみ。具体的なところを2つ拾って褒めて、撮った時の話をじっくり聞く。`
   })[t]||"";
+  // 今夜の濃さで写真の見方が変わる（水割り＝褒めるだけ／ロック＝採点は甘め／ストレート＝辛口採点）
+  const PHOTO_SCORE={
+    mizu:"【今夜は水割り】点数は付けへん。ダメ出しもせん。ええところを見つけて素直に褒めるだけ。",
+    rock:"【今夜はロック】最後に「100点満点で○点」と点数を付ける。甘めでええ（70〜90点くらい）。ええとこ2つ褒めて、惜しいとこは笑えるツッコミで1つだけ。",
+    straight:"【今夜はストレート＝辛口採点】最後に「100点満点で○点」と遠慮なく採点する（甘やかさへん。普通の写真は50〜70点）。減点の理由を具体的に2つ（写真の出来か写ってる中身）。最後に「次こうしたら○点や」と改善を1つ言うて、味方で締める。人格や見た目を傷つける言い方はせん。"
+  };
   function showPhoto(src,label){
     photoView.innerHTML="";const i=document.createElement("img");i.src=src;const d=document.createElement("div");d.textContent=label;photoView.appendChild(i);photoView.appendChild(d);
     photoView.className="photoview show";
@@ -1985,7 +2003,7 @@
     const a=photos();a.unshift(rec);savePhotos(a);
     if(hang){const w=wall();w.unshift({ts:rec.ts,date:rec.date,desc:clipBytes(desc,300),thumb});if(!saveWall(w))saveWall(w.slice(0,3));renderWall();}
     const msg=`【写真】お客さん（${nm}さん）がスマホの写真を見せてくれた。ママは今この写真を自分の目で見てる。写真に写ってるもの：「${desc}」\n`+
-      `反応：${PHOTO_REACT(t,nm)}${hang?`そのあと「ほな、これ額に入れて店の壁に飾っとくわ。${nm}さんの写真や」と嬉しそうに言う。`:""}\n`+
+      `反応：${PHOTO_REACT(t,nm)}\n${PHOTO_SCORE[settings().strength]||PHOTO_SCORE.rock}${hang?`そのあと「ほな、これ額に入れて店の壁に飾っとくわ。${nm}さんの写真や」と嬉しそうに言う。`:""}\n`+
       "ルール：上の説明文を読み上げたり「説明によると」と言わず、ママが見た言い方で話す。写ってないもんを作り話せん。お金・値段・次の注文の話はせん。";
     inject(msg);playSE(t>=4?3:1);
     showPhoto(big,hang?"店の壁に飾った":"ママが見た");hidePhoto(7000);
@@ -2179,7 +2197,7 @@
   guide.addEventListener("click",(e)=>{if(e.target===guide)closeGuide();});
 
   renderBottleBtn();
-  let seen=false;try{seen=!!localStorage.getItem("tokie_gemini_key_v1");}catch(e){}
+  let seen=false;try{seen=!!localStorage.getItem(GKEY);}catch(e){}
   if(!seen)openGuide();else bottleNotice();
 </script>
 </body>
