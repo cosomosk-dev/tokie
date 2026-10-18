@@ -11,12 +11,12 @@ module.exports = async (req, res) => {
   const from = String(f.From || '');
   const isParent = c.parentPhone && digits(from) === digits(c.parentPhone);
 
-  // 先に「出ないで切る」を返す（最初の命令が Reject なら課金されない）
-  P.xml(res, '<Reject reason="busy"/>');
-
+  // Vercel は返事を返すと処理が止まるので、SMSを先に送ってから「出ないで切る」を返す
+  // （返事の最初の命令が Reject なら課金されない）
   if (isParent) {
     await P.sms(c, '【ワンポチ】' + c.parentName + 'さんから、きょうの「ワンポチ」が届きました（' + P.timeJST() + '）。きょうも無事です。');
   } else {
     console.log('知らない番号からの着信（無視）:', from ? from.slice(0, 4) + '…' : '非通知');
   }
+  P.xml(res, '<Reject reason="busy"/>');
 };
