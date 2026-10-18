@@ -593,7 +593,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-18 v8";
+  const APP_VER="2026-10-18 v9";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1566,6 +1566,8 @@
   }
 
   async function start(extension,force){
+    // 留守電を聞いてる途中で入店したら、留守電を先に止める（ママの声がかぶらんように）
+    if(!extension){try{if(typeof vmStop==="function"&&vmStop)await vmStop();}catch(e){}try{vmCard.className="vm";}catch(e){}}
     if(!extension&&await checkUpdate()){statusEl.textContent="新しい版に入れ替えるで…";return;}
     errEl.textContent="";hideNotice();btn.disabled=true;statusEl.textContent=extension?"延長入るで…":"ママが手帳を読んでる…";
     connectedAt=null;serverErr=null;
@@ -2124,9 +2126,10 @@
     vmCard.className="vm"+(vmAvailable()?" show":"");
   }
   const MSG_VM="【留守電】いまお客さんは電話に出られへん。ママから留守電を入れる。前回の来店メモの話を一つだけ拾って、気にかけてる一言＋今日の過ごし方に軽く一言、全部で3〜4文・30秒以内。返事は求めへん（問いかけで終わらん）。最後は「ほな、またおいでな」で締める。";
-  let vmConv=null;
+  let vmConv=null,vmStop=null;
   async function playVm(){
-    if(vmConv||conv)return;
+    // 入店中・入店の準備中（ボタンが押せへん間）は留守電を流さへん（ママの声がかぶるため）
+    if(vmConv||conv||session||btn.disabled)return;
     const th=thanksPending();const vmMsg=th?MSG_THANKS(th):MSG_VM;
     vmCard.className="vm";hideNotice();errEl.textContent="";statusEl.textContent="ママから電話や…";btn.disabled=true;
     caption.innerHTML="";
@@ -2136,8 +2139,11 @@
       const c=vmConv;vmConv=null;try{if(c)await c.endSession();}catch(e){}
       stage.classList.remove("speaking");
       if(ok){if(th)markThanks(th);else{if(!sub().on&&vmCredits()>0)addVmCredit(-1);try{localStorage.setItem(VM_KEY,todayBiz());}catch(e){}}}
+      vmStop=null;
+      if(conv||session)return; // 入店に切り替わった時は、入店側の表示を触らへん
       statusEl.textContent=ok?"留守電、聞いた":"留守電が聞けへんかった";btn.disabled=false;renderVm();
     };
+    vmStop=()=>finish(aiCount>=2);
     try{
       try{await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){errEl.textContent="マイクを許可してな（聞くだけやけど、仕組み上いる）";return finish(false);}
       const digest=await loadDigest();
