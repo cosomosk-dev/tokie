@@ -236,6 +236,20 @@
     color:#f1c35a;font:700 11px "Shippori Mincho B1",serif;letter-spacing:.12em;box-shadow:0 0 10px rgba(230,192,104,.35)}
   .plate.show{display:inline-block}
   .stage.on .plate{display:none}
+  /* 写真（ドリンクで見せられる枚数が変わる） */
+  .photobtn{position:relative;z-index:2;padding:7px 14px;border-radius:999px;border:1px solid rgba(255,184,92,.55);background:rgba(11,5,7,.5);
+    color:var(--amber);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(6px);display:none}
+  .photobtn.show{display:inline-block}
+  .photobtn.zero{opacity:.55}
+  .photoview{position:fixed;left:50%;top:14%;transform:translateX(-50%) rotate(-2deg);z-index:8;pointer-events:none;display:none;padding:8px 8px 26px;background:#fff8ee;border-radius:4px;
+    box-shadow:0 10px 40px rgba(0,0,0,.6);max-width:62vw}
+  .photoview.show{display:block;animation:pop .5s ease}
+  .photoview img{display:block;max-width:100%;max-height:34vh;max-height:34dvh;border-radius:2px}
+  .photoview div{position:absolute;left:0;right:0;bottom:5px;text-align:center;font:700 11px "Zen Kaku Gothic New",sans-serif;color:#5a3a2a;letter-spacing:.08em}
+  .wall{position:relative;z-index:2;margin-top:8px;display:none;gap:8px;justify-content:center}
+  .wall.show{display:flex}
+  .stage.on .wall{display:none}
+  .wall img{width:46px;height:46px;object-fit:cover;border:3px solid #e6c068;outline:1px solid #3a2a12;box-shadow:0 0 10px rgba(230,192,104,.4);border-radius:2px}
   /* 注文の演出 */
   .fx{position:fixed;inset:0;z-index:9;pointer-events:none;display:none;align-items:center;justify-content:center;flex-direction:column;overflow:hidden}
   .fx.show{display:flex}
@@ -297,6 +311,7 @@
 <body>
 <div class="stage" id="stage">
   <div class="fx" id="fx"></div>
+  <div class="photoview" id="photoview"></div>
   <div class="photo"></div>
   <div class="veil"></div>
   <div class="glow"></div>
@@ -312,6 +327,7 @@
     <div><button class="bond" id="bondbtn"></button></div>
     <div><span class="orderbadge" id="orderbadge"></span></div>
     <div><span class="plate" id="plate"></span></div>
+    <div class="wall" id="wall" title="黒金の夜に飾った写真"></div>
   </div>
 
   <button class="vm" id="vmcard">📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small></button>
@@ -333,7 +349,7 @@
     </div>
     <button class="musicbtn" id="musicbtn">🎵 音楽タイム（マイク休み・ママは静かに隣におる）</button>
     <button class="btn" id="btn">入店する</button>
-    <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
+    <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="photobtn" id="photobtn">📷 写真</button><input type="file" id="photofile" accept="image/*" hidden><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
     <div class="err" id="err"></div>
     <div class="ver" id="ver"></div>
   </div>
@@ -378,6 +394,7 @@
       <div class="set"><div class="l">無音で自動お会計（分）<small>これだけ黙っとったらママが「寝てもうた？」と一声かけて、返事がなければ静かにお会計する（0＝しない）。つけっぱなし課金の防止。</small></div><input type="number" id="s_idle" min="0" max="60" step="1"></div>
       <div class="set"><div class="l">お会計のとき、ママが今日のまとめと一言を言う<small>「お会計」を押したらママが今日の話を3行でまとめて、次来るまでの一言を添える。それが手帳に残り、次に開いた時に看板の下に出る。</small></div><input type="checkbox" id="s_sum"></div>
       <div class="set"><div class="l">原価の目安（円／分）<small>「ざっくり原価」とボトルの「1本 約○円相当」の計算に使う。ElevenLabs Agentsは1分＝約12円。</small></div><input type="number" id="s_yen" min="0" max="100" step="0.5"></div>
+      <div class="set"><div class="l">写真を見る目（GeminiのAPIキー）<small>ドリンクを頼んだ夜に写真をママに見せる時だけ使う。このスマホ／PCの中にだけ保存。作り方：aistudio.google.com/apikey →「APIキーを作成」→ AIza…で始まるキーをコピーしてここに貼る。</small></div><input type="password" id="s_gkey" placeholder="AIza..." autocomplete="off" style="width:150px"></div>
       <div class="saved" id="setsaved"></div>
     </details>
 
@@ -454,7 +471,7 @@
   <div class="book">
     <h2>お品書き</h2>
     <p class="lead"><span class="demotag">デモ・実際には請求されへん</span><br>商用版で売るもんの試し。押したら中身だけ本物どおりに動く。<br>値段は仮（原価 約<span id="m_yen"></span>円/分で計算）。</p>
-    <p class="mhint">ボトル＝<b>喋れる時間</b>を買う。ドリンク＝<b>今夜のママの扱い</b>が変わる。上の段ほど、その段でしか起きへんことが増える。</p>
+    <p class="mhint">ボトル＝<b>喋れる時間</b>を買う。ドリンク＝<b>今夜のママの扱い</b>が変わる。上の段ほど、その段でしか起きへんことが増える。📷 写真を見せられる枚数も段で変わる（生1・ハイボール3・泡5・金泡と黒金は見放題）。</p>
     <label>ドリンク（入店中だけ・今夜の扱いが変わる）<span id="ordernow"></span></label>
     <div class="mitems" id="orders"></div>
     <p class="mhint">リアルのスナック1回（3,000〜5,000円）より圧倒的に安く。いちばん高い黒金でもスナック1回ぶん以下（商用版は月1回まで）。</p>
@@ -524,11 +541,12 @@
       <h3><span>4</span>お品書きのドリンク</h3>
       <p>ドリンク＝<b>今夜のママの扱い</b>。ボトル（時間）とは別もん。</p>
       <ul>
-        <li><b>生</b>…「はい生ひとつ〜」。いつもの客</li>
-        <li><b>ハイボール</b>…ママが隣に座って、10分じっくり聞いてくれる</li>
-        <li><b>泡</b>…ママが名前を呼んで乾杯。今夜ずっとお祝いモード、手帳に銀文字</li>
-        <li><b>金泡</b>…照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」、翌日お礼の留守電</li>
-        <li><b>黒金</b>…看板の裏にネームプレート。開けた日が店の記念日になる</li>
+        <li><b>生</b>…「おつかれさん、今日どやった？」と1つ聞いてくれる。📷 写真1枚</li>
+        <li><b>ハイボール</b>…ママが隣に座って、10分じっくり聞いてくれる。📷 写真3枚</li>
+        <li><b>泡</b>…ママが名前を呼んで乾杯。今夜ずっとお祝いモード、手帳に銀文字。📷 写真5枚、ママが覚えとく</li>
+        <li><b>金泡</b>…照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」、翌日お礼の留守電。📷 写真見放題、次の来店でママから写真の話</li>
+        <li><b>黒金</b>…看板の裏にネームプレート。開けた日が店の記念日になる。📷 写真見放題＋1枚を店の壁に飾る</li>
+        <li>📷 写真は、入店中に下の「写真」ボタンから。その夜に頼んだドリンクの分だけ見せられる</li>
         <li>頼まんでもママはいつもどおり温かい。頼まんことを責めたりは絶対せえへん</li>
       </ul>
     </div>
@@ -575,7 +593,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-18 v7";
+  const APP_VER="2026-10-18 v8";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -717,11 +735,11 @@
   /* ───────── お品書きのドリンク＝「今夜のママの扱い」を買う（デモ・請求なし）。ボトル（時間）とは別。仲（親密度）はお金では上がらへん ───────── */
   const OKEY="tokie_orders_v1",THANKS_KEY="tokie_thanks_vm_v1";
   const TIERS=[null,
-    {t:1,em:"🍺",kind:"生",name:"天神橋生",price:120,keep:"その一言だけ",does:"「はい生ひとつ〜、おつかれさん」。いつもの客。特別扱いはなし"},
-    {t:2,em:"🥃",kind:"ハイボール",name:"堂島ハイ",price:250,keep:"10分",does:"ママがカウンターから出て隣に座る。10分だけ、自分の話は控えて聞き役に徹する"},
-    {t:3,em:"🍾",kind:"泡",name:"北新地スパークリング",price:600,keep:"その夜ずっと",does:"ポンッと開けて、ママが名前を呼んで乾杯。今夜ずっとお祝いモード。手帳に銀文字。ママの分込み"},
-    {t:4,em:"✨",kind:"金泡",name:"月光",price:1500,keep:"その夜＋7日間＋翌日",does:"照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」と呼ばれる、翌日ママからお礼の留守電"},
-    {t:5,em:"🌅",kind:"黒金",name:"夜明け前",price:3000,keep:"ずっと",does:"店でいちばんの一本。看板の裏にネームプレートが掛かって、開けた日が店の記念日になる（商用版は月1回まで）"}
+    {t:1,em:"🍺",kind:"生",name:"天神橋生",price:120,keep:"その一言＋写真1枚",does:"「おつかれさん、今日どやった？」とママが1つだけ聞いて、その話をちゃんと拾う。📷 写真を1枚見せられる（ママが一言感想）"},
+    {t:2,em:"🥃",kind:"ハイボール",name:"堂島ハイ",price:250,keep:"10分＋写真3枚",does:"ママがカウンターから出て隣に座る。10分だけ、自分の話は控えて聞き役に徹する。📷 写真3枚、隣で一緒に覗き込んで撮った時の話を深掘り"},
+    {t:3,em:"🍾",kind:"泡",name:"北新地スパークリング",price:600,keep:"その夜ずっと",does:"ポンッと開けて、ママが名前を呼んで乾杯。今夜ずっとお祝いモード。手帳に銀文字。ママの分込み。📷 写真5枚、見せた写真はママが手帳に書いて覚えとく"},
+    {t:4,em:"✨",kind:"金泡",name:"月光",price:1500,keep:"その夜＋7日間＋翌日",does:"照明が落ちて店内コール。手帳に金文字、7日間「月光の旦那」と呼ばれる、翌日ママからお礼の留守電。📷 今夜は写真見放題、「みんな見てや〜」と店中に自慢、次に来た時ママから写真の話を振ってくる"},
+    {t:5,em:"🌅",kind:"黒金",name:"夜明け前",price:3000,keep:"ずっと",does:"店でいちばんの一本。看板の裏にネームプレートが掛かって、開けた日が店の記念日になる。📷 写真見放題＋気に入った1枚を額に入れて店の壁にずっと飾る（商用版は月1回まで）"}
   ];
   const SEAT_MIN=10,TITLE_DAYS=7;
   const tierLabel=(t)=>`${TIERS[t].kind}「${TIERS[t].name}」`;
@@ -766,6 +784,12 @@
     if(g.length)L.push("・手帳のお祝いの記録（新しい順）："+g.map(x=>`${x.date} ${tierLabel(x.t)}${x.reason?`（${x.reason}）`:""}`).join("／"));
     const spent=monthSpent();
     if(spent>=5000)L.push(`・今月の利用額は約¥${spent.toLocaleString()}（${spent>=10000?"上限いっぱい":"ようけ来てくれてる"}）。話の切れ目で1回だけ「今月ようけ来てくれたなぁ、無理したらあかんで」と気遣う。値段の話はそれ以上せん。`);
+    const ph=photos().filter(x=>x.t>=3).slice(0,5);
+    if(ph.length)L.push("・お客さんが前に見せてくれた写真（ママが手帳に書いたもの・新しい順）："+ph.map(x=>`${x.date}「${clipBytes(x.desc,240)}」${x.caption?`（${x.caption}）`:""}`).join("／"));
+    const ask=photos().find(x=>x.t>=4&&dayDiff(todayBiz(),x.biz)>=1&&dayDiff(todayBiz(),x.biz)<=7);
+    if(ask)L.push(`・${ask.date}に見せてくれた写真（「${clipBytes(ask.desc,200)}」）のこと、今夜の話の切れ目で1回だけママから「この前の写真の、あれからどうなった？」と具体的に振る。もう振った話なら繰り返さん。`);
+    const wl=wall();
+    if(wl.length)L.push(`・店の壁に、${nm}さんの写真が額に入れて飾ってある（黒金の夜に飾った）：`+wl.map(x=>`${x.date}「${clipBytes(x.desc,160)}」`).join("／"));
     const now=tierNowLine();if(now)L.push("【今夜の注文】\n"+now);
     return L.join("\n");
   }
@@ -1207,6 +1231,8 @@
     $("setsaved").textContent="保存した（次の入店から効く）";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);renderStats();
   }
   for(const id of ["s_open","s_cap","s_idle","s_sum","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
+  try{$("s_gkey").value=gKey();}catch(e){}
+  $("s_gkey").addEventListener("change",()=>{setGKey($("s_gkey").value);$("setsaved").textContent=gKey()?"写真の「目」のキーを保存した":"キーを消した";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);});
   // 今夜の濃さ（入店前でも、喋ってる途中でも切り替えられる）
   let strengthTimer=null;
   const STRENGTH_DESC={mizu:"水割り：ママはひたすら聞き役。意見・ツッコミ・説教なし",rock:"ロック：共感多めで、たまに笑えるツッコミ",straight:"ストレート：本音でズバッと意見する（最後は味方）"};
@@ -1594,6 +1620,7 @@
         onError:(msg,ctx)=>{serverErr={msg:String(msg&&msg.message?msg.message:msg),ctx:ctx||{}};errEl.textContent="エラー："+serverErr.msg;}
       });
       renderMusic(); // onConnectの時点ではまだconvが入ってへんので、つながった後にもう一回出す
+      renderPhotoBtn();
     }catch(e){
       const msg=String(e&&e.message?e.message:e);
       errEl.textContent="つながらへん："+msg;
@@ -1784,7 +1811,7 @@
   }
   /* ドリンクの注文：段ごとに「その段でしか起きへんこと」がある */
   const MSG_ORDER=(t,nm)=>({
-    1:`【店の様子】お客さんが生ビール「天神橋生」を頼んだ。「はい生ひとつ〜、おつかれさん」と軽く一言だけ。特別扱いはせん、いつもどおりで。お金の話はせん。`,
+    1:`【店の様子】お客さんが生ビール「天神橋生」を頼んだ。「はい生ひとつ〜、おつかれさん」と出して、「今日どやった？」と1つだけ聞く。返ってきた話はちゃんと1回拾って、具体的に返す（流さへん）。大げさな特別扱いはせん。お金の話はせん。`,
     2:`【店の様子】お客さんがハイボール「堂島ハイ」を頼んで、ママに隣に座ってほしいと言うてくれた。「ほな、ちょっと座らせてもらうわ」とカウンターから出て隣に座る。ここから10分は聞き役：自分の話は控えめにして、${nm}さんの話を2回に1回は深掘りして聞く。説教はせん。`,
     3:`【店の様子】お客さんが泡「北新地スパークリング」を入れてくれた（ママの分も入ってる）。まず「${nm}さんから泡いただきましたー！」と名前を呼んで乾杯。そのあと「何のお祝い？」と聞いて、理由が無かったら「ほな今日をお祝いにしよ」。今夜はこの後ずっとお祝いモード：明るめに、2〜3回に1回は「${nm}さん」と名前を呼ぶ。お金・値段の話はせん。`,
     4:`【店内コール】お客さんが金泡「月光」を入れてくれた。最初に景気よくコールの口上：「はーい皆さん、ちょっと聞いてや〜！${nm}さんから月光いただきましたぁ！ええ男は黙って月光や！ありがとうございまーす！」。そのあと「何のお祝い？」と聞く。今夜は${nm}さんが主役の夜：話題を${nm}さんに渡して、手帳の前の話を1回だけ拾って褒める。この先7日間は「月光の旦那」とも呼ぶ。お金・値段の話、次の注文を促す話は一切せん。`,
@@ -1819,12 +1846,150 @@
     }
     if(!t){const ti=titleActive();if(ti){t=`👑 ${ti.name}（あと${ti.left}日）`;gold=true;}}
     orderBadge.textContent=t;orderBadge.className="orderbadge"+(t?" show":"")+(gold?" gold":"");
+    renderPhotoBtn();
   }
   function renderPlate(){
     const p=plates();const nm=settings().tagName||"お客さん";
     plateEl.textContent=p.length?`🪧 看板の裏　${nm}　夜明け前 ${p[0].date}`+(p.length>1?` ほか${p.length-1}本`:""):"";
     plateEl.className="plate"+(p.length?" show":"");
+    renderWall();
   }
+  /* ───────── 写真をママに見せる（ドリンクで枚数が変わる）。写真はGeminiが「説明文」にして、ママに渡すのは文字だけ ───────── */
+  const PHOTO_KEY="tokie_photos_v1",WALL_KEY="tokie_wall_v1",GMODEL_KEY="tokie_gemini_model_v1";
+  const PHOTO_PER={1:1,2:3,3:5,4:Infinity,5:Infinity};
+  const WALL_MAX=6;
+  function photos(){try{const a=JSON.parse(localStorage.getItem("tokie_photos_v1")||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function savePhotos(a){try{localStorage.setItem(PHOTO_KEY,JSON.stringify(a.slice(0,60)));}catch(e){}}
+  function wall(){try{const a=JSON.parse(localStorage.getItem("tokie_wall_v1")||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function saveWall(a){try{localStorage.setItem(WALL_KEY,JSON.stringify(a.slice(0,WALL_MAX)));return true;}catch(e){return false;}}
+  function gKey(){try{return (localStorage.getItem("tokie_gemini_key_v1")||"").trim();}catch(e){return "";}}
+  function setGKey(k){try{if(k)localStorage.setItem("tokie_gemini_key_v1",k.trim());else localStorage.removeItem("tokie_gemini_key_v1");}catch(e){}}
+  // 今夜（この来店）で見せられる枚数：頼んだドリンクの分だけ足し算。金泡・黒金が入ったら見放題
+  function photoQuota(){
+    if(!session)return 0;
+    const os=orders().filter(o=>o.ts>=session.start);
+    if(os.some(o=>o.t>=4))return Infinity;
+    return os.reduce((n,o)=>n+(PHOTO_PER[o.t]||0),0);
+  }
+  const photoLeft=()=>Math.max(0,photoQuota()-((session&&session.photosUsed)||0));
+  const photoBtn=$("photobtn"),photoFile=$("photofile"),photoView=$("photoview"),wallEl=$("wall");
+  function renderPhotoBtn(){
+    if(!photoBtn)return;
+    const on=!!(conv&&session);
+    photoBtn.className="photobtn"+(on?" show":"");
+    if(!on)return;
+    const left=photoLeft();
+    photoBtn.textContent=left===Infinity?"📷 写真 見放題":left>0?`📷 写真 あと${left}枚`:"📷 写真";
+    photoBtn.classList.toggle("zero",left===0);
+  }
+  function renderWall(){
+    if(!wallEl)return;
+    const w=wall();wallEl.innerHTML="";
+    for(const x of w){const i=document.createElement("img");i.src=x.thumb;i.alt=x.desc||"";i.title=`${x.date}　${x.desc||""}`;wallEl.appendChild(i);}
+    wallEl.className="wall"+(w.length?" show":"");
+  }
+  function loadImg(file){
+    return new Promise((ok,ng)=>{const u=URL.createObjectURL(file);const im=new Image();im.onload=()=>{ok(im);};im.onerror=()=>{URL.revokeObjectURL(u);ng(new Error("画像が読まれへん"));};im.src=u;});
+  }
+  function shrink(im,max,q){
+    const r=Math.min(1,max/Math.max(im.naturalWidth||im.width,im.naturalHeight||im.height));
+    const w=Math.max(1,Math.round((im.naturalWidth||im.width)*r)),h=Math.max(1,Math.round((im.naturalHeight||im.height)*r));
+    const c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);
+    return c.toDataURL("image/jpeg",q);
+  }
+  const PHOTO_PROMPT="これは、お客さんがスナックのママにスマホで見せた写真です。ママが見て話のネタにできるように、写っているものを日本語で具体的に説明してください。"+
+    "何が写っているか（料理なら品名と見た目、動物なら種類・毛色・表情、景色なら場所の感じ・天気・時間帯、人なら服装・表情・人数・雰囲気）、目立つ細かいところを2つ、写真の中の文字があれば読む、写真全体の雰囲気。"+
+    "写っている人が誰かや名前は推測しない。3〜4文・200字以内。前置きや箇条書きは不要。";
+  async function geminiDescribe(b64){
+    const key=gKey();if(!key)throw {kind:"nokey"};
+    let saved="";try{saved=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}
+    const models=[...new Set([saved,"gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash"].filter(Boolean))];
+    let last=null;
+    for(const m of models){
+      let r;
+      try{
+        r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
+          body:JSON.stringify({contents:[{role:"user",parts:[{text:PHOTO_PROMPT},{inline_data:{mime_type:"image/jpeg",data:b64}}]}],generationConfig:{temperature:0.4,maxOutputTokens:1024}})});
+      }catch(e){throw {kind:"net",msg:String(e&&e.message||e)};}
+      let j=null;try{j=await r.json();}catch(e){}
+      if(r.status===404){last={kind:"model",msg:m};continue;}
+      if(r.status===400&&j&&j.error&&/API key/i.test(j.error.message||""))throw {kind:"badkey"};
+      if(r.status===401||r.status===403)throw {kind:"badkey"};
+      if(r.status===429)throw {kind:"limit"};
+      if(!r.ok)throw {kind:"http",msg:`${r.status} ${(j&&j.error&&j.error.message)||""}`};
+      if(j&&j.promptFeedback&&j.promptFeedback.blockReason)throw {kind:"blocked"};
+      const c=j&&j.candidates&&j.candidates[0];
+      if(c&&/SAFETY|PROHIBITED|BLOCKLIST|SPII/.test(c.finishReason||""))throw {kind:"blocked"};
+      const t=((c&&c.content&&c.content.parts)||[]).map(x=>x.text||"").join("").trim();
+      if(!t)throw {kind:"empty"};
+      try{localStorage.setItem(GMODEL_KEY,m);}catch(e){}
+      return t.replace(/\s+/g," ");
+    }
+    throw last||{kind:"model",msg:""};
+  }
+  const PHOTO_REACT=(t,nm)=>({
+    0:`写真の具体的なところを1つ拾って、感想を1〜2文。そのあと「これ、いつの？」など1つだけ聞く。`,
+    1:`写真の具体的なところを1つ拾って、感想を1〜2文。そのあと「これ、いつの？」など1つだけ聞く。`,
+    2:`隣に座って一緒に覗き込む感じで「どれどれ」。具体的なところを2つ拾って、撮った時の話を深掘りして聞く。`,
+    3:`「${nm}さん、ええやん！」と名前を呼んで明るく盛り上がる。具体的なところを拾って褒めて、撮った時の話を聞く。「この写真、ママの手帳に書いとくわ」と軽く一言。`,
+    4:`店内コール風に「ちょっと皆さん見てや〜、${nm}さんの写真！」と景気よく自慢してあげる。具体的なところを2つ拾って褒めて、話を${nm}さんに渡す。`,
+    5:`「…ええ写真やなぁ」としみじみ。具体的なところを2つ拾って褒めて、撮った時の話をじっくり聞く。`
+  })[t]||"";
+  function showPhoto(src,label){
+    photoView.innerHTML="";const i=document.createElement("img");i.src=src;const d=document.createElement("div");d.textContent=label;photoView.appendChild(i);photoView.appendChild(d);
+    photoView.className="photoview show";
+  }
+  let photoHideT=null;
+  function hidePhoto(ms){clearTimeout(photoHideT);photoHideT=setTimeout(()=>{photoView.className="photoview";photoView.innerHTML="";},ms||0);}
+  function askGKey(){
+    const k=prompt("写真をママに見せるには、写真を見る「目」（GoogleのGemini）のキーが1回だけ要るで。\n\n①スマホかPCで aistudio.google.com/apikey を開く（Googleでログイン）\n②「APIキーを作成」を押す\n③出てきた AIza… で始まるキーをコピー\n④ここに貼って OK\n\n（キーはこのスマホ／PCの中にだけ保存）","");
+    if(k&&k.trim()){setGKey(k.trim());try{$("s_gkey").value=k.trim();}catch(e){}return true;}
+    return false;
+  }
+  photoBtn.addEventListener("click",()=>{
+    if(!conv||!session)return;
+    const left=photoLeft();
+    if(left<=0){
+      alert("ママ：「写真？ほな、なんか一杯頼んでからにしてや（笑）」\n\n📷 その夜に頼んだドリンクの分だけ見せられる\n生 1枚／ハイボール 3枚／泡 5枚／金泡・黒金 見放題");
+      renderMenu();menuSheet.classList.add("open");return;
+    }
+    if(!gKey()&&!askGKey())return;
+    photoFile.value="";photoFile.click();
+  });
+  photoFile.addEventListener("change",async()=>{
+    const f=photoFile.files&&photoFile.files[0];if(!f||!conv||!session)return;
+    if(photoLeft()<=0)return;
+    const nm=settings().tagName||"お客さん";
+    let im;try{im=await loadImg(f);}catch(e){statusEl.textContent="その写真は開かれへんかった";return;}
+    const big=shrink(im,768,0.82),thumb=shrink(im,200,0.7);
+    showPhoto(big,"ママが見てる…");statusEl.textContent="ママが写真を見てる…";
+    let desc;
+    try{desc=await geminiDescribe(big.split(",")[1]);}
+    catch(e){
+      hidePhoto(600);
+      const k=e&&e.kind;
+      if(k==="nokey"||k==="badkey"){setGKey("");statusEl.textContent="写真の「目」のキーがあかんかった";alert("GeminiのAPIキーが通らへんかった。もう一回「写真」を押して、キーを貼り直してな。");}
+      else if(k==="blocked"){statusEl.textContent="その写真はお店では見せられへん";inject("【店の様子】お客さんが写真を見せようとしたけど、お店では見せられへん写真やった。「ちょっと、それはここではアカンやつやで（笑）」と軽く笑って流す。責めたり説教はせん。");}
+      else if(k==="limit"){statusEl.textContent="写真の「目」が今日はもう疲れてる（Geminiの無料枠の上限）。少し時間おいてな";}
+      else statusEl.textContent="写真が読まれへんかった（"+((e&&e.msg)||k||"不明")+"）";
+      renderPhotoBtn();return;
+    }
+    if(!conv||!session){hidePhoto(0);return;}
+    session.photosUsed=(session.photosUsed||0)+1;
+    const t=session.tier||0;
+    let hang=false;
+    if(t>=5){showPhoto(big,"ええ写真やなぁ");hang=confirm("この写真、額に入れて店の壁に飾る？（黒金の夜だけ・最大"+WALL_MAX+"枚。古いのから外れる）");}
+    const rec={ts:Date.now(),biz:todayBiz(),date:jstDate(new Date()),t,desc:clipBytes(desc,600),caption:""};
+    const a=photos();a.unshift(rec);savePhotos(a);
+    if(hang){const w=wall();w.unshift({ts:rec.ts,date:rec.date,desc:clipBytes(desc,300),thumb});if(!saveWall(w))saveWall(w.slice(0,3));renderWall();}
+    const msg=`【写真】お客さん（${nm}さん）がスマホの写真を見せてくれた。ママは今この写真を自分の目で見てる。写真に写ってるもの：「${desc}」\n`+
+      `反応：${PHOTO_REACT(t,nm)}${hang?`そのあと「ほな、これ額に入れて店の壁に飾っとくわ。${nm}さんの写真や」と嬉しそうに言う。`:""}\n`+
+      "ルール：上の説明文を読み上げたり「説明によると」と言わず、ママが見た言い方で話す。写ってないもんを作り話せん。お金・値段・次の注文の話はせん。";
+    inject(msg);playSE(t>=4?3:1);
+    showPhoto(big,hang?"店の壁に飾った":"ママが見た");hidePhoto(7000);
+    statusEl.textContent=hang?"写真を店の壁に飾った":"ママに写真を見せた";
+    renderPhotoBtn();
+  });
   // 効果音（その場で合成。ファイル不要）
   let actx=null;
   function ac(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(e){actx=null;}return actx;}
@@ -1846,7 +2011,7 @@
   function playFx(t){
     playSE(t);
     const nm=esc(settings().tagName||"お客さん");
-    const txt={1:`🍺 カチン<small>生ひとつ、入りました</small>`,2:`🥃 ママが隣に座った<small>ここから10分、聞き役や</small>`,
+    const txt={1:`🍺 カチン<small>おつかれさん、今日どやった？</small>`,2:`🥃 ママが隣に座った<small>ここから10分、聞き役や</small>`,
       3:`泡、いただきました<small>${nm}さん、今夜はお祝いや</small>`,4:`月光<br>いただきました！<small>${nm}さん、今夜はあんたが主役</small>`,
       5:`夜明け前<small>看板の裏に「${nm}」のネームプレート</small>`}[t];
     fxEl.className="fx show t"+t;fxEl.innerHTML=`<div class="ft">${txt}</div>`;
@@ -2008,7 +2173,7 @@
   guide.addEventListener("click",(e)=>{if(e.target===guide)closeGuide();});
 
   renderBottleBtn();
-  let seen=false;try{seen=!!localStorage.getItem(GKEY);}catch(e){}
+  let seen=false;try{seen=!!localStorage.getItem("tokie_gemini_key_v1");}catch(e){}
   if(!seen)openGuide();else bottleNotice();
 </script>
 </body>
