@@ -313,6 +313,8 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .moshi .q{color:var(--gold);font-weight:700}
 .adov{position:fixed;inset:0;background:rgba(20,10,15,.86);z-index:50;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;text-align:center;padding:24px}
 .jobs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.jobs button{min-height:40px;padding:6px 12px;font-size:.86rem;border-radius:999px;border-color:var(--line);background:var(--white)}.jobs button.on{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
+.oshi{position:absolute;right:10px;top:12px;z-index:1;font-size:.7rem;font-weight:700;color:#3B2430;background:linear-gradient(135deg,var(--gold-2),#C9A227);border-radius:999px;padding:2px 9px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
+.qcard{background:linear-gradient(150deg,var(--rose-soft),var(--white))}
 .linkbtn{background:none;border:none;color:var(--ink-2);text-decoration:underline;font-size:.82rem;min-height:36px;padding:4px}
 .album{font-size:.86rem;line-height:1.7}
 .album li{margin-bottom:4px}
@@ -330,7 +332,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="eyebrow">Four introductions, four secrets.</div>
       <div class="t" style="margin-top:4px">紹介された4人。<br><em>全員に、秘密がある。</em></div>
       <div class="s">選んだ夫で、20年後の総資産が激変する。<br>あなたは、誰と結婚する？</div>
-      <div class="chips"><span>無料で遊べる</span><span>1人 全10話</span><span>結末は全12種類</span></div>
+      <div class="chips"><span>無料で遊べる</span><span>質問3つで、あなたに合う人がわかる</span><span>1人 全10話</span></div>
     </div>
     <div class="nako" id="nako-intro"></div>
     <div class="card stack">
@@ -363,7 +365,7 @@ details.alb summary::-webkit-details-marker{display:none}
   <section id="s-pmini" hidden class="stack">
     <div class="top"><div class="brand">お見合いでのあなた</div><span class="eyebrow">Preview</span></div>
     <div class="diag">
-      <div class="lab">5人と会って見えた、あなたの傾向</div>
+      <div class="lab">3つの質問と4人のお見合いで見えた、あなたの傾向</div>
       <div id="pm-radar"></div>
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="pm-type" style="font-size:1.5rem"></div>
@@ -531,36 +533,52 @@ details.alb summary::-webkit-details-marker{display:none}
       lock:'その顔、どこかで見たことがある気がする。',nak:'顔100点、口座0点。顔で選んだら一生後悔するわよ。…するかもね。'},
   ];
   const E5={id:'E',name:'相沢 樹',age:39,job:'小学校の先生',catch:'中学の同級生。初恋の人。',income:'年収 480万円',looks:4};
-  const READY={A:true};
+  const READY={A:true,C:true};
+  const HA={A:'玉の輿派',B:'チャレンジ派',C:'堅実派',D:'ときめき派'};
 
   // ================= 序章(お見合い・全員無料) =================
   // x: 診断タグ a=相性 c=協力 s=自分らしさ m=お金 t=ときめき
   const PRO=[
-    {who:'N',ep:'序章1',title:'千代子からのLINE',
-      text:'「成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。…最初に聞いとく。結婚相手に、何がいちばん大事？」',
+    {who:'N',ep:'千代子の3つの質問 ①',title:'結婚相手に、いちばん大事なのは？',
+      text:'「成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。…紹介する前に、3つだけ聞かせて」',
       ch:[
-        {t:'「一緒にいて、落ち着く人」',o:'「落ち着く、ね。じゃあ最初は、いちばん落ち着かない男から会わせるわ」',x:{a:2},nak:'国の調査でもね、女が結婚相手に一番求めるのは「人柄」なの。あんたは正統派よ。'},
-        {t:'「正直、経済力は大事です」',o:'「正直でよろしい。9割の子がそう思ってる。口に出さないだけ」',x:{m:2},nak:'お金の話ができる女は強いのよ。結婚相談所じゃ、最後に勝つのはそういう子。'},
+        {t:'一緒にいて、落ち着くこと',o:'「落ち着く、ね。あんたみたいな子、長く続くのよ」',x:{a:2},sc:{C:2,B:1},nak:'国の調査でも、女が結婚相手に一番求めるのは「人柄」。あんたは正統派よ。'},
+        {t:'正直、経済力',o:'「正直でよろしい。口に出さないだけで、みんなそう思ってる」',x:{m:2},sc:{A:2,B:1},nak:'年収を「重要」と答える子は約9割。あんたは正直なだけ。'},
+        {t:'ドキドキすること',o:'「ときめき派ね。…飽きっぽくないでしょうね？」',x:{t:2},sc:{D:2,A:1},nak:'ときめきで決める子は、交際4か月で成婚するのよ。早いわよ〜。'},
       ]},
-    {who:'A',ep:'序章2',title:'執事が、迎えに来た',
+    {who:'N',ep:'千代子の3つの質問 ②',title:'理想の休日は？',
+      text:'「じゃあ2つ目。結婚して最初の日曜日。何してたい？」',
+      ch:[
+        {t:'家で二人で、ごはんを作る',o:'「家ごはん派。家事を半分こできる男じゃないと、ケンカになるわよ」',x:{c:2},sc:{C:2},nak:'相手の家事・育児の姿勢を重視する女は7割。時代はあんたの味方。'},
+        {t:'ちょっと贅沢な旅',o:'「贅沢派。…お財布は、誰が持つの？」',x:{m:1,t:1},sc:{A:2},nak:'贅沢は悪くない。問題は、それが続くかどうかよ。'},
+        {t:'友達と出かける。夫は夫で自由に',o:'「自由派ね。束縛する男は、最初から外しておくわ」',x:{s:2},sc:{D:1,B:1},nak:'結婚しても自分の名前で生きる。今はそういう子が一番多いのよ。'},
+      ]},
+    {who:'N',ep:'千代子の3つの質問 ③',title:'年収、正直どこまで気にする？',
+      text:'「最後。相手の年収。本音で答えなさい。ここで嘘つく子は、婚活が長引くのよ」',
+      ch:[
+        {t:'自分と同じくらいでいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{a:1,c:1},sc:{C:2,D:1},nak:'年収300万以上なら乗り越えられる、って子が9割。あんたは現実が見えてる。'},
+        {t:'500万は欲しい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:1,c:1},sc:{B:2,C:1},nak:'求める年収は500万円台が一番多いの。あんたは多数派よ。'},
+        {t:'多ければ多いほどいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:2},sc:{A:2},nak:'いいわよ、欲張りで。でもね、タイプじゃない1,000万より、普通の500万を選ぶ子が7割なの。覚えときなさい。'},
+      ]},
+    {who:'A',ep:'お見合い 1人目',title:'秘書が、迎えに来た',
       text:'ホテルのラウンジ。黒塗りの車から降りた初老の男性が言った。「秘書の田辺です。高橋がお待ちです」。窓際の彼は、あなたを見た瞬間、紅茶をこぼした。',
       ch:[
         {t:'「大丈夫ですか？」とハンカチを出す',o:'彼はハンカチを受け取って、なぜか泣きそうな顔をした。「…やっぱり、優しい人だ」。…やっぱり？',x:{a:2,t:1},nak:'出たわよ、「やっぱり」。あんた、どこでこの人と会ってんのよ。'},
         {t:'「秘書の方、執事みたいですね」',o:'「みんなそう言います」と彼は笑った。「…正直、あなたの前だと、僕より田辺のほうが落ち着いてる」',x:{m:1,t:1},nak:'初対面で秘書に食いつく。いいわね、その図太さ。'},
       ]},
-    {who:'B',ep:'序章3',title:'声が、でかい',
+    {who:'B',ep:'お見合い 2人目',title:'声が、でかい',
       text:'待ち合わせのカフェ。入ってきた瞬間、店中が振り返った。「黒田です！！」握手が痛い。でも、テーブルの花瓶が倒れたとき、彼は誰より早く、そっと花を直した。',
       ch:[
         {t:'「声、大きすぎます」と笑う',o:'「よく言われます！！」さらに大声。でも、あなたが話すときだけ、彼の声は小さくなった。',x:{a:2},nak:'ゴリラが小声になる瞬間ね。あたし、そこに3000円賭けるわ。'},
         {t:'花を直した手を、じっと見る',o:'指は太いのに、動きは驚くほど丁寧だった。「手、きれいですね」と言うと、ゴリラが耳まで赤くなった。',x:{t:2},nak:'あんた、目のつけどころがいいわね。'},
       ]},
-    {who:'C',ep:'序章4',title:'駅前の、定食屋',
+    {who:'C',ep:'お見合い 3人目',title:'駅前の、定食屋',
       text:'待ち合わせは駅前の定食屋。「ここの味噌汁、うまいんです」。会話は地味。でも、彼が日本酒を頼んだとき、店主がなぜか一瞬、背筋を伸ばした。',
       ch:[
         {t:'「料理、得意なんですか？」',o:'「家事は半分こが当たり前だと思ってて」。翌週、本当にお弁当を持ってきた。卵焼きが少し焦げていた。',x:{c:2},nak:'家事・育児の姿勢を重視する女は7割。焦げた卵焼きは、実は高得点よ。'},
         {t:'「お店の人と、知り合い？」',o:'「いや、まあ、地元の酒なんで」。笑ってごまかした。目が、ちょっとだけ泳いだ。',x:{s:1,a:1},nak:'目が泳ぐ男は、だいたい何か隠してるわよ。'},
       ]},
-    {who:'D',ep:'序章5',title:'閉店後の、表参道',
+    {who:'D',ep:'お見合い 4人目',title:'閉店後の、表参道',
       text:'「店、見せたくて」。閉店後のサロン。鏡の前に座らされる。「少しだけ、切っていい？」。鏡越しの彼の顔に、なぜか見覚えがあった。',
       ch:[
         {t:'髪を、まかせる',o:'ハサミの音が、首のうしろで鳴る。鏡の中で目が合って、二人とも笑った。',x:{t:2},nak:'イケメンにハサミを持たせて、首を差し出す。度胸あるわね。'},
@@ -664,14 +682,105 @@ details.alb summary::-webkit-details-marker{display:none}
         {t:'「次は、私が書くね」と箱を閉じる',o:'その夜から、あなたの日記が始まった。1日目。「今日、夫が60歳になった。まだ、ときめく」',d:{L:8,T:8},x:{s:1,c:1,t:1},
           nak:'返事を書く女。20年かけて、やっと両思いの日記ね。'},
       ]},
-  ]};
+  ],
+  C:[
+    {year:'交際1か月',title:'焦げた卵焼き',img:'house',
+      text:()=>'デート3回目。「朝、うち来ませんか。朝ごはん作るんで」。1Kの部屋。ちゃぶ台に、味噌汁と、少し焦げた卵焼き。「焦げたとこ、俺が食べるから」',
+      ch:[
+        {t:'「私も作りたい」と台所に立つ',o:'狭い台所で肩がぶつかる。彼が焦げた方を自分の皿に、きれいな方をあなたの皿に、そっと入れ替えた。',d:{L:10},x:{c:2,a:1},f:'cook',
+          nak:'1Kの台所で肩をぶつけ合う。あたしの統計だと、これ、成婚率が高いのよ。',hook:'冷蔵庫の奥に、見たことのないラベルの日本酒。「佐藤酒造 創業1724年」'},
+        {t:'ありがたく、全部食べる',o:'焦げた卵焼きは、なぜか甘かった。「砂糖、入れすぎた」と彼が笑った。',d:{T:10},x:{t:2,a:1},f:'eat',
+          nak:'焦げた卵焼きで落ちる女。安上がりで最高よ。',hook:'冷蔵庫の奥に、見たことのないラベルの日本酒。「佐藤酒造 創業1724年」'},
+      ]},
+    {year:'交際半年',title:'家計簿のプロポーズ',img:'budget',
+      text:()=>'半年後。彼がスマホの家計簿アプリを見せた。「二人の家計、1年分シミュレーションした」。最後の行に、こう書いてあった。「結婚式(ふたりで決める)」。顔を上げると、彼が小さな箱を持っていた。',
+      ch:[
+        {t:'「式は手作りで30万」と答える',o:'「…助かる」と彼は泣きそうに笑った。公民館を借りて、料理は二人で作った。味噌汁が、いちばん褒められた。',d:{sav:-30,L:10},x:{c:2,a:1},f:'cheap',
+          nak:'30万の手作り結婚式。あたし何回も見てきたけど、泣く人が一番多いのはこの式よ。',hook:'式の招待客の名簿に、彼の両親の名前がなかった。「…来ない。言ってないんだ」'},
+        {t:'「一生に一度。300万でちゃんとやりたい」',o:'彼は3秒黙って、「わかった。2年分の貯金、使おう」。その日から、彼の家計簿に「式」の項目が増えた。',d:{sav:-300,T:10},x:{t:2,s:1},f:'full',
+          nak:'ちゃんとした式。悪くないわ。男の覚悟が、数字で見えるもの。',hook:'式の招待客の名簿に、彼の両親の名前がなかった。「…来ない。言ってないんだ」'},
+      ]},
+    {year:'結婚式',title:'来なかった両親',img:'hero',
+      text:()=>'式の日。新郎側の席に、両親はいなかった。代わりに、一升瓶を抱えた60代の男性が一人。「蔵の番頭の、源さんです」と夫が紹介した。源さんは、夫を「若」と呼んだ。',
+      ch:[
+        {t:'「若って、何ですか？」と源さんに聞く',o:'源さんは一升瓶をなでて言った。「それは、若から聞いてください。…いい嫁さんだ。先代に、見せたかった」',d:{T:8},x:{s:1,t:1},
+          nak:'番頭さんを質問攻め。度胸あるわね。',hook:'源さんが帰り際、夫に封筒を渡した。「先代からです。開けるかどうかは、若が決めてください」'},
+        {t:'何も聞かず、源さんにお酌する',o:'源さんは泣いた。「若が、こんな顔で笑うの、10年ぶりだ」。夫はうつむいて、耳が赤かった。',d:{L:8},x:{a:2,c:1},
+          nak:'お酌で番頭を落とす。あんた、若女将の素質あるわ。',hook:'源さんが帰り際、夫に封筒を渡した。「先代からです。開けるかどうかは、若が決めてください」'},
+      ]},
+    {year:'結婚1年目',title:'若奥様',img:'budget',
+      pre:{title:'結婚しました',text:'2DKの賃貸に引っ越し。家事は本当に半分こ。家計簿は1円単位。法律では、結婚前から持っていた財産はそれぞれのもの(夫婦別産制)。でも、暮らしはまるごと一緒になった。ここからは「ふたりの総資産」で数えます。',d:{sav:600,home:'2DKの賃貸'}},
+      reveal:'夫の実家は、新潟で創業300年の酒蔵「佐藤酒造」(年商10億円)。夫は長男で、跡取り。10年前、「蔵を継げ」と言う父と大げんかして家を出た。経理の仕事を選んだのも、「いつか蔵の帳簿を自分で見るため」。「お金で好きになられたくなかったんだ」',
+      text:()=>'年末。知らない番号から電話。「若奥様でいらっしゃいますか。番頭の源です。…先代が、倒れました」。受話器を置くと、夫が玄関に立っていた。顔が真っ青だった。',
+      ch:[
+        {t:'「今すぐ新潟に行こう」と夫の手を引く',o:'最終の新幹線。夫は窓の外を見たまま、10年分の話をした。病院のベッドで、父は夫の手を握った。「…帰ってきたか」',d:{L:12,T:4},x:{a:2,c:1},f:'go',
+          nak:'手を引いて新幹線。あんた、仲人向いてるわ。',hook:'次の春。夫が言った。「君の仕事、続けてもいいし、辞めてもいい。君が決めて」'},
+        {t:'「あなたが決めて。私はどっちでもついていく」',o:'夫は一晩考えて、朝一番の新幹線に乗った。帰ってきた夫は、父の写真を1枚、財布に入れていた。',d:{L:8,T:6},x:{c:2,a:1},f:'wait',
+          nak:'決めさせて、ついていく。それも立派な作戦よ。',hook:'次の春。夫が言った。「君の仕事、続けてもいいし、辞めてもいい。君が決めて」'},
+      ]},
+    {year:'結婚2年目',title:'わたしの仕事',img:'budget',
+      text:()=>'あなたの仕事は、'+J().n+'。'+J().daily+'。夫の年収は450万。ふたりで働けば、ふつうに暮らせる。夫は本気で言った。「どっちを選んでも、家事は半分このままだから」',
+      ch:[
+        {t:'仕事を続けて、上を目指す',o:()=>'2年後、あなたは自分の力で'+J().rise+'になった。お祝いは、夫の手作りの味噌汁と、少し焦げた卵焼きだった。',d:{sav:300,T:6},x:{s:3},f:'career',
+          nak:'共働きで出世。家事半分この夫がいると、女は強いのよ。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
+        {t:()=>'辞めて「'+J().dream+'」を始める',o:()=>'日本政策金融公庫の創業融資300万円と、ふたりの貯金で'+J().dream+'を始めた。初年度は赤字。でも2年目、黒字になった。',d:{sav:500,T:10},x:{s:2,m:1},f:'shop',twist:true,
+          nak:'公庫の創業融資で夢を始めて、ちゃんと黒字。現実的な夢の叶え方、満点よ。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
+      ]},
+    {year:'結婚3年目',title:'蔵を、継ぐか',img:'care',
+      text:()=>'創業300年の酒蔵。年商10億、借入2億、杜氏5人。継ぐなら、会社の株を父から譲り受ける。本来は贈与税がかかるけど、国の「事業承継税制」を使えば、条件を守る限り納税を先送りできる。継がないなら、父の弟が継ぐ。',
+      ch:[
+        {t:'継ぐ。新潟に引っ越す',o:'雪の蔵。杜氏たちが、あなたを「若女将」と呼んだ。夫は10年ぶりに、蔵の神棚に手を合わせた。会社の株(1億2,000万円分)が、ふたりの総資産に加わった。',d:{sav:12000,home:'新潟・酒蔵の母屋',T:8},x:{c:2,s:1,m:1},f:'kura',twist:true,
+          nak:'2DKから300年の蔵の若女将。シンデレラの逆輸入ね。',hook:'蔵の帳簿を初めて開いた夜。借入2億の更新書類に、銀行の付箋。「奥様のご署名欄」'},
+        {t:'継がない。東京で、ふつうに暮らす',o:'夫は継がなかった。蔵は叔父が継いだ。2DKで、今日も味噌汁。「…これで、よかったんだよな」',d:{L:6,T:-4},x:{a:1,c:2},f:'tokyo',
+          nak:'300年を蹴って2DK…。あんた、欲がないの？ それとも大物なの？',hook:'2年後。叔父から電話。「頼む、悠太。蔵の借入の保証人に、なってくれないか」'},
+      ]},
+    {year:'結婚5年目',title:'保証人',img:'budget',
+      text:s=>s.f.kura
+        ?'銀行が言った。「奥様も、連帯保証人をお願いします」。連帯保証人とは、会社が返せなくなったら代わりに全額払う人。でも「経営者保証に関するガイドライン」では、経営者以外の保証は原則として求めないことになっている。'
+        :'叔父が頭を下げた。「蔵の借入2億の保証人に、なってくれ」。連帯保証人とは、会社が返せなくなったら代わりに全額払う人。経営に関わらない人が事業の借金を保証するときは、公証役場で「本当に保証する意思があるか」を確認する手続きが要る(2020年の民法改正)。',
+      ch:[
+        {t:'「ガイドラインどおり、お断りします」',o:s=>s.f.kura?'銀行の担当者は少し驚いて、それから書類を引っ込めた。「…おっしゃるとおりです」。夫は帰り道、何度も「かっこよかった」と言った。':'夫は叔父に頭を下げ返した。「保証人にはなれない。でも、週末は蔵を手伝う」。叔父は黙ってうなずいた。',d:{L:8,T:6},x:{s:2,m:1},f:'refuse',
+          nak:'断れる女。これ、婚活でも一番大事な力よ。',hook:s=>s.f.kura?'5年後。海外のバイヤーから、一通のメール。「この酒を、ニューヨークで売りたい」':'5年後。叔父から電話。「海外から注文が来た。でも英語がわからん。…助けてくれ」'},
+        {t:'引き受ける。蔵と一蓮托生',o:s=>s.f.kura?'署名した。夫は何も言わず、その夜、蔵の全部の帳簿をあなたに見せた。「隠しごとは、もうなしだ」':'公証役場で意思を確認して、夫が署名した。あなたは止めなかった。「あなたの家だもん」',d:{L:10,T:4},x:{a:2,c:1},f:'hosho',
+          nak:'一蓮托生。あたしは勧めないけど、惚れた弱みってやつね。',hook:s=>s.f.kura?'5年後。海外のバイヤーから、一通のメール。「この酒を、ニューヨークで売りたい」':'5年後。叔父から電話。「海外から注文が来た。でも英語がわからん。…助けてくれ」'},
+      ]},
+    {year:'結婚10年目',title:'海を渡る酒',img:'airport',
+      text:s=>s.f.kura?'海外から、毎月問い合わせが来る。英語の資料は、まだ1枚もない。杜氏たちは「海外なんて」と首を振る。':'叔父の蔵に、海外から注文。叔父は英語が読めない。夫は週末だけ、蔵に通っている。',
+      ch:[
+        {t:'私が、海外に売り込む',o:s=>s.f.kura?'英語の資料を一晩で作って、ニューヨークの日本酒バーに飛び込んだ。1年後、海外の売上が国内を超えた。':'あなたが英語のやり取りを引き受けた。叔父の蔵の売上は3倍。夫は役員になり、役員報酬が入るようになった。',d:s=>({sav:s.f.kura?20000:2000,T:8}),x:{s:2,m:2},f:'export',twist:true,
+          nak:'ニューヨークで営業！ あたしが紹介した子で、一番出世したわ。',hook:'翌年。国際的な日本酒のコンクールから封筒が届いた。宛名は、夫ではなく、あなただった。'},
+        {t:'国内で、堅実に続ける',o:s=>s.f.kura?'海外は断った。蔵は小さいまま、でも杜氏は一人も辞めなかった。毎晩の味噌汁の味は、変わらなかった。':'夫は週末だけ蔵へ。平日は経理。2DKで、今日も味噌汁。',d:{L:8,sav:500},x:{c:2,a:1},f:'safe',
+          nak:'守る女ね。一番損な役回り。でも、一番愛されてる。',hook:'翌年。国際的な日本酒のコンクールから封筒が届いた。宛名は、夫ではなく、あなただった。'},
+      ]},
+    {year:'結婚12年目',title:'ラベルの名前',img:'care',
+      text:s=>'新しい銘柄が、国際コンクールで金賞を取った。'+(s.f.kura?'あなたが売り込んだ、あの酒だ。':'夫が週末に仕込んだ、あの酒だ。')+'注文は3か月待ち。次のラベルの名前を決めるのは、あなた。',
+      ch:[
+        {t:'「卵焼き」と名付ける',o:'笑われると思った。夫は泣いた。焦げた卵焼きの朝から、12年。',d:s=>({L:12,T:8,sav:s.f.kura?5000:500}),x:{a:2,t:1},f:'tamago',
+          nak:'酒に卵焼き！ センスが壊滅的！ …でも、売れるのよ、こういうのが。',hook:'結婚20年目。夫が言った。「最後の一本、一緒に仕込まないか」'},
+        {t:'自分の名前を付ける',o:'ラベルに、あなたの名前と、あなたの字。夫はうれしそうに、それを蔵の一番前に置いた。',d:s=>({T:10,L:4,sav:s.f.kura?5000:500}),x:{s:3},f:'myname',
+          nak:'自分の名前！ 欲が出てきたわね。いいことよ。',hook:'結婚20年目。夫が言った。「最後の一本、一緒に仕込まないか」'},
+      ]},
+    {year:'結婚20年目',title:'最後の一本',img:'hero',
+      text:s=>'結婚20年目。'+(s.f.kura?'蔵の一番奥で、':'叔父の蔵を借りて、')+'夫と二人で、初めて自分たちの酒を仕込む。米を研ぐ手が、20年前の1Kの台所と同じだった。',
+      ch:[
+        {t:'味噌汁に合う酒にする',o:'「味噌汁の酒」。杜氏たちは笑った。でも夫は、本気で仕込んだ。できた酒は、少し焦げた卵焼きにも合った。',d:{L:10,T:10},x:{a:2,c:1},
+          nak:'20年で、味噌汁が酒になった。…あたし、泣いてもいい？'},
+        {t:'二人の名前を、並べて書く',o:'ラベルに、二人の名前。夫が先に、あなたが後。「順番、逆がよかった」と夫が言った。',d:{L:8,T:8},x:{t:2,s:1},
+          nak:'並んだ名前。20年かけて、やっと対等ね。'},
+      ]},
+  ],
+  };
 
-  // ================= 結末(誠一郎3種) =================
+  // ================= 結末 =================
   const RANK={happy:'ハッピー',bitter:'ビター',masaka:'まさか',secret:'隠し'};
   const END={A:[
     {id:'A3',k:'masaka',t:'夢も島も、ぜんぶ叶えた女社長',s:()=>'夫が出資してくれた小さな'+J().dream+'は、20年で全国に広がった。島を売ったお金で、海外にも。夫は今も、あなたの一番のファンだ。',nak:'玉の輿に乗るどころか、自分の輿を作っちゃった。前代未聞よ。',test:s=>s.f.shop&&s.f.sell},
     {id:'A2',k:'bitter',t:'広い家の、静かな夜',s:()=>'一軒家、別荘、家政婦さん、田辺さん。お金は、使い切れないほどある。ただ、一族の誰も、もう家に遊びに来ない。',nak:'お金で埋まらない穴って、あるのよ。…まだ間に合うけどね。',test:s=>s.f.pay&&s.f.sell},
     {id:'A1',k:'happy',t:'3年越しのひとめぼれ、完結',s:()=>'駅のホームで始まった3年の片思いは、20年の両思いになった。夫は今でも、あの駅を通るたびに、あなたの手を握る。',nak:'重い男を、軽やかに受け止めた。あんたの勝ちよ。',test:()=>true},
+  ],C:[
+    {id:'C3',k:'masaka',t:'ニューヨークに、味噌汁の蔵元',s:()=>'海外の売上が国内を超えた。世界中の日本酒バーに、あなたのラベル。夫は今日も、杜氏たちのために味噌汁を作っている。',nak:'若女将どころか、蔵元。経理の夫の上を行ったわね。',test:s=>s.f.kura&&s.f.export},
+    {id:'C2',k:'bitter',t:'ふつうの幸せ、すこし退屈',s:()=>'2DKで、毎朝味噌汁。暮らしに不満はない。ただ、テレビで日本酒のCMが流れると、二人とも少し黙ってしまう。',nak:'「ふつうが一番」…って、あたしは言わないわよ。',test:s=>s.f.tokyo&&s.f.safe},
+    {id:'C1',k:'happy',t:'味噌汁と、300年の蔵',s:s=>'焦げた卵焼きの朝から20年。'+(s.f.kura?'雪の蔵で、':'2DKで、')+'毎朝ふたりで味噌汁を飲む。300年続いた蔵の、301年目を二人で作っている。',nak:'地味な男を選んだ子が、いちばん遠くまで行くのよ。',test:()=>true},
   ]};
 
   // ================= 婚活診断 =================
@@ -764,7 +873,8 @@ details.alb summary::-webkit-details-marker{display:none}
   const resolve=(v,s)=>typeof v==='function'?v(s):v;
 
   // ================= トップ =================
-  let me=pers.name||'ミユ',cur=null,st=null,ci=0,pi=0,proX=null;
+  let me=pers.name||'ミユ',cur=null,st=null,ci=0,pi=0,proX=null,proScore={A:0,B:0,C:0,D:0};
+  const topCand=()=>{const sc=(pers.pro&&pers.pro.sc)||proScore;return ['A','B','C','D'].slice().sort((p,q)=>(sc[q]||0)-(sc[p]||0))[0];};
   $('#hero-img').src=IMG.hero||'';
   $('#my-name').value=me;
   if(!pers.job)pers.job='office';
@@ -773,18 +883,18 @@ details.alb summary::-webkit-details-marker{display:none}
   function R(id){id=id||cur.id;return pers.routes[id]||(pers.routes[id]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});}
   function renderIntro(){
     nako('#nako-intro','成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。');
-    const r=pers.routes.A;
+    const live=Object.keys(READY).find(k=>pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done);const r=live?pers.routes[live]:null;
     const btn=$('#start'),sub=$('#intro-sub');
     $('#name-wrap').hidden=!!pers.pro;
-    if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。4人とお見合いします(約5分)';}
-    else if(r&&r.st&&!r.done){cur=byId('A');checkFree();btn.textContent=`つづきを読む ・ 誠一郎 第${r.ci+1}話`;sub.textContent=locked(r.ci)?`次の話は ${fmtTime(r.freeAt)} に無料で開きます`:'今すぐ読めます';}
+    if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。3つの質問と、4人とのお見合い(約5分)';}
+    else if(r){cur=byId(live);checkFree();btn.textContent=`つづきを読む ・ ${cur.name.split(' ').pop()} 第${r.ci+1}話`;sub.textContent=locked(r.ci)?`次の話は ${fmtTime(r.freeAt)} に無料で開きます`:'今すぐ読めます';}
     else{btn.textContent='指輪を渡す人を選ぶ';sub.textContent=pers.coll.length?`エンディング図鑑 ${pers.coll.length}/12`:'序章はクリア済み。次は、結婚相手を選びます';}
     show('s-intro');
   }
   $('#start').addEventListener('click',()=>{
-    if(!pers.pro){me=$('#my-name').value.trim()||'あなた';pers.name=me;save();pi=0;proX={};renderPro();show('s-pro');return;}
-    const r=pers.routes.A;
-    if(r&&r.st&&!r.done){cur=byId('A');resume();return;}
+    if(!pers.pro){me=$('#my-name').value.trim()||'あなた';pers.name=me;save();pi=0;proX={};proScore={A:0,B:0,C:0,D:0};renderPro();show('s-pro');return;}
+    const live=Object.keys(READY).find(k=>pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done);
+    if(live){cur=byId(live);resume();return;}
     renderList();show('s-list');
   });
   $('#reset-all').addEventListener('click',()=>{if(!confirm('遊んだ記録をすべて消して、最初からやり直しますか？'))return;try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
@@ -796,20 +906,21 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#p-dots').innerHTML=PRO.map((_,i)=>`<i class="${i<pi?'on':i===pi?'now':''}"></i>`).join('');
     if(sc.who==='N'){$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img('N','千代子')}</div><b>仲人・千代子</b><span>成婚300組の毒舌仲人</span></div>`;}
     else{const p=byId(sc.who);$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img(p.id,p.name)}</div><b>${esc(p.name)}(${p.age})</b><span>${esc(p.job)} ・ ${p.income}</span></div>`;}
+    $('#p-card').classList.toggle('qcard',sc.who==='N');
     $('#p-ep').textContent=sc.ep;$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
-    $('#p-choices').innerHTML=sc.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${i?'B':'A'}</span><span>${esc(h.t)}</span></button>`).join('');
+    $('#p-choices').innerHTML=sc.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${['A','B','C'][i]}</span><span>${esc(h.t)}</span></button>`).join('');
     $$('#p-choices button').forEach(b=>b.addEventListener('click',()=>proChoose(+b.dataset.i)));
     $('#p-after').hidden=true;window.scrollTo(0,0);
   }
   function proChoose(i){
     if(!$('#p-after').hidden)return;
-    const h=PRO[pi].ch[i];addX(proX,h.x);
+    const h=PRO[pi].ch[i];addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
     $$('#p-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
-    $('#p-out').textContent=h.o;nako('#nako-pro',h.nak,true);
+    $('#p-out').textContent=typeof h.o==='function'?h.o():h.o;nako('#nako-pro',h.nak,true);
     $('#p-next').textContent=pi===PRO.length-1?'お見合いでのあなたを見る':'次のお見合いへ';
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
-  $('#p-next').addEventListener('click',()=>{if(pi<PRO.length-1){pi++;renderPro();return;}pers.pro={x:proX};save();renderPmini();});
+  $('#p-next').addEventListener('click',()=>{if(pi<PRO.length-1){pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;
@@ -821,9 +932,11 @@ details.alb summary::-webkit-details-marker{display:none}
 
   // ================= 4人 =================
   function renderList(){
-    nako('#nako-list','今すぐ結婚生活に進めるのは高橋さん。残りの3人は、まだ支度中よ。待たせる男も、悪くないけどね。');
-    $('#plist').innerHTML=P.map((p,i)=>`<button class="pcard ${READY[p.id]?'':'soon'}" data-id="${p.id}"><span class="no">${i+1}</span><span class="sec">secret</span>${READY[p.id]?'':'<span class="soonb">ストーリー準備中</span>'}<img class="pimg" src="${IMG[p.id]||''}" alt="${esc(p.name)}"><div class="nm">${esc(p.name)} <span class="small muted">${p.age}</span></div><div class="job">${esc(p.catch)}</div><div class="inc">${p.income}</div>${stars(p.looks)}</button>`).join('');
-    $$('.pcard').forEach(b=>b.addEventListener('click',()=>{if(!READY[b.dataset.id]){toast('この人との結婚生活は、いま準備中です');return;}openDetail(b.dataset.id);}));
+    const sc=(pers.pro&&pers.pro.sc)||proScore;const top=topCand();
+    const order=P.slice().sort((p,q)=>(sc[q.id]||0)-(sc[p.id]||0));
+    nako('#nako-list',`${me}は${HA[top]}。あたしのイチオシは${byId(top).name}。でも4人とも会えるし、誰に指輪を渡すかは、あんたが決めなさい。`);
+    $('#plist').innerHTML=order.map((p,i)=>`<button class="pcard ${READY[p.id]?'':'soon'}" data-id="${p.id}"><span class="no">${i+1}</span>${p.id===top?'<span class="oshi">千代子のイチオシ</span>':'<span class="sec">secret</span>'}${READY[p.id]?'':'<span class="soonb">近日公開</span>'}<img class="pimg" src="${IMG[p.id]||''}" alt="${esc(p.name)}"><div class="nm">${esc(p.name)} <span class="small muted">${p.age}</span></div><div class="job">${esc(p.catch)}</div><div class="inc">${p.income}</div>${stars(p.looks)}</button>`).join('');
+    $$('.pcard').forEach(b=>b.addEventListener('click',()=>{if(!READY[b.dataset.id]){toast('この人との結婚生活は、近日公開です');return;}openDetail(b.dataset.id);}));
     $('#fifth-slot').innerHTML=`<div class="fifth locked"><div class="sil">${img('E','')}</div><div><b>5通目の封筒は、まだ届かない</b><span>2人分の結末を見ると、隠しルートが開きます(準備中)。</span></div></div>`;
   }
   $('#back-intro').addEventListener('click',renderIntro);
@@ -859,7 +972,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const r=R(),list=EP[cur.id];
     $('#gt-brand').textContent=cur.name+'と結婚';$('#gt-pos').textContent=`次は 第${ci+1}話 / 全${list.length}話`;
     const prev=list[ci-1],pk=r.picks[ci-1];
-    $('#gt-tease').textContent=prev&&prev.ch[pk]&&prev.ch[pk].hook?prev.ch[pk].hook:'つづきは、次の話で。';
+    $('#gt-tease').textContent=prev&&prev.ch[pk]&&prev.ch[pk].hook?resolve(prev.ch[pk].hook,st):'つづきは、次の話で。';
     $('#gt-time').textContent=fmtTime(r.freeAt)+' に無料で開きます';
     $('#gt-ad').disabled=r.adDay===today();$('#gt-ad').textContent=r.adDay===today()?'CMの1話は、また明日':'CMを見て、もう1話読む(1日1回)';
     nako('#nako-gate','続きは明日よ。待てないなら、あたしに¥480ね。…待つのも、恋のうちだけど。');
@@ -867,7 +980,7 @@ details.alb summary::-webkit-details-marker{display:none}
     show('s-gate');$('#gt-wait').textContent='明日の無料を待つ(トップへ)';clearInterval(gateTimer);tick();gateTimer=setInterval(tick,1000);
   }
   $('#gt-wait').addEventListener('click',()=>{checkFree();if(!locked(ci)){renderEp();show('s-game');return;}renderIntro();});
-  $('#gt-buy').addEventListener('click',()=>{if(!confirm('【試作版】本番ではここでストアの決済(¥480)が出ます。購入したことにして続けますか？'))return;const r=R();r.bought=true;save();toast('誠一郎ルートの全話が開きました');renderEp();show('s-game');});
+  $('#gt-buy').addEventListener('click',()=>{if(!confirm('【試作版】本番ではここでストアの決済(¥480)が出ます。購入したことにして続けますか？'))return;const r=R();r.bought=true;save();toast(cur.name+'ルートの全話が開きました');renderEp();show('s-game');});
   $('#gt-ad').addEventListener('click',()=>{
     const ov=document.createElement('div');ov.className='adov';let n=3;ov.textContent=`CM(試作版のダミー) ${n}`;document.body.appendChild(ov);
     const iv=setInterval(()=>{n--;if(n>0){ov.textContent=`CM(試作版のダミー) ${n}`;return;}clearInterval(iv);ov.remove();const r=R();r.adDay=today();r.unlocked=Math.max(r.unlocked,ci);r.freeAt=null;save();toast('1話開きました');renderEp();show('s-game');},1000);
@@ -908,7 +1021,7 @@ details.alb summary::-webkit-details-marker{display:none}
     nako('#nako-game',h.nak,true);
     $('#g-review').hidden=!(c.reveal&&!pers.askedMid);
     const last=ci===EP[cur.id].length-1;
-    const hk=$('#g-hook');if(h.hook){hk.hidden=false;$('#g-hook-t').textContent=h.hook;hk.classList.remove('show');void hk.offsetWidth;hk.classList.add('show');}else hk.hidden=true;
+    const hkt=resolve(h.hook,st);const hk=$('#g-hook');if(hkt){hk.hidden=false;$('#g-hook-t').textContent=hkt;hk.classList.remove('show');void hk.offsetWidth;hk.classList.add('show');}else hk.hidden=true;
     $('#g-next').textContent=last?'20年後の結末を見る':(locked(ci+1)?'第'+(ci+2)+'話へ(待てば無料)':'第'+(ci+2)+'話へ ・ '+EP[cur.id][ci+1].title);
     $('#g-after').hidden=false;setTimeout(()=>$('#g-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
@@ -945,10 +1058,10 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#pr-btn').href='osusume.html#'+tk;
     $('#review').hidden=!(!pers.asked&&e.k!=='bitter');
     $('#r-moshi').innerHTML=P.filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">秘密 ???</span></button>`).join('');
-    $$('#r-moshi button').forEach(b=>b.addEventListener('click',()=>toast(byId(b.dataset.id).name+'との結婚生活は、いま準備中です')));
-    const n=pers.coll.length;$('#z-n').textContent=n+'/12';$('#z-sub').textContent='誠一郎との結末 '+END.A.filter(x=>pers.coll.includes(x.id)).length+'/3 ・ 選び方を変えると、ちがう結末';
+    $$('#r-moshi button').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.id;if(READY[id])openDetail(id);else toast(byId(id).name+'との結婚生活は、近日公開です');}));
+    const n=pers.coll.length;$('#z-n').textContent=n+'/12';$('#z-sub').textContent=cur.name+'との結末 '+END[cur.id].filter(x=>pers.coll.includes(x.id)).length+'/3 ・ 選び方を変えると、ちがう結末';
     $('#r-slots').style.gridTemplateColumns='repeat(3,1fr)';
-    $('#r-slots').innerHTML=END.A.map(x=>{const on=pers.coll.includes(x.id);return `<div class="slot ${on?'':'lock'} ${x.id===e.id?'cur':''}"><span>${RANK[x.k]}</span><b>${on?esc(x.t):'？？？'}</b></div>`;}).join('');
+    $('#r-slots').innerHTML=END[cur.id].map(x=>{const on=pers.coll.includes(x.id);return `<div class="slot ${on?'':'lock'} ${x.id===e.id?'cur':''}"><span>${RANK[x.k]}</span><b>${on?esc(x.t):'？？？'}</b></div>`;}).join('');
     $('#r-album').innerHTML=EP[cur.id].map((c,i)=>{const h=c.ch[r.picks[i]];return `<li><b>${esc(c.title)}</b>:${esc(h?resolve(h.t,st):'')}</li>`;}).join('');
     show('s-result');
     if(isNew)setTimeout(()=>toast('図鑑に新しい結末が追加されました'),600);
