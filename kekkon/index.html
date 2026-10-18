@@ -315,6 +315,9 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .jobs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.jobs button{min-height:40px;padding:6px 12px;font-size:.86rem;border-radius:999px;border-color:var(--line);background:var(--white)}.jobs button.on{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
 .oshi{position:absolute;right:10px;top:12px;z-index:1;font-size:.7rem;font-weight:700;color:#3B2430;background:linear-gradient(135deg,var(--gold-2),#C9A227);border-radius:999px;padding:2px 9px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
 .qcard{background:linear-gradient(150deg,var(--rose-soft),var(--white))}
+.fifth.special{background:linear-gradient(135deg,var(--gold-3),var(--rose-soft));border:1.5px solid #C9A227}
+.fifth.special .sil{display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:1.6rem;color:var(--gold);background:var(--white)}
+.sp-face{display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:4rem;color:var(--gold)}
 .linkbtn{background:none;border:none;color:var(--ink-2);text-decoration:underline;font-size:.82rem;min-height:36px;padding:4px}
 .album{font-size:.86rem;line-height:1.7}
 .album li{margin-bottom:4px}
@@ -383,6 +386,28 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="nako" id="nako-list"></div>
     <div class="profiles" id="plist"></div>
     <div id="fifth-slot"></div>
+    <div id="special-slot"></div>
+  </section>
+
+  <!-- ===== 特別カード(作者) ===== -->
+  <section id="s-special" hidden class="stack">
+    <div class="top"><button class="btn-line topbtn" id="sp-back">← 4人にもどる</button><span class="pill gold">特別カード</span></div>
+    <div class="nako" id="nako-sp1"></div>
+    <div class="secret"><div class="stamp">SECRET</div><div class="sub">秘密 解禁</div><p>この人、このゲームを作った本人です。</p></div>
+    <div class="card stack">
+      <div class="dface sp-face">？</div>
+      <div style="text-align:center"><div style="font-family:var(--font-mincho);font-size:1.4rem;font-weight:800">加藤 貴大(39)</div><div class="small muted">平塚の「話せる街の法律家」・このゲームの作者</div></div>
+      <div class="quote">「4人の秘密を考えていたら、自分のことを書くのが、いちばん恥ずかしかった」</div>
+      <dl class="specs">
+        <dt>仕事</dt><dd>行政書士・社会保険労務士／不動産と飲食店／AIアプリ開発／作詞作曲</dd>
+        <dt>ひとこと</dt><dd><span class="tagp">自作曲のMVがTikTokで累計20万回再生</span><span class="tagp">アプリ「コスモスK」公開6日で1,000DL</span><span class="tagp">元国会議員秘書</span></dd>
+      </dl>
+      <div class="savbox"><div class="k">20年後のふたりの総資産</div><div class="v" style="font-size:1.5rem">？？？</div><div class="mul">この人の結末だけは、現実でしか見られません</div></div>
+    </div>
+    <div class="nako" id="nako-sp2"></div>
+    <a class="btn-gold btn-block" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:60px;border-radius:999px;font-weight:700">作者のリンク集を見る(曲・アプリ・SNS)</a>
+    <button class="btn-rose btn-block" id="sp-choose" style="min-height:56px">やっぱり、4人の中から選ぶ</button>
+    <p class="small muted" style="text-align:center">※番外編です。この画面を見ても、図鑑や診断には影響しません。</p>
   </section>
 
   <!-- ===== detail ===== -->
@@ -823,7 +848,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(pers));}catch(e){}};
 
   function nako(sel,text,pop){const el=$(sel);el.className='nako'+(pop?' pop':'');el.innerHTML=`<div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(text)}</div>`;}
-  const SCR=['s-intro','s-pro','s-pmini','s-list','s-detail','s-game','s-gate','s-result'];
+  const SCR=['s-intro','s-pro','s-pmini','s-list','s-detail','s-game','s-gate','s-result','s-special'];
   const show=id=>{SCR.forEach(s=>$('#'+s).hidden=(s!==id));window.scrollTo(0,0);if(id!=='s-gate')clearInterval(gateTimer);};
 
   // ---------- 診断 ----------
@@ -938,7 +963,16 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#plist').innerHTML=order.map((p,i)=>`<button class="pcard ${READY[p.id]?'':'soon'}" data-id="${p.id}"><span class="no">${i+1}</span>${p.id===top?'<span class="oshi">千代子のイチオシ</span>':'<span class="sec">secret</span>'}${READY[p.id]?'':'<span class="soonb">近日公開</span>'}<img class="pimg" src="${IMG[p.id]||''}" alt="${esc(p.name)}"><div class="nm">${esc(p.name)} <span class="small muted">${p.age}</span></div><div class="job">${esc(p.catch)}</div><div class="inc">${p.income}</div>${stars(p.looks)}</button>`).join('');
     $$('.pcard').forEach(b=>b.addEventListener('click',()=>{if(!READY[b.dataset.id]){toast('この人との結婚生活は、近日公開です');return;}openDetail(b.dataset.id);}));
     $('#fifth-slot').innerHTML=`<div class="fifth locked"><div class="sil">${img('E','')}</div><div><b>5通目の封筒は、まだ届かない</b><span>2人分の結末を見ると、隠しルートが開きます(準備中)。</span></div></div>`;
+    $('#special-slot').innerHTML=`<button class="fifth open special" id="special-btn"><div class="sil">？</div><div><b>特別カード</b><span>紹介リストにない、6人目。…選ぶ勇気、ある？</span></div></button>`;
+    $('#special-btn').addEventListener('click',renderSpecial);
   }
+  function renderSpecial(){
+    nako('#nako-sp1','…あんた、それ選ぶの？ 紹介リストにない人よ。…いいわ、教えてあげる。',true);
+    nako('#nako-sp2','お見合いの席に作者が座るなんて、300組で初めてよ。本物に会いたいなら、下のリンク集から。曲やアプリの感想は、ひと言でも喜ぶわよ。');
+    show('s-special');
+  }
+  $('#sp-back').addEventListener('click',()=>{renderList();show('s-list');});
+  $('#sp-choose').addEventListener('click',()=>{renderList();show('s-list');});
   $('#back-intro').addEventListener('click',renderIntro);
   $('#back-list').addEventListener('click',()=>{renderList();show('s-list');});
   function openDetail(id){
