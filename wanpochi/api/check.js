@@ -13,7 +13,7 @@ module.exports = (req, res) => {
     PARENT_NAME: e.PARENT_NAME || '（未設定→おかあさん）',
     PET_NAME: e.PET_NAME || '（未設定→ポチ）',
   };
-  const need = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM', 'PARENT_PHONE', 'CALL_KEY'];
+  const need = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM', 'PARENT_PHONE', 'FAMILY_PHONE'];
   const missing = need.filter(k => !items[k]);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.status(200).send(JSON.stringify({ ready: missing.length === 0, missing, items }, null, 2));
