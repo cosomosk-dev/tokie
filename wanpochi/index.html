@@ -180,7 +180,6 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 body.choosing .brand{display:none}
 body.choosing .demo .row+.row{display:none}
 @media (max-height:660px){.choose .lead,.choose .later{display:none}}
-.caption.top{bottom:auto;top:calc(12px + env(safe-area-inset-top,0px))}
 
 /* ===== デモ再生 ===== */
 .demo .play{background:var(--shu);color:#fff;border-color:var(--shu)}
@@ -188,14 +187,35 @@ body.demoing .demo button{pointer-events:none;opacity:.6}
 body.demoing .demo .stop{pointer-events:auto;opacity:1}
 .finger{position:fixed;left:70%;top:80%;width:48px;height:48px;border-radius:50%;background:rgba(30,27,34,.28);border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:60;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s cubic-bezier(.4,0,.2,1),top .7s cubic-bezier(.4,0,.2,1),transform .15s}
 .finger.press{transform:translate(-50%,-50%) scale(.72)}
-.caption{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:55;width:min(440px,calc(100% - 28px));background:rgba(30,27,34,.94);color:#FFFDF9;border-radius:22px;padding:14px 18px;text-align:center;font-family:var(--font-mincho);font-weight:800;font-size:20px;line-height:1.45;box-shadow:0 14px 34px -12px rgba(0,0,0,.5)}
-.caption small{display:block;font-family:var(--font-gothic);font-weight:500;font-size:14px;opacity:.82;margin-top:4px}
+.caption{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:55;width:min(480px,100%);background:#1E1B22;color:#FFFDF9;border-radius:24px 24px 0 0;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px -12px rgba(0,0,0,.45);font-family:var(--font-gothic)}
+.cap-top{display:flex;align-items:center;gap:10px;font-size:13px;color:#C9C2D2}
+.cap-top .chip{background:#D9442B;color:#fff;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.cap-top .bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.15);overflow:hidden}
+.cap-top .bar i{display:block;height:100%;background:#F0634A;transition:width .4s}
+.cap-top button{border:0;color:#C9C2D2;font-size:13px;padding:4px 2px;white-space:nowrap}
+.cap-t{margin-top:10px;font-weight:700;font-size:19px;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere}
+.cap-s{margin-top:4px;font-size:15px;line-height:1.55;color:#D7D0DF;word-break:keep-all;overflow-wrap:anywhere}
+.cap-s:empty{display:none}
+.cap-next{display:block;margin:10px 0 0 auto;border:1.5px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 16px;font-weight:700;font-size:14px;color:#FFFDF9;position:relative;overflow:hidden}
+.cap-next i{position:absolute;left:0;bottom:0;height:3px;background:#F0634A;width:0}
+.cap-next.run i{animation:fill var(--dur,3s) linear forwards}
+@keyframes fill{to{width:100%}}
+body.demoing .demo{display:none}
+body.demoing{padding-bottom:260px}
+.chap{position:fixed;inset:0;z-index:66;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .35s}
+.chap.show{opacity:1;pointer-events:auto}
+.chap .n{font-family:var(--font-mincho);font-weight:800;font-size:64px;line-height:1;color:var(--shu)}
+.chap .ti{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.35;word-break:keep-all}
+.chap .wh{font-size:17px;color:var(--ink-2);word-break:keep-all}
+
 .notif{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:58;width:min(420px,calc(100% - 24px));background:#FFFDF9;color:#1E1B22;border-radius:20px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 34px -10px rgba(0,0,0,.4);transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
 .notif.show{transform:translate(-50%,0)}
+.dim{position:fixed;inset:0;z-index:56;background:rgba(30,27,34,.62);opacity:0;pointer-events:none;transition:opacity .35s}
+.dim.show{opacity:1}
 .notif .petimg{width:44px;flex-shrink:0}
 .notif b{display:block;font-size:13px;color:#615B66;font-weight:500}
-.notif span{font-weight:700;font-size:16px}
-.phone{position:fixed;inset:0;z-index:57;display:flex;align-items:center;justify-content:center;background:rgba(30,27,34,.45);opacity:0;pointer-events:none;transition:opacity .35s;padding:20px}
+.notif span{font-weight:700;font-size:16px;word-break:keep-all;overflow-wrap:anywhere}
+.phone{position:fixed;inset:0;z-index:57;display:flex;align-items:center;justify-content:center;background:rgba(30,27,34,.45);opacity:0;pointer-events:none;transition:opacity .35s;padding:20px 20px var(--caph,240px)}
 .phone.show{opacity:1}
 .phone .card{width:min(320px,100%);background:#FFFDF9;color:#1E1B22;border-radius:26px;padding:16px;box-shadow:0 20px 50px -14px rgba(0,0,0,.5)}
 .phone .to{text-align:center;font-weight:700;font-size:15px}
@@ -312,7 +332,13 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 
 <div class="toast" id="toast" hidden></div>
 <div class="finger" id="finger" hidden></div>
-<div class="caption" id="caption" hidden></div>
+<div class="caption" id="caption" hidden>
+  <div class="cap-top"><span class="chip" id="cap-chip"></span><span class="bar"><i id="cap-bar"></i></span><button type="button" id="cap-stop">✕ やめる</button></div>
+  <div class="cap-t" id="cap-t"></div><div class="cap-s" id="cap-s"></div>
+  <button type="button" class="cap-next" id="cap-next">次へ ›<i></i></button>
+</div>
+<div class="chap" id="chap"><div class="n" id="chap-n"></div><div class="ti" id="chap-t"></div><div class="wh" id="chap-w"></div></div>
+<div class="dim" id="dim"></div>
 <div class="notif" id="notif"><span id="notif-pet"></span><div><b>ワンポチ ・ いま</b><span id="notif-tx"></span></div></div>
 <div class="phone" id="phone"><div class="card"><div class="to" id="phone-to"></div><div class="msg" id="phone-msg"></div></div></div>
 <div class="intro" id="intro"><div class="dot"></div><div class="l1">ひとり暮らしの、<br>生存確認。</div><div class="l2">毎日1問に、答えるだけ。</div></div>
@@ -662,82 +688,107 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
   }
 
   // ---------- デモ再生（保存データは触らない） ----------
+  // 見る人は家族やbuntyan（お年寄り本人ではない）。説明は下の黒い帯に固定して画面と重ねない。
+  // 読む時間は文字数で決める（最低3.4秒）。「次へ」で先に進める。
   function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-  var fg=el('finger'), cap=el('caption'), stopReq=false;
+  var fg=el('finger'), cap=el('caption'), stopReq=false, skip=null, CH=6;
   function chk(){ if(stopReq) throw new Error('stop'); }
-  function say(t,sub){ cap.hidden=false; cap.innerHTML=t+(sub?'<small>'+sub+'</small>':''); }
-  async function focus(node, off){ var y=node.getBoundingClientRect().top+window.scrollY-(off==null?90:off); window.scrollTo({top:Math.max(0,y),behavior:'smooth'}); await sleep(850); chk(); }
-  async function point(node){ var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(850); chk(); }
-  async function tap(node){ await point(node); fg.classList.add('press'); await sleep(170); fg.classList.remove('press'); node.click(); await sleep(300); chk(); }
+  function wait(ms){ return new Promise(function(r){ var t=setTimeout(done,ms); function done(){ clearTimeout(t); skip=null; r(); } skip=done; }); }
+  el('cap-next').addEventListener('click', function(){ if(skip) skip(); });
+  el('cap-stop').addEventListener('click', function(){ stopReq=true; if(skip) skip(); });
+  el('chap').addEventListener('click', function(){ if(skip) skip(); });
+  function setCaph(){ document.documentElement.style.setProperty('--caph', (cap.offsetHeight+24)+'px'); }
+  async function say(t, sub, extra){
+    cap.hidden=false; el('cap-t').innerHTML=t; el('cap-s').innerHTML=sub||''; setCaph();
+    var len=(t+(sub||'')).replace(/<[^>]+>/g,'').length, ms=Math.max(3400, 1500+len*95)+(extra||0);
+    var nb=el('cap-next'); nb.classList.remove('run'); void nb.offsetWidth; nb.style.setProperty('--dur', ms+'ms'); nb.classList.add('run');
+    await wait(ms); chk();
+  }
+  function line(t, sub){ cap.hidden=false; el('cap-t').innerHTML=t; el('cap-s').innerHTML=sub||''; el('cap-next').classList.remove('run'); setCaph(); }
+  async function chapter(n, title, who){
+    fg.hidden=true; cap.hidden=true;
+    el('cap-chip').textContent=n+'/'+CH+'　'+title; el('cap-bar').style.width=(n/CH*100)+'%';
+    el('chap-n').textContent=n; el('chap-t').textContent=title; el('chap-w').textContent=who;
+    el('chap').classList.add('show'); await wait(2300); el('chap').classList.remove('show'); await sleep(350); chk();
+  }
+  async function focus(node){ // 説明の帯より上の、見える場所に収める
+    var avail=window.innerHeight-cap.offsetHeight-16, r=node.getBoundingClientRect();
+    var top=r.height<avail-32 ? Math.max(16,(avail-r.height)/2) : 16;
+    window.scrollTo({top:Math.max(0, r.top+window.scrollY-top), behavior:'smooth'}); await sleep(900); chk();
+  }
+  async function point(node){ var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(950); chk(); }
+  async function tap(node){ await point(node); await sleep(350); fg.classList.add('press'); await sleep(180); fg.classList.remove('press'); node.click(); await sleep(650); chk(); }
   async function runDemo(){
     if(demo) return;
     var saved=JSON.stringify(S), back=view;
-    demo=true; stopReq=false; document.body.classList.add('demoing'); el('d-demo').textContent='■ とめる'; el('d-demo').classList.add('stop');
+    demo=true; stopReq=false; document.body.classList.add('demoing');
     try{
       fresh(); renderAll(); show('choose'); window.scrollTo(0,0);
-      var it=el('intro'); it.classList.add('show'); await sleep(1600); it.classList.add('two'); await sleep(2200); it.classList.remove('show','two'); await sleep(500); chk();
+      var it=el('intro'); it.classList.add('show'); await sleep(1800); it.classList.add('two'); await wait(2600); it.classList.remove('show','two'); await sleep(450); chk();
 
-      // 0. 相棒えらび
-      cap.classList.add('top'); say('まず、相棒を ひとり えらぶ','ポチ・タマ・パン・ミミ'); await sleep(1600); chk();
-      await tap(el('pick-cat')); await sleep(500); await tap(el('pick-panda')); await sleep(700);
-      say('えらんだら「この子にする」'); await tap(el('pick-ok')); cap.classList.remove('top'); await sleep(1400); fg.hidden=true; chk();
+      await chapter(1,'相棒をえらぶ','いちばん最初の1回だけ');
+      await say('まず、相棒を1匹えらびます','ポチ・タマ・パン・ミミの4匹。あとから家族の画面でも変えられます');
+      line('かわいいと思った子を押すだけ'); await tap(el('pick-cat')); await sleep(600); await tap(el('pick-panda')); await sleep(500);
+      line('決めたら「この子にする」'); await tap(el('pick-ok')); fg.hidden=true;
+      await say('えらんだ子が、毎日あいさつに来ます');
 
-      // 1. 親の画面
+      await chapter(2,'親のスマホ','おとうさん・おかあさんが見る画面');
       el('notif-pet').innerHTML=pet('panda',[]); el('notif-tx').textContent='パンが きょうの1問を 持ってきたよ';
-      say('毎朝、相棒が「きょうの1問」を持ってくる','時間は 朝・昼・夜から えらべる'); el('notif').classList.add('show'); await sleep(2600); el('notif').classList.remove('show'); chk();
-      say('相棒は、なでると よろこぶ'); await tap(el('p-pet')); await sleep(1400); chk();
-      await focus(el('p-qcard'),70);
-      say('答える ＝「生きてるよ」の合図','まちがえても「わからない」でもOK'); await sleep(1500); chk();
-      var q=questionFor(today()); await tap(el('choice-'+q.a)); await sleep(900); fg.hidden=true;
-      await focus(el('p-result'),20);
-      say('これで生存確認、完了。<br>家族に「無事」が とどく'); await sleep(2600); chk();
+      el('notif').classList.add('show'); el('dim').classList.add('show');
+      await say('毎朝、相棒が通知で「きょうの1問」を持ってきます','届く時間は 朝・昼・夜 からえらべます');
+      el('notif').classList.remove('show'); el('dim').classList.remove('show'); await sleep(350);
+      line('相棒をなでると、よろこびます'); await tap(el('p-pet')); await sleep(1200); fg.hidden=true;
+      await focus(el('p-qcard'));
+      await say('3つから1つ押すだけ。押した時点で「生きてるよ」の合図になります','まちがえても「わからない」でもOK');
+      var q=questionFor(today()); await tap(el('choice-'+q.a)); await sleep(800); fg.hidden=true;
+      await focus(el('p-result'));
+      await say('「無事」のハンコが出たら、きょうはおしまい','ここまで10秒くらい。字は大きく、ボタンも大きく');
 
-      // 2. 家族の画面
-      window.scrollTo({top:0,behavior:'smooth'}); await sleep(700);
-      say('家族のスマホでは、こう見える'); await tap(el('d-family')); await sleep(400); window.scrollTo(0,0);
-      await point(el('f-status')); fg.hidden=true;
-      say('「きょうも無事です」と、知らせが届く','LINEがなくても SMSで届く'); await sleep(2600); chk();
-      await focus(el('f-week'),140);
-      say('1週間の「無事」が、ひと目で'); await sleep(2000); chk();
-      await focus(el('f-gifts'),170);
-      say('着せ替えは、家族からのプレゼント','1つ100円。親は何も操作しない'); await sleep(1200);
-      await tap(el('gift-straw')); await sleep(1300); fg.hidden=true; chk();
+      await chapter(3,'家族のスマホ','離れて暮らす家族が見る画面');
+      show('family'); window.scrollTo(0,0); await sleep(400);
+      await focus(el('f-status'));
+      await say('親が答えると、家族に「きょうも無事です」と届きます','LINEを使っていない人には、SMSで届きます');
+      await focus(el('f-week'));
+      await say('1週間ぶんの「無事」が、ひと目でわかります');
+      await focus(el('f-gifts'));
+      await say('着せ替えは、家族から親へのプレゼント（1つ100円）','親は何も操作しません');
+      line('麦わら帽子を贈ってみます'); await tap(el('gift-straw')); await sleep(600); fg.hidden=true;
 
-      // 3. 次の日
-      window.scrollTo({top:0,behavior:'smooth'}); await sleep(700);
-      say('次の日'); await tap(el('d-next')); await tap(el('d-parent')); await sleep(400);
-      await focus(el('p-qcard'),70);
-      say('わからない日も、押せば「無事」'); await tap(el('choice-dunno')); await sleep(900); fg.hidden=true; window.scrollTo({top:0,behavior:'smooth'}); await sleep(900);
-      await focus(el('p-result'),20);
-      say('プレゼントの麦わら帽子を、相棒が かぶってくる','「誰がくれたか」も 親の画面に出る'); await sleep(3000); chk();
+      await chapter(4,'次の日','プレゼントが届く');
+      S.dayOffset++; S.hello=false; renderAll(); show('parent'); window.scrollTo(0,0); await sleep(400);
+      await focus(el('p-qcard'));
+      line('わからない日でも、押せばちゃんと「無事」'); await tap(el('choice-dunno')); await sleep(800); fg.hidden=true;
+      await focus(el('p-result'));
+      await say('相棒が、きのうの麦わら帽子をかぶって来ました','だれからのプレゼントかも、親の画面に出ます');
 
-      // 4. 答えない日が続いたら
-      window.scrollTo({top:0,behavior:'smooth'}); await sleep(700);
-      say('もし、2日 答えがなかったら…'); await sleep(1400);
-      S.dayOffset+=3; renderAll(); await tap(el('d-family')); window.scrollTo(0,0); fg.hidden=true; await sleep(500);
+      await chapter(5,'もしも','答えがない日が続いたら');
+      S.dayOffset+=3; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
       var st=S.settings;
       el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>SMS</small>';
       el('phone-msg').textContent='【ワンポチ】'+st.parentName+'さんが2日答えていません。電話してみてください。';
-      el('phone').classList.add('show'); say('家族に知らせが届く','電話番号つき。すぐかけられる'); await sleep(3000); el('phone').classList.remove('show'); await sleep(400); chk();
-      await point(el('f-status')); fg.hidden=true; await sleep(1200);
+      el('phone').classList.add('show'); await say('2日続けて答えがないと、家族にSMSが届きます','親の電話番号つき。すぐに電話できます', 600);
+      el('phone').classList.remove('show'); await sleep(400);
+      await focus(el('f-status'));
+      await say('家族の画面も、赤い知らせに変わります');
 
-      // 5. 設定
-      await focus(el('s-relation'),200);
-      say('設定は、家族だけが さわる','親の画面には、メニューも設定も出ない'); await sleep(2200); chk();
-      await focus(el('s-animal'),120);
-      say('相棒は 4匹から えらべる'); await tap(el('s-animal-rabbit')); await sleep(900); await tap(el('s-animal-panda')); await sleep(500); chk();
-      await focus(el('s-alert'),120);
-      say('知らせるのは「次の日・2日後・3日後」','むずかしい時間の設定は なし'); await point(el('s-alert-2')); await sleep(1500); fg.hidden=true; chk();
-      await focus(el('f-send'),260);
-      say('親のスマホには、リンクを送るだけ','登録も コード入力も なし'); await tap(el('f-send')); await sleep(2600); fg.hidden=true; chk();
+      await chapter(6,'設定','家族だけがさわる');
+      await focus(el('s-animal'));
+      await say('設定は家族の画面にだけあります','親の画面には、メニューも設定も出ません');
+      line('相棒も、ここで変えられます'); await tap(el('s-animal-rabbit')); await sleep(700); await tap(el('s-animal-panda')); await sleep(300); fg.hidden=true;
+      await focus(el('s-alert'));
+      await say('知らせるタイミングは「次の日・2日後・3日後」の3つだけ','むずかしい時間の入力はありません');
+      await focus(el('f-send'));
+      line('親のスマホには、リンクを1本送るだけ','登録もコード入力もいりません'); await tap(el('f-send')); await sleep(400); fg.hidden=true;
+      await focus(el('f-sms'));
+      await say('親のスマホには、リンクを1本送るだけ','押した瞬間に親の画面になります。登録もコード入力もいりません');
 
       cap.hidden=true; el('end-pet').innerHTML=pet('panda',['straw'],true); el('endcard').classList.add('show');
     }catch(e){ el('endcard').classList.remove('show'); }
-    fg.hidden=true; cap.hidden=true; cap.classList.remove('top'); el('notif').classList.remove('show'); el('phone').classList.remove('show'); el('intro').classList.remove('show','two');
-    S=JSON.parse(saved); demo=false; document.body.classList.remove('demoing'); el('d-demo').textContent='▶ デモを見る'; el('d-demo').classList.remove('stop');
+    skip=null; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
+    S=JSON.parse(saved); demo=false; document.body.classList.remove('demoing');
     renderAll(); show(back); window.scrollTo(0,0);
   }
-  el('d-demo').addEventListener('click', function(){ if(demo){ stopReq=true; } else runDemo(); });
+  el('d-demo').addEventListener('click', function(){ if(!demo) runDemo(); });
   el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(runDemo,300); });
   el('end-close').addEventListener('click', function(){ el('endcard').classList.remove('show'); show(S.chosen?'parent':'choose'); window.scrollTo(0,0); });
   load(); renderAll();
