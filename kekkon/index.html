@@ -211,6 +211,54 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .review{background:var(--card);border:1px solid var(--gold-line);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
 .foot{font-size:.74rem;color:var(--ink-2);line-height:1.7;text-align:center}
 @media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
+
+/* status / changes */
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.stat .cell{min-width:0}
+.stat .wide{grid-column:1/-1}
+.stat .k{font-size:.7rem;letter-spacing:.14em;color:var(--ink-2);font-weight:700}
+.stat .v{font-family:var(--font-mincho);font-weight:800;font-size:1.04rem;line-height:1.35;overflow-wrap:anywhere}
+.stat .v.big{font-size:1.7rem;color:var(--gold);line-height:1.2}
+.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{color:var(--rose-deep);text-shadow:0 0 14px rgba(232,69,124,.55)}100%{}}
+.chg{display:flex;flex-direction:column;gap:8px}
+.crow{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:10px 14px;animation:rowin .45s calc(var(--i,0)*.22s) both}
+@keyframes rowin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.crow .k{font-size:.78rem;font-weight:700;letter-spacing:.08em;color:var(--ink-2)}
+.crow .fromto{font-size:.84rem;color:var(--ink-2);font-family:var(--font-mono);overflow-wrap:anywhere}
+.crow .dv{font-family:var(--font-mincho);font-weight:800;font-size:1.55rem;line-height:1.3;overflow-wrap:anywhere}
+.crow .dv.home{font-size:1.15rem}
+.crow.up .dv{color:#2F9E6C}.crow.dn .dv{color:var(--rose-deep)}
+.crow.flat .dv{font-size:1rem;color:var(--ink-2)}
+.crow .tag{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.08em;color:#fff;background:var(--rose);border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:1px}
+.crow.big{border:2px solid #C9A227;background:linear-gradient(135deg,var(--gold-3),var(--white));animation:rowin .45s calc(var(--i,0)*.22s) both,shake .5s calc(var(--i,0)*.22s + 1s)}
+.crow.big .dv{font-size:1.9rem}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-5px) rotate(-1deg)}40%{transform:translateX(5px) rotate(1deg)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.twistb{align-self:center;font-family:var(--font-it);font-style:italic;font-weight:600;letter-spacing:.1em;color:#fff;background:linear-gradient(135deg,var(--rose),var(--rose-deep));border-radius:999px;padding:4px 18px;font-size:1.05rem;animation:stamp .6s cubic-bezier(.2,1.6,.4,1)}
+.event{background:linear-gradient(150deg,var(--gold-3),var(--white));border:1.5px solid #C9A227;border-radius:24px;padding:16px 16px;display:flex;flex-direction:column;gap:8px}
+.event .k{font-family:var(--font-it);font-style:italic;font-weight:600;color:var(--gold);letter-spacing:.12em}
+.event p{font-size:.98rem;line-height:1.8}
+.other{border:1.5px dashed var(--gold-line);border-radius:22px;padding:14px 16px;background:var(--card);display:flex;flex-direction:column;gap:8px}
+.other .k{font-size:.8rem;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.other b{font-family:var(--font-mincho);font-size:1.02rem;line-height:1.5}
+.ochips{display:flex;flex-wrap:wrap;gap:6px}
+.ochips span{font-size:.8rem;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--white);border:1px solid var(--line)}
+.ochips .up{color:#2F9E6C}.ochips .dn{color:var(--rose-deep)}
+.other button{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:700;border-color:var(--gold-line)}
+.other button small{font-weight:400;font-size:.76rem;color:var(--ink-2)}
+.progress{gap:4px}
+.report{margin-top:16px;text-align:left;display:flex;flex-direction:column;gap:6px}
+.report .k{font-size:.74rem;letter-spacing:.14em;color:var(--gold);font-weight:700}
+.rrow{display:grid;grid-template-columns:5.2em 1fr auto 1fr;gap:6px;align-items:baseline;font-size:.86rem;border-bottom:1px solid var(--line);padding:5px 0}
+.rrow .rk{color:var(--ink-2);font-weight:700;font-size:.78rem}
+.rrow .rf{color:var(--ink-2);overflow-wrap:anywhere}
+.rrow .ra{color:var(--gold)}
+.rrow .rt{font-family:var(--font-mincho);font-weight:800;overflow-wrap:anywhere}
+.rrow.big .rt{color:var(--gold);font-size:1.1rem}
+.redo .alt{color:var(--rose-deep);font-weight:700}
+.pcard.soon{opacity:.6}
+.pcard .soonb{position:absolute;left:50%;top:34%;transform:translate(-50%,-50%);z-index:2;background:rgba(59,31,44,.85);color:#fff;font-size:.72rem;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important;animation:none!important} }
 </style>
 
 <div class="app">
@@ -222,8 +270,8 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     <div class="hero">
       <div class="eyebrow">Four introductions, four secrets.</div>
       <div class="t" style="margin-top:4px">紹介された4人。<br><em>全員に、秘密がある。</em></div>
-      <div class="s">選べるのは一人だけ。全5話、10回の選択で、<br>20年後のあなたが決まります。</div>
-      <div class="chips"><span>全5話・約5分</span><span>結末は全12種類</span><span>隠しルートあり</span></div>
+      <div class="s">選べるのは一人だけ。選ぶたびに、貯金も住まいも<br>ケタちがいに変わっていく。20年後、あなたはどうなる？</div>
+      <div class="chips"><span>1人 全9話・約10分</span><span>結末は全12種類</span><span>隠しルートあり</span></div>
     </div>
     <div class="nako" id="nako-intro"></div>
     <div class="card stack">
@@ -251,7 +299,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
       <div class="quote" id="d-quote"></div>
       <dl class="specs" id="d-specs"></dl>
       <div class="lockline"><b>SECRET</b><span id="d-lock"></span></div>
-      <div class="meters" id="d-meters"></div>
+      <div><div class="small muted" style="margin-bottom:6px">今のあなた(結婚すると、ここが変わっていきます)</div><div id="d-meters"></div></div>
     </div>
     <div class="nako" id="nako-detail"></div>
     <button class="btn-rose btn-block" id="marry" style="min-height:64px;font-size:1.15rem">この人と結婚する</button>
@@ -261,7 +309,9 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
   <section id="s-game" hidden class="stack">
     <div class="top"><div class="brand">ウェディングストーリー</div><span class="pill" id="g-partner"></span></div>
     <div class="progress" id="g-prog"></div>
-    <div class="card" style="padding:16px 18px"><div class="meters" id="g-meters"></div></div>
+    <div class="small muted" id="g-pos" style="text-align:center;margin-top:-8px"></div>
+    <div class="card" style="padding:14px 16px"><div id="g-stat"></div></div>
+    <div class="event" id="g-pre" hidden><div class="k">その間に…</div><h3 id="g-pre-t"></h3><p id="g-pre-x"></p><div class="chg" id="g-pre-c"></div></div>
     <div class="secret" id="g-secret" hidden><div class="stamp">SECRET</div><div class="sub">秘密 解禁</div><p id="g-secret-t"></p></div>
     <div class="card stack" id="g-card">
       <img class="scene-img" id="g-img" alt="">
@@ -270,11 +320,13 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
       <div class="choices" id="g-choices"></div>
     </div>
     <div id="g-after" hidden class="stack">
+      <div class="twistb" id="g-twist" hidden>予想外の展開</div>
       <div class="outcome" id="g-out"></div>
+      <div class="chg" id="g-chg"></div>
       <div class="nako" id="nako-game"></div>
+      <div class="other" id="g-other"></div>
       <div class="hook" id="g-hook"><div class="k">To be continued…</div><p id="g-hook-t"></p></div>
       <button class="btn-rose btn-block" id="g-next" style="min-height:60px"></button>
-      <button class="rewind btn-block" id="g-rewind"></button>
     </div>
   </section>
 
@@ -287,7 +339,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
       <div class="small muted" id="r-with"></div>
       <div class="ttl" id="r-title"></div>
       <p class="story" id="r-story"></p>
-      <div class="meters" style="margin-top:16px;text-align:left" id="r-meters"></div>
+      <div class="report" id="r-report"></div>
     </div>
     <div class="nako" id="nako-result"></div>
     <div class="typecard">
@@ -311,7 +363,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
       <div class="slots" id="r-slots"></div>
     </div>
     <div class="card stack">
-      <div><div class="eyebrow">Rewind</div><h3>あの時に戻って、選び直す</h3><p class="small muted" id="r-redo-note"></p></div>
+      <div><div class="eyebrow">Rewind</div><h3>あの時、もう一方を選んでいたら？</h3><p class="small muted" id="r-redo-note"></p></div>
       <div class="redo" id="r-redo"></div>
     </div>
     <div class="card stack">
@@ -324,7 +376,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
       <summary><span>ウェディングストーリー プラスとは？</span><span class="pr">¥480 ・ 買い切り</span></summary>
       <div class="body">
         <ul>
-          <li>「あの時に戻る」が、何度でも使える(無料は1プレイ1回)</li>
+          <li>「選び直し」が、何度でも使える(無料は1プレイ2回)</li>
           <li>図鑑の未取得の結末に、たどり着き方のヒントが出る</li>
         </ul>
         <button class="btn-gold btn-block" id="buy-plus" style="margin-top:12px">¥480 で購入(準備中)</button>
@@ -352,7 +404,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
   const UNLOCK=H==='unlock'||H==='all';
 
   // ---------- persistence ----------
-  const KEY='kekkon-route-v3';
+  const KEY='wedding-story-v4';
   let pers={coll:[],plays:0,asked:false};
   try{const r=localStorage.getItem(KEY);if(r)pers=Object.assign(pers,JSON.parse(r));}catch(e){}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(pers));}catch(e){}};
@@ -360,6 +412,17 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
   // ---------- 仲人 ----------
   function nako(sel,text,pop){const el=$(sel);el.className='nako'+(pop?' pop':'');el.innerHTML=`<div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(text)}</div>`;}
   nako('#nako-intro','成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。');
+
+  // ストーリーを書き直し済みのルート(それ以外は「書き直し中」で選べない)
+  const READY={A:true};
+
+  // ---------- 人生ステータス(お金は「万円」で持つ) ----------
+  const START={sav:300,inc:380,home:'1Kの賃貸',time:20,L:30,T:30};
+  const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
+  const yen=m=>{const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const o=Math.floor(m/10000),r=m%10000;s=o.toLocaleString()+'億'+(r?r.toLocaleString()+'万':'');}else s=m.toLocaleString()+'万';return (neg?'−':'')+s+'円';};
+  const LBL={sav:'総資産',inc:'世帯年収',home:'住まい',time:'自分の時間',L:'愛情',T:'ときめき'};
+  const fmt=(k,v)=>k==='sav'||k==='inc'?yen(v):k==='time'?'週'+Math.round(v)+'時間':k==='home'?v:String(clamp(v));
+  const fmtD=(k,d)=>(d>0?'+':'−')+(k==='sav'||k==='inc'?yen(Math.abs(d)):k==='time'?Math.abs(Math.round(d))+'時間':Math.abs(Math.round(d)));
 
   // ---------- partners ----------
   const P=[
@@ -389,47 +452,82 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
   const stars=n=>'<span class="stars">'+'★'.repeat(n)+'<span class="off">'+'★'.repeat(5-n)+'</span></span>';
 
   // ---------- episodes ----------
-  // d: gauge deltas  L=愛情 M=お金 F=自由 T=ときめき / f: flag / nak: 千代子 / hook: 引き
+  // d: sav=総資産(万円) inc=世帯年収(万円) home=住まい time=自分の時間(週) L=愛情 T=ときめき / pre: その間に起きたこと / twist: 予想外
   const EP={
   A:[
-    {ep:'第1話',lab:'お見合い',title:'執事が、迎えに来た',img:'hero',
+    {ep:'第1話',lab:'お見合い',year:'出会い',title:'執事が、迎えに来た',img:'hero',
       text:()=>'待ち合わせは、ホテルのラウンジ。黒塗りの車から降りた執事が言った。「高橋がお待ちです」。窓際の彼は、なぜか、あなたが一番好きな本を読んでいた。',
       ch:[
-        {t:'「その本、私も好きなんです」',o:'彼は一瞬、泣きそうな顔をした。「…知ってます」と小さく言って、すぐに「いや、なんでもない」とごまかした。',d:{L:8,T:10},f:'knew',
+        {t:'「その本、私も好きなんです」',o:'彼は一瞬、泣きそうな顔をした。「…知ってます」と小さく言って、すぐに「いや、なんでもない」とごまかした。',d:{L:10,T:12},f:'knew',
           nak:'出たわよ、「知ってます」。あんた、どこでこの人と会ってんのよ。',hook:'帰りの車。執事がバックミラー越しに言った。「10年、長かったですね」。…10年？'},
-        {t:'「ビル3棟って、本当ですか？」',o:'「4棟です」と彼は笑った。正直な人だ。でも、目が少しだけ寂しそうだった。',d:{M:8,L:2,T:-2},f:'money',
-          nak:'初回でお金の話？ 嫌いじゃないわよ、そういう子。',hook:'帰り際、執事が封筒を差し出した。「奥様になられる方にだけ、お渡しするよう言われております」'},
+        {t:'「ビル3棟って、本当ですか？」',o:'「4棟です」と彼は笑った。「それと今朝、もう1棟買いました。あなたの会社が入っているビルです」',d:{L:2,T:8},f:'money',
+          nak:'お金の話を振ったら、もっとすごい話で返ってきたわね。この人、普通じゃないわよ。',hook:'帰り際、執事が分厚い封筒を差し出した。「奥様になられる方にだけ、お渡しするよう言われております」'},
       ]},
-    {ep:'第2話',lab:'新婚',title:'開かずの書斎',img:'house',
-      text:()=>'豪邸での新婚生活。執事、シェフ、庭師つき。家事はゼロ。ただ一つだけ、夫に言われた。「書斎にだけは、入らないで」',
+    {ep:'第2話',lab:'婚約',year:'半年後',title:'婚前契約書',img:'budget',
+      text:s=>'交際して半年。プロポーズの夜、'+(s.f.money?'あの分厚い封筒':'執事が持ってきた分厚い封筒')+'を開けた。中身は婚前契約書。「離婚したら、妻には1円も渡らない」。彼は目をそらしたまま言った。「一族の決まりなんです。…サインしてくれますか」',
       ch:[
-        {t:'こっそり、書斎に入る',o:'壁一面に、額縁。中身は、あなたが10年前に書いたボランティア新聞の記事の切り抜きだった。一枚残らず、丁寧に。',d:{T:12,L:4,F:-2},f:'peek',
-          nak:'怖っ！ …いや、待って。ちょっと泣けるかも。300組やってて初めてのパターンだわ。',hook:'その夜、夫が言った。「書斎、入ったでしょう。…全部、話します」'},
-        {t:'約束は守る。代わりに「私の部屋」をもらう',o:'夫はうれしそうに、日当たりのいい部屋をくれた。彼は毎日、そのドアの前を通るたびに、少しだけ立ち止まった。',d:{F:12,L:4},f:'trust',
-          nak:'開けない女。いい女ぶってるけど、気になって寝れてないでしょ。',hook:'3年目の春。見知らぬ老婦人が屋敷に来た。「孫の嫁を、見に来たの」'},
+        {t:'笑って、サインする',o:'ペンを置いた瞬間、彼は契約書を暖炉に放り込んだ。「…試すようなことをして、ごめん。何も持たずに来てくれる人と、結婚したかった」',d:{L:12,T:4},f:'sign',
+          nak:'燃やすなら最初から出すなっての。でも、あんたの度胸は合格よ。',hook:'結婚式の朝。招待客の名簿に、知らない名前が一つ。「高橋キヨ(92)」'},
+        {t:'「契約で結婚はしない」と破り捨てる',o:'彼は破れた紙を見て、声を出して笑った。翌朝、あなたの口座に見たことのない桁の数字。メモが一枚。「契約なしの結婚に、乾杯」',d:{sav:5000,L:6,T:10},f:'rip',twist:true,
+          nak:'破った女に5,000万！ 普通は逆よ。この男、壊れてるわ。いい意味で。',hook:'結婚式の朝。招待客の名簿に、知らない名前が一つ。「高橋キヨ(92)」'},
       ]},
-    {ep:'第3話',lab:'秘密解禁',title:'祖母の遺言',img:'care',
+    {ep:'第3話',lab:'新婚',year:'1年目',title:'開かずの書斎',img:'house',
+      pre:{title:'結婚しました',text:'都内の豪邸に引っ越し。執事、シェフ、庭師つき。家事はゼロになった。夫の資産は、あなたの資産にもなった。',d:{sav:400000,inc:8000,home:'都内の豪邸(執事つき)',time:25}},
+      text:()=>'夢みたいな新婚生活。ただ一つだけ、夫に言われた。「書斎にだけは、入らないで」。夜中、書斎のドアの下から、いつも明かりがもれている。',
+      ch:[
+        {t:'こっそり、書斎に入る',o:'壁一面に、額縁。中身は、あなたが10年前に書いたボランティア新聞の記事の切り抜きだった。一枚残らず、丁寧に。',d:{T:14,L:4},f:'peek',
+          nak:'怖っ！ …いや、待って。ちょっと泣けるかも。300組やってて初めてのパターンだわ。',hook:'翌朝、あなたの職場に夫から花が届いた。カードには「新しい社長より」。'},
+        {t:'約束は守る。代わりに「私の部屋」をもらう',o:'夫はうれしそうに、日当たりのいい部屋をくれた。彼は毎日、そのドアの前を通るたびに、少しだけ立ち止まった。',d:{time:8,L:6},f:'trust',
+          nak:'開けない女。いい女ぶってるけど、気になって寝れてないでしょ。',hook:'翌朝、あなたの職場に夫から花が届いた。カードには「新しい社長より」。'},
+      ]},
+    {ep:'第4話',lab:'仕事',year:'1年目',title:'新しい社長',img:'budget',
+      text:s=>'あなたの会社に、新しいオーナーが来た。…夫だった。「君の会社、赤字だったから。ついでに」。'+(s.f.peek?'書斎の切り抜きの中に、この会社の決算書もあった気がする。':'')+'同僚がひそひそ言う。「社長の奥さんだって」',
+      ch:[
+        {t:'会社を辞めて、専業主婦になる',o:'朝はシェフの朝食、昼はエステ、夜は夫と映画。退屈で、死にそうなほど幸せだった。',d:{inc:-380,time:20,T:-6,L:4},f:'quit',
+          nak:'専業主婦・執事つき。日本中の女が殴りに来るわよ。',hook:'2年後。暇を持て余したあなたに、92歳の老婦人から手紙が届いた。「一度、会いに来なさい」'},
+        {t:'「社長の妻」じゃなく、実力で出世する',o:'社内で夫の名前は一度も出さなかった。2年後、あなたは自分の力で部長になった。辞令を渡す夫の手が、震えていた。',d:{inc:620,time:-10,T:8,L:4},f:'career',
+          nak:'旦那の会社で旦那に頼らず出世。可愛げはないけど、あたしは好きよ。',hook:'部長になった日。会社に、92歳の老婦人が訪ねてきた。「孫の嫁を、見に来たの」'},
+      ]},
+    {ep:'第5話',lab:'秘密解禁',year:'3年目',title:'祖母の遺言',img:'care',
       reveal:'誠一郎は10年前から、あなたに片思いしていた。そして結婚は、遺産相続の「条件」だった。',
-      text:s=>'屋敷に来たのは、夫の祖母・キヨ(92歳)。一族の本当の当主。「誠一郎はね、"愛する人と結婚したら"全財産を継ぐことになってるの」'+(s.f.peek?' 書斎の切り抜きのことも、夫は全部話した。10年前にあなたの記事を読んで、ずっと探していたこと。':' 夫は観念して、10年前からあなたを知っていたことを話した。')+' キヨがあなたを見た。「あなた、本当に愛されてる？ それとも、遺産の"条件"？」',
+      text:s=>'老婦人は、夫の祖母・キヨ(92歳)。一族の本当の当主。「誠一郎はね、"愛する人と結婚したら"全財産を継ぐことになってるの」'+(s.f.peek?' 書斎の切り抜きのことも、夫は全部話した。10年前にあなたの記事を読んで、ずっと探していたこと。':' 夫は観念して、10年前からあなたを知っていたことを話した。')+' キヨがあなたを見た。「あなた、本当に愛されてる？ それとも、遺産の"条件"？」',
       ch:[
         {t:'「愛されてます。証明しましょうか」',o:'キヨは声を出して笑った。「その目なら、合格」。夫は真っ赤になって、庭に逃げた。',d:{L:12,T:6},f:'believe',
-          nak:'言い切った！ あんた、仲人やらない？',hook:'帰り際、キヨがあなたにだけ囁いた。「誠一郎にはね、まだ言ってないことがあるの」'},
-        {t:'「…正直、わかりません」',o:'夫は何も言わなかった。その夜、初めて別々の部屋で寝た。',d:{L:-10,F:6},f:'doubt',
-          nak:'バカ正直！ でもね、疑うのも愛のうちよ。…たぶんね。',hook:'翌朝、テーブルに一族の財産目録。メモが一枚。「どうするかは、君が決めていい」'},
+          nak:'言い切った！ あんた、仲人やらない？',hook:'帰り際、キヨがあなたにだけ囁いた。「一族には、この結婚を喜んでない人がいる。気をつけなさい」'},
+        {t:'「…正直、わかりません」',o:'夫は何も言わなかった。その夜、初めて別々の部屋で寝た。',d:{L:-10,time:4},f:'doubt',
+          nak:'バカ正直！ でもね、疑うのも愛のうちよ。…たぶんね。',hook:'翌朝、テーブルにメモが一枚。「どうするかは、君が決めていい」。その日の午後、一族の叔父から内容証明が届いた。'},
       ]},
-    {ep:'第4話',lab:'10年目',title:'当主の座',img:'budget',
-      text:s=>'結婚10年目。キヨが亡くなった。遺言の最後の一行に、一族40人がざわついた。「高橋家の当主は、誠一郎の妻とする」'+(s.f.doubt?' …迷った私を、キヨは選んでいた。':''),
+    {ep:'第6話',lab:'5年目',year:'5年目',title:'叔父の罠',img:'house',
+      pre:s=>s.f.believe?{title:'その間に…',text:'キヨから結婚祝いが届いた。軽井沢の別荘(3億円)が、あなたの名義になった。',d:{sav:30000,home:'都内の豪邸+軽井沢の別荘'}}
+        :{title:'その間に…',text:'夫と別々の部屋で寝る日が増えた。屋敷は広すぎて、廊下ですれ違っても目が合わない日がある。',d:{L:-6,T:-6}},
+      text:()=>'結婚5年目。一族の叔父・剛三が裁判を起こした。「この結婚は遺産目当ての偽装だ。遺言は無効だ」。判決が出るまで、夫の財産はすべて凍結。カードも、口座も、止まった。',
       ch:[
-        {t:'当主を、引き受ける',o:'40人の前で挨拶した。足が震えた。夫は一番うしろの席で、誰より大きく拍手していた。',d:{M:15,F:-10,L:4,T:4},f:'head',
-          nak:'玉の輿どころか、輿ごと乗っ取ったわね。',hook:'半年後、一族の一人が言った。「あなたの夫、昔、婚約者がいたのよ。…あなたにそっくりな」'},
-        {t:'断って、夫と小さな家に引っ越す',o:'執事もシェフもいない3LDK。夫は生まれて初めて目玉焼きを焦がした。二人で、お腹が痛くなるまで笑った。',d:{L:12,T:8,M:-15,F:6},f:'small',
-          nak:'4棟捨てて3LDK！ あたしなら絶対やらない。でも、あんたの顔、今が一番いいわ。',hook:'ある日、執事が訪ねてきた。「旦那様には内緒で、お渡ししたいものが」'},
+        {t:'法廷に立って、証言する',o:s=>'証言台で、あなたは'+(s.f.peek?'書斎の切り抜きの話をした。10年分、一枚残らず。':'出会った日の、あの本の話をした。')+' 裁判長が少しだけ笑った。1年後、勝訴。叔父が持っていた一族の持ち分まで、こちらに来た。',d:{sav:150000,time:-10,L:10,T:6},f:'fight',twist:true,
+          nak:'法廷で惚気る女、初めて見たわ。裁判長も笑うわよ、そりゃ。',hook:'判決の日。叔父が去り際に言った。「キヨの遺言には、まだ続きがあるぞ」'},
+        {t:'争わず、半分渡して和解する',o:'叔父に20億。夫は何も言わずに判をついた。帰りの車で、夫がぽつりと言った。「…君との時間のほうが、高い」',d:{sav:-200000,time:6,L:6,T:-4},f:'settle',
+          nak:'20億で平和を買った。高い？ 安い？ あたしにはわからないわ、その桁は。',hook:'5年後、キヨが亡くなった。遺言の最後の一行に、一族40人がざわついた。'},
       ]},
-    {ep:'第5話',lab:'20年目',title:'520通の手紙',img:'hero',
-      text:()=>'結婚20年目。夫の55歳の誕生日。夫が、古い木箱をくれた。中身は、出会う前の10年間に書いて、一度も出さなかった手紙。全部で、520通。',
+    {ep:'第7話',lab:'10年目',year:'10年目',title:'当主の座',img:'budget',
+      text:s=>'結婚10年目。キヨが亡くなった。遺言の最後の一行。「高橋家の当主は、誠一郎の妻とする」'+(s.f.doubt?' …「わからない」と言った私を、キヨは選んでいた。':'')+' 当主になれば、一族40人と資産のすべてを背負う。断れば、夫と二人、ふつうの暮らし。',
+      ch:[
+        {t:'当主を、引き受ける',o:'40人の前で挨拶した。足が震えた。夫は一番うしろの席で、誰より大きく拍手していた。',d:{inc:12000,time:-30,L:2,T:6},f:'head',
+          nak:'玉の輿どころか、輿ごと乗っ取ったわね。',hook:'就任パーティーで、一族の女が耳打ちした。「あなたの夫、昔、婚約者がいたのよ。…あなたにそっくりな」'},
+        {t:'断って、夫と小さな家に引っ越す',o:'資産のほとんどを一族に返した。執事もシェフもいない3LDK。夫は生まれて初めて目玉焼きを焦がした。二人で、お腹が痛くなるまで笑った。',d:s=>({sav:20000-s.sav,inc:1200-s.inc,home:'3LDKのマンション',time:15,L:12,T:10}),f:'small',twist:true,
+          nak:'億を捨てて3LDK！ あたしなら絶対やらない。でも、あんたの顔、今が一番いいわ。',hook:'引っ越して半年。古いアルバムから写真が一枚落ちた。若い夫と、知らない女性。…あなたにそっくりな。'},
+      ]},
+    {ep:'第8話',lab:'15年目',year:'15年目',title:'そっくりな女',img:'hero',
+      text:s=>(s.f.head?'当主の仕事で、一族の古い蔵を整理していた日。':'引っ越しの荷物を片付けていた日。')+'写真の裏の日付は、25年前。若い夫の隣で笑う女性は、どう見てもあなただった。でも、あなたにその記憶はない。一族の噂では、夫には昔「婚約者」がいて、突然いなくなったという。',
+      ch:[
+        {t:'写真を、夫に突きつける',o:'夫は観念した。「…それ、君だよ。結婚する10年前、ボランティアの打ち上げで一度だけ話した。君は覚えてない。一族のお見合いを全部断るために、ずっと『婚約者がいる』って言ってた」',d:{T:14,L:8},f:'ask',twist:true,
+          nak:'婚約者は、あんた本人！ 10年、勝手に婚約してたの？ 重っ！ …でも、ちょっと泣けるわ。',hook:'夫の65歳の誕生日。夫が、古い木箱を抱えてきた。'},
+        {t:'何も聞かず、写真をアルバムに戻す',o:'聞けなかった。その夜、夫の寝顔を見ながら、写真の女性の笑顔を思い出した。…私も昔、あんなふうに笑っていたのかな。',d:{L:-4,T:-6,time:2},f:'silent',
+          nak:'聞かない女。強いのか、怖いのか。あたしなら、その場で胸ぐらつかむわね。',hook:'夫の65歳の誕生日。夫が、古い木箱を抱えてきた。「…全部、話すよ」'},
+      ]},
+    {ep:'第9話',lab:'20年目',year:'20年目',title:'520通の手紙',img:'hero',
+      text:s=>'結婚20年目。夫の65歳の誕生日。木箱の中身は、出会う前の10年間に書いて、一度も出さなかった手紙。'+(s.f.silent?'写真のことも、全部そこに書いてあった。':'')+' 全部で、520通。',
       ch:[
         {t:'毎晩、一通ずつ読む',o:'1通目は、ひどく下手な字だった。「はじめまして。あなたの記事を読みました」。520通目の日付は、昨日だった。',d:{L:10,T:10},f:'read',nak:'520通…。重っ！ でもね、重い男って、最後に勝つのよ。'},
-        {t:'「次は、私が書くね」と箱を閉じる',o:'その夜から、二人の交換日記が始まった。55歳の夫と、私と。',d:{F:6,L:8,T:6},f:'write',nak:'交換日記！ 中学生か！ …ちょっと、うらやましいわね。'},
+        {t:'「次は、私が書くね」と箱を閉じる',o:'その夜から交換日記が始まった。65歳の夫と、私と。1年後、二人の日記は本になった。夫は照れて、一度も書店に行けなかった。',d:{L:8,T:8,sav:800},f:'write',nak:'交換日記が本に！ 中学生か！ …ちょっと、うらやましいわね。'},
       ]},
   ],
   B:[
@@ -600,9 +698,9 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
   // ---------- endings (3 per main route, 2 for hidden) ----------
   const RANK={happy:'ハッピー',bitter:'ビター',masaka:'まさか',secret:'隠し'};
   const END={
-    A:[{id:'A3',k:'masaka',t:'平成生まれの、女帝',s:'一族40人を束ねる当主。夫は今も、一番うしろの席で、誰より大きく拍手している。10年片思いされた相手は、一族の女帝になった。',nak:'玉の輿に乗るんじゃなくて、輿を作っちゃった。前代未聞よ。',hint:'祖母に「愛されてる」と言い切って、当主も引き受ける',test:s=>s.f.head&&s.f.believe},
-       {id:'A2',k:'bitter',t:'豪邸の、静かな夜',s:'4棟のビル、執事、シェフ。足りないものは何もない。ただ、夫の書斎のドアだけは、20年間ずっと閉まったままだった。',nak:'お金で埋まらない穴って、あるのよ。…まだ間に合うけどね。',hint:'祖母の前で、正直に迷ってしまう',test:s=>s.f.doubt},
-       {id:'A1',k:'happy',t:'10年越しの片思い、完結',s:'書斎には、今もあなたの記事が飾ってある。10年の片思いは、20年の両思いになった。',nak:'重い男を、軽やかに受け止めた。あんたの勝ちよ。',hint:'「愛されてる」と言い切って、当主の座は断る',test:()=>true}],
+    A:[{id:'A3',k:'masaka',t:'平成生まれの、女帝',s:'裁判に勝ち、一族40人を束ねる当主になった。夫は今も、一番うしろの席で、誰より大きく拍手している。10年片思いされた相手は、一族の女帝になった。',nak:'玉の輿に乗るんじゃなくて、輿を作っちゃった。前代未聞よ。',hint:'叔父と法廷で戦って、当主も引き受ける',test:s=>s.f.head&&s.f.fight},
+       {id:'A2',k:'bitter',t:'豪邸の、静かな夜',s:'ビル、別荘、執事、シェフ。足りないものは何もない。ただ、あの写真のことだけは、20年間ずっと聞けないままだった。',nak:'お金で埋まらない穴って、あるのよ。…まだ間に合うけどね。',hint:'写真のことを聞かず、豪邸に残る',test:s=>s.f.silent&&!s.f.small},
+       {id:'A1',k:'happy',t:'10年越しの片思い、完結',s:'書斎には、今もあなたの記事が飾ってある。10年の片思いは、20年の両思いになった。',nak:'重い男を、軽やかに受け止めた。あんたの勝ちよ。',hint:'写真のことを、ちゃんと夫に聞く',test:()=>true}],
     B:[{id:'B3',k:'masaka',t:'パリで、花の女王',s:'@hana_gorillaは、世界のブランドになった。CEOの名刺には、あなたの名前。夫は今日も、パリの店先で叫んでいる。',nak:'ゴリラと花で世界制覇。あたしの想定、超えてきたわね。',hint:'秘密を手伝って、花屋に全部賭ける',test:s=>s.f.shop&&s.f.partner},
        {id:'B2',k:'bitter',t:'檻のなかの、ゴリラ',s:'暮らしは安定した。でも、ベランダで花を束ねる夫の背中を見るたびに、あの温室を思い出す。',nak:'ゴリラはね、檻の中じゃ花を咲かせないのよ。',hint:'リストラのあと、安全な道を選ぶ',test:s=>s.f.safe},
        {id:'B1',k:'happy',t:'世界一、声のでかい夫',s:'声がでかいだけの男だと思っていた。今は、あなたの名前を世界で一番大きな声で呼ぶ人。',nak:'うるさい幸せ。最高じゃない。',hint:'花屋に賭ける。でも、秘密は二人だけのまま',test:()=>true}],
@@ -627,17 +725,60 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     T:{n:'一生恋する妻',d:'何年たってもドキドキしたい。ときめきを、自分で作れるタイプ。',m:'相性がいいのは「毎年プロポーズし直してくれる人」'},
     low:{n:'がまんの天才',d:'いろいろ飲みこんで、20年を乗り切った。次は、自分のために選んでいい。',m:'相性がいいのは「あなたのがまんに気づける人」'},
   };
-  function typeOf(s,p){const ks=['L','M','F','T'];const g={};ks.forEach(k=>g[k]=s[k]-p.base[k]);if(ks.every(k=>g[k]>=10))return TYPES.all;const mx=Math.max(...ks.map(k=>g[k]));if(mx<10)return TYPES.low;const k=ks.find(k=>g[k]===mx);return TYPES[k];}
+  const score=s=>({L:clamp(s.L),T:clamp(s.T),M:clamp(Math.log10(Math.max(s.sav,1))*14),F:clamp(s.time*1.6)});
+  function typeOf(s){const a=score(s),z=score(START),ks=['L','M','F','T'];const g={L:a.L-z.L,T:a.T-z.T,M:(a.M-z.M)/2,F:a.F-z.F};if(ks.every(k=>g[k]>=10))return TYPES.all;const mx=Math.max(...ks.map(k=>g[k]));if(mx<10)return TYPES.low;return TYPES[ks.find(k=>g[k]===mx)];}
 
   // ---------- state ----------
-  let me='ミユ',cur=null,st=null,ci=0,hist=[],picks=[],rewinds=1,lastEnd=null,lastType=null;
-  const clamp=v=>Math.max(0,Math.min(100,Math.round(v)));
+  let me='ミユ',cur=null,st=null,ci=0,hist=[],pc=[],picks=[],rewinds=2,lastEnd=null,lastType=null;
   const clone=o=>JSON.parse(JSON.stringify(o));
-  const newState=p=>({L:p.base.L,M:p.base.M,F:p.base.F,T:p.base.T,f:{}});
-  const GN=[['L','愛情'],['M','お金'],['F','自由'],['T','ときめき']];
-  function meters(s,d){return GN.map(([k,l])=>`<div class="meter ${k}"><div class="lab"><span>${l}</span><span><span class="mono">${clamp(s[k])}</span>${d&&d[k]?` <span class="delta ${d[k]>0?'up':'dn'}">${d[k]>0?'+':''}${d[k]}</span>`:''}</span></div><div class="bar"><i style="width:${clamp(s[k])}%"></i></div></div>`).join('');}
+  const newState=()=>Object.assign(clone(START),{f:{}});
+  const resolveD=(h,s)=>typeof h.d==='function'?h.d(s):(h.d||{});
+  function applyD(s,d){for(const k in d){if(k==='home')s.home=d.home;else if(k in s&&typeof s[k]==='number'){s[k]+=d[k];if(k==='L'||k==='T')s[k]=clamp(s[k]);if(k==='time')s[k]=Math.max(0,Math.min(80,s[k]));}}return s;}
   const fifthOpen=()=>UNLOCK||MAIN_IDS.every(id=>pers.coll.includes(id));
   const remainMain=()=>MAIN_IDS.filter(id=>!pers.coll.includes(id)).length;
+
+  // ステータス表示
+  function statHTML(s,changed){
+    const c=k=>changed&&changed.includes(k)?' flash':'';
+    const bar=k=>`<div class="meter ${k}"><div class="lab"><span>${LBL[k]}</span><span class="mono${c(k)}">${clamp(s[k])}</span></div><div class="bar"><i style="width:${clamp(s[k])}%"></i></div></div>`;
+    return `<div class="stat">
+      <div class="cell wide"><div class="k">総資産</div><div class="v big${c('sav')}">${yen(s.sav)}</div></div>
+      <div class="cell"><div class="k">世帯年収</div><div class="v${c('inc')}">${yen(s.inc)}</div></div>
+      <div class="cell"><div class="k">自分の時間</div><div class="v${c('time')}">${fmt('time',s.time)}</div></div>
+      <div class="cell wide"><div class="k">住まい</div><div class="v${c('home')}">${esc(s.home)}</div></div>
+      <div class="cell">${bar('L')}</div><div class="cell">${bar('T')}</div>
+    </div>`;
+  }
+  const changedKeys=(b,a)=>Object.keys(LBL).filter(k=>b[k]!==a[k]);
+  function tagOf(k,b,a){
+    if(k==='home')return '引っ越し';
+    if(k==='sav'){if(b>0&&a>=b*10)return 'ケタちがい！';if(b>0&&a<b*0.5)return '大損…';if(Math.abs(a-b)>=10000)return '億が動いた';if(Math.abs(a-b)>=1000)return 'まさかの臨時収入';return '';}
+    if(k==='inc'){if(b>0&&a>=b*3)return '大出世';if(a<b*0.5)return '激減';return '';}
+    if(k==='time'){if(a-b>=15)return 'ヒマすぎ';if(b-a>=15)return '寝る時間もない';return '';}
+    if(Math.abs(a-b)>=12)return k==='T'?(a>b?'ドキッ':'冷めた…'):(a>b?'愛が深まった':'すれ違い');
+    return '';
+  }
+  function changeHTML(b,a){
+    const ks=changedKeys(b,a);
+    if(!ks.length)return '<div class="crow flat"><div class="k">数字の変化</div><div class="dv">なし …でも、物語が動いた</div></div>';
+    return ks.map((k,i)=>{
+      const tg=tagOf(k,b[k],a[k]);
+      if(k==='home')return `<div class="crow ${tg?'big':''}" style="--i:${i}"><div class="k">${LBL[k]}${tg?`<span class="tag">${tg}</span>`:''}</div><div class="fromto">${esc(b[k])}</div><div class="dv home">→ ${esc(a[k])}</div></div>`;
+      const d=a[k]-b[k];
+      return `<div class="crow ${d>0?'up':'dn'} ${tg?'big':''}" style="--i:${i}" data-k="${k}" data-d="${d}"><div class="k">${LBL[k]}${tg?`<span class="tag">${tg}</span>`:''}</div><div class="fromto">${fmt(k,b[k])} → ${fmt(k,a[k])}</div><div class="dv">${fmtD(k,0)}</div></div>`;
+    }).join('');
+  }
+  function countUp(box){
+    $$(box+' .crow[data-k]').forEach((el,i)=>{
+      const k=el.dataset.k,d=+el.dataset.d,dv=el.querySelector('.dv');
+      const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if(reduce){dv.textContent=fmtD(k,d);return;}
+      const t0=performance.now()+i*220,dur=900;
+      const step=t=>{const p=Math.min(1,Math.max(0,(t-t0)/dur));const e=1-Math.pow(1-p,3);dv.textContent=fmtD(k,d===0?0:(d>0?Math.max(1,d*e):Math.min(-1,d*e)));if(p<1)requestAnimationFrame(step);else dv.textContent=fmtD(k,d);};
+      dv.textContent=fmtD(k,d>0?1:-1);requestAnimationFrame(step);
+    });
+  }
+  function diffChips(b,a){const ks=changedKeys(b,a);if(!ks.length)return '<span>数字は変わらない</span>';return ks.map(k=>{if(k==='home')return `<span class="up">住まい → ${esc(a.home)}</span>`;const d=a[k]-b[k];return `<span class="${d>0?'up':'dn'}">${LBL[k]} ${fmtD(k,d)}</span>`;}).join('');}
 
   // ---------- screens ----------
   const SCR=['s-intro','s-list','s-detail','s-game','s-result'];
@@ -651,14 +792,15 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 
   function endDots(pid){return '<div class="ends">'+END[pid].map(e=>`<i class="${pers.coll.includes(e.id)?'on':''}"></i>`).join('')+'</div>';}
   function renderList(){
-    nako('#nako-list','4人とも、秘密があるわよ。顔で選ぶか、年収で選ぶか。…あんた次第ね。');
-    $('#plist').innerHTML=P.map((p,i)=>`<button class="pcard" data-id="${p.id}"><span class="no">${i+1}</span><span class="sec">secret</span><img class="pimg" src="${IMG[p.id]||''}" alt="${esc(p.name)}"><div class="nm">${esc(p.name)} <span class="small muted">${p.age}</span></div><div class="job">${esc(p.catch)}</div><div class="inc">${p.income}</div>${stars(p.looks)}${endDots(p.id)}</button>`).join('');
-    $$('.pcard').forEach(b=>b.addEventListener('click',()=>openDetail(b.dataset.id)));
+    nako('#nako-list','今日すぐ会えるのは高橋さん。残りの3人は、まだ支度中よ。…待たせる男も、悪くないけどね。');
+    $('#plist').innerHTML=P.map((p,i)=>`<button class="pcard ${READY[p.id]?'':'soon'}" data-id="${p.id}"><span class="no">${i+1}</span><span class="sec">secret</span>${READY[p.id]?'':'<span class="soonb">ストーリー書き直し中</span>'}<img class="pimg" src="${IMG[p.id]||''}" alt="${esc(p.name)}"><div class="nm">${esc(p.name)} <span class="small muted">${p.age}</span></div><div class="job">${esc(p.catch)}</div><div class="inc">${p.income}</div>${stars(p.looks)}${endDots(p.id)}</button>`).join('');
+    $$('.pcard').forEach(b=>b.addEventListener('click',()=>{if(!READY[b.dataset.id]){toast('この人のストーリーは、いま書き直し中です');return;}openDetail(b.dataset.id);}));
     $('#fifth-slot').innerHTML=fifthCard();
     const fb=$('#fifth-btn');if(fb)fb.addEventListener('click',()=>openDetail('E'));
   }
   function fifthCard(){
-    if(fifthOpen())return `<button class="fifth open" id="fifth-btn"><div class="sil">${img('E',E5.name)}</div><div><b>5通目の封筒が届いた</b><span>差出人：${E5.name}(${E5.age})・${E5.catch}</span></div></button>`;
+    if(fifthOpen()&&READY.E)return `<button class="fifth open" id="fifth-btn"><div class="sil">${img('E',E5.name)}</div><div><b>5通目の封筒が届いた</b><span>差出人：${E5.name}(${E5.age})・${E5.catch}</span></div></button>`;
+    if(fifthOpen())return `<div class="fifth locked"><div class="sil">${img('E','')}</div><div><b>5通目の封筒は、もうすぐ届く</b><span>隠しルートのストーリーも、いま書き直し中です。</span></div></div>`;
     return `<div class="fifth locked"><div class="sil">${img('E','')}</div><div><b>5通目の封筒は、まだ届かない</b><span>エンディングをあと${remainMain()}種類集めると、隠しルートが開きます。</span></div></div>`;
   }
   function openDetail(id){
@@ -668,18 +810,24 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     $('#d-quote').textContent='「'+cur.quote+'」';
     $('#d-specs').innerHTML=`<dt>年収</dt><dd class="mono">${cur.income.replace('年収 ','')}</dd><dt>見た目</dt><dd>${stars(cur.looks)}</dd><dt>ひとこと</dt><dd>${cur.tags.map(t=>'<span class="tagp">'+esc(t)+'</span>').join('')}</dd>`;
     $('#d-lock').textContent=cur.lock;
-    $('#d-meters').innerHTML=meters(newState(cur));
+    $('#d-meters').innerHTML=statHTML(START);
     nako('#nako-detail',cur.nak);
     show('s-detail');
   }
-  $('#marry').addEventListener('click',()=>{st=newState(cur);ci=0;hist=[];picks=[];rewinds=1;$('#g-partner').textContent=cur.name+'と結婚';renderEp(true);show('s-game');});
+  $('#marry').addEventListener('click',()=>{st=newState();ci=0;hist=[];pc=[];picks=[];rewinds=2;$('#g-partner').textContent=cur.name+'と結婚';renderEp(true);show('s-game');});
 
   // ---------- episode ----------
   function renderEp(scrollTop){
-    const c=EP[cur.id][ci];
+    const list=EP[cur.id],c=list[ci];
     hist[ci]=clone(st);
-    $('#g-prog').innerHTML=EP[cur.id].map((x,i)=>`<div class="${i<ci?'on':i===ci?'now':''}"><i></i><span>${x.lab}</span></div>`).join('');
-    $('#g-meters').innerHTML=meters(st);
+    $('#g-prog').style.gridTemplateColumns=`repeat(${list.length},1fr)`;
+    $('#g-prog').innerHTML=list.map((x,i)=>`<div class="${i<ci?'on':i===ci?'now':''}"><i></i></div>`).join('');
+    $('#g-pos').textContent=`第${ci+1}話 / 全${list.length}話 ・ ${c.year}`;
+    // その間に起きたこと
+    const pre=typeof c.pre==='function'?c.pre(st):c.pre;const pv=$('#g-pre');
+    if(pre){const b=clone(st);applyD(st,pre.d||{});pv.hidden=false;$('#g-pre-t').textContent=pre.title;$('#g-pre-x').textContent=pre.text;$('#g-pre-c').innerHTML=changeHTML(b,st);countUp('#g-pre-c');$('#g-stat').innerHTML=statHTML(st,changedKeys(b,st));}
+    else{pv.hidden=true;$('#g-stat').innerHTML=statHTML(st);}
+    pc[ci]=clone(st);
     const sec=$('#g-secret');if(c.reveal){sec.hidden=false;$('#g-secret-t').textContent=c.reveal;const sp=sec.querySelector('.stamp');sp.style.animation='none';void sp.offsetWidth;sp.style.animation='';}else sec.hidden=true;
     const im=$('#g-img');im.src=IMG[c.img]||'';im.alt=c.title;
     $('#g-ep').textContent=c.ep+(c.reveal?' ・ 秘密解禁':'');$('#g-title').textContent=c.title;
@@ -689,39 +837,45 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     $('#g-after').hidden=true;
     if(scrollTop)window.scrollTo(0,0);
   }
+  const leftTxt=()=>PLUS?'プラスなので何度でも':rewinds>0?`無料であと${rewinds}回`:'無料分は使い切り・プラスなら何度でも';
   function choose(i){
     if(!$('#g-after').hidden)return;
     const c=EP[cur.id][ci],h=c.ch[i];
-    const d={};GN.forEach(([k])=>{const v=h.d[k]||0;const nb=clamp(st[k]+v);d[k]=nb-clamp(st[k]);st[k]=nb;});
-    st.f[h.f]=true;picks[ci]=i;
-    $$('#g-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
-    $('#g-meters').innerHTML=meters(st,d);
+    const b=clone(st);applyD(st,resolveD(h,b));st.f[h.f]=true;picks[ci]=i;
+    $$('#g-choices button').forEach((x,j)=>{x.disabled=true;x.classList.add(j===i?'picked':'dim');});
+    $('#g-stat').innerHTML=statHTML(st,changedKeys(b,st));
+    $('#g-twist').hidden=!h.twist;
     $('#g-out').textContent=typeof h.o==='function'?h.o(st):h.o;
+    $('#g-chg').innerHTML=changeHTML(b,st);countUp('#g-chg');
     nako('#nako-game',h.nak,true);
+    // 選ばなかった道
+    const j=1-i,oh=c.ch[j],ob=applyD(clone(b),resolveD(oh,b));
+    $('#g-other').innerHTML=`<div class="k">もし「${j?'B':'A'}」を選んでいたら…</div><b>${esc(oh.t)}</b><div class="ochips">${diffChips(b,ob)}</div><p class="small muted">その先の話も、結末も変わります。</p><button class="btn-line btn-block" id="g-redo">↺ この話を「${j?'B':'A'}」で選び直す<small>${leftTxt()}</small></button>`;
+    $('#g-redo').addEventListener('click',()=>redoAt(ci,j));
     const last=ci===EP[cur.id].length-1;
     const hk=$('#g-hook');if(h.hook){hk.hidden=false;$('#g-hook-t').textContent=h.hook;hk.classList.remove('show');void hk.offsetWidth;hk.classList.add('show');}else hk.hidden=true;
-    $('#g-next').textContent=last?'20年後を見る':EP[cur.id][ci+1].ep+'へ ・ '+EP[cur.id][ci+1].title;
-    setRewindBtn();
+    $('#g-next').textContent=last?'20年後の結末を見る':'第'+(ci+2)+'話へ ・ '+EP[cur.id][ci+1].title;
     $('#g-after').hidden=false;
     setTimeout(()=>$('#g-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
-  function setRewindBtn(){
-    const b=$('#g-rewind');
-    b.innerHTML=PLUS?'↺ あの時に戻って、選び直す <small>(プラス・何度でも)</small>':rewinds>0?'↺ あの時に戻って、選び直す <small>(無料であと1回)</small>':'↺ あの時に戻る <small>(プラスなら何度でも)</small>';
+  function useRewind(){if(PLUS)return true;if(rewinds>0){rewinds--;return true;}toast('このプレイの選び直しは使い切りました。プラスなら何度でも');const pl=$('#plus');if(!$('#s-result').hidden){pl.open=true;pl.scrollIntoView({behavior:'smooth',block:'center'});}return false;}
+  function redoAt(k,j){
+    if(!useRewind())return;
+    ci=k;st=clone(hist[k]);picks=picks.slice(0,k);
+    show('s-game');renderEp(false);choose(j);
+    toast(EP[cur.id][k].ep+'を「'+(j?'B':'A')+'」で選び直しました');
   }
-  function useRewind(){if(PLUS)return true;if(rewinds>0){rewinds--;return true;}toast('「あの時に戻る」は、プラスなら何度でも使えます');const pl=$('#plus');if(!$('#s-result').hidden){pl.open=true;pl.scrollIntoView({behavior:'smooth',block:'center'});}return false;}
-  $('#g-rewind').addEventListener('click',()=>{if(!useRewind())return;st=clone(hist[ci]);delete picks[ci];renderEp(false);$('#g-card').scrollIntoView({behavior:'smooth',block:'start'});toast('あの時に、戻りました');});
   $('#g-next').addEventListener('click',()=>{if(ci>=EP[cur.id].length-1){renderResult();return;}ci++;renderEp(true);});
 
   // ---------- result ----------
   function renderResult(){
-    const e=END[cur.id].find(x=>x.test(st));lastEnd=e;const ty=typeOf(st,cur);lastType=ty;
+    const e=END[cur.id].find(x=>x.test(st));lastEnd=e;const ty=typeOf(st);lastType=ty;
     pers.plays+=1;const isNew=!pers.coll.includes(e.id);if(isNew)pers.coll.push(e.id);save();
     $('#r-face').innerHTML=img(cur.id,cur.name);
     $('#r-with').textContent=me+' × '+cur.name+'('+cur.job+')と結婚して、20年';
     const seal=$('#r-seal');seal.className='seal'+(e.k==='bitter'?' bitter':e.k==='masaka'?' masaka':e.k==='secret'?' secret-s':'');seal.textContent=RANK[e.k];
     $('#r-title').textContent=e.t;$('#r-story').textContent=e.s;
-    $('#r-meters').innerHTML=meters(st);
+    $('#r-report').innerHTML='<div class="k" style="margin-bottom:6px">20年前のあなた → 今のあなた</div>'+Object.keys(LBL).map(k=>`<div class="rrow ${k==='sav'?'big':''}"><span class="rk">${LBL[k]}</span><span class="rf">${esc(fmt(k,START[k]))}</span><span class="ra">→</span><span class="rt">${esc(fmt(k,st[k]))}</span></div>`).join('');
     nako('#nako-result',e.nak,true);
     $('#t-name').textContent=ty.n;$('#t-rare').innerHTML=ty.rare?'<span class="rare">レアタイプ</span>':'';$('#t-desc').textContent=ty.d;$('#t-match').textContent=ty.m;
     $('#r-share').textContent=shareText();
@@ -731,7 +885,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     if(isNew)setTimeout(()=>toast(cur.id==='E'?'隠しエンドを見つけました':'図鑑に新しい結末が追加されました'),500);
     if(!pers.asked&&pers.plays>=2&&e.k!=='bitter')setTimeout(()=>{$('#review').hidden=false;},1400);
   }
-  function shareText(){return `#ウェディングストーリー で、${cur.name}(${cur.job})を選んで20年。\n結末「${lastEnd.t}」(${RANK[lastEnd.k]})\nわたしの結婚タイプは「${lastType.n}」。\n紹介された4人、全員に秘密がある。あなたなら誰を選ぶ？`;}
+  function shareText(){return `#ウェディングストーリー で、${cur.name}(${cur.job})を選んで20年。\n総資産 ${yen(START.sav)} → ${yen(st.sav)}\n結末「${lastEnd.t}」(${RANK[lastEnd.k]})\nわたしの結婚タイプは「${lastType.n}」。\n紹介された4人、全員に秘密がある。あなたなら誰を選ぶ？`;}
   function slotHTML(e,curId){const on=pers.coll.includes(e.id);return `<div class="slot ${on?'':'lock'} ${curId===e.id?'cur':''}"><span>${RANK[e.k]}</span><b>${on?esc(e.t):'？？？'}</b>${!on&&PLUS&&e.hint?`<div class="hint">ヒント：${esc(e.hint)}</div>`:''}</div>`;}
   function renderSlots(e){
     const list=END[cur.id];const n=list.filter(x=>pers.coll.includes(x.id)).length;
@@ -740,16 +894,16 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     $('#r-slots').innerHTML=list.map(x=>slotHTML(x,e.id)).join('');
   }
   function renderRedo(){
-    $('#r-redo-note').textContent=PLUS?'プラスなら、何度でも戻れます。':rewinds>0?'無料で、あと1回だけ戻れます。':'このプレイの無料分は使いました。プラスなら何度でも戻れます。';
-    $('#r-redo').innerHTML=EP[cur.id].map((c,i)=>`<button data-k="${i}"><span class="e">${c.ep}</span><span class="p">${esc(c.title)}<br><span class="small muted">選んだ道：${esc(c.ch[picks[i]]?c.ch[picks[i]].t:'')}</span></span><span class="g">ここから</span></button>`).join('');
-    $$('#r-redo button').forEach(b=>b.addEventListener('click',()=>{if(!useRewind())return;ci=+b.dataset.k;st=clone(hist[ci]);picks=picks.slice(0,ci);show('s-game');renderEp(true);toast(EP[cur.id][ci].ep+'に、戻りました');}));
+    $('#r-redo-note').textContent=`変えたい話を押すと、その話で「もう一方」を選んだところから続きを遊べます。結末が変わるかも(${leftTxt()})。`;
+    $('#r-redo').innerHTML=EP[cur.id].map((c,i)=>{const p=picks[i],o=c.ch[1-p];return `<button data-k="${i}"><span class="e">${c.ep}</span><span class="p">${esc(c.title)}<br><span class="small muted">選んだ：${esc(c.ch[p]?c.ch[p].t:'')}</span><br><span class="small alt">→ 「${esc(o?o.t:'')}」に変える</span></span><span class="g">変えてみる</span></button>`;}).join('');
+    $$('#r-redo button').forEach(b=>b.addEventListener('click',()=>{const k=+b.dataset.k;redoAt(k,1-picks[k]);}));
   }
   function renderZukan(){
     const n=MAIN_IDS.filter(id=>pers.coll.includes(id)).length;$('#z-n').textContent=n+'/12';
     $('#zukan').innerHTML=P.map(p=>`<div class="zrow"><div class="mini">${img(p.id,p.name)}</div><div class="slots">${END[p.id].map(e=>slotHTML(e,lastEnd&&lastEnd.id)).join('')}</div></div>`).join('');
     let f='';
-    if(fifthOpen()){f=`<div class="zrow"><div class="mini">${img('E',E5.name)}</div><div class="slots" style="grid-template-columns:1fr 1fr">${END.E.map(e=>slotHTML(e,lastEnd&&lastEnd.id)).join('')}</div></div>`;}
-    $('#z-fifth').innerHTML=f+(fifthOpen()?'':fifthCard());
+    if(fifthOpen()&&READY.E){f=`<div class="zrow"><div class="mini">${img('E',E5.name)}</div><div class="slots" style="grid-template-columns:1fr 1fr">${END.E.map(e=>slotHTML(e,lastEnd&&lastEnd.id)).join('')}</div></div>`;}
+    $('#z-fifth').innerHTML=f||fifthCard();
   }
   $('#r-retry').addEventListener('click',()=>{renderList();show('s-list');});
   $('#buy-plus').addEventListener('click',()=>toast('本番ではここでストアの決済(¥480)が出ます'));
@@ -766,7 +920,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
     const MIN="'Shippori Mincho B1','Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif",GOT="'Zen Kaku Gothic New','Hiragino Sans','Noto Sans CJK JP',sans-serif";
     const rr=(x,y,w,h,r)=>{g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();};
     const tx=(t,x,y,size,font,col,w)=>{g.font=(w||800)+' '+size+'px '+font;g.fillStyle=col;g.textAlign='center';g.fillText(t,x,y);};
-    const fit=(t,max,size,font)=>{let s=size;g.font='800 '+s+'px '+font;while(g.measureText(t).width>max&&s>36){s-=3;g.font='800 '+s+'px '+font;}return s;};
+    const fit=(t,max,size,font)=>{let s=size;g.font='800 '+s+'px '+font;while(g.measureText(t).width>max&&s>24){s-=2;g.font='800 '+s+'px '+font;}return s;};
     const bg=g.createLinearGradient(0,0,W,Hh);bg.addColorStop(0,'#FDE3EB');bg.addColorStop(.55,'#FBD0DD');bg.addColorStop(1,'#F7E6C9');g.fillStyle=bg;g.fillRect(0,0,W,Hh);
     for(let i=0;i<80;i++){g.fillStyle='rgba(255,255,255,'+(0.25+Math.random()*0.5)+')';g.beginPath();g.arc(Math.random()*W,Math.random()*Hh,Math.random()*4+1,0,7);g.fill();}
     tx('ウェディングストーリー',W/2,150,62,MIN,'#3B2430');tx('結婚シミュレーションゲーム',W/2,205,28,GOT,'#B8921C',700);
@@ -777,10 +931,12 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
       const rk=RANK[lastEnd.k];g.font='700 30px '+GOT;const rw=g.measureText(rk).width+60;g.fillStyle=lastEnd.k==='bitter'?'#7A6672':lastEnd.k==='masaka'?'#C9A227':'#E8457C';rr(W/2-rw/2,800,rw,54,27);g.fill();tx(rk,W/2,838,30,GOT,'#fff',700);
       const s1=fit('「'+lastEnd.t+'」',W-240,70,MIN);tx('「'+lastEnd.t+'」',W/2,950,s1,MIN,'#3B2430');
       g.strokeStyle='rgba(201,162,39,.6)';g.lineWidth=2;g.beginPath();g.moveTo(260,1010);g.lineTo(W-260,1010);g.stroke();
-      tx('わたしの結婚タイプ',W/2,1080,30,GOT,'#B8921C',700);
-      const s2=fit(lastType.n,W-240,96,MIN);tx(lastType.n,W/2,1190,s2,MIN,'#C92A62');
-      const cols={L:'#E8457C',M:'#C9A227',F:'#6FAFC4',T:'#B07BE0'};
-      GN.forEach(([k,l],i)=>{const y=1270+i*70;g.font='700 30px '+GOT;g.fillStyle='#3B2430';g.textAlign='left';g.fillText(l,200,y+12);g.fillStyle='#F3DCE4';rr(380,y-10,440,24,12);g.fill();g.fillStyle=cols[k];rr(380,y-10,Math.max(24,440*clamp(st[k])/100),24,12);g.fill();g.textAlign='right';g.fillStyle='#3B2430';g.font='500 30px '+"'DM Mono',monospace";g.fillText(String(clamp(st[k])),880,y+12);});
+      tx('わたしの結婚タイプ',W/2,1075,30,GOT,'#B8921C',700);
+      const s2=fit(lastType.n,W-240,90,MIN);tx(lastType.n,W/2,1175,s2,MIN,'#C92A62');
+      tx('総資産',W/2,1265,30,GOT,'#8E6E7B',700);
+      const mv=yen(START.sav)+' → '+yen(st.sav);const s3=fit(mv,W-220,64,MIN);tx(mv,W/2,1345,s3,MIN,'#B8921C');
+      const cols={L:'#E8457C',T:'#B07BE0'};
+      ['L','T'].forEach((k,i)=>{const y=1430+i*70;g.font='700 30px '+GOT;g.fillStyle='#3B2430';g.textAlign='left';g.fillText(LBL[k],200,y+12);g.fillStyle='#F3DCE4';rr(380,y-10,440,24,12);g.fill();g.fillStyle=cols[k];rr(380,y-10,Math.max(24,440*clamp(st[k])/100),24,12);g.fill();g.textAlign='right';g.fillStyle='#3B2430';g.font='500 30px '+"'DM Mono',monospace";g.fillText(String(clamp(st[k])),880,y+12);});
       tx('紹介された4人、全員に秘密がある。',W/2,1730,40,MIN,'#3B2430');
       tx('あなたなら、誰を選ぶ？',W/2,1800,52,MIN,'#C92A62');
       tx('#ウェディングストーリー',W/2,1870,30,GOT,'#8E6E7B',700);
@@ -788,7 +944,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
         if(!blob){toast('画像を作れませんでした');return;}
         let dl=null;try{if(window.claude&&window.claude.use)dl=await window.claude.use('downloads');}catch(e){dl=null;}
         if(dl){try{await dl.save({filename:'wedding-story.png',data:blob});toast('画像を保存しました(1080×1920)');}catch(err){toast(err&&err.code==='declined'?'保存をやめました':'この画面では保存できませんでした');}return;}
-        toast('この画面では保存できません。アプリ版で保存できます');
+        try{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download='wedding-story.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('画像を保存しました');}catch(e){toast('この画面では保存できません');}
       },'image/png');
     };
     face.onload=()=>{g.save();g.beginPath();g.arc(W/2,500,180,0,7);g.closePath();g.clip();g.drawImage(face,W/2-180,320,360,360);g.restore();g.strokeStyle='#C9A227';g.lineWidth=6;g.beginPath();g.arc(W/2,500,190,0,7);g.stroke();finish();};
