@@ -161,6 +161,32 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .vis{position:absolute;left:-9999px;top:0}
 @media (max-width:370px){.greet .g{font-size:24px}.streak b{font-size:52px}}
 
+/* ===== ガラケー・家の電話の親 ===== */
+.ph-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;font-size:15px;color:var(--ink-2)}
+.ph-head button{white-space:nowrap;flex-shrink:0;border-radius:999px;padding:3px 12px;font-size:13px;font-weight:700;background:var(--white)}
+.garake{width:min(290px,86vw);margin:2px auto 0;background:linear-gradient(160deg,#4A4F5C,#262A33);border-radius:40px 40px 30px 30px;padding:16px 16px 18px;box-shadow:0 24px 40px -18px rgba(0,0,0,.55),inset 0 2px 0 rgba(255,255,255,.15)}
+.g-ear{width:46px;height:6px;border-radius:3px;background:#15171C;margin:0 auto 10px}
+.g-screen{background:#E7F2EC;color:#1E2A24;border-radius:14px;height:168px;border:4px solid #15171C;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;font-weight:700;padding:8px;overflow:hidden;font-family:var(--font-gothic)}
+.g-screen .petimg{width:70px;background:#fff}
+.g-screen .big{font-size:20px;line-height:1.3}
+.g-screen .sm{font-size:13px;opacity:.75}
+.g-screen.ring .petimg{animation:shake .45s ease-in-out infinite}
+.g-screen.ring .big{animation:blinkt 1s steps(2) infinite}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-7deg)}75%{transform:rotate(7deg)}}
+@keyframes blinkt{50%{opacity:.35}}
+.g-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.g-keys button{height:48px;border-radius:16px;border:0;background:linear-gradient(#F4F1EA,#D9D4C9);color:#1E1B22;font-weight:800;font-size:23px;box-shadow:0 3px 0 #9C968A;font-family:var(--font-gothic)}
+.g-keys button:active{transform:translateY(2px);box-shadow:0 1px 0 #9C968A}
+.g-keys .call{background:linear-gradient(#5BC27D,#2F8A57);color:#fff;font-size:15px;box-shadow:0 3px 0 #1E5E3A}
+.g-keys .end{background:linear-gradient(#F07A66,#C8382A);color:#fff;font-size:15px;box-shadow:0 3px 0 #8A2216}
+.g-keys .mid{background:linear-gradient(#8B909B,#5E636E);box-shadow:0 3px 0 #3B3F47;pointer-events:none}
+.g-keys button.hot{outline:3px solid #F0634A;outline-offset:2px}
+.g-keys button.off{opacity:.4}
+.voice{margin-top:14px;background:var(--white);border:1.5px solid var(--line);border-radius:22px;padding:12px 16px 14px;font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+.voice::before{content:"🔊 電話から聞こえる 相棒の声";display:block;font-family:var(--font-gothic);font-size:12px;font-weight:700;color:var(--shu);margin-bottom:4px}
+.ph-hint{margin-top:12px;font-size:16px;color:var(--ink-2);text-align:center;line-height:1.6;word-break:keep-all}
+.ph-again{display:block;margin:12px auto 0;border-radius:999px;padding:10px 20px;font-weight:700;font-size:16px;background:var(--white)}
+
 /* ===== 相棒えらび（スマホ1画面に収める） ===== */
 .choose{display:flex;flex-direction:column;gap:clamp(8px,1.6vh,14px)}
 .choose h1{font-family:var(--font-mincho);font-weight:800;font-size:clamp(22px,3.4vh,28px);line-height:1.3;word-break:keep-all}
@@ -278,6 +304,7 @@ body.demoing{padding-bottom:260px}
   <!-- ===== 親の画面 ===== -->
   <section id="parent" class="parent">
     <div class="brand"><span class="nm">ワンポチ</span><span class="pill">生存確認</span></div>
+    <div id="p-smart">
     <div class="hero">
       <div class="greet"><div class="g" id="p-greet"></div><div class="d" id="p-date"></div></div>
       <div class="stage"><div class="sun"></div><button class="pet-btn" id="p-pet" type="button" aria-label="相棒をなでる"></button></div>
@@ -289,6 +316,24 @@ body.demoing{padding-bottom:260px}
       <h1 class="q" id="p-question"></h1>
       <div class="answers" id="p-choices"></div>
       <p class="hint">答える ＝「生きてるよ」の合図。<br>まちがえても 大丈夫。</p>
+    </div>
+    </div>
+    <div id="p-phone" hidden>
+      <div class="ph-head"><span id="ph-title"></span><button type="button" id="ph-mute">🔊 声あり</button></div>
+      <div class="garake" id="garake">
+        <div class="g-ear"></div>
+        <div class="g-screen" id="g-screen"></div>
+        <div class="g-keys" id="g-keys">
+          <button type="button" class="call" id="g-call">📞 通話</button><button type="button" class="mid" tabindex="-1" aria-hidden="true"></button><button type="button" class="end" id="g-end">切る</button>
+          <button type="button" id="g-k1">1</button><button type="button" id="g-k2">2</button><button type="button" id="g-k3">3</button>
+          <button type="button" id="g-k4">4</button><button type="button" id="g-k5">5</button><button type="button" id="g-k6">6</button>
+          <button type="button" id="g-k7">7</button><button type="button" id="g-k8">8</button><button type="button" id="g-k9">9</button>
+          <button type="button" id="g-ks">＊</button><button type="button" id="g-k0">0</button><button type="button" id="g-kh">＃</button>
+        </div>
+      </div>
+      <div class="voice" id="g-voice" hidden></div>
+      <p class="ph-hint" id="g-hint"></p>
+      <button type="button" class="ph-again" id="g-again" hidden>もう一度 電話がかかってくる</button>
     </div>
     <div class="done" id="p-result" hidden></div>
   </section>
@@ -319,6 +364,7 @@ body.demoing{padding-bottom:260px}
       <div class="field"><label for="s-parent">親の名前</label><input type="text" id="s-parent"></div>
       <div class="field"><label for="s-family">あなたの名前</label><input type="text" id="s-family"></div>
       <div class="field"><label>親から見たあなた</label><div class="seg" id="s-relation"></div></div>
+      <div class="field"><label>親の電話</label><div class="seg" id="s-device"></div></div>
       <div class="field"><label>相棒</label><div class="seg" id="s-animal"></div></div>
       <div class="field"><label>答えが来ないとき、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
@@ -411,9 +457,9 @@ body.demoing{padding-bottom:260px}
       {q:'みかんの いろは？', c:[['🧡','オレンジ'],['💙','あお'],['💜','むらさき']]}
     ]},
     {name:'かぞえて', q:[
-      {q:'🍎🍎🍎　いくつ？', c:[['3','みっつ'],['5','いつつ'],['1','ひとつ']]},
-      {q:'🐟🐟　いくつ？', c:[['2','ふたつ'],['4','よっつ'],['6','むっつ']]},
-      {q:'🧦🧦🧦🧦　いくつ？', c:[['4','よっつ'],['3','みっつ'],['2','ふたつ']]},
+      {q:'🍎🍎🍎　いくつ？', vq:'1たす2は？', c:[['3','みっつ'],['5','いつつ'],['1','ひとつ']]},
+      {q:'🐟🐟　いくつ？', vq:'3ひく1は？', c:[['2','ふたつ'],['4','よっつ'],['6','むっつ']]},
+      {q:'🧦🧦🧦🧦　いくつ？', vq:'2たす2は？', c:[['4','よっつ'],['3','みっつ'],['2','ふたつ']]},
       {q:'1 たす 2 は？', c:[['3','さん'],['4','よん'],['5','ご']]},
       {q:'5 ひく 1 は？', c:[['4','よん'],['6','ろく'],['2','に']]},
       {q:'10円玉 2まいで いくら？', c:[['20','20えん'],['10','10えん'],['30','30えん']]}
@@ -458,12 +504,12 @@ body.demoing{padding-bottom:260px}
     }
     var cat=CATS[idx%CATS.length];
     var base=cat.q[Math.floor(idx/CATS.length)%cat.q.length];
-    return rot({cat:cat.name, q:base.q, c:base.c.slice()}, idx);
+    return rot({cat:cat.name, q:base.q, vq:base.vq, c:base.c.slice()}, idx);
   }
   function rot(qq, idx){ // 正解が毎日ちがう位置に来るように回す
     var k=idx%3, c=qq.c, out=[];
     for(var i=0;i<3;i++) out.push(c[(i+k)%3]);
-    return {cat:qq.cat, q:qq.q, c:out, a:(3-k)%3};
+    return {cat:qq.cat, q:qq.q, vq:qq.vq, c:out, a:(3-k)%3};
   }
 
   // ---------- 状態 ----------
@@ -473,7 +519,7 @@ body.demoing{padding-bottom:260px}
   function today(){ var d=new Date(); d.setHours(12,0,0,0); return new Date(d.getTime()+S.dayOffset*DAY); }
   function daysAgo(n){ return new Date(today().getTime()-n*DAY); }
   function fresh(){
-    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678'}, answers:{}, gifts:[], worn:[], chosen:false};
+    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart'}, answers:{}, gifts:[], worn:[], chosen:false};
     S=s;
     var times=['8:12','7:55','8:40','9:03','8:21','8:08','7:48','8:33','8:15','9:10','8:02'];
     for(var i=1;i<=11;i++){ s.answers[key(daysAgo(i))]={pick:0, correct:i%5!==0, time:times[i-1], label:''}; }
@@ -515,6 +561,9 @@ body.demoing{padding-bottom:260px}
   });
   function renderParent(){
     var st=S.settings, t=key(today()), done=S.answers[t], d=today();
+    var isPhone=st.device==='phone';
+    el('p-smart').hidden=isPhone; el('p-phone').hidden=!isPhone;
+    if(isPhone){ el('p-result').hidden=!done; if(done) renderResult(done); renderPhone(); return; }
     el('p-pet').innerHTML=pet(st.animal, S.worn, !!done);
     el('p-name').textContent=ANIMALS[st.animal].name;
     el('p-greet').textContent=greeting()+'、'+st.parentName+'さん';
@@ -546,22 +595,97 @@ body.demoing{padding-bottom:260px}
     if(busy) return; busy=true;
     var btns=el('p-choices').querySelectorAll('.ans');
     btns.forEach(function(b,j){ b.disabled=true; if(j===qq.a) b.classList.add('correct'); else if(j===i) b.classList.add('wrong'); else b.classList.add('dim'); });
-    setTimeout(function(){
-      var now=new Date();
-      var rec={pick:i, correct:i===qq.a, time:now.getHours()+':'+pad(now.getMinutes()), label:i<0?'わからない':qq.c[i][1], ans:qq.c[qq.a][1]};
-      S.answers[key(today())]=rec; S.hello=false;
-      var g=pendingGift();
-      if(g){ wear(g.id); rec.gift=g.id; }
-      save(); renderParent(); renderFamily(); busy=false;
-      window.scrollTo({top:0, behavior:'smooth'});
-    }, 650);
+    setTimeout(function(){ commit(i, qq, 'app'); busy=false; window.scrollTo({top:0, behavior:'smooth'}); }, 650);
   }
+  function commit(i, qq, via){
+    var now=new Date();
+    var rec={pick:i, correct:i===qq.a, time:now.getHours()+':'+pad(now.getMinutes()), label:i<0?'わからない':qq.c[i][1], ans:qq.c[qq.a][1], via:via};
+    S.answers[key(today())]=rec; S.hello=false;
+    var g=pendingGift();
+    if(g){ wear(g.id); rec.gift=g.id; }
+    save(); renderParent(); renderFamily();
+  }
+
+  // ---------- ガラケー・家の電話：相棒が電話をかけてくる ----------
+  // 本番は電話の自動音声（相棒の声はElevenLabs）。ここでは画面のボタンを電話のボタンに見立てる。
+  var PH={state:'ring', day:'', q:null, ready:false, timers:[]}, muted=false;
+  function phClear(){ PH.timers.forEach(clearTimeout); PH.timers=[]; try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch(e){} }
+  function phLater(fn, ms){ PH.timers.push(setTimeout(fn, ms)); }
+  function speak(t){
+    if(muted) return;
+    try{ if(!window.speechSynthesis) return; speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'')); u.lang='ja-JP'; u.rate=0.95; u.pitch=1.2; speechSynthesis.speak(u); }catch(e){}
+  }
+  function voiceLine(t){ var v=el('g-voice'); v.hidden=false; v.innerHTML=t; speak(t); }
+  function readTime(t){ return Math.max(2600, 900+t.replace(/<[^>]+>/g,'').length*150); }
+  function keysHot(on){ ['1','2','3','0'].forEach(function(k){ el('g-k'+k).classList.toggle('hot', on); }); }
+  function renderPhone(){
+    var st=S.settings, t=key(today()), done=S.answers[t], an=ANIMALS[st.animal];
+    if(PH.day!==t){ phClear(); PH.day=t; PH.state=done?'done':'ring'; PH.ready=false; }
+    if(done && PH.state!=='bye') PH.state='done';
+    el('ph-title').textContent='☎️ '+st.parentName+'さんの電話';
+    el('ph-mute').textContent=muted?'🔇 声なし':'🔊 声あり';
+    var sc=el('g-screen'); sc.className='g-screen'; el('g-again').hidden=true;
+    var talking=PH.state==='talk';
+    ['1','2','3','4','5','6','7','8','9','0','s','h'].forEach(function(k){ el('g-k'+k).classList.toggle('off', !talking); });
+    el('g-call').classList.toggle('off', PH.state!=='ring');
+    el('g-end').classList.toggle('off', !(PH.state==='ring'||talking));
+    if(!talking) keysHot(false);
+    if(PH.state==='ring'){
+      sc.classList.add('ring');
+      sc.innerHTML=pet(st.animal,S.worn)+'<div class="big">着信中…</div><div class="sm">ワンポチ（'+an.name+'）</div>';
+      el('g-voice').hidden=true;
+      el('g-hint').innerHTML='毎'+st.timeOfDay+'、'+an.name+'から電話がかかってきます。<br>緑の「通話」を押して出てください。';
+    }else if(talking){
+      sc.innerHTML=pet(st.animal,S.worn)+'<div class="big">通話中</div><div class="sm">ワンポチ（'+an.name+'）</div>';
+      el('g-hint').innerHTML=PH.ready?'聞こえた番号のボタンを押してください':'電話から 相棒の声が流れています';
+    }else if(PH.state==='missed'){
+      sc.innerHTML='<div class="big">不在着信</div><div class="sm">ワンポチ（'+an.name+'）</div>';
+      el('g-voice').hidden=true;
+      el('g-hint').innerHTML='出なかったときは、昼と夕方にもう一度かけます。<br>'+st.alertAfter+'日続けて答えがないと、'+st.familyName+'さんに知らせが届きます。';
+      el('g-again').hidden=false;
+    }else{ // bye / done
+      sc.innerHTML=pet(st.animal,S.worn,true)+'<div class="big">通話終了</div><div class="sm">きょうの答え：済み</div>';
+      el('g-hint').innerHTML=PH.state==='bye'?'':'きょうは もう答えました。また あした電話がきます。';
+      if(PH.state==='done') el('g-voice').hidden=true;
+    }
+  }
+  function startCall(){
+    var st=S.settings, an=ANIMALS[st.animal], qq=questionFor(today());
+    PH.q=qq; PH.state='talk'; PH.ready=false; renderPhone();
+    var l1='もしもし、'+st.parentName+'さん。'+an.name+'だよ。おはよう！';
+    var l2='きょうの1問。'+(qq.vq||qq.q).replace(/[\s　]+/g,'');
+    var opts=qq.c.map(function(c,i){ return (i+1)+'は '+c[1]; }).join('、');
+    var l3=opts+'。<br>わからないときは 0 を押してね。';
+    voiceLine(l1);
+    phLater(function(){ voiceLine(l2); }, readTime(l1));
+    phLater(function(){ voiceLine(l3); PH.ready=true; keysHot(true); renderPhone(); }, readTime(l1)+readTime(l2));
+  }
+  function phKey(k){
+    if(PH.state!=='talk') return;
+    var st=S.settings, qq=PH.q;
+    if(!PH.ready){ return; }
+    var i = k==='0' ? -1 : (['1','2','3'].indexOf(k));
+    if(k!=='0' && i<0){ voiceLine('1、2、3、0 のどれかを押してね。'); return; }
+    PH.ready=false; keysHot(false); phClear();
+    var res = i<0 ? 'わからないでも 大丈夫。こたえは「'+qq.c[qq.a][1]+'」だよ。' : (i===qq.a ? 'せいかい！' : 'おしい！こたえは「'+qq.c[qq.a][1]+'」だよ。');
+    var bye=res+'<br>'+st.familyName+'さんに「無事」を知らせておくね。また あしたね！';
+    voiceLine(bye);
+    phLater(function(){ PH.state='bye'; commit(i, qq, 'phone'); if(!demo) setTimeout(function(){ el('p-result').scrollIntoView({behavior:'smooth', block:'start'}); }, 200); }, readTime(bye));
+  }
+  el('g-call').addEventListener('click', function(){ if(PH.state==='ring'){ phClear(); startCall(); } });
+  el('g-end').addEventListener('click', function(){
+    if(PH.state==='ring'||PH.state==='talk'){ phClear(); PH.state='missed'; PH.ready=false; renderPhone(); }
+  });
+  el('g-again').addEventListener('click', function(){ PH.state='ring'; renderPhone(); });
+  ['1','2','3','4','5','6','7','8','9','0'].forEach(function(k){ el('g-k'+k).addEventListener('click', function(){ phKey(k); }); });
+  el('ph-mute').addEventListener('click', function(){ muted=!muted; if(muted) try{ speechSynthesis.cancel(); }catch(e){} renderPhone(); });
   function renderResult(rec){
     var st=S.settings;
     var h='<div class="seal">無事</div>';
     h+='<div class="big">'+st.parentName+'さん、<br>きょうも 元気。</div>';
     if(rec.pick>=0){ h+= rec.correct?'<div class="chip">せいかい！</div>':'<div class="note">こたえは「'+rec.ans+'」でした</div>'; }
     else if(rec.ans){ h+='<div class="note">こたえは「'+rec.ans+'」でした</div>'; }
+    if(rec.via==='phone') h+='<div class="note">電話で 答えました</div>';
     h+='<div class="sent">'+ico('i-check')+st.relation+'の '+st.familyName+'さんに「無事」が とどきました</div>';
     h+='<div class="mini">'+pet(st.animal, S.worn, true)+'<div class="st">つづけて<br><b>'+streak()+'</b> 日</div></div>';
     if(rec.gift&&ITEMS[rec.gift]){ h+='<div class="gift">'+st.relation+'の '+st.familyName+'さんから<br>「'+ITEMS[rec.gift].name+'」が とどきました！</div>'; }
@@ -577,7 +701,7 @@ body.demoing{padding-bottom:260px}
     var s=el('f-status'), h='';
     if(done){
       s.className='status ok';
-      h='<div class="st">'+ico('i-check')+'きょう '+done.time+' に 答えました</div>';
+      h='<div class="st">'+ico('i-check')+'きょう '+done.time+' に '+(done.via==='phone'?'電話で ':'')+'答えました</div>';
       h+='<div class="sub">きょうの答え：'+(done.pick<0?'わからない':done.label+(done.correct?'（せいかい）':'（こたえは '+done.ans+'）'))+'</div>';
       if(done.gift&&ITEMS[done.gift]) h+='<div class="sub">「'+ITEMS[done.gift].name+'」を受け取りました</div>';
       h+='<div class="sms">'+st.contact+'で届いた知らせ<br><b>【ワンポチ】'+st.parentName+'さん、きょうも無事です（'+done.time+'）</b></div>';
@@ -616,6 +740,8 @@ body.demoing{padding-bottom:260px}
 
     el('s-parent').value=st.parentName; el('s-family').value=st.familyName; el('s-phone').value=st.phone;
     seg('s-relation',['むすめ','むすこ','まご'],st.relation,function(v){ st.relation=v; });
+    seg('s-device',['smart','phone'],st.device||'smart',function(v){ st.device=v; el('f-sms').hidden=true; },function(v){ return v==='smart'?'📱 スマホ':'☎️ ガラケー・家の電話'; });
+    el('f-send').innerHTML=ico('i-mail')+((st.device==='phone')?'この番号に 電話をかける（試し）':'親のスマホに送る');
     seg('s-animal',['dog','cat','panda','rabbit'],st.animal,function(v){ st.animal=v; },function(v){ return pet(v,[])+'<span>'+ANIMALS[v].name+'</span>'; });
     seg('s-alert',[1,2,3],st.alertAfter,function(v){ st.alertAfter=v; },function(v){ return ['次の日','2日後','3日後'][v-1]; });
     seg('s-time',['あさ','ひる','よる'],st.timeOfDay,function(v){ st.timeOfDay=v; });
@@ -636,6 +762,10 @@ body.demoing{padding-bottom:260px}
   el('f-send').addEventListener('click', function(){
     var st=S.settings, b=el('f-sms');
     b.hidden=false;
+    if(st.device==='phone'){
+      b.innerHTML='<div class="from">'+st.parentName+'さんの電話（'+st.phone+'）</div><div>あすから毎'+st.timeOfDay+'、「'+ANIMALS[st.animal].name+'」が電話をかけて、きょうの1問を声で出します。<br><b>親は 電話に出て、数字のボタンを1つ押すだけ。</b></div><div class="from">ガラケーでも家の電話でも使えます。アプリの入れ方・登録・パスワードは一切ありません。出なかったときは昼と夕方にかけ直し、'+st.alertAfter+'日続けて答えがないとあなたに知らせます。</div>';
+      toast('試しの電話をかけました（試作のため実際にはかかりません）'); return;
+    }
     b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くSMS（例）</div><div>'+st.familyName+'です。これを押すと「'+ANIMALS[st.animal].name+'」が毎'+st.timeOfDay+'あいさつに来ます。押すだけでいいよ。<br><b>wanpochi.app/f/8k2m</b></div><div class="from">リンクを押した瞬間に親の画面になります。名前・相棒・時間はここで決めた通り。親側の登録・コード入力はありません。帰省したときはこのQRを目の前で読ませてもOK。</div>';
     toast('送りました（試作のため実際には送られません）');
   });
@@ -675,8 +805,8 @@ body.demoing{padding-bottom:260px}
   }
   el('d-parent').addEventListener('click', function(){ show('parent'); });
   el('d-family').addEventListener('click', function(){ show('family'); });
-  el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; save(); renderAll(); toast('1日すすめました'); });
-  el('d-reset').addEventListener('click', function(){ fresh(); save(); renderAll(); show('choose'); window.scrollTo(0,0); });
+  el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; PH.day=''; save(); renderAll(); toast('1日すすめました'); });
+  el('d-reset').addEventListener('click', function(){ PH.day=''; phClear(); fresh(); save(); renderAll(); show('choose'); window.scrollTo(0,0); });
 
   var toastTimer;
   function toast(msg){ if(demo) return; var t=el('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.hidden=true; }, 2600); }
@@ -691,7 +821,7 @@ body.demoing{padding-bottom:260px}
   // 見る人は家族やbuntyan（お年寄り本人ではない）。説明は下の黒い帯に固定して画面と重ねない。
   // 読む時間は文字数で決める（最低3.4秒）。「次へ」で先に進める。
   function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-  var fg=el('finger'), cap=el('caption'), stopReq=false, skip=null, CH=6;
+  var fg=el('finger'), cap=el('caption'), stopReq=false, skip=null, CH=7;
   function chk(){ if(stopReq) throw new Error('stop'); }
   function wait(ms){ return new Promise(function(r){ var t=setTimeout(done,ms); function done(){ clearTimeout(t); skip=null; r(); } skip=done; }); }
   el('cap-next').addEventListener('click', function(){ if(skip) skip(); });
@@ -744,7 +874,25 @@ body.demoing{padding-bottom:260px}
       await focus(el('p-result'));
       await say('「無事」のハンコが出たら、きょうはおしまい','ここまで10秒くらい。字は大きく、ボタンも大きく');
 
-      await chapter(3,'家族のスマホ','離れて暮らす家族が見る画面');
+      // 2.5 ガラケー・家の電話（この章のあとは元に戻す）
+      await chapter(3,'ガラケー・家の電話','スマホがない親でも');
+      var snap=JSON.stringify(S);
+      S.settings.device='phone'; delete S.answers[key(today())]; PH.day=''; renderAll(); show('parent'); window.scrollTo(0,0); await sleep(400);
+      await say('スマホがない親には、相棒が電話をかけてきます','ガラケーでも、家の電話でもOK。アプリの入れ方も登録もいりません');
+      await focus(el('garake'));
+      line('鳴ったら、緑の「通話」を押して出るだけ'); await tap(el('g-call')); fg.hidden=true;
+      line('相棒の声で「きょうの1問」が流れます','下の白い枠は、電話から聞こえる声を文字にしたもの');
+      await focus(el('g-voice')); 
+      for(var w=0; w<60 && !PH.ready; w++){ await sleep(250); chk(); }
+      await sleep(1500); chk();
+      line('聞こえた番号のボタンを1つ押す','数字のボタンは、いつもの電話と同じ');
+      await focus(el('g-keys')); await tap(el('g-k'+(PH.q.a+1)));
+      for(var w2=0; w2<60 && !S.answers[key(today())]; w2++){ await sleep(250); chk(); }
+      fg.hidden=true; await focus(el('p-result'));
+      await say('電話で答えても、家族には同じように「無事」が届きます','出なかったときは、昼と夕方にかけ直し');
+      phClear(); S=JSON.parse(snap); PH.day=''; renderAll(); show('parent');
+
+      await chapter(4,'家族のスマホ','離れて暮らす家族が見る画面');
       show('family'); window.scrollTo(0,0); await sleep(400);
       await focus(el('f-status'));
       await say('親が答えると、家族に「きょうも無事です」と届きます','LINEを使っていない人には、SMSで届きます');
@@ -754,14 +902,14 @@ body.demoing{padding-bottom:260px}
       await say('着せ替えは、家族から親へのプレゼント（1つ100円）','親は何も操作しません');
       line('麦わら帽子を贈ってみます'); await tap(el('gift-straw')); await sleep(600); fg.hidden=true;
 
-      await chapter(4,'次の日','プレゼントが届く');
+      await chapter(5,'次の日','プレゼントが届く');
       S.dayOffset++; S.hello=false; renderAll(); show('parent'); window.scrollTo(0,0); await sleep(400);
       await focus(el('p-qcard'));
       line('わからない日でも、押せばちゃんと「無事」'); await tap(el('choice-dunno')); await sleep(800); fg.hidden=true;
       await focus(el('p-result'));
       await say('相棒が、きのうの麦わら帽子をかぶって来ました','だれからのプレゼントかも、親の画面に出ます');
 
-      await chapter(5,'もしも','答えがない日が続いたら');
+      await chapter(6,'もしも','答えがない日が続いたら');
       S.dayOffset+=3; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
       var st=S.settings;
       el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>SMS</small>';
@@ -771,9 +919,12 @@ body.demoing{padding-bottom:260px}
       await focus(el('f-status'));
       await say('家族の画面も、赤い知らせに変わります');
 
-      await chapter(6,'設定','家族だけがさわる');
+      await chapter(7,'設定','家族だけがさわる');
       await focus(el('s-animal'));
       await say('設定は家族の画面にだけあります','親の画面には、メニューも設定も出ません');
+      await focus(el('s-device'));
+      await say('親がガラケーなら、ここで「ガラケー・家の電話」をえらぶだけ','それだけで、あすから電話で1問が届きます');
+      await focus(el('s-animal'));
       line('相棒も、ここで変えられます'); await tap(el('s-animal-rabbit')); await sleep(700); await tap(el('s-animal-panda')); await sleep(300); fg.hidden=true;
       await focus(el('s-alert'));
       await say('知らせるタイミングは「次の日・2日後・3日後」の3つだけ','むずかしい時間の入力はありません');
@@ -784,7 +935,7 @@ body.demoing{padding-bottom:260px}
 
       cap.hidden=true; el('end-pet').innerHTML=pet('panda',['straw'],true); el('endcard').classList.add('show');
     }catch(e){ el('endcard').classList.remove('show'); }
-    skip=null; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
+    skip=null; phClear(); PH.day=''; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
     S=JSON.parse(saved); demo=false; document.body.classList.remove('demoing');
     renderAll(); show(back); window.scrollTo(0,0);
   }
