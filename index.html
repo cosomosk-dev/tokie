@@ -593,7 +593,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-18 v11";
+  const APP_VER="2026-10-20 v12";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2224,9 +2224,13 @@
     const th=thanksPending();const vmMsg=th?MSG_THANKS(th):MSG_VM;
     vmCard.className="vm";hideNotice();errEl.textContent="";statusEl.textContent="ママから電話や…";btn.disabled=true;
     caption.innerHTML="";
-    let aiCount=0,done=false,hardStop=null,endT=null;
+    // 流れ：①「もしもし、ママやけど…」を最後まで言わせる → ②言い終わってから本題の指示を送る → ③本題を言い切って黙ったら切る
+    // （前は挨拶の途中で指示を送ってたから、挨拶がぶった切られて本題の途中に挨拶が入り直したり、1.5秒の間で切れてた）
+    let aiCount=0,bodyCount=0,sent=false,done=false,hardStop=null,endT=null,sendT=null,lastBody="";
+    const VM_OPEN_NOTE="（挨拶の「もしもし、ママやけど。出られへんみたいやから、留守電入れとくな」はもう言うた。もう一回名乗ったり挨拶し直したりせんと、そのまま本題から入る。途中で切らんと、最後の締めの一言まで全部言い切る）";
+    const sendBody=()=>{if(sent||done||!vmConv)return;sent=true;clearTimeout(sendT);try{vmConv.sendUserMessage(VM_OPEN_NOTE+vmMsg);}catch(e){}};
     const finish=async(ok)=>{
-      if(done)return;done=true;clearTimeout(hardStop);clearTimeout(endT);
+      if(done)return;done=true;clearTimeout(hardStop);clearTimeout(endT);clearTimeout(sendT);
       const c=vmConv;vmConv=null;try{if(c)await c.endSession();}catch(e){}
       stage.classList.remove("speaking");
       if(ok){if(th)markThanks(th);else{if(!sub().on&&vmCredits()>0)addVmCredit(-1);try{localStorage.setItem(VM_KEY,todayBiz());}catch(e){}}}
@@ -2234,20 +2238,26 @@
       if(conv||session)return; // 入店に切り替わった時は、入店側の表示を触らへん
       statusEl.textContent=ok?"留守電、聞いた":"留守電が聞けへんかった";btn.disabled=false;renderVm();
     };
-    vmStop=()=>finish(aiCount>=2);
+    vmStop=()=>finish(bodyCount>=1);
     try{
       try{await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){errEl.textContent="マイクを許可してな（聞くだけやけど、仕組み上いる）";return finish(false);}
       const digest=await loadDigest();
+      const fullMsg=VM_OPEN_NOTE+vmMsg;
       vmConv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory:buildMemory(false,digest,MEMORY_BUDGET_BYTES-jbytes(vmMsg)-8)+"\n\n"+vmMsg, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
+        dynamicVariables:{memory:buildMemory(false,digest,MEMORY_BUDGET_BYTES-jbytes(fullMsg)-8)+"\n\n"+fullMsg, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
         onConnect:()=>{try{vmConv&&vmConv.setMicMuted&&vmConv.setMicMuted(true);}catch(e){}
-          setTimeout(()=>{try{vmConv&&vmConv.sendUserMessage(vmMsg);}catch(e){}},300);
-          hardStop=setTimeout(()=>finish(true),75000);},
-        onDisconnect:()=>finish(aiCount>=2),
-        onMessage:(m)=>{if(!(m&&m.message)||m.source!=="ai")return;if(show(String(m.message),"ai"))aiCount++;},
-        onModeChange:(m)=>{const mode=m&&m.mode;stage.classList.toggle("speaking",mode==="speaking");statusEl.textContent=mode==="speaking"?"留守電・再生中":"…";
-          clearTimeout(endT);if(mode!=="speaking"&&aiCount>=2)endT=setTimeout(()=>finish(true),1500);},
+          sendT=setTimeout(sendBody,10000); // 挨拶の終わりが拾えん時の保険
+          hardStop=setTimeout(()=>finish(bodyCount>=1),150000);},
+        onDisconnect:()=>finish(bodyCount>=1),
+        onMessage:(m)=>{if(!(m&&m.message)||m.source!=="ai")return;const t=show(String(m.message),"ai");if(!t)return;aiCount++;if(sent){bodyCount++;lastBody=t;}},
+        onModeChange:(m)=>{const mode=m&&m.mode;const speaking=mode==="speaking";stage.classList.toggle("speaking",speaking);statusEl.textContent=speaking?"留守電・再生中":"…";
+          clearTimeout(endT);
+          if(speaking)return;
+          // 挨拶を言い終わった → 少し間を置いて本題へ
+          if(!sent){if(aiCount>=1){clearTimeout(sendT);sendT=setTimeout(sendBody,600);}return;}
+          // 本題を言い終わった → 締めの言葉が出てたら2秒、まだなら4秒待って、続きが無ければ切る
+          if(bodyCount>=1)endT=setTimeout(()=>finish(true),/またおいで|おいでや|おいでな/.test(lastBody)?2000:4000);},
         onError:(msg)=>{errEl.textContent="エラー："+String(msg&&msg.message?msg.message:msg);}
       });
     }catch(e){errEl.textContent="つながらへん："+String(e&&e.message?e.message:e);finish(false);}
