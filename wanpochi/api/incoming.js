@@ -1,4 +1,4 @@
-// 親がポチの番号にかけてきたら、ここに来る（Twilio から）
+// 親が着信履歴から、ポチの番号に折り返してきたら、ここに来る（Twilio から）
 // 電話には出ずに切る（<Reject>）→ 誰にも通話料がかからない。番号で「誰からか」だけ見て、家族に「無事」を知らせる。
 'use strict';
 const P = require('../lib/phone');
@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
   // Vercel は返事を返すと処理が止まるので、SMSを先に送ってから「出ないで切る」を返す
   // （返事の最初の命令が Reject なら課金されない）
   if (isParent) {
-    await P.sms(c, '【ワンポチ】' + c.parentName + 'さんから、きょうの「ワンポチ」が届きました（' + P.timeJST() + '）。きょうも無事です。');
+    await P.sms(c, '【ワンポチ】' + c.parentName + 'さん、きょうも無事です（' + P.timeJST() + '・折り返しがありました）');
   } else {
     console.log('知らない番号からの着信（無視）:', from ? from.slice(0, 4) + '…' : '非通知');
   }

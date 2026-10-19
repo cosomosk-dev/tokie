@@ -10,7 +10,7 @@ module.exports = (req, res) => {
     PARENT_PHONE: has('PARENT_PHONE'),
     FAMILY_PHONE: has('FAMILY_PHONE'),
     CALL_KEY: has('CALL_KEY'),
-    PARENT_NAME: e.PARENT_NAME || '（未設定→おかあさん）',
+    PARENT_NAME: e.PARENT_NAME || '（未設定→ふみこ）',
     PET_NAME: e.PET_NAME || '（未設定→ポチ）',
   };
   const need = ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM', 'PARENT_PHONE', 'FAMILY_PHONE'];

@@ -1,39 +1,11 @@
 // ワンポチ 電話版（ガラケー・家の電話）の共通部品
+// しくみ：毎朝ポチの番号から親の電話を2〜3回だけ鳴らして切る（出なければ0円）→ 親が着信履歴から折り返す → 出ずに切る（0円）→ 家族に「無事」。
+// 親がうっかり出たら短い声で「元気だね」と言って切る（それも無事）。初日だけ使い方を声で伝える電話を1回かける。
 // 本番は相棒の声をElevenLabsで作る予定。試しの段階では Twilio の日本語読み上げ（Polly Mizuki）を使う。
 'use strict';
 
-const DAY = 86400000;
-
-// 電話で聞いて分かる問題だけ（答えが数字のものは、ボタンの番号とまぎらわしいので入れない）
-const BANK = [
-  { q: 'ワンワンと なくのは、どれ？', c: ['いぬ', 'ねこ', 'うし'] },
-  { q: 'はるに さく はなは、どれ？', c: ['さくら', 'ひまわり', 'もみじ'] },
-  { q: 'うみに すむのは、どれ？', c: ['たこ', 'くま', 'うさぎ'] },
-  { q: 'あめの ひに さすのは、どれ？', c: ['かさ', 'ぼうし', 'めがね'] },
-  { q: 'なつに たべるのは、どれ？', c: ['すいか', 'やきいも', 'おなべ'] },
-  { q: 'さるも きから、の つづきは？', c: ['おちる', 'のぼる', 'とぶ'] },
-  { q: 'ニャーと なくのは、どれ？', c: ['ねこ', 'ぶた', 'にわとり'] },
-  { q: 'そらを とぶのは、どれ？', c: ['とり', 'さかな', 'かめ'] },
-  { q: 'バナナの いろは、どれ？', c: ['きいろ', 'あか', 'あお'] },
-  { q: 'ふゆに つかうのは、どれ？', c: ['マフラー', 'ふうりん', 'かきごおり'] },
-  { q: 'ごはんを たべるときに つかうのは、どれ？', c: ['おはし', 'かなづち', 'はさみ'] },
-  { q: 'いそがば、の つづきは？', c: ['まわれ', 'はしれ', 'とまれ'] },
-  { q: 'おしょうがつに かざるのは、どれ？', c: ['かどまつ', 'かぼちゃ', 'ツリー'] },
-  { q: 'モーと なくのは、どれ？', c: ['うし', 'いぬ', 'かえる'] },
-];
-
 function jst(now) {
   return new Date((now || Date.now()) + 9 * 3600000); // UTC+9 の壁時計を UTC のメソッドで読む
-}
-
-// きょうの問題（正解の位置は日ごとにずらす）
-function questionFor(now) {
-  const d = jst(now);
-  const idx = Math.floor(d.getTime() / DAY);
-  const base = BANK[idx % BANK.length];
-  const k = idx % 3;
-  const c = [0, 1, 2].map(i => base.c[(i + k) % 3]);
-  return { q: base.q, c, a: (3 - k) % 3 };
 }
 
 function greeting(now) {
@@ -58,8 +30,8 @@ function cfg() {
     from: e.TWILIO_FROM || '',
     parentPhone: e.PARENT_PHONE || '',
     familyPhone: e.FAMILY_PHONE || '',
-    parentName: e.PARENT_NAME || 'おかあさん',
-    familyName: e.FAMILY_NAME || 'かぞく',
+    parentName: e.PARENT_NAME || 'ふみこ',
+    familyName: e.FAMILY_NAME || 'ゆか',
     petName: e.PET_NAME || 'ポチ',
     callKey: e.CALL_KEY || '',
     voice: e.TWILIO_VOICE || 'Polly.Mizuki',
@@ -117,4 +89,4 @@ function form(req) {
   return b;
 }
 
-module.exports = { questionFor, greeting, timeJST, esc, cfg, baseUrl, say, xml, twilio, sms, form };
+module.exports = { greeting, timeJST, esc, cfg, baseUrl, say, xml, twilio, sms, form };
