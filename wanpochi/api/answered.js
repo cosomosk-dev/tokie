@@ -20,6 +20,7 @@ module.exports = async (req, res) => {
       'もしもし、' + c.parentName + 'さん。' + c.petName + 'だよ。はじめまして！',
       'あしたから まいあさ、ちょっとだけ 電話を鳴らすね。出なくて いいよ。',
       '鳴りやんだら、着信履歴から かけ直してね。すぐ切れるけど、それで 大丈夫。お金も かからないよ。',
+      'それから、' + c.petName + 'は お名前や 住所、お金や 暗証番号を 聞くことは ぜったいに ないよ。もし聞かれたら、それは ' + c.petName + 'じゃないからね。',
       c.familyName + 'さんに、元気だよって とどくからね。また あした！',
     ];
     return P.xml(res, lines.map(l => P.say(c, l) + '<Pause length="1"/>').join('') + '<Hangup/>');

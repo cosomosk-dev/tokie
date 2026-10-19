@@ -214,10 +214,13 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .petcard[aria-pressed="true"] .kind{color:var(--shu)}
 .pick-ok{border-radius:999px;padding:clamp(10px,1.8vh,15px) 20px;font-family:var(--font-mincho);font-weight:800;font-size:21px;background:var(--shu);border-color:var(--shu);color:#fff;box-shadow:0 14px 30px -14px rgba(217,68,43,.8)}
 .pick-ok:disabled{background:var(--paper-2);border-color:var(--line);color:var(--ink-2);box-shadow:none;cursor:default}
+.choose .safe{text-align:center;font-size:13px;color:var(--ink-2);line-height:1.6;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:6px 10px;margin:0}
+.choose .safe a{color:var(--shu);font-weight:700}
 .choose .later{text-align:center;font-size:13px;color:var(--ink-2);margin-top:-4px}
 body.choosing .brand{display:none}
 body.choosing .demo .row+.row{display:none}
 @media (max-height:660px){.choose .lead,.choose .later{display:none}}
+@media (max-height:800px){.choose .later{display:none}}
 
 /* ===== デモ再生 ===== */
 .demo .play{background:var(--shu);color:#fff;border-color:var(--shu)}
@@ -311,6 +314,7 @@ body.demoing{padding-bottom:260px}
     <div class="pets" id="pets"></div>
     <button class="pick-ok" id="pick-ok" type="button" disabled>この子にする</button>
     <p class="later">あとから家族の画面でも変えられます</p>
+    <p class="safe">🔒 登録なし。記録はこのスマホの中だけ。<a href="/privacy">くわしく</a></p>
   </section>
 
   <!-- ===== 親の画面 ===== -->
@@ -712,10 +716,12 @@ body.demoing{padding-bottom:260px}
       var l1='もしもし、'+st.parentName+'さん。'+an.name+'だよ。はじめまして！';
       var l2='あしたから毎'+st.timeOfDay+'、ちょっとだけ 電話を鳴らすね。出なくて いいよ。';
       var l3='鳴りやんだら、かけ直してね。すぐ切れるけど、それで 大丈夫。お金も かからないよ。';
+      var l35='それから、'+an.name+'は お名前や 住所、お金や 暗証番号を 聞くことは ぜったいに ないよ。もし聞かれたら、それは '+an.name+'じゃないからね。';
       var l4=st.familyName+'さんに「元気だよ」が とどくからね。また あした！';
       voiceLine(l1); var t=readTime(l1);
       phLater(function(){ voiceLine(l2); }, t); t+=readTime(l2);
       phLater(function(){ voiceLine(l3); }, t); t+=readTime(l3);
+      phLater(function(){ voiceLine(l35); }, t); t+=readTime(l35);
       phLater(function(){ voiceLine(l4); }, t); t+=readTime(l4);
       phLater(function(){ S.phoneIntro=true; commitPhone('intro'); PH.state='bye'; renderPhone(); }, t);
       return;
