@@ -296,7 +296,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .diag .td{line-height:1.8;font-size:.98rem}
 .diag .tm{font-size:.9rem;color:var(--ink-2)}
 .datab{background:var(--white);border-radius:18px;padding:12px 14px;text-align:left;font-size:.92rem;line-height:1.7;border:1px solid var(--line)}
-.compat{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.compat{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:6px}.compat div.sec{background:linear-gradient(135deg,#FFF6E3,#F7D9E3);border:1px solid var(--gold-line)}
 .compat div{background:var(--bg-2);border-radius:12px;padding:6px 4px;text-align:center;font-size:.78rem;line-height:1.3}
 .compat div b{display:block;font-size:1.25rem;color:var(--rose-deep)}
 .datab .src{display:block;font-size:.7rem;color:var(--ink-2);margin-top:4px}
@@ -314,7 +314,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .moshi .mf img{width:100%;height:100%;object-fit:cover;filter:blur(3px) saturate(.8)}
 .moshi b{font-family:var(--font-mincho);font-size:.84rem;line-height:1.3}
 .moshi .q{color:var(--gold);font-weight:700}
-.adov{position:fixed;inset:0;background:rgba(20,10,15,.86);z-index:50;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;text-align:center;padding:24px}
+.adov{position:fixed;inset:0;background:rgba(20,10,15,.86);z-index:50;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;text-align:center;padding:24px}.adov.cm{align-items:center;padding:16px}.cmcard{background:var(--bg);color:var(--ink);border-radius:22px;padding:18px 16px;width:100%;max-width:420px;text-align:left;box-shadow:var(--shadow)}.cmtop{display:flex;align-items:center;gap:8px;margin-bottom:10px}.cmtag{font-size:.78rem;color:var(--ink-2);font-weight:700;flex:1}.cmcd{font-family:var(--font-mincho);font-weight:800;color:var(--rose-deep);font-size:1.1rem;min-width:2em;text-align:right}.cmt{font-family:var(--font-mincho);font-weight:800;font-size:1.25rem;line-height:1.4}.cms{font-size:.92rem;color:var(--ink-2);margin-top:6px}
 .jobs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.jobs button{min-height:40px;padding:6px 12px;font-size:.86rem;border-radius:999px;border-color:var(--line);background:var(--white)}.jobs button.on{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
 .oshi{position:absolute;right:10px;top:12px;z-index:1;font-size:.7rem;font-weight:700;color:#3B2430;background:linear-gradient(135deg,var(--gold-2),#C9A227);border-radius:999px;padding:2px 9px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
 .qcard{background:linear-gradient(150deg,var(--rose-soft),var(--white))}
@@ -381,7 +381,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="pm-type" style="font-size:1.5rem"></div>
       <p class="td" id="pm-desc"></p>
-      <div class="datab"><b>4人との相性(早見表)</b><div class="compat" id="pm-compat"></div></div>
+      <div class="datab"><b>5人との相性(早見表)</b><div class="compat" id="pm-compat"></div></div>
       <p class="small muted">これは「お見合い」だけの仮の診断。結婚して20年たつと、完成版が出ます。</p>
     </div>
     <div class="nako" id="nako-pmini"></div>
@@ -453,7 +453,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <button class="btn-line btn-block" id="gt-wait">明日の無料を待つ(トップへ)</button>
       <div class="or" id="gt-or">待てない人は</div>
       <button class="btn-rose btn-block" id="gt-buy" style="min-height:60px">今すぐ全話読む ¥480</button>
-      <button class="btn-gold btn-block" id="gt-ad">CMを見て、もう1話読む(1日1回)</button>
+      <button class="btn-gold btn-block" id="gt-ad">千代子のCMを見て、もう1話読む(15秒・1日1回)</button>
       <p class="small muted" id="gt-note">4人全員分のセットは ¥1,480。どの夫も、待てば全話無料です。</p>
       <button class="linkbtn" id="gt-restore">購入を復元する(機種変更・再インストールのとき)</button>
       <button class="testbtn btn-block" id="gt-test">⏩ 試作版だけのボタン:待ち時間を飛ばす</button>
@@ -500,7 +500,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div id="t-rare"></div>
       <p class="td" id="t-desc"></p>
       <div class="datab"><b>相性のいい相手</b><br><span id="t-match"></span></div>
-      <div class="datab"><b>4人との相性(早見表)</b><div class="compat" id="t-compat"></div></div>
+      <div class="datab"><b>5人との相性(早見表)</b><div class="compat" id="t-compat"></div></div>
       <div class="datab"><b>婚活アドバイス</b><br><span id="t-adv"></span></div>
       <div class="datab"><b>千代子の婚活データ</b><br><span id="t-data"></span><span class="src" id="t-src"></span></div>
       <div class="datab" id="ibj-box"><b>千代子の婚活データ②(2025年に成婚した19,112名)</b><div id="ibj-list" style="margin-top:6px;display:grid;gap:6px"></div><span class="src" id="ibj-src"></span></div>
@@ -631,14 +631,16 @@ details.alb summary::-webkit-details-marker{display:none}
 
   // ================= あなたの職業(IBJ成婚白書2025で成婚者に多い職業をもとに) =================
   const JOBS={
-    office:{n:'会社員(事務)',daily:'毎朝8時の電車で通って、書類と会議に追われる毎日',rise:'課長',dream:'小さなカフェ'},
-    nurse:{n:'看護師',daily:'夜勤明けに、そのまま眠れない日もある毎日',rise:'主任看護師',dream:'訪問看護の事業所'},
-    civil:{n:'公務員',daily:'市役所の窓口で、たくさんの人の困りごとを聞く毎日',rise:'係長',dream:'地域のカフェ'},
-    teacher:{n:'先生・保育士',daily:'子どもたちの「先生！」に囲まれる毎日',rise:'主任',dream:'英語の学童保育'},
-    beauty:{n:'美容・アパレル',daily:'立ちっぱなしで、お客さんをきれいにする毎日',rise:'店長',dream:'自分のお店'},
-    it:{n:'IT・クリエイター',daily:'パソコン1台で、締め切りと戦う毎日',rise:'チームリーダー',dream:'自分の会社'},
+    office:{n:'会社員(事務)',daily:'毎朝8時の電車で通って、書類と会議に追われる毎日',rise:'課長',dream:{A:'銀座の小さなカフェ',C:'蔵の町の古民家カフェ',S:'湘南の海辺のカフェ'}},
+    nurse:{n:'看護師',daily:'夜勤明けに、そのまま眠れない日もある毎日',rise:'主任看護師',dream:{A:'都心の産後ケアサロン',C:'雪国の訪問看護ステーション',S:'湘南のこども訪問看護'}},
+    civil:{n:'公務員',daily:'市役所の窓口で、たくさんの人の困りごとを聞く毎日',rise:'係長',dream:{A:'図書館のそばのブックカフェ',C:'蔵の町のこども食堂',S:'海辺のみんなの食堂'}},
+    teacher:{n:'先生・保育士',daily:'子どもたちの「先生！」に囲まれる毎日',rise:'主任',dream:{A:'英語の学童保育',C:'雪国の森のようちえん',S:'湘南の英語の学童'}},
+    beauty:{n:'美容・アパレル',daily:'立ちっぱなしで、お客さんをきれいにする毎日',rise:'店長',dream:{A:'銀座のプライベートサロン',C:'蔵の町のヘアサロン',S:'湘南の海辺のサロン'}},
+    it:{n:'IT・クリエイター',daily:'パソコン1台で、締め切りと戦う毎日',rise:'チームリーダー',dream:{A:'自分のデザイン会社',C:'蔵のお酒を売るネットショップ',S:'湘南のアプリ会社'}},
   };
   const J=()=>JOBS[pers.job]||JOBS.office;
+  // 夢のお店は、選んだ相手(ルート)で変わる
+  const DREAM=()=>{const d=J().dream;if(typeof d==='string')return d;return d[(cur&&cur.id)||'A']||d.A;};
 
   // ================= 本編:誠一郎ルート(全10話) =================
   // d: sav=総資産(万円) home=住まい L=愛情 T=ときめき / f: 分岐フラグ / pre: その間に起きたこと / twist: 予想外
@@ -682,7 +684,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'仕事を続けて、上を目指す',o:()=>'2年後、あなたは自分の力で'+J().rise+'になった。お祝いの花束は、なぜか田辺さんのが一番大きかった。',d:{sav:1200,T:6},x:{s:3},f:'career',
           nak:'夫の財布に頼らず出世。可愛げはないけど、あたしは好きよ。',hook:'年末、一族の新年会の招待状が届いた。キヨの字で一行だけ。「覚悟して来なさい」'},
-        {t:()=>'辞めて、ずっとやりたかった「'+J().dream+'」を始める',o:()=>'夫が株主になって出資してくれた。'+J().dream+'を開いて、初年度は赤字。でも2年目、予約が半年先まで埋まった。',d:{sav:3000,T:10},x:{s:2,m:1},f:'shop',twist:true,
+        {t:()=>'辞めて、ずっとやりたかった「'+DREAM()+'」を始める',o:()=>'夫が株主になって出資してくれた。'+DREAM()+'を開いて、初年度は赤字。でも2年目、予約が半年先まで埋まった。',d:{sav:3000,T:10},x:{s:2,m:1},f:'shop',twist:true,
           nak:'夫に出資させて、ちゃんと黒字にした。最高の使い方よ。',hook:'年末、一族の新年会の招待状が届いた。キヨの字で一行だけ。「覚悟して来なさい」'},
       ]},
     {year:'結婚4年目',title:'一族の新年会',img:'house',
@@ -702,10 +704,10 @@ details.alb summary::-webkit-details-marker{display:none}
           nak:'二人きりで世界一周。それも立派な家族のかたちよ。',hook:'結婚10年目。キヨが、眠るように亡くなった。遺言書に、あなたの名前があった。'},
       ]},
     {year:'結婚10年目',title:'キヨの遺言',img:'care',
-      text:()=>'遺言書にはこうあった。「軽井沢の別荘(3億円)を、'+me+'さんに遺贈する」。遺贈とは、相続人でない人にも遺言で財産を渡せる仕組み。ところがキヨの息子・叔父の剛三が言い出した。「わしには遺留分がある」。遺留分とは、子どもなどの相続人に法律で保障された最低限の取り分。キヨの財産はほぼ別荘だけ。相続人は剛三と、両親を早くに亡くした夫の2人。だから剛三は、別荘の4分の1にあたるお金を、あなたに請求できる。',
+      text:()=>'遺言書にはこうあった。「軽井沢の別荘(3億円)を、'+me+'さんに遺贈する」。遺贈とは、相続人でない人にも遺言で財産を渡せる仕組み。ところがキヨの息子(夫にとっては叔父)の剛三が言い出した。「わしには遺留分がある」。遺留分とは、配偶者や子どもなど一部の相続人に、法律で保障された最低限の取り分。兄弟姉妹には無いけれど、剛三はキヨの「息子」だから、ある。キヨの財産はほぼ別荘だけ。相続人は剛三と、両親を早くに亡くした夫(キヨの孫)の2人。だから剛三は、別荘の4分の1にあたるお金を、あなたに請求できる。',
       ch:[
         {t:'別荘を受け取り、叔父に遺留分のお金を払う',o:'弁護士を通して、叔父に7,500万円を払った。相続税も、孫の妻だと2割増し。それでも別荘は、あなたのものになった。でも、叔父とはそれきり口をきいていない。',d:{sav:20000,home:'都内の一軒家+軽井沢の別荘'},x:{m:2,s:1},f:'pay',
-          nak:'法律どおり払って、別荘を守る。強いわね。…でも、親戚はお金じゃ戻らないのよ。',hook:'数年後。夫が言った。「そういえば昔、誰も買わない無人島を3,000万で買ったんだ。夕日が、きれいなんだ」'},
+          nak:'法律どおり払って、別荘を守る。強いわね。ちなみに、剛三がキヨの「弟」だったら遺留分は無かったの。息子だから出てくる話よ。…でも、親戚はお金じゃ戻らないのよ。',hook:'数年後。夫が言った。「そういえば昔、誰も買わない無人島を3,000万で買ったんだ。夕日が、きれいなんだ」'},
         {t:'別荘は受け取らず、放棄する',o:'遺贈は、受け取らないこともできる(遺贈の放棄)。別荘は相続人の叔父と夫のものになり、夫は自分の取り分も叔父に譲った。翌週、叔父が菓子折りを持って現れた。「…すまなかった。キヨは、あんたを選んで正解だった」',d:{L:8,T:4},x:{a:2,c:1},f:'give',
           nak:'3億を手放して、叔父を味方にした。あんた、一族で一番の大物ね。',hook:'数年後。夫が言った。「そういえば昔、誰も買わない無人島を3,000万で買ったんだ。夕日が、きれいなんだ」'},
       ]},
@@ -766,23 +768,23 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'仕事を続けて、上を目指す',o:()=>'2年後、あなたは自分の力で'+J().rise+'になった。お祝いは、夫の手作りの味噌汁と、少し焦げた卵焼きだった。',d:{sav:300,T:6},x:{s:3},f:'career',
           nak:'共働きで出世。相談所で成婚したカップルは8割が世帯年収1,000万超(IBJ調べ)。家事半分この夫がいると、女は強いのよ。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
-        {t:()=>'辞めて「'+J().dream+'」を始める',o:()=>'日本政策金融公庫の創業融資300万円と、ふたりの貯金で'+J().dream+'を始めた。初年度は赤字。でも2年目、黒字になった。',d:{sav:500,T:10},x:{s:2,m:1},f:'shop',twist:true,
+        {t:()=>'辞めて「'+DREAM()+'」を始める',o:()=>'日本政策金融公庫の創業融資300万円と、ふたりの貯金で'+DREAM()+'を始めた。初年度は赤字。でも2年目、黒字になった。',d:{sav:500,T:10},x:{s:2,m:1},f:'shop',twist:true,
           nak:'公庫の創業融資で夢を始めて、ちゃんと黒字。現実的な夢の叶え方、満点よ。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
       ]},
     {year:'結婚3年目',title:'蔵を、継ぐか',img:'care',
-      text:()=>'創業300年の酒蔵。年商10億、借入2億、杜氏5人。継ぐなら、会社の株を父から譲り受ける。本来は贈与税がかかるけど、国の「事業承継税制」を使えば、条件を守る限り納税を先送りできる。継がないなら、父の弟が継ぐ。',
+      text:()=>'創業300年の酒蔵。年商10億、借入2億、杜氏5人。継ぐなら、まず蔵に入って役員になり、3年たってから会社の株を父から譲り受ける。株をもらうと本来は贈与税がかかるけど、国の「事業承継税制」を使えば、後継者が代表になる・株を持ち続けるなどの条件を守る限り、納税を先送り(猶予)できる。期限のある制度だから、使えるかはその時に確認が要る。継がないなら、父の弟が継ぐ。',
       ch:[
-        {t:'継ぐ。新潟に引っ越す',o:'雪の蔵。杜氏たちが、あなたを「若女将」と呼んだ。夫は10年ぶりに、蔵の神棚に手を合わせた。会社の株(評価額6,000万円分)が、ふたりの総資産に加わった。ただし株は現金じゃない。売れないお金。',d:{sav:6000,home:'新潟・酒蔵の母屋',T:8},x:{c:2,s:1,m:1},f:'kura',twist:true,
-          nak:'2DKから300年の蔵の若女将。シンデレラの逆輸入ね。',hook:'蔵の帳簿を初めて開いた夜。借入2億の更新書類に、銀行の付箋。「奥様のご署名欄」'},
+        {t:'継ぐ。新潟に引っ越す',o:'雪の蔵。杜氏たちが、あなたを「若女将」と呼んだ。夫は10年ぶりに、蔵の神棚に手を合わせた。3年後、会社の株(評価額6,000万円分)を父から受け継いだ。贈与でもらった株は夫のもの(夫の財産・別枠)。しかも現金じゃない。売れないお金。',d:{hw:6000,home:'新潟・酒蔵の母屋',T:8},x:{c:2,s:1,m:1},f:'kura',twist:true,
+          nak:'2DKから300年の蔵の若女将。シンデレラの逆輸入ね。株は夫の名義だけど、蔵の暮らしはふたりのものよ。',hook:'蔵の帳簿を初めて開いた夜。借入2億の更新書類に、銀行の付箋。「奥様のご署名欄」'},
         {t:'継がない。東京で、ふつうに暮らす',o:'夫は継がなかった。蔵は叔父が継いだ。2DKで、今日も味噌汁。「…これで、よかったんだよな」',d:{L:6,T:-4},x:{a:1,c:2},f:'tokyo',
           nak:'300年を蹴って2DK…。あんた、欲がないの？ それとも大物なの？',hook:'2年後。叔父から電話。「頼む、悠太。蔵の借入の保証人に、なってくれないか」'},
       ]},
     {year:'結婚5年目',title:'保証人',img:'budget',
       text:s=>s.f.kura
-        ?'銀行が言った。「奥様も、連帯保証人をお願いします」。連帯保証人とは、会社が返せなくなったら代わりに全額払う人。でも「経営者保証に関するガイドライン」では、経営者以外の保証は原則として求めないことになっている。'
+        ?'銀行が言った。「奥様も、連帯保証人をお願いします」。連帯保証人とは、会社が返せなくなったら代わりに全額払う人。「経営者保証に関するガイドライン」では、経営者本人以外の保証は原則求めない。ただし、蔵の仕事を一緒にしている配偶者は、例外として頼まれることがある。断ることは、できる。'
         :'叔父が頭を下げた。「蔵の借入2億の保証人に、なってくれ」。連帯保証人とは、会社が返せなくなったら代わりに全額払う人。経営に関わらない人が事業の借金を保証するときは、公証役場で「本当に保証する意思があるか」を確認する手続きが要る(2020年の民法改正)。',
       ch:[
-        {t:s=>s.f.kura?'「ガイドラインどおり、お断りします」':'「保証人は、引き受けられません」',o:s=>s.f.kura?'銀行の担当者は少し驚いて、それから書類を引っ込めた。「…おっしゃるとおりです」。夫は帰り道、何度も「かっこよかった」と言った。':'夫は叔父に頭を下げ返した。「保証人にはなれない。でも、週末は蔵を手伝う」。叔父は黙ってうなずいた。',d:{L:8,T:6},x:{s:2,m:1},f:'refuse',
+        {t:s=>s.f.kura?'「お断りします。夫の保証だけで、ご検討ください」':'「保証人は、引き受けられません」',o:s=>s.f.kura?'銀行の担当者は少し黙って、それから書類を引っ込めた。「…分かりました。社長のご保証で進めます」。夫は帰り道、何度も「かっこよかった」と言った。':'夫は叔父に頭を下げ返した。「保証人にはなれない。でも、週末は蔵を手伝う」。叔父は黙ってうなずいた。',d:{L:8,T:6},x:{s:2,m:1},f:'refuse',
           nak:'断れる女。これ、婚活でも一番大事な力よ。',hook:'翌年の春。検査薬の線が、2本。夫は家計簿アプリに、新しい項目を作った。「教育費」'},
         {t:'引き受ける。蔵と一蓮托生',o:s=>s.f.kura?'署名した。夫は何も言わず、その夜、蔵の全部の帳簿をあなたに見せた。「隠しごとは、もうなしだ」':'公証役場で意思を確認して、夫が署名した。あなたは止めなかった。「あなたの家だもん」',d:{L:10,T:4},x:{a:2,c:1},f:'hosho',
           nak:'一蓮托生。あたしは勧めないけど、惚れた弱みってやつね。',hook:'翌年の春。検査薬の線が、2本。夫は家計簿アプリに、新しい項目を作った。「教育費」'},
@@ -799,7 +801,7 @@ details.alb summary::-webkit-details-marker{display:none}
       text:s=>s.f.kura?'海外から、毎月問い合わせが来る。英語の資料は、まだ1枚もない。杜氏たちは「海外なんて」と首を振る。':'叔父の蔵に、海外から注文。叔父は英語が読めない。夫は週末だけ、蔵に通っている。',
       ch:[
         {t:'私が、海外に売り込む',o:s=>s.f.kura?'英語の資料を一晩で作って、ニューヨークの日本酒バーに飛び込んだ。1年後、海外の売上が国内を超えた。':'あなたが英語のやり取りを引き受けた。叔父の蔵の売上は3倍。夫は役員になり、役員報酬が入るようになった。',d:s=>({sav:s.f.kura?9000:1500,T:8}),x:{s:2,m:2},f:'export',twist:true,
-          nak:s=>s.f.kura?'海外の売上が国内超え。蔵の株の値打ちも、夫の役員報酬も跳ね上がった。あたしが紹介した子で、一番出世したわ。':'あなたの英語で売上3倍。夫は役員になって、役員報酬が入るようになった。',hook:'結婚20年目。夫が言った。「最後の一本、一緒に仕込まないか」'},
+          nak:s=>s.f.kura?'海外の売上が国内超え。夫の役員報酬が跳ね上がって、ふたりの貯金が一気に増えた。あたしが紹介した子で、一番出世したわ。':'あなたの英語で売上3倍。夫は役員になって、役員報酬が入るようになった。',hook:'結婚20年目。夫が言った。「最後の一本、一緒に仕込まないか」'},
         {t:'国内で、堅実に続ける',o:s=>s.f.kura?'海外は断った。蔵は小さいまま、でも杜氏は一人も辞めなかった。毎晩の味噌汁の味は、変わらなかった。':'夫は週末だけ蔵へ。平日は経理。2DKで、今日も味噌汁。',d:s=>({L:8,sav:s.f.kura?1500:200}),x:{c:2,a:1},f:'safe',
           nak:'守る女ね。一番損な役回り。でも、一番愛されてる。',hook:'結婚20年目。夫が言った。「最後の一本、一緒に仕込まないか」'},
       ]},
@@ -818,7 +820,7 @@ details.alb summary::-webkit-details-marker{display:none}
   // ================= 結末 =================
   const RANK={happy:'ハッピー',bitter:'ビター',masaka:'まさか',secret:'隠し'};
   const END={A:[
-    {id:'A3',k:'masaka',t:'夢も島も、ぜんぶ叶えた女社長',s:()=>'夫が出資してくれた小さな'+J().dream+'は、20年で全国に広がった。島を売ったお金で、海外にも。夫は今も、あなたの一番のファンだ。',nak:'玉の輿に乗るどころか、自分の輿を作っちゃった。前代未聞よ。',test:s=>s.f.shop&&s.f.sell},
+    {id:'A3',k:'masaka',t:'夢も島も、ぜんぶ叶えた女社長',s:()=>'夫が出資してくれた小さな'+DREAM()+'は、20年で全国に広がった。島を売ったお金で、海外にも。夫は今も、あなたの一番のファンだ。',nak:'玉の輿に乗るどころか、自分の輿を作っちゃった。前代未聞よ。',test:s=>s.f.shop&&s.f.sell},
     {id:'A2',k:'bitter',t:'広い家の、静かな夜',s:()=>'一軒家、別荘、家政婦さん、田辺さん。お金は、使い切れないほどある。ただ、一族の誰も、もう家に遊びに来ない。',nak:'お金で埋まらない穴って、あるのよ。…まだ間に合うけどね。',test:s=>s.f.pay&&s.f.sell},
     {id:'A1',k:'happy',t:'3年越しのひとめぼれ、完結',s:()=>'駅のホームで始まった3年の片思いは、20年の両思いになった。夫は今でも、あの駅を通るたびに、あなたの手を握る。',nak:'重い男を、軽やかに受け止めた。あんたの勝ちよ。',test:()=>true},
   ],C:[
@@ -910,7 +912,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'「隣で、全部支える」',o:'あなたは仕事を減らして、毎日、彼の隣に立った。結果は、届かなかった。でも彼は、前より大きな声で笑うようになった。',d:{sav:-600,L:12},x:{c:2},f:'support',
           nak:'負けた男の隣に立てる女。…それが一番、むずかしいのよ。'},
-        {t:'「私も、私の夢を叶える」',o:()=>'二人とも、自分の道を走った。彼は選挙に。あなたは、ずっと温めていた'+J().dream+'を開いた。',d:{sav:-300,T:10},x:{s:2,t:1},f:'mine',
+        {t:'「私も、私の夢を叶える」',o:()=>'二人とも、自分の道を走った。彼は選挙に。あなたは、ずっと温めていた'+DREAM()+'を開いた。',d:{sav:-300,T:10},x:{s:2,t:1},f:'mine',
           nak:'夫の夢と、自分の夢。両方とったわね。欲張りな子は、幸せも欲張れるのよ。'},
       ].map(h=>Object.assign(h,{hook:'結婚20年目。夫が言った。「最後に、一曲だけ聴いてほしい」'}))},
     {year:'結婚20年目',title:'最後の一曲',img:'hero',
@@ -924,7 +926,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ]},
   ];
   END.S=[
-    {id:'S3',k:'masaka',t:'卒業文集の夢、ふたり分',s:()=>'夫は3度目の挑戦で、ついに議席を手にした。あなたの'+J().dream+'は、町の人がいつも集まる場所になった。会長は生前、二人に一度も援助しなかったことを、誰よりも自慢していた。',nak:'総理大臣の夢、半分くらいは叶ったわね。残り半分は…あんたが見届けなさい。',test:s=>s.f.own&&s.f.mine},
+    {id:'S3',k:'masaka',t:'卒業文集の夢、ふたり分',s:()=>'夫は3度目の挑戦で、ついに議席を手にした。あなたの'+DREAM()+'は、町の人がいつも集まる場所になった。会長は生前、二人に一度も援助しなかったことを、誰よりも自慢していた。',nak:'総理大臣の夢、半分くらいは叶ったわね。残り半分は…あんたが見届けなさい。',test:s=>s.f.own&&s.f.mine},
     {id:'S2',k:'bitter',t:'大きな家と、止まった曲',s:()=>'会長の家に住み、会長のビルを継いで、暮らしは何ひとつ不自由ない。ただ、夫はもう曲を作らない。あの夏の歌の続きは、引き出しの中で止まったまま。',nak:'お金で埋まらない穴って、あるのよ。…でも、あの曲の続きは、今からでも書けるわ。',test:s=>s.f.help&&s.f.inherit&&s.f.support},
     {id:'S1',k:'happy',t:'肩書きより、ひとつの歌',s:s=>'7つの肩書きより、20年かけて完成させた一曲のほうが、夫の自慢になった。大富豪の息子は、今日も自分で稼いで、自分の言葉で、あなたに「ただいま」と言う。'+(s.f.inherit?'会長のビルは、ほとんど手をつけずに次の世代へ渡すつもりだ。':s.f.waive?'30億を手放しても、暮らしは何ひとつ変わらなかった。':''),nak:'お金を隠した男の、一番の宝物はあんただった。…あたしの見る目、確かでしょ。',test:()=>true},
   ];
@@ -967,7 +969,7 @@ details.alb summary::-webkit-details-marker{display:none}
        cat:'会員数が多い大手の結婚相談所'},
   };
   // 4人との相性(早見表) ◎○△
-  const COMPAT={a:{C:'◎',A:'○',D:'○',B:'△'},c:{C:'◎',D:'○',A:'△',B:'△'},s:{B:'◎',D:'○',A:'○',C:'○'},m:{A:'◎',B:'◎',C:'△',D:'△'},t:{D:'◎',A:'○',B:'○',C:'△'},all:{C:'◎',A:'○',B:'○',D:'○'}};
+  const COMPAT={a:{C:'◎',A:'○',D:'○',B:'△',S:'○'},c:{C:'◎',D:'○',A:'△',B:'△',S:'○'},s:{B:'◎',D:'○',A:'○',C:'○',S:'◎'},m:{A:'◎',B:'◎',C:'△',D:'△',S:'△'},t:{D:'◎',A:'○',B:'○',C:'△',S:'◎'},all:{C:'◎',A:'○',B:'○',D:'○',S:'○'}};
 
   // ================= 共通 =================
   const START={sav:300,home:'1Kの賃貸',L:30,T:30,hw:0};
@@ -992,7 +994,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const addX=(x,add)=>{for(const k in add)x[k]=(x[k]||0)+add[k];return x;};
   function scores(x){const vals=AX.map(([k])=>x[k]||0);const mx=Math.max(1,...vals);const o={};AX.forEach(([k])=>{o[k]=Math.round(35+65*(x[k]||0)/mx);});return o;}
   function typeKey(sc){const v=AX.map(([k])=>sc[k]);if(Math.min(...v)>=82)return 'all';let best='a';AX.forEach(([k])=>{if(sc[k]>sc[best])best=k;});return best;}
-  function compatHTML(tk){const c=COMPAT[tk]||{};return ['C','D','B','A'].map(id=>`<div><b>${c[id]||'○'}</b>${esc(byId(id).name.split(' ').pop())}</div>`).join('');}
+  function compatHTML(tk){const c=COMPAT[tk]||{};return ['C','D','B','A','S'].map(id=>`<div class="${id==='S'?'sec':''}"><b>${c[id]||'○'}</b>${id==='S'?(secBought()?'タカヒロ':'5人目<br>？？？'):esc(byId(id).name.split(' ').pop())}</div>`).join('');}
   function radarSVG(sc){
     const W=320,H=300,cx=160,cy=152,R=100;
     const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(a)*R*v/100,cy+Math.sin(a)*R*v/100];};
@@ -1008,7 +1010,7 @@ details.alb summary::-webkit-details-marker{display:none}
   }
 
   // ---------- 表示 ----------
-  const LOVE=['知り合い','恋人','夫婦','相棒','運命の人'];
+  const LOVE=['出会ったばかり','恋人','新婚','家族','一生の人'];
   const lstage=L=>LOVE[Math.min(4,Math.floor(clamp(L)/20))];
   const hearts=T=>Math.max(1,Math.min(5,Math.ceil(clamp(T)/20)));
   const heartsHTML=T=>{const n=hearts(T);return '<span class="hearts">'+'♥'.repeat(n)+'<span class="off">'+'♥'.repeat(5-n)+'</span></span>';};
@@ -1099,7 +1101,7 @@ details.alb summary::-webkit-details-marker{display:none}
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
-    nako('#nako-pmini','4人とも、まだ秘密を隠してるわよ。誰に指輪を渡すかで、20年後の総資産もグラフの形も、まるで変わる。…さ、決めなさい。');
+    nako('#nako-pmini','4人とも、まだ秘密を隠してるわよ。それと、リストにない5人目。あんたとの相性も、一応出しといたわ。誰に指輪を渡すかで、20年後のお金もグラフの形も、まるで変わる。…さ、決めなさい。');
     show('s-pmini');
   }
   $('#pm-next').addEventListener('click',()=>{renderList();show('s-list');});
@@ -1152,7 +1154,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const prev=list[ci-1],pk=r.picks[ci-1];
     $('#gt-tease').textContent=prev&&prev.ch[pk]&&prev.ch[pk].hook?resolve(prev.ch[pk].hook,st):'つづきは、次の話で。';
     $('#gt-time').textContent=fmtTime(r.freeAt)+' に無料で開きます';
-    $('#gt-ad').disabled=r.adDay===today();$('#gt-ad').textContent=r.adDay===today()?'CMの1話は、また明日':'CMを見て、もう1話読む(1日1回)';
+    $('#gt-ad').disabled=r.adDay===today();$('#gt-ad').textContent=r.adDay===today()?'CMの1話は、また明日':'千代子のCMを見て、もう1話読む(15秒・1日1回)';
     const sec=cur.id==='S';
     $('#gt-or').hidden=sec;$('#gt-ad').hidden=sec;$('#gt-test').hidden=sec;
     $('#gt-buy').textContent=sec?`¥${SEC_PRICE}で 第2話〜第11話を開く(買い切り)`:'今すぐ全話読む ¥480';
@@ -1172,9 +1174,29 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#gt-wait').addEventListener('click',()=>{checkFree();if(!locked(ci)){renderEp();show('s-game');return;}renderIntro();});
   $('#gt-buy').addEventListener('click',()=>{const pr=cur.id==='S'?SEC_PRICE:480;if(!confirm(`【試作版】本番ではここでストアの決済(¥${pr})が出ます。購入したことにして続けますか？`))return;const r=R();r.bought=true;save();toast(cur.id==='S'?'名前が解禁されました。彼の名前は、タカヒロ':cur.name+'ルートの全話が開きました');renderEp();show('s-game');});
   $('#gt-restore').addEventListener('click',()=>toast('【試作版】本番では、ストアの購入履歴を確認して、買った物語を復元します'));
+  // CMの中身: 同じ「結婚相談所」ばかりだと鬱陶しいので、角度を日替わりで変える(全部、婚活女子向けの提携先=アフィリエイト)
+  const CMS=[
+    {tag:'結婚相談所',t:'本気で探すなら、仲人がつく相談所。',s:'無料カウンセリングだけなら、お金はかからないわ。',nak:'このゲームで選べた子は、本物でも選べるわよ。'},
+    {tag:'ブライダルフェア',t:'式場のフェアは、試食つきで無料。',s:'相手が決まる前に見に行く子、意外と多いのよ。',nak:'ドレスを見ると、本気になるの。不思議よね。'},
+    {tag:'婚活パーティー',t:'今週末、1回だけ行ってみる？',s:'成婚した子の平均は、お見合い11回。1回目は今週よ。',nak:'数をこなした子が、最後に笑うの。'},
+    {tag:'コスメ',t:'お見合いの前の日の、肌。',s:'デパコスのお試しセット、送料だけで届くわ。',nak:'第一印象は0.5秒。その0.5秒に投資しなさい。'},
+    {tag:'ふたりの家計',t:'結婚して最初の1年で、お金の形は決まる。',s:'家計の無料相談、新婚さんに人気よ。',nak:'お金の話ができる夫婦は、ケンカが半分になるの。'},
+    {tag:'ふたりの旅行',t:'初めてのふたり旅は、早割で。',s:'旅行で見える相手の素顔、お見合い10回分よ。',nak:'旅先で優しい男は、家でも優しいわ。'},
+  ];
+  const CM_SEC=15;
   $('#gt-ad').addEventListener('click',()=>{
-    const ov=document.createElement('div');ov.className='adov';let n=3;ov.textContent=`CM(試作版のダミー) ${n}`;document.body.appendChild(ov);
-    const iv=setInterval(()=>{n--;if(n>0){ov.textContent=`CM(試作版のダミー) ${n}`;return;}clearInterval(iv);ov.remove();const r=R();r.adDay=today();r.unlocked=Math.max(r.unlocked,ci);r.freeAt=null;save();toast('1話開きました');renderEp();show('s-game');},1000);
+    const r=R();const cm=CMS[(pers.plays+(r.picks||[]).length+new Date().getDate())%CMS.length];
+    const ov=document.createElement('div');ov.className='adov cm';
+    ov.innerHTML=`<div class="cmcard"><div class="cmtop"><span class="prb">PR</span><span class="cmtag">今日のCM ・ ${esc(cm.tag)}</span><span class="cmcd" id="cm-cd">${CM_SEC}</span></div>
+      <div class="cmt">${esc(cm.t)}</div><div class="cms">${esc(cm.s)}</div>
+      <div class="nako" style="margin:12px 0 0"><div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(cm.nak)}</div></div>
+      <a class="btn-gold btn-block" href="osusume.html" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:12px">くわしく見る(外部サイト)</a>
+      <button class="btn-line btn-block" id="cm-close" disabled style="margin-top:8px">${CM_SEC}秒後に、1話開きます</button>
+      <p class="small muted" style="margin:8px 0 0;text-align:center">※広告(アフィリエイト)です。押さなくても1話もらえます。CMは1日1回まで。</p></div>`;
+    document.body.appendChild(ov);
+    let n=CM_SEC;const cd=ov.querySelector('#cm-cd'),cb=ov.querySelector('#cm-close');
+    const iv=setInterval(()=>{n--;cd.textContent=n;cb.textContent=n>0?`${n}秒後に、1話開きます`:'閉じて、第'+(ci+1)+'話を読む';if(n<=0){clearInterval(iv);cb.disabled=false;cd.textContent='✓';}},1000);
+    cb.addEventListener('click',()=>{ov.remove();const r2=R();r2.adDay=today();r2.unlocked=Math.max(r2.unlocked,ci);r2.freeAt=null;save();toast('1話開きました');renderEp();show('s-game');});
   });
   $('#gt-test').addEventListener('click',()=>{const r=R();r.freeAt=Date.now()-1;checkFree();renderEp();show('s-game');});
 
@@ -1240,7 +1262,7 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#r-sav').textContent=yen(st.sav);
     const mul=st.sav/START.sav;$('#r-mul').innerHTML=`独身時代の貯金${yen(START.sav)}から、ふたりで ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍`+(st.hw?`<br>夫の財産(別枠) 約${yen(st.hw)}`:'');
     $('#r-report').innerHTML='<div class="k" style="margin-bottom:6px">20年前のあなた → 今のあなた</div>'+[['住まい',START.home,st.home],['愛情',lstage(START.L),lstage(st.L)],['ときめき','♥'.repeat(hearts(START.T)),'♥'.repeat(hearts(st.T))]].map(([k,a,b])=>`<div class="rrow"><span class="rk">${k}</span><span class="rf">${esc(a)}</span><span class="ra">→</span><span class="rt">${esc(b)}</span></div>`).join('');
-    const extra=(lstage(st.L)==='運命の人'?' 愛情は「運命の人」。あたしが見てきた300組でも、上から数えた方が早いわ。':'')+(hearts(st.T)<=2?' …ただ、ときめきは冷めかけてる。そこだけは、お金じゃ買えないのよ。':'');
+    const extra=(lstage(st.L)==='一生の人'?' 愛情は「一生の人」。あたしが見てきた300組でも、上から数えた方が早いわ。':'')+(hearts(st.T)<=2?' …ただ、ときめきは冷めかけてる。そこだけは、お金じゃ買えないのよ。':'');
     nako('#nako-result',e.nak+extra,true);
     $('#r-author').hidden=cur.id!=='S';
     if(cur.id==='S'){$('#ra-face').src=IMG.S;nako('#nako-author','お見合いの席に作者が座るなんて、300組で初めてよ。曲やアプリが気になったら、下のリンク集をのぞいてみなさい。感想は、ひと言でも喜ぶわよ。');}
