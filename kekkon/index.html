@@ -328,6 +328,8 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .album li{margin-bottom:4px}
 details.alb summary{cursor:pointer;font-weight:700;font-size:.95rem;list-style:none}
 details.alb summary::-webkit-details-marker{display:none}
+.privnote{font-size:.76rem;line-height:1.7;color:var(--ink-2);background:rgba(0,0,0,.035);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.privnote b{color:var(--ink)}
 </style>
 
 <div class="app">
@@ -345,6 +347,7 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="nako" id="nako-intro"></div>
     <div class="card stack">
       <div id="name-wrap" class="stack" style="gap:12px"><label class="f" for="my-name">あなたの名前<input id="my-name" value="ミユ" maxlength="10" autocomplete="off"></label><div class="f">あなたの職業<div class="jobs" id="jobs"></div><span class="small muted" style="font-size:.72rem">結婚相談所で成婚した人に多い職業から選べます(IBJ成婚白書2025)</span></div></div>
+      <div class="privnote">🔒 <b>名前もメールも聞きません。アカウント登録なし。</b><br>入れた名前や遊んだ記録は<b>このスマホの中だけ</b>に保存され、開発者のサーバーには送られません。名前はニックネームでOK。<br>物語の購入はストアの決済なので、カード情報はこのアプリに届きません。</div>
       <button class="btn-rose btn-block" id="start" style="min-height:62px;font-size:1.14rem">千代子に紹介してもらう</button>
       <p class="small muted" id="intro-sub" style="text-align:center"></p>
     </div>
