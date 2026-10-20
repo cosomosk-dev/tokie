@@ -277,6 +277,10 @@
   @keyframes twinkle{0%,100%{opacity:.1;transform:scale(.6)}50%{opacity:1;transform:scale(1.2)}}
   /* 手帳：お祝いの記録 */
   .goldrow{margin-top:8px;padding:10px 12px;border-radius:12px;font:600 13px/1.7 "Shippori Mincho B1",serif;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.15);color:#dfe4ea}
+  .ltrow{display:flex;gap:8px;align-items:flex-start;padding:7px 10px;margin:5px 0;border:1px solid rgba(255,255,255,.12);border-radius:10px;font-size:13px;line-height:1.5}
+  .ltrow.hot{border-color:rgba(255,184,92,.5);background:rgba(255,184,92,.08)}
+  .ltrow b{color:#f1c35a;white-space:nowrap}.ltrow span{flex:1}.ltrow button{font-size:11px;padding:3px 8px}
+  #ltnew{flex:1;min-width:0}
   .goldrow.gold{color:#f1c35a;border-color:rgba(230,192,104,.6);background:rgba(230,192,104,.08);text-shadow:0 0 8px rgba(230,192,104,.4)}
   .goldrow small{display:block;font:400 11px "Zen Kaku Gothic New",sans-serif;color:var(--dim)}
   /* ママからの留守電 */
@@ -383,6 +387,12 @@
     <label>お客さんの基本情報（ママに最初から知っといてほしいこと）<span id="profilelen">0文字</span></label>
     <textarea id="profile" class="big" placeholder="1000文字くらいでOK。例：名前はタケオ。39歳、平塚。アプリを作ってる。酒は弱い。好きな話題は…"></textarea>
     <div class="saved" id="saved"></div>
+
+    <label>ママが絶対に忘れへんこと（3回以上聞いた話・「覚えといて」と言われた話）<span id="ltcount"></span></label>
+    <div class="hint">お会計のたびに、今夜の話を数えて手帳に書く。同じ話が3回出たら、ここに昇格して入店のたびに必ずママに渡す。</div>
+    <div id="ltbook"></div>
+    <div class="row"><input type="text" id="ltnew" placeholder="これは絶対覚えといて（1行）"><button class="amber" id="ltadd">覚えさせる</button></div>
+    <div class="saved" id="ltsaved"></div>
 
     <label>ママに覚えといてほしいメモ（コピペOK・何回でも足せる）</label>
     <textarea id="newnote" placeholder="他で話した内容（Claudeとのやりとり等）をそのまま貼って「手帳に書き足す」。"></textarea>
@@ -642,7 +652,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v19";
+  const APP_VER="2026-10-21 v20";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -678,8 +688,8 @@
   function clipBytes(t,max){t=String(t||"");if(jbytes(t)<=max)return t;let lo=0,hi=t.length;while(lo<hi){const m=Math.ceil((lo+hi)/2);if(jbytes(t.slice(0,m))+4<=max)lo=m;else hi=m-1;}return t.slice(0,lo)+"…";}
   const SILENCE_DISCOUNT_AFTER=10000; // 10秒を超えた無音から割引
   const SILENCE_RATE=0.05;            // 無音は通常の5%（95%引き）
-  const empty=()=>({profile:"",visits:[]});
-  function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[]}:empty();}catch(e){return empty();}}
+  const empty=()=>({profile:"",visits:[],lt:[]});
+  function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[],lt:Array.isArray(b.lt)?b.lt:[]}:empty();}catch(e){return empty();}}
   let saveWarned=false;
   function saveBook(b){
     try{localStorage.setItem(KEY,JSON.stringify(b));return true;}
@@ -1165,10 +1175,11 @@
       head.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
       if(current){const ns=nightSumText();if(ns)head.push(ns.trim());head.push(tonightBlock(30));}
     }
+    const lt=ltBlock();
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=toneReminder(S.strength);
-    const fixed=[...head,...core,tail].reduce((n,x)=>n+jbytes(x)+SEP,0);
+    const fixed=[...head,...core,tail,lt].reduce((n,x)=>n+jbytes(x)+SEP,0);
     // 残りを各枠に配る。全部の上限を足して入りきらん時は、同じ割合で縮める（どの枠もゼロにはせえへん）
     const R=Math.max(3000,B-fixed-SEP*8);
     const want=MEM_CAPS.latest+MEM_CAPS.prev+MEM_CAPS.month+MEM_CAPS.recentDigest+MEM_CAPS.profile+MEM_CAPS.notes;
@@ -1247,7 +1258,7 @@
     const pmax=Math.max(cap(MEM_CAPS.profileMin),Math.min(PROFILE_MAX_BYTES,R-usedMem-SEP*2));
     const profile="【お客さんの基本情報】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",pmax);
 
-    const parts=[...head,profile,...core];
+    const parts=[...head,profile];if(lt)parts.push(lt);parts.push(...core);
     if(month)parts.push(month);
     if(rdig)parts.push(rdig);
     if(ntxt)parts.push(ntxt);
@@ -1321,6 +1332,80 @@
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
+  /* ───────── 長期記憶（3回ルール）─────────
+     お会計のたびに、今夜お客さんが言うた「残る話」（事実・好み・決めたこと・やらへんと言うたこと・人間関係）を
+     Gemini（写真機能のキー）で拾って、前からある項目と意味で突き合わせて回数を数える（1晩に+1まで）。
+     3回以上になった話と「覚えといて」と言われた話は、入店のたびに必ずママに渡す。 */
+  const LT_BYTES=2200, LT_MAX=80;
+  const ltHot=(x)=>!!(x&&(x.pin||(x.n|0)>=3));
+  function ltBlock(){
+    const items=(loadBook().lt||[]).filter(ltHot).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||(b.n|0)-(a.n|0));
+    if(!items.length)return "";
+    const h="【ママが絶対に忘れへんこと（何回も聞いた話・「覚えといて」と言われた話。手帳の他の部分より優先）】\n";
+    let body="";
+    for(const x of items){
+      const line="・"+x.t+(x.pin?"（覚えといてと言われた）":`（${x.n}回聞いた）`)+"\n";
+      if(jbytes(h+body+line)>LT_BYTES)break;
+      body+=line;
+    }
+    return (h+body).trim();
+  }
+  const LT_PROMPT="あなたはスナックのママの手帳係です。常連客タケオさんが今夜話した内容から、「今後も残る話」だけを拾って、手帳の【数え表】を更新してください。\n"+
+    "残る話＝事実（仕事・家族・体・習慣）、好み・嫌いなもの、決めたこと、やらないと言ったこと、人間関係、繰り返し出る悩みや口ぐせの考え方。今夜限りの出来事や、その場の気分は拾わない。\n"+
+    "ルール：\n"+
+    "1. 【数え表】の各項目と今夜の話を『意味』で突き合わせる。同じ話が今夜も出ていたら n を+1（1晩で+1まで）。内容がより具体的になっていたら t を書き直す。\n"+
+    "2. 今夜初めて出た残る話は n=1 で追加。\n"+
+    "3. 客が「覚えといて」「忘れんといて」「ちゃんと覚えとけ」と言った話は pin=true。\n"+
+    "4. 既存の項目は消さない。ただし客が前と逆のことを言って、気が変わったのが明らかなら、その項目の t を新しい方に書き直す（n はそのまま）。\n"+
+    "5. t は60字以内の1文。日本語。全体で80項目まで（超えるなら n が小さい古いものから落とす）。\n"+
+    "出力は次のJSONだけ（前置き・説明・コードブロック記号なし）：{\"items\":[{\"t\":\"…\",\"n\":1,\"pin\":false}]}";
+  async function updateLongterm(msgs){
+    if(!gKey())return; // 写真機能のキーが無い時は数えへん（手入力の「覚えさせる」だけ使える）
+    const lines=(msgs||[]).filter(m=>m.who!=="ai").map(m=>String(m.text||"").trim()).filter(t=>t.length>=6);
+    if(lines.length<3)return;
+    const b=loadBook();
+    const table=(b.lt||[]).slice(0,LT_MAX).map(x=>({t:x.t,n:x.n|0,pin:!!x.pin}));
+    const prompt=LT_PROMPT+"\n\n【数え表（今まで）】\n"+JSON.stringify({items:table},null,0)+"\n\n【今夜の客の言葉（古い→新しい）】\n"+lines.map(t=>"・"+clip(t,160)).join("\n").slice(0,14000);
+    const out=await geminiText(prompt);
+    if(!out)return;
+    let j=null;
+    try{j=JSON.parse(out.replace(/^[^{]*/,"").replace(/[^}]*$/,""));}catch(e){return;}
+    if(!j||!Array.isArray(j.items))return;
+    const today=jstDate(new Date());
+    const fresh=j.items.map(x=>({t:String(x.t||"").trim().slice(0,80),n:Math.max(1,Math.min(99,parseInt(x.n,10)||1)),pin:!!x.pin})).filter(x=>x.t);
+    if(!fresh.length)return;
+    // 手入力で pin した項目は、AIが落としても残す
+    const keepPinned=(b.lt||[]).filter(x=>x.pin&&x.manual&&!fresh.some(y=>y.t===x.t));
+    const prevMap=new Map((b.lt||[]).map(x=>[x.t,x]));
+    const bb=loadBook(); // 書く直前に読み直す（他の処理と競合せんように）
+    bb.lt=[...fresh.map(x=>{const p=prevMap.get(x.t);return {t:x.t,n:x.n,pin:x.pin||!!(p&&p.pin),manual:!!(p&&p.manual),first:(p&&p.first)||today,last:today};}),...keepPinned].slice(0,LT_MAX);
+    saveBook(bb);
+    try{renderLT();}catch(e){}
+  }
+  function renderLT(){
+    const box=$("ltbook");if(!box)return;
+    const b=loadBook();const items=(b.lt||[]).slice().sort((a,c)=>(ltHot(c)?1:0)-(ltHot(a)?1:0)||(c.n|0)-(a.n|0));
+    const hot=items.filter(ltHot).length;
+    $("ltcount").textContent=items.length?`${hot}件が昇格／数えてる話 ${items.length}件`:"";
+    box.innerHTML="";
+    if(!items.length){box.innerHTML='<div class="empty">まだない。お会計のたびに今夜の話を数えて、3回出た話がここに上がる。</div>';return;}
+    for(const x of items){
+      const d=document.createElement("div");d.className="ltrow"+(ltHot(x)?" hot":"");
+      const n=document.createElement("b");n.textContent=x.pin?"★覚えといて":`${x.n|0}回`;
+      const t=document.createElement("span");t.textContent=x.t;
+      const del=document.createElement("button");del.textContent="忘れさせる";
+      del.onclick=()=>{const bb=loadBook();bb.lt=(bb.lt||[]).filter(y=>y.t!==x.t);saveBook(bb);renderLT();};
+      d.appendChild(n);d.appendChild(t);d.appendChild(del);box.appendChild(d);
+    }
+  }
+  $("ltadd").addEventListener("click",()=>{
+    const t=$("ltnew").value.trim().slice(0,80);if(!t)return;
+    const bb=loadBook();bb.lt=(bb.lt||[]).filter(y=>y.t!==t);
+    bb.lt.unshift({t,n:3,pin:true,manual:true,first:jstDate(new Date()),last:jstDate(new Date())});
+    saveBook(bb);$("ltnew").value="";renderLT();
+    $("ltsaved").textContent="覚えさせた（次の入店から必ず渡す）";setTimeout(()=>$("ltsaved").textContent="",2500);
+  });
+
   /* ───────── 手帳の画面 ───────── */
   const sheet=$("sheet"),profileEl=$("profile"),visitsEl=$("visits"),savedEl=$("saved"),profileLen=$("profilelen");
   function renderStats(){
@@ -1367,7 +1452,7 @@
     if(!ge.length)gb.innerHTML='<div class="empty">まだない。泡以上を入れた夜がここに残る。</div>';
     for(const x of ge){const d=document.createElement("div");d.className="goldrow"+(x.t>=4?" gold":"");
       d.innerHTML=`${TIERS[x.t].em} ${esc(tierLabel(x.t))}<small>${esc(x.date)}${x.reason?`・お祝いの理由：${esc(x.reason)}`:""}${x.t===5?"・看板の裏にネームプレート":""}</small>`;gb.appendChild(d);}
-    renderDigest();
+    renderDigest();renderLT();
     const mem=buildMemory(false,digestCache);const total=JSON.stringify(b).length;
     $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（${Math.round(jbytes(mem)/1000)}KB／上限${MEMORY_BUDGET_BYTES/1000}KB。直近は詳しく・1ヶ月分は1日1行で渡す。手帳の中身は消えへん）／手帳全体：${total.toLocaleString()}文字`;
   }
@@ -1900,7 +1985,9 @@
     const ru=session&&session.rankUp!=null&&talked?session.rankUp:null;
     const trialRes=session&&session.trial?Object.assign({},session.trial,{ms:connectedAt?Date.now()-connectedAt:0,silentMs:current?current.silentMs||0:0,talked}):null;
     if(current&&session&&session.endWhy)current.endWhy=session.endWhy;
+    const ltMsgs=(current&&!current.trial&&talked)?current.msgs.slice():null;
     if(current){writeCurrent();current=null;}
+    if(ltMsgs)updateLongterm(ltMsgs).catch(()=>{}); // 裏で数える（終わるまで待たへん）
     session=null;
     if(ru!=null){setRankSeen(ru);setTimeout(()=>showRankUp(ru,false),1400);}
     if(trialRes&&trialRes.ms>0&&(r.kind==="trial"||r.kind==="user"||r.kind==="dropped")){
