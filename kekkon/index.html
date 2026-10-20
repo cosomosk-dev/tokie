@@ -331,6 +331,7 @@ details.alb summary::-webkit-details-marker{display:none}
 .privnote{font-size:.76rem;line-height:1.7;color:var(--ink-2);background:rgba(0,0,0,.035);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .privnote b{color:var(--ink)}
 .fb{display:grid;gap:9px;margin-top:8px;font-size:.88rem;line-height:1.55}.fb .fk{display:block;font-weight:800;font-size:.78rem;color:var(--rose-deep);letter-spacing:.02em}.fb .fk.L{color:#2E7D52}.fb .fk.F{color:#B8921C}
+.meter{position:relative;height:9px;border-radius:999px;background:rgba(59,36,48,.09);margin:8px 14px 22px}.meter .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .9s cubic-bezier(.2,.8,.2,1)}.meter .st{position:absolute;top:-4px;width:2px;height:17px;background:var(--ink-2);opacity:.45;transform:translateX(-1px)}.meter .ticks{position:absolute;left:0;right:0;top:11px;display:flex;justify-content:space-between;font-size:.62rem;color:var(--ink-2);letter-spacing:0}.meter .ticks span:first-child{transform:translateX(-30%)}.meter .ticks span:last-child{transform:translateX(30%)}
 </style>
 
 <div class="app">
@@ -587,7 +588,7 @@ details.alb summary::-webkit-details-marker{display:none}
       text:'「成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。…紹介する前に、3つだけ聞かせて」',
       ch:[
         {t:'一緒にいて、落ち着くこと',o:'「落ち着く、ね。あんたみたいな子、長く続くのよ」',x:{a:2},sc:{C:2,A:1},nak:'国の調査でも、女が結婚相手に一番求めるのは「人柄」。あんたは正統派よ。'},
-        {t:'正直、経済力',o:'「正直でよろしい。口に出さないだけで、みんなそう思ってる」',x:{m:2},sc:{A:2,B:1},nak:'年収を「重要」と答える子は約9割。あんたは正直なだけ。'},
+        {t:'正直、経済力',o:'「正直でよろしい。口に出さないだけで、みんなそう思ってる」',x:{m:2},sc:{A:2,B:1,S:1},nak:'年収を「重要」と答える子は約9割。あんたは正直なだけ。'},
         {t:'ドキドキすること',o:'「ときめき派ね。…飽きっぽくないでしょうね？」',x:{t:2},sc:{D:3,S:2},nak:'いいのよ、ときめきで。成婚した子はみんな、お見合い11回・交際4か月で決めてる。迷いすぎる子ほど長引くの。'},
       ]},
     {who:'N',ep:'千代子の3つの質問 ②',title:'理想の休日は？',
@@ -602,7 +603,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'500万くらいあれば十分(自分と同じか、少し上)',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{a:1,c:1},sc:{C:3,D:2},nak:'25〜39歳の女性が相手に求める年収は「〜500万」が42.7%で一番多いの(IBJ調べ)。あんたは多数派。現実が見えてる。'},
         {t:'自分より上。できれば1,000万',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:1,s:1},sc:{B:3,A:1,S:1},nak:'1,000万台の男は、4歳下の女と結婚してるのが相場(IBJ調べ)。狙うなら、年の差4つまでは覚悟しなさい。'},
-        {t:'多ければ多いほどいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:2},sc:{A:4,B:1},nak:'いいわよ、欲張りで。でもね、男は年収800万を超えると成婚率が頭打ちなの(IBJ調べ)。お金で選ぶ女は、お金で選ばれ慣れた男に見抜かれるわよ。'},
+        {t:'多ければ多いほどいい',o:()=>'「'+HA[topCand()]+'ね。4人とも会ってもらうけど、あたしのイチオシは…'+byId(topCand()).name+'」',x:{m:2},sc:{A:4,B:1,S:2},nak:'いいわよ、欲張りで。でもね、男は年収800万を超えると成婚率が頭打ちなの(IBJ調べ)。お金で選ぶ女は、お金で選ばれ慣れた男に見抜かれるわよ。'},
       ]},
     {who:'A',ep:'お見合い 1人目',title:'秘書が、迎えに来た',
       text:'ホテルのラウンジ。黒塗りの車から降りた初老の男性が言った。「秘書の田辺です。高橋がお待ちです」。窓際の彼は、あなたを見た瞬間、紅茶をこぼした。',
@@ -633,13 +634,17 @@ details.alb summary::-webkit-details-marker{display:none}
   // ================= あなたの職業(IBJ成婚白書2025で成婚者に多い職業をもとに) =================
   const JOBS={
     office:{n:'会社員(事務)',daily:'毎朝8時の電車で通って、書類と会議に追われる毎日',rise:'課長',dream:{A:'銀座の小さなカフェ',B:'谷中の、花のあるカフェ',C:'蔵の町の古民家カフェ',D:'表参道の裏道の、小さなカフェ',S:'湘南の海辺のカフェ'}},
-    nurse:{n:'看護師',daily:'夜勤明けに、そのまま眠れない日もある毎日',rise:'主任看護師',dream:{A:'都心の産後ケアサロン',B:'谷中の訪問看護ステーション',C:'雪国の訪問看護ステーション',D:'表参道の、頭皮ケアサロン',S:'湘南のこども訪問看護'}},
+    nurse:{n:'看護師',daily:'夜勤明けに、そのまま眠れない日もある毎日',rise:'主任看護師',dream:{A:'都心の産後ケアサロン',B:'谷中の、看護師がいる健康カフェ',C:'雪国の小さなデイサービス',D:'表参道の、セルフケアサロン',S:'湘南のこども訪問看護'}},
     civil:{n:'公務員',daily:'市役所の窓口で、たくさんの人の困りごとを聞く毎日',rise:'係長',dream:{A:'図書館のそばのブックカフェ',B:'谷中の、花と本のカフェ',C:'蔵の町のこども食堂',D:'原宿の、こども食堂',S:'海辺のみんなの食堂'}},
     teacher:{n:'先生・保育士',daily:'子どもたちの「先生！」に囲まれる毎日',rise:'主任',dream:{A:'英語の学童保育',B:'花に囲まれた、英語教室',C:'雪国の森のようちえん',D:'表参道の、こども英語教室',S:'湘南の英語の学童'}},
     beauty:{n:'美容・アパレル',daily:'立ちっぱなしで、お客さんをきれいにする毎日',rise:'店長',dream:{A:'銀座のプライベートサロン',B:'ウェディングブーケの専門店',C:'蔵の町のヘアサロン',D:'ブライダルヘアメイクの事務所',S:'湘南の海辺のサロン'}},
     it:{n:'IT・クリエイター',daily:'パソコン1台で、締め切りと戦う毎日',rise:'チームリーダー',dream:{A:'自分のデザイン会社',B:'花の定期便のネットショップ',C:'蔵のお酒を売るネットショップ',D:'美容師の予約アプリの会社',S:'湘南のアプリ会社'}},
+    other:{n:'その他',daily:'自分の持ち場で、毎日ちゃんと働く毎日',rise:'リーダー',dream:{A:'銀座の小さなお店',B:'谷中の小さなお店',C:'蔵の町の小さなお店',D:'表参道の裏道の小さなお店',S:'湘南の小さなお店'}},
   };
-  const J=()=>JOBS[pers.job]||JOBS.office;
+  // 働きながら取る資格(悠太ルート5話で使う)
+  const STUDY={office:'簿記1級',nurse:'認定看護師',civil:'社会福祉士',teacher:'特別支援学校の免許',beauty:'ブライダルヘアメイクの資格',it:'クラウドの上級資格',other:'仕事に活きる資格'};
+  const J=()=>{const j=JOBS[pers.job]||JOBS.office;return pers.job==='other'&&pers.jobName?Object.assign({},j,{n:pers.jobName}):j;};
+  const STUDYN=()=>STUDY[pers.job]||STUDY.other;
   // 夢のお店は、選んだ相手(ルート)で変わる
   const DREAM=()=>{const d=J().dream;if(typeof d==='string')return d;return d[(cur&&cur.id)||'A']||d.A;};
 
@@ -769,8 +774,8 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'仕事を続けて、上を目指す',o:()=>'2年後、あなたは自分の力で'+J().rise+'になった。お祝いは、夫の手作りの味噌汁と、少し焦げた卵焼きだった。',d:{sav:300,T:6},x:{s:3},f:'career',
           nak:'共働きで出世。相談所で成婚したカップルは8割が世帯年収1,000万超(IBJ調べ)。家事半分この夫がいると、女は強いのよ。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
-        {t:()=>'辞めて「'+DREAM()+'」を始める',o:()=>'日本政策金融公庫の創業融資300万円と、ふたりの貯金で'+DREAM()+'を始めた。初年度は赤字。でも2年目、黒字になった。',d:{sav:500,T:10},x:{s:2,m:1},f:'shop',twist:true,
-          nak:'公庫の創業融資で夢を始めて、ちゃんと黒字。現実的な夢の叶え方、満点よ。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
+        {t:()=>'仕事を続けながら、夜は学校へ。「'+STUDYN()+'」を取る',o:()=>'2年かけて、'+STUDYN()+'を取った。給料は上がり、夫は毎晩、勉強中のあなたの机に味噌汁を運んだ。',d:{sav:200,L:8},x:{s:2,a:1},f:'study',
+          nak:'働きながら資格。あたしの300組で、これをやった子は離婚ゼロよ。理由は簡単、自分の足で立ってるから。',hook:'夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」'},
       ]},
     {year:'結婚3年目',title:'蔵を、継ぐか',img:'care',
       text:()=>'創業300年の酒蔵。年商10億、借入2億、杜氏5人。継ぐなら、まず蔵に入って役員になり、3年たってから会社の株を父から譲り受ける。株をもらうと本来は贈与税がかかるけど、国の「事業承継税制」を使えば、後継者が代表になる・株を持ち続けるなどの条件を守る限り、納税を先送り(猶予)できる。期限のある制度だから、使えるかはその時に確認が要る。継がないなら、父の弟が継ぐ。',
@@ -807,7 +812,7 @@ details.alb summary::-webkit-details-marker{display:none}
           nak:'守る女ね。一番損な役回り。でも、一番愛されてる。',hook:'結婚20年目。夫が言った。「最後の一本、一緒に仕込まないか」'},
       ]},
     {year:'結婚20年目',title:'最後の一本',img:'hero',
-      pre:s=>({title:'結婚20年目',text:'共働きで20年。物価は上がる、給料は思ったほど上がらない。それでも毎月コツコツ貯めた'+(s.f.shop?'分とお店の利益、合わせて1,800万':'分が1,400万')+'。そこから悠の教育費'+(s.f.private?'(私立・高校無償化のあとで約1,840万。払った300万を引いた残り約1,540万)':'(公立・高校無償化のあとで約560万。払った100万を引いた残り約460万)')+'を引いた分が、残った。(50代の二人以上世帯の金融資産は、平均1,908万円・中央値700万円。ふつうに頑張った夫婦の、ふつうの数字)',d:{sav:(s.f.shop?1800:1400)-(s.f.private?1540:460)}}),
+      pre:s=>({title:'結婚20年目',text:'共働きで20年。物価は上がる、給料は思ったほど上がらない。それでも毎月コツコツ貯めた'+(s.f.study?'分が1,700万(資格で給料が上がった分も)':'分が1,400万')+'。そこから悠の教育費'+(s.f.private?'(私立・高校無償化のあとで約1,840万。払った300万を引いた残り約1,540万)':'(公立・高校無償化のあとで約560万。払った100万を引いた残り約460万)')+'を引いた分が、残った。(50代の二人以上世帯の金融資産は、平均1,908万円・中央値700万円。ふつうに頑張った夫婦の、ふつうの数字)',d:{sav:(s.f.study?1700:1400)-(s.f.private?1540:460)}}),
       text:s=>'結婚20年目。'+(s.f.kura?'蔵の一番奥で、':'叔父の蔵を借りて、')+'夫と二人で、初めて自分たちの酒を仕込む。米を研ぐ手が、20年前の1Kの台所と同じだった。',
       ch:[
         {t:'ふたりの20年を、一本の酒に',o:'名前は「はじまりの朝」。1Kの台所で、焦げた卵焼きと味噌汁を食べた、あの朝。杜氏たちは最初笑って、飲んで、黙った。',d:{L:10,T:10},x:{a:2,c:1},
@@ -940,8 +945,8 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'「個室、落ち着きます」と笑う',o:'「よかった！！」とまた大声。でも次の瞬間、彼は声を落として言った。「…会社でも、声で損してます。あなたの前だと、小さくなるんですけど」',d:{T:10},x:{t:3},f:'koshitsu',
           nak:'大声の男が、あんたの前でだけ小声になる。お見合いのときから言ってるけど、あれは惚れてるのよ。',hook:'会計のとき、彼のスマホが光った。ロック画面は、白いバラのブーケ。「…妹の、結婚式のです」とだけ言って、彼は画面を伏せた。'},
-        {t:'「次は、私が店を選びます」',o:'翌週、あなたが選んだのは駅裏の立ち飲み屋。彼は入り口で頭をぶつけ、常連のおじさんたちに笑われ、1時間後には全員と肩を組んでいた。',d:{L:10},x:{a:2,c:1},f:'tachinomi',
-          nak:'エリートを立ち飲み屋に連れていく。合う合わないが、一発で分かる店よ。',hook:'帰り際、彼のスマホが光った。ロック画面は、白いバラのブーケ。「…妹の、結婚式のです」とだけ言って、彼は画面を伏せた。'},
+        {t:'「次は、私が店を選びます」',o:'翌週、あなたが選んだのは、カウンター6席の小さな和食屋。彼は背中を丸めて小声で注文して、大将に「無理しなくていいよ」と笑われた。帰り道、「静かな店も、いいですね」と、小さな声で言った。',d:{L:10},x:{a:2,c:1},f:'washoku',
+          nak:'声のでかい男を、静かな店に連れていく。合う合わないが、一発で分かる店よ。',hook:'帰り際、彼のスマホが光った。ロック画面は、白いバラのブーケ。「…妹の、結婚式のです」とだけ言って、彼は画面を伏せた。'},
       ]},
     {year:'交際半年',title:'朝5時の、せり',
       text:()=>'交際半年。「一番きれいな場所を見せたい」と言われて、集合は朝5時の大田市場。花のせりが始まると、彼は仲卸のおじさんたちに「剛ちゃん」と呼ばれ、花の名前をすらすら言い当てた。商社の人が、なぜ花に詳しいの？ せりが終わったとき、彼は白いバラを100本抱えて戻ってきた。「ついてきてほしい！！ …来年の春、ドバイに。それから、一生」',
@@ -988,43 +993,43 @@ details.alb summary::-webkit-details-marker{display:none}
     {year:'結婚5年目',title:'ゴリラの、育休',img:'baby',
       text:s=>(s.f.dubai?'3年の駐在を終えて帰国した春。':'別居婚の3年を終えて、夫が帰国した春。')+'検査薬の線が、2本。夫は病院の廊下で「やった！！」と叫び、看護師さんに注意された。生まれたあと、夫は言った。「育休、取りたい」。父親は、子どもが生まれて8週間以内に、最大4週間の「産後パパ育休」を取れる(2回に分けてもいい)。ただ、彼の部署で育休を取った男性は、まだ一人もいなかった。',
       ch:[
-        {t:'「取って。4週間、三人で」',o:'夫は4週間、家にいた。おむつ替えの手つきは、花を直すときと同じで、驚くほど丁寧だった。名前は「花(はな)」。部署で初めての男性育休は、翌年、後輩が2人続いた。',d:s=>Object.assign({L:12,sav:-100},s.f.dubai?{home:'都内の3LDK(会社の家賃補助つき)'}:{}),x:{c:3},f:'papa',
-          nak:'男の育休は、その後の家事の分担を決めるのよ。最初の4週間で、一生が決まる。',hook:'結婚10年目。房子さんが言った。「店、もう畳もうと思うの」'},
+        {t:'「取って。4週間、三人で」',o:'夫は4週間、家にいた。給料は止まるけど、雇用保険から育児休業の給付が出る(手取りの約8割。2025年4月からは、夫婦とも14日以上取れば28日分は手取りの10割相当)。家計は、ほとんど変わらなかった。おむつ替えの手つきは、花を直すときと同じで、驚くほど丁寧だった。名前は「花(はな)」。部署で初めての男性育休は、翌年、後輩が2人続いた。',d:s=>Object.assign({L:12,sav:-30},s.f.dubai?{home:'都内の3LDK(会社の家賃補助つき)'}:{}),x:{c:3},f:'papa',
+          nak:'男の育休は、給付があるからお金はほぼ減らない。減るのは、取らなかった時の夫婦の信用のほうよ。',hook:'結婚10年目。夫に、2度目の辞令。「ロンドン、5年」'},
         {t:'「仕事を優先して。私と房子さんでやる」',o:'夫は出社し、房子さんが毎日、花を1本持って手伝いに来た。名前は「花(はな)」。夫は毎晩、終電で帰って、寝ている花の指を数えていた。その年の夫のボーナスは、過去最高だった。',d:s=>Object.assign({sav:300,T:-4,L:4},s.f.dubai?{home:'都内の3LDK(会社の家賃補助つき)'}:{}),x:{m:2,s:1},f:'nopapa',
-          nak:'出世は守った。でもね、終電で帰る父親の記憶は、子どもには残らないのよ。',hook:'結婚10年目。房子さんが言った。「店、もう畳もうと思うの」'},
+          nak:'出世は守った。でもね、終電で帰る父親の記憶は、子どもには残らないのよ。',hook:'結婚10年目。夫に、2度目の辞令。「ロンドン、5年」'},
       ]},
-    {year:'結婚10年目',title:'くろだ生花店',img:'house',
+    {year:'結婚10年目',title:'ロンドン、5年',img:'airport',
       pre:{title:'結婚10年目',text:'駐在のあと、夫は課長になった。この5年で、ふたりの貯金は2,000万増えた。',d:{sav:2000}},
-      text:s=>'房子さんは72歳。腰を痛めて、朝の市場に行けなくなった。「店、畳もうと思うの」。借金は'+(s.f.together?'ふたりで':'夫が')+'返し終えていた。課長で年収1,500万の夫が、小さな声で言った。「…俺が、継ぎたい」。花屋を開くのに、許可や免許はいらない。要るのは、覚悟と、朝5時に起きる体力だけ。',
+      text:s=>'夫に、2度目の辞令。ロンドン、5年。部長への最短コース。花は小学3年生。'+(s.f.stay?'前の3年は別居婚だった。':'')+'家族で行けば、花は現地の学校(帰国後は「帰国子女枠」で受験できる)。あなたの仕事は、'+(pers.job==='civil'?'配偶者同行休業は最長3年。5年は、休めない。':'辞めるか、休職を交渉するか。')+'房子さんは72歳。店は、もう畳むと決めている。「あたしのことは、いいから」',
       ch:[
-        {t:'「継いで。年収が3分の1になっても」',o:'夫は商社を辞めた。年収1,500万が、花屋の400万に。でも、ドバイの取引先が「結婚式の花、全部頼む」と言ってきた。谷中の小さな店に、中東から注文が届くようになった。家族3人で、店の2階に引っ越した。',d:{sav:-800,T:10,L:6,home:'谷中の花屋の2階'},x:{a:2,t:1},f:'tsugu',twist:true,
-          nak:'年収3分の1を「いいよ」と言える女、300組で5人もいないわ。…その5人、全員うまくいってるけど。',hook:'結婚14年目。ケニアのバラ農園から手紙が来た。「あなたたちと、直接取引がしたい」'},
-        {t:()=>'「畳もう。その場所で、私の『'+DREAM()+'』を始める」',o:()=>'房子さんは「それなら、うれしい」と泣いた。花屋の跡に、'+DREAM()+'を開いた。夫は商社を続け、週末だけ店の花を活けに来る。初年度は赤字。2年目、谷中の人気店になった。',d:{sav:-600,T:8,L:4},x:{s:2,m:1},f:'myshop',twist:true,
-          nak:'お姑さんの店を、自分の夢の店に。嫁の立場でこれができる子、見たことないわ。',hook:'結婚14年目。ケニアのバラ農園から手紙が来た。「あなたたちと、直接取引がしたい」'},
+        {t:'家族で行く。5年、ロンドンで暮らす',o:()=>'花はロンドンの現地校へ。1年で英語が、あなたより上手くなった。あなたは日本の資格と経験を活かして、日本人向けの'+J().n+'の仕事を現地で見つけた(駐在員の配偶者も、イギリスでは働ける)。家賃も学費も会社持ち。貯金は5年で2,500万増えた。',d:{sav:2500,home:'ロンドンの社宅(会社負担)',T:10,L:6},x:{t:2,a:1},f:'london',twist:true,
+          nak:'ロンドン5年。帰ってきた時、あんたは「商社マンの妻」じゃなくて「ロンドン帰り」よ。肩書きは、自分で増やすの。',hook:'帰国して半年。あなたの勤め先から、声がかかった。「部長を、やってみないか」'},
+        {t:'夫は単身。私と花は、日本で',o:()=>'夫は一人でロンドンへ。単身赴任の手当と家賃は会社持ち。あなたは自分の仕事で、'+J().rise+'の上の役職に手が届いた。花の授業参観は、全部あなたが行った。毎晩9時、時差9時間のビデオ通話。',d:{sav:1500,L:4,T:-6},x:{s:2,m:1},f:'tanshin',
+          nak:'単身赴任5年。あたしの統計だと、ここで夫婦の形が決まるの。会う回数を、先に決めておきなさい。',hook:'5年が過ぎて、夫が帰国する春。あなたの勤め先から、声がかかった。「部長を、やってみないか」'},
       ]},
-    {year:'結婚14年目',title:'ケニアからの手紙',img:'airport',
-      text:s=>'ケニアのバラ農園から、直接取引の申し出。'+(s.f.tsugu?'花屋を継いだ夫は、商社時代の人脈を全部つないだ。':'商社に残った夫は、会社の兼業の規程を確かめた。')+'ふたりで輸入会社を作るなら、貯金から2,000万円の元手がいる。うまくいけば、日本と中東の結婚式に、ケニアのバラを直接届けられる。失敗すれば、2,000万は消える。',
+    {year:'結婚15年目',title:'女部長と、ゴリラ',img:'budget',
+      text:s=>(s.f.london?'ロンドンから帰国して半年。':'5年、ひとりで家と仕事を回した、その春。')+'あなたに声がかかった。「部長を」。条件は、平日は毎晩9時まで。夫も商社の部長候補で、同じく毎晩9時。花は中学生。どちらかが家に帰る時間を作らないと、回らない。夫が言った。「…俺が、家に帰る。商社、辞めてもいい」',
       ch:[
-        {t:'「2,000万、出す。二人で輸入会社を作る」',o:s=>'会社を作った。'+(s.f.tsugu?'谷中の店が、輸入会社の倉庫になった。':'夫は会社に兼業の届けを出し、夜と週末を全部つぎこんだ。')+'1年目は赤字。2年目、ドバイの式場から大口の契約。3年目、年商が3億を超えた。',d:{sav:-2000,T:8},x:{m:2,s:1},f:'import',twist:true,
-          nak:'花に2,000万賭けるなんて、あたしなら止めるわ。…止めなくてよかったけど。',hook:'結婚20年目。夫が、朝5時の市場から帰ってきた。手に、白いバラの束。'},
-        {t:'「堅実にいこう。先に、家を買う」',o:'輸入は断った。代わりに、谷中の近くに一戸建てを買った。ペアローン(夫婦それぞれが借りる形)で、住宅ローン控除は二人分。その代わり、片方が仕事を辞めても、自分の分の返済は続く。',d:{sav:-1500,home:'谷中の一戸建て(ペアローン)',L:8},x:{c:2,m:1},f:'house',
-          nak:'ペアローンは控除が二人分でお得。でも借金も二人分。離婚したら一番もめる借り方だから、覚えておきなさい。',hook:'結婚20年目。夫が、朝5時の市場から帰ってきた。手に、白いバラの束。'},
+        {t:'私が部長になる。夫が、家に帰る',o:'夫は商社の子会社に移って、残業なしの働き方を選んだ(年収は1,500万から700万に)。平日の晩ごはんは、夫が作る。あなたの年収は、夫を超えた。花は言う。「パパのほうが、料理うまい」',d:{sav:1800,L:12,T:6},x:{s:2,c:1},f:'shufu',twist:true,
+          nak:'妻が部長、夫が晩ごはん。10年前なら驚かれたけど、今は300組のうち20組はこれよ。',hook:'結婚20年目。夫が、朝5時の市場から帰ってきた。手に、白いバラの束。'},
+        {t:'断る。今のバランスを守る',o:'部長は断った。夫は商社の部長になり、年収は1,800万。あなたは今の役職のまま、花の授業参観に行き続けた。夫のでかい声は、週末だけ家にある。',d:{sav:600,L:8,T:4},x:{a:2,c:1},f:'keepb',
+          nak:'上がらない選択も、選択よ。花ちゃんの記憶に残るのは、どっちの親の顔か。それだけ考えなさい。',hook:'結婚20年目。夫が、朝5時の市場から帰ってきた。手に、白いバラの束。'},
       ]},
     {year:'結婚20年目',title:'もう一度、白いバラ',img:'hero',
-      pre:s=>{const base=s.f.tsugu?1800:(s.f.stay?3800:3200),imp=s.f.import?8000:0,my=s.f.myshop?1200:0,tot=base+imp+my;
-        return {title:'結婚20年目',text:'結婚20年目。'+(s.f.tsugu?'花屋の収入は多くない。それでも中東からの注文で、毎年コツコツ貯めた分が1,800万。':(s.f.stay?'別居婚の3年も含めて、二人で稼いで20年。貯めた分は3,800万。':'駐在のあとも商社で働き続けた夫の給料と、あなたの分。20年で貯めた分は3,200万。'))+(s.f.import?'輸入会社の利益の積み上げが8,000万。':'')+(s.f.myshop?'あなたのお店の利益が1,200万。':'')+'合わせて'+tot.toLocaleString()+'万。そこから花の教育費(公立・約600万)を引いた分が、残った。',d:{sav:tot-600}};},
+      pre:s=>{const tot=(s.f.shufu?2200:1600)+(s.f.stay?400:0);
+        return {title:'結婚20年目',text:'結婚20年目。'+(s.f.london?'ロンドンの5年のあとも、':'')+(s.f.shufu?'部長になったあなたの給料と、夫の給料で、':'ふたりの給料で、')+'20年コツコツ貯めた分が'+tot.toLocaleString()+'万。そこから花の教育費(幼稚園から高校まで全部公立なら、無償化のあとで約560万)を払った分が、残った。',d:{sav:tot-560}};},
       text:()=>'朝5時の市場から帰ってきた夫の手に、白いバラの束。「20年前の100本の、続き」。声は、相変わらずでかい。でも最後の一言だけ、あなたにしか聞こえない大きさだった。「…ついてきてくれて、ありがとう」',
       ch:[
         {t:'「もう一度、ブーケにして」',o:'夫は台所で、15歳のときと同じ形のブーケを作った。指は太いのに、動きは驚くほど丁寧だった。花(はな)がスマホで撮って、夫のロック画面が、20年ぶりに変わった。',d:{L:10,T:10},x:{a:2,t:1},
           nak:'ロック画面が変わった。…20年かかったけど、それが答えよ。'},
-        {t:'「今度は、私が作る」',o:'あなたは見よう見まねで、白いバラを束ねた。形は、少しいびつ。夫はそれを見て、店中に響く声で泣いた。「…今までで、一番きれいだ！！」',d:{L:8,T:8},x:{c:1,s:1,t:1},
+        {t:'「今度は、私が作る」',o:'あなたは見よう見まねで、白いバラを束ねた。形は、少しいびつ。夫はそれを見て、家中に響く声で泣いた。「…今までで、一番きれいだ！！」',d:{L:8,T:8},x:{c:1,s:1,t:1},
           nak:'いびつなブーケで大泣き。声のでかい男は、泣き声もでかいのね。'},
       ]},
   ];
   END.B=[
-    {id:'B3',k:'masaka',t:'砂漠の結婚式は、谷中のバラ',s:s=>'ドバイの結婚式の白いバラは、半分がふたりの会社から届いている。'+(s.f.tsugu?'谷中の小さな店は、今も朝5時に開く。':'夫は商社を辞めて、今は自分の会社の社長。声は、相変わらずでかい。')+'ロック画面のブーケは、今も白いバラ。',nak:'ゴリラが世界のバラ商人。…あたしの紹介した中で、一番でかい話になったわ。',test:s=>s.f.import&&s.f.propose},
-    {id:'B2',k:'bitter',t:'広い家と、遠い夫',s:s=>'お金に困ったことは、一度もない。'+(s.f.house?'谷中の一戸建ては広い。':'都内のマンションは広い。')+'ただ、夫の海外出張は駐在が終わっても減らず、今年、夫が家で晩ごはんを食べた日は、まだ数えられる。花は、父親の声の大きさを、あまり覚えていない。',nak:'稼ぐ男と、家にいる男は、別の人なの。両方ほしいなら、最初に決めておきなさい。',test:s=>s.f.stay&&s.f.nopapa},
-    {id:'B1',k:'happy',t:'ゴリラと、白いバラ',s:s=>'朝5時、夫はまだ市場に行く。'+(s.f.tsugu?'谷中の店は、花(はな)と三人で切り盛りしている。':s.f.myshop?'あなたの店の花は、夫が活ける。':'商社の仕事の合間に、房子さんの店を手伝っている。')+(s.f.import?'ケニアから届くバラは、ふたりの会社が仕入れている。':'')+'20年たっても、あなたの前でだけ、夫の声は小さくなる。',nak:'顔じゃない、声でもない。手で選んだあんたの勝ちよ。',test:()=>true},
+    {id:'B3',k:'masaka',t:'女部長と、ゴリラの晩ごはん',s:()=>'ロンドン帰りのあなたは部長になり、夫は毎晩7時に晩ごはんを作る。商社時代の同期が家に来ると、夫は家中に響く声で「いらっしゃい！！」と言う。ロック画面のブーケは、今も白いバラ。',nak:'妻が稼ぎ頭で、夫がエプロン。これを「まさか」と呼ぶ時代は、もうすぐ終わるわよ。',test:s=>s.f.london&&s.f.shufu},
+    {id:'B2',k:'bitter',t:'広い家と、遠い夫',s:()=>'お金に困ったことは、一度もない。都内のマンションは広い。ただ、夫の海外出張は駐在が終わっても減らず、今年、夫が家で晩ごはんを食べた日は、まだ数えられる。花は、父親の声の大きさを、あまり覚えていない。',nak:'稼ぐ男と、家にいる男は、別の人なの。両方ほしいなら、最初に決めておきなさい。',test:s=>s.f.stay&&s.f.nopapa},
+    {id:'B1',k:'happy',t:'ゴリラと、白いバラ',s:s=>'朝5時、夫は今も月に一度、市場に行く。'+(s.f.london?'ロンドンで覚えた花の名前を、花(はな)に教えながら。':'房子さんの店は畳んだけれど、家の玄関には、いつも白いバラがある。')+'20年たっても、あなたの前でだけ、夫の声は小さくなる。',nak:'顔じゃない、声でもない。手で選んだあんたの勝ちよ。',test:()=>true},
   ];
 
   // ================= 本編:蓮ルート(全10話・表参道の美容師) =================
@@ -1102,12 +1107,12 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'「教える側へ。私が、店を回す」',o:s=>'夫は美容学校の講師になり、週末だけ店に立つ。'+(s.f.recep?'あなたが店の経営を全部引き受けた。':'あなたは自分の仕事を続けながら、店の経営も引き受けた。')+'スタッフは3人に増えた。'+(s.f.tv?'テレビは、講師の仕事を映すようになった。':'')+'1年後、夫の右手は、ゆっくり動くようになった。',d:{sav:400,L:10},x:{c:2,s:1},f:'school',
           nak:'夫が切れなくなって、妻が経営。美容師の夫婦は、だいたいここで本物になるの。',hook:'結婚20年目。夫が言った。「右手、治った。…最初に、君を切らせて」'},
-        {t:()=>'「店を半年閉めて、私の『'+DREAM()+'』を始める」',o:s=>'店は半年閉めた。その間に、あなたがずっと温めていた'+DREAM()+'を、'+(s.f.share?'夫が取っておいた620万で借りた、':'')+'店の2階で始めた。半年後、1階は美容室、2階はあなたの店。夫の右手は、治った。',d:s=>({sav:-300,hw:s.f.share?-620:0,T:10,L:6}),x:{s:2,t:1},f:'myshop',twist:true,
-          nak:'夫の店の2階に、自分の店。これ、一番強い夫婦の形よ。家賃も一軒分だし。',hook:'結婚20年目。夫が言った。「右手、治った。…最初に、君を切らせて」'},
+        {t:'「店を半年閉める。私の給料で、ふたりで休む」',o:'店は半年閉めた。家賃は出ていくけど、あなたの給料で暮らした。夫は毎朝リハビリに通い、午後は凛と公園へ。半年後、夫の右手は治った。「…半年、妻に食わせてもらった」と、夫は一生言い続けることになる。',d:{sav:-300,L:12,T:4},x:{a:2,c:1},f:'rest',
+          nak:'稼ぎ頭が入れ替わる半年。これを笑って乗り切れた夫婦は、強いわよ。',hook:'結婚20年目。夫が言った。「右手、治った。…最初に、君を切らせて」'},
       ]},
     {year:'結婚20年目',title:'白髪と、ハサミ',img:'salon',
-      pre:s=>{const base=s.f.open?2400:1400,tv=s.f.tv?3000:0,my=s.f.myshop?900:0,sc=s.f.school?600:0,tot=base+tv+my+sc;
-        return {title:'結婚20年目',text:'20年。'+(s.f.open?'店の利益と、':'')+'ふたりで稼いだ分を毎年コツコツ貯めて'+tot.toLocaleString()+'万'+(s.f.tv?'(テレビの出演料を含む)':'')+'。そこから凛の教育費(公立・約600万)を引いた分が、残った。',d:{sav:tot-600}};},
+      pre:s=>{const base=s.f.open?2400:1400,tv=s.f.tv?3000:0,sc=s.f.school?600:0,tot=base+tv+sc;
+        return {title:'結婚20年目',text:'20年。'+(s.f.open?'店の利益と、':'')+'ふたりで稼いだ分を毎年コツコツ貯めて'+tot.toLocaleString()+'万'+(s.f.tv?'(テレビの出演料を含む)':'')+'。そこから凛の教育費(幼稚園から高校まで全部公立なら、無償化のあとで約560万)を払った分が、残った。',d:{sav:tot-560}};},
       text:()=>'鏡の前。白髪が増えた髪を、夫が切る。20年前と同じ、閉店後のサロン。ハサミの音が、首のうしろで鳴る。「君の髪は一生、俺が切る。…言ったろ」',
       ch:[
         {t:'「白髪、染めないで切って」',o:'夫は笑って、白髪を一本も隠さずに切った。「きれいだよ。20年分、全部」。鏡の中で目が合って、二人とも、少し泣いた。',d:{L:10,T:10},x:{a:2,t:1},
@@ -1160,7 +1165,7 @@ details.alb summary::-webkit-details-marker{display:none}
        cat:'会員数が多い大手の結婚相談所'},
   };
   // 4人との相性(早見表) ◎○△
-  const COMPAT={a:{C:'◎',A:'○',D:'○',B:'△',S:'○'},c:{C:'◎',D:'○',A:'△',B:'△',S:'○'},s:{B:'◎',D:'○',A:'○',C:'○',S:'◎'},m:{A:'◎',B:'◎',C:'△',D:'△',S:'△'},t:{D:'◎',A:'○',B:'○',C:'△',S:'◎'},all:{C:'◎',A:'○',B:'○',D:'○',S:'○'}};
+  const COMPAT={a:{C:'◎',A:'○',D:'○',B:'△',S:'◎'},c:{C:'◎',D:'○',A:'△',B:'△',S:'○'},s:{B:'◎',D:'○',A:'○',C:'○',S:'◎'},m:{A:'◎',B:'◎',C:'△',D:'△',S:'◎'},t:{D:'◎',A:'○',B:'○',C:'△',S:'◎'},all:{C:'◎',A:'○',B:'○',D:'○',S:'○'}};
 
   // ================= 共通 =================
   const START={sav:300,home:'1Kの賃貸',L:30,T:30,hw:0};
@@ -1205,9 +1210,11 @@ details.alb summary::-webkit-details-marker{display:none}
   const lstage=L=>LOVE[Math.min(4,Math.floor(clamp(L)/20))];
   const hearts=T=>Math.max(1,Math.min(5,Math.ceil(clamp(T)/20)));
   const heartsHTML=T=>{const n=hearts(T);return '<span class="hearts">'+'♥'.repeat(n)+'<span class="off">'+'♥'.repeat(5-n)+'</span></span>';};
+  const meterP=v=>Math.max(0,Math.min(100,(Math.log10(Math.max(v,10))-2)/3*100));
+  const meterHTML=s=>`<div class="meter"><div class="fill" style="width:${meterP(s.sav).toFixed(1)}%"></div><i class="st" style="left:${meterP(START.sav).toFixed(1)}%" title="スタート"></i><div class="ticks"><span>100万</span><span>1,000万</span><span>1億</span><span>10億</span></div></div>`;
   function statHTML(s){
     const mul=s.sav/START.sav;
-    return `<div class="savbox"><div class="k">${s.home===START.home?'あなたの貯金':'ふたりで築いた資産'}</div><div class="v" id="sav-v">${yen(s.sav)}</div>${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}${s.hw?`<div class="mul hw">夫の財産(別枠) 約${yen(s.hw)}</div>`:''}</div>
+    return `<div class="savbox"><div class="k">${s.home===START.home?'あなたの貯金':'ふたりで築いた資産'}</div><div class="v" id="sav-v">${yen(s.sav)}</div>${meterHTML(s)}${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}${s.hw?`<div class="mul hw">夫の財産(別枠) 約${yen(s.hw)}</div>`:''}</div>
       <div class="icons"><span class="L">愛情 ${lstage(s.L)}</span><span class="T">ときめき ${heartsHTML(s.T)}</span><span>⌂ ${esc(s.home)}</span></div>`;
   }
   function rollSav(from,to){
@@ -1244,7 +1251,7 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#hero-img').src=IMG.hero||'';
   $('#my-name').value=me;
   if(!pers.job)pers.job='office';
-  function renderJobs(){$('#jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<button type="button" data-k="${k}" class="${pers.job===k?'on':''}">${esc(j.n)}</button>`).join('');$$('#jobs button').forEach(b=>b.addEventListener('click',()=>{pers.job=b.dataset.k;renderJobs();}));}
+  function renderJobs(){$('#jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<button type="button" data-k="${k}" class="${pers.job===k?'on':''}">${esc(j.n)}</button>`).join('')+(pers.job==='other'?`<input id="job-other" type="text" maxlength="14" placeholder="職業を入力(例: 薬剤師)" value="${esc(pers.jobName||'')}" style="flex:1 1 100%;min-height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit">`:'');$$('#jobs button').forEach(b=>b.addEventListener('click',()=>{pers.job=b.dataset.k;renderJobs();if(b.dataset.k==='other'){const i=$('#job-other');if(i)i.focus();}}));const inp=$('#job-other');if(inp)inp.addEventListener('input',()=>{pers.jobName=inp.value.trim();});}
   renderJobs();
   function R(id){id=id||cur.id;return pers.routes[id]||(pers.routes[id]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});}
   function renderIntro(){
@@ -1402,7 +1409,7 @@ details.alb summary::-webkit-details-marker{display:none}
     if(pre&&!r.preApplied){
       const b=clone(st);applyD(st,pre.d||{});r.st=clone(st);r.preApplied=true;save();
       pv.hidden=false;$('#g-pre-t').textContent=pre.title;$('#g-pre-x').textContent=pre.text;$('#g-pre-pop').innerHTML=popHTML(b,st);$('#g-pre-c').innerHTML=chipsHTML(b,st);
-      $('#g-stat').innerHTML=statHTML(b);setTimeout(()=>rollSav(b.sav,st.sav),400);setTimeout(()=>{$('#g-stat').innerHTML=statHTML(st);},1800);
+      $('#g-stat').innerHTML=statHTML(b);setTimeout(()=>rollSav(b.sav,st.sav),400);setTimeout(()=>{const f=$('#g-stat .meter .fill');if(f)f.style.width=meterP(st.sav).toFixed(1)+'%';},450);setTimeout(()=>{$('#g-stat').innerHTML=statHTML(st);},1800);
     }else{if(!r.preApplied){r.preApplied=true;save();}pv.hidden=true;$('#g-stat').innerHTML=statHTML(st);}
     const sec=$('#g-secret');if(c.reveal){sec.hidden=false;$('#g-secret-t').textContent=c.reveal;const sp=sec.querySelector('.stamp');sp.style.animation='none';void sp.offsetWidth;sp.style.animation='';}else sec.hidden=true;
     const im=$('#g-img');im.hidden=!IMG[c.img];im.src=IMG[c.img]||'';im.alt=c.title;
@@ -1418,6 +1425,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const b=clone(st);applyD(st,resolve(h.d,b)||{});if(h.f)st.f[h.f]=true;addX(st.x,h.x||{});r.picks[ci]=i;
     $$('#g-choices button').forEach((x,j)=>{x.disabled=true;x.classList.add(j===i?'picked':'dim');});
     $('#g-stat').innerHTML=statHTML(b);setTimeout(()=>rollSav(b.sav,st.sav),300);
+    setTimeout(()=>{const f=$('#g-stat .meter .fill');if(f)f.style.width=meterP(st.sav).toFixed(1)+'%';},350);
     setTimeout(()=>{if(!$('#s-game').hidden)$('#g-stat').innerHTML=statHTML(st);},1700);
     $('#g-twist').hidden=!h.twist;
     $('#g-out').textContent=resolve(h.o,st);
