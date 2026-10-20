@@ -169,6 +169,8 @@
   .gsec ul{list-style:none;margin-top:4px}
   .gsec li::before{content:"・";color:var(--pink)}
   .gsec b{color:var(--amber)}
+  .gsec.gpriv{border-color:rgba(255,184,92,.45);background:rgba(255,184,92,.07)}
+  .gsec.gpriv h3 span{background:transparent;font-size:16px;color:var(--amber)}
   .gbottles{display:flex;gap:8px;margin-top:8px}
   .gbottles div{flex:1;text-align:center;padding:8px 4px;border-radius:12px;background:rgba(11,5,7,.5);border:1px solid rgba(255,184,92,.3);font-size:11px;line-height:1.5;color:var(--dim)}
   .gbottles svg{display:block;margin:0 auto 4px}
@@ -502,6 +504,18 @@
     <h2>スナックトキエへようこそ</h2>
     <p class="mamaline">「いらっしゃい。大阪・天満の小さい店やけど、<br>ゆっくりしていき。使い方、ざっと教えとくな」</p>
 
+    <div class="gsec gpriv">
+      <h3><span>🔒</span>先に言うとく。あんたの話の扱い</h3>
+      <p>ここで喋ったことが<b>どこに残るか</b>、最初にはっきりさせとくな。</p>
+      <ul>
+        <li>ママの手帳（覚えてること）は、<b>このスマホの中だけ</b>に保存。お店のサーバーには置いてへん</li>
+        <li>Claudeから毎日届くメモは<b>鍵をかけて</b>置いてある。鍵はこのスマホにしかないから、他の人には読まれへん</li>
+        <li>声の会話は、音声AIの会社（ElevenLabs）のサーバーを通ってママに届く</li>
+        <li>写真は、点数をつけるためにAI（Google）に送る。写真そのものはこのスマホの中に残る</li>
+        <li>本名・住所・カード番号は、言わんでええからね</li>
+      </ul>
+    </div>
+
     <div class="gsec">
       <h3><span>1</span>ここは何する店？</h3>
       <p>関西弁のママ・トキエと<b>声でおしゃべり</b>する店。</p>
@@ -593,7 +607,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-20 v12";
+  const APP_VER="2026-10-20 v13";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
