@@ -642,7 +642,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v18";
+  const APP_VER="2026-10-21 v19";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1870,8 +1870,9 @@
     const r=diagnose(d);
     const S=settings();
     // 頭脳の上書き（席）がElevenLabs側で許可されてへん → 上書きなしで入り直す
-    if(session&&session.ovTried&&!session.ovOk&&/override|not allowed|overrid/i.test(String(r.detail||"")+" "+String((d&&d.message)||""))){
-      setOvState("ng");session.ovTried=false;ending=false;
+    // （「not allowed」と言うてくれへんで「Server error: Unknown error」で切れることもあるので、ママの第一声の前に切れたら理由を問わず1回だけ上書きなしで試す）
+    if(session&&session.ovTried&&!session.ovOk&&!session.ovRetried&&r.kind!=="user"){
+      setOvState("ng");session.ovTried=false;session.ovRetried=true;ending=false;
       if(!session.greetNext)session.greetNext=session.trial?trialGreeting(session.trial):makeGreeting();
       statusEl.textContent="もう一回つなぐで…";setTimeout(()=>start(true),600);return;
     }
