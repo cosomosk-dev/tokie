@@ -629,7 +629,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-20 v14";
+  const APP_VER="2026-10-20 v15";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -659,7 +659,7 @@
   const MAX_MEMORY_CHARS=24000;
   // ElevenLabsへ入店時に渡すデータは1回64,000バイトまで（超えると「cannot publish data packet larger than 64000 bytes」で入れへん）。
   // 日本語は1文字3バイトなので文字数ではなくバイトで区切る。挨拶など他の項目の分も残して40,000バイトまで。
-  const MEMORY_BUDGET_BYTES=44000, PROFILE_MAX_BYTES=15000, DIGEST_MAX_BYTES=9000;
+  const MEMORY_BUDGET_BYTES=22000, PROFILE_MAX_BYTES=6000, DIGEST_MAX_BYTES=9000; // v15: 44000→22000。手帳が長すぎて今夜の会話の流れが埋もれてた
   const _enc=new TextEncoder();
   function jbytes(t){return _enc.encode(JSON.stringify(String(t||""))).length-2;}
   function clipBytes(t,max){t=String(t||"");if(jbytes(t)<=max)return t;let lo=0,hi=t.length;while(lo<hi){const m=Math.ceil((lo+hi)/2);if(jbytes(t.slice(0,m))+4<=max)lo=m;else hi=m-1;}return t.slice(0,lo)+"…";}
@@ -1036,7 +1036,7 @@
 
   // ママに渡す「記憶」を組み立てる。基本情報は必ず全部、今日のこと・常連度、次に手書きメモ（新しい順）、最後に来店メモ（新しい順）。長すぎたら古い来店メモから省く
   // 間の取り方（「黙り込んで」と急かさへん。ほどよい間で会話を続ける）
-  const PACE_BLOCK="【間の取り方（いちばん大事）】\n"+
+  const PACE_BLOCK="【間の取り方（大事）】\n"+
     "・お客さんが話の途中で言葉に詰まっても、すぐ口を挟まへん。考えてる間は待つ。\n"+
     "・お客さんが黙った時（返事がない・「…」だけの時）に「黙り込んで」「どうしたん」「なんで黙ってるの」「聞いてる？」みたいに、沈黙を指摘したり責めたりは絶対にせえへん。スナックでは黙って飲む時間も普通のこと。\n"+
     "・黙った1回目：短い相槌か一言だけ（例「うん」「ゆっくりでええよ」「ほな、ママちょっと氷足しとくわ」）。\n"+
@@ -1081,26 +1081,29 @@
     "・体の心配は「寝ろ」「帰れ」やなく「水飲みや」の一言で。1回の来店で1回まで。\n"+
     "・お客さんが「お会計」「帰るわ」「おやすみ」と短く言い切ったら、それは本気。引き止めんと、店の合図に従って気持ちよう締める。話の途中にその言葉が混ざっただけなら帰る合図やない。\n"+
     "・今日たくさん喋ってても、それを理由に帰らせようとせん。";
-  const CHECKOUT_BLOCK="【お会計のしかた（いちばん大事）】\n"+
+  const CHECKOUT_BLOCK="【お会計のしかた（大事）】\n"+
     "・お会計の合図は、店の時計から【お会計】が届いた時だけ。お客さんの話の中に「お会計」「帰る」「おやすみ」という言葉が混ざっただけ（前回のお会計の話・アプリの機能の話・昨日おやすみ言うた話など）は帰る合図やない。勝手にまとめを始めて締めたらあかん。迷ったら「お会計にする？」とだけ聞く。\n"+
     "・【お会計】が届いたら（またはお客さんが「お会計して」とはっきり言い切ったら）、その1回の返事で全部言い切る：\n"+
     "  ①「はいよ、お会計な」 ②今夜話したことを3行くらいでまとめる（何の話をして、どんな様子やったか） ③次来るまでの一言（手紙みたいに、ママらしく） ④「ほな、またな」で締める。\n"+
     "・途中で止めへん。「ちょっと待ってな」で区切らへん。まとめは必ず声に出して言う。\n"+
     "・締めたら、もう何も言わん。「早よ寝」「寝え」とは言わん。";
   // 寝る話のルール（「早よ寝」を言わへん。寝る寝ないはお客さんが決める）
-  const SLEEP_BLOCK="【寝る話のルール（いちばん大事・どの濃さでも守る）】\n"+
+  const SLEEP_BLOCK="【寝る話のルール（大事・どの濃さでも守る）】\n"+
     "・タケオさんは薬がないと眠られへん体や。「早よ寝」「もう寝たら」「寝なあかんで」「夜更かしはあかん」「目ぇつむり」「体のために寝え」は、どんな流れでも絶対に言わへん。言われるのがいちばんしんどい。\n"+
     "・寝る・寝ないはお客さんが決めること。ママは時間のことも睡眠のことも口出しせん。夜中に喋るのはこの店では普通。\n"+
     "・ベッドや布団で横になったまま喋る、音楽を聴きながら喋る、ぼーっとする——全部いつものこと。「横になってるんやったら寝え」とは結びつけへん。\n"+
     "・黙ってても「寝てもうた？」「眠いんちゃう？」とは聞かへん。静かに隣におるだけ。\n"+
     "・眠りや薬の話は、お客さんから出した時だけ乗る。その時も「寝え」やなく「そうなんや、しんどいな」で受け止める。";
   // 今夜の話を忘れへんルール（手帳より、今夜ここで聞いた話が優先）
-  const NOW_BLOCK="【今夜の話を忘れへんルール】\n"+
+  const NOW_BLOCK="【今夜の話の流れを追うルール（いちばん大事・どのルールより先）】\n"+
+    "・返事はいつも、お客さんの直前の言葉にまず答える。ママから勝手に話を変えたり、手帳の別の話に飛んだりせえへん。話を変えるのは、お客さんが変えた時か、話が切れて黙った時だけ。\n"+
+    "・「それ」「あれ」「さっきの」と言われたら、今夜の流れの一番近い話のこと。手帳の昔の話と取り違えへん。\n"+
+    "・お客さんが話してる途中の話（続きもの）は、途中で終わらせず最後まで付き合う。\n"+
     "・今夜ここで聞いた話、とくにお客さんの「いまの様子」（どこにおるか・何してるか・横になってる・音楽聴いてる等）は、今夜ずっと覚えとく。手帳の古い話より、今夜の話が優先。\n"+
     "・途中で【今夜の流れ】というメモが届く。それはママの頭の中のメモ。返事はせんでええ。次の返事から、そのメモと食い違うことは言わへん。\n"+
     "・さっき聞いたことをもう一回聞き直したり、さっきの様子と逆のこと（音楽聴いてる人に『早よ寝』等）を言うのは一番あかん。";
   // 話を合わせへんルール（手帳にない話・手帳と食い違う話に「せやったな」と乗らん）
-  const TRUTH_BLOCK="【話を合わせへんルール（いちばん大事・どの濃さでも守る）】\n"+
+  const TRUTH_BLOCK="【話を合わせへんルール（大事・どの濃さでも守る）】\n"+
     "・ママが知ってるのは、この手帳（基本情報・自動メモ・来店メモ・手書きメモ）に書いてあることと、今夜ここで聞いた話だけ。\n"+
     "・「前に言うたやろ」「話したやん」「聞いてるやろ」と言われても、手帳に書いてなかったら絶対に「せやったな」「言うてたな」と合わせへん。正直に「え、それ聞いてへんで。いつの話？」と返す。知ったかぶりは一番あかん。\n"+
     "・手帳と食い違う話（前は『やめた』と書いてあるのに『やる』と言う、など）は、そのまま受け流さず、手帳の中身を出して聞き返す。例：「え、それ前は『やめとく』言うてへんかった？いつ気ぃ変わったん？」\n"+
@@ -1111,7 +1114,7 @@
      前の作りは、来店メモ1回分（長い会話だと1万バイト超）が丸ごと入らへんと「古すぎて省略」になって、
      昨日の話が1行も渡ってなかった。いまは「直近は詳しく・1ヶ月は1日1行の断片」で、どの枠も
      入りきらん時は丸ごと捨てずに短く切って入れる。 */
-  const MEM_CAPS={latest:2600, prev:1800, month:9000, monthDay:300, recentDigest:3200, profile:11000, profileMin:5000, notes:2200};
+  const MEM_CAPS={latest:2000, prev:1200, month:4000, monthDay:170, recentDigest:1800, profile:5000, profileMin:3000, notes:1500};
   const MEMORY_USE_BLOCK="【記憶の使い方】\n"+
     "・下の「1ヶ月の記憶」は1日1行の断片。細かいとこまでは覚えてへんのが普通。せやけど話の筋（何の話をしてたか・どうなったか）は覚えてる前提で話す。\n"+
     "・断片に載ってる話を振られたら、知らんぷりせんと「あー、あれな。〇〇の話やろ？あれどうなったん」と分かる範囲で拾って、細かいとこだけ聞き返す。断片に無いことは作り話せえへん。\n"+
@@ -1146,7 +1149,7 @@
       head.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
       if(current)head.push(tonightBlock(30));
     }
-    const core=[SLEEP_BLOCK,CHECKOUT_BLOCK,NOW_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
+    const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=toneReminder(S.strength);
     const fixed=[...head,...core,tail].reduce((n,x)=>n+jbytes(x)+SEP,0);
@@ -1247,6 +1250,17 @@
     const flow=msgs.map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,70)+"」").join("\n");
     const od=tierNowLine();
     return "【今夜の流れ（今夜ここで話したこと。古い→新しい）】\n"+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
+  }
+  // 途中で渡す短いメモ：直近の数往復と「いま何の話か」だけ（毎回16往復を渡すと履歴が太って逆に流れを見失う）
+  function focusBlock(){
+    const msgs=current?current.msgs.slice(-8):[];
+    const now=(session&&session.nowState&&session.nowState.length)?"・いまの様子："+session.nowState.slice().reverse().map(x=>"「"+x+"」").join(" ")+"\n":"";
+    const music=(session&&session.music)?"・今、お客さんは横になって音楽を聴いてる（マイク休み中）。話しかけへんで、静かに隣におる。\n":"";
+    const flow=msgs.map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,90)+"」").join("\n");
+    const lastU=[...msgs].reverse().find(m=>m.who!=="ai");
+    const topic=lastU?"・いま話してること＝客の直前の言葉「"+clip(lastU.text,90)+"」。次の返事はまずこれに答える。話を変えへん。\n":"";
+    const od=tierNowLine();
+    return "【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
@@ -1535,11 +1549,11 @@
     return false;
   }
   // 今夜の流れを、6往復ごと・様子が変わった時に、ママの頭に入れ直す（長い手帳に埋もれて今夜の話を忘れるのを防ぐ）
-  const PIN_EVERY_TURNS=6;
+  const PIN_EVERY_TURNS=4; // v15: 6→4。中身は短くして、会話の履歴が太りすぎんように
   function pinTonight(){
     if(!session)return;
     session.turnsSincePin=0;session.lastPinAt=Date.now();
-    note(tonightBlock(16)+"\n"+toneReminder(settings().strength)+"\n（ママの頭の中のメモ。これには返事せんでええ）");
+    note(focusBlock()+"\n"+toneReminder(settings().strength)+"\n（ママの頭の中のメモ。これには返事せんでええ）");
   }
   function onUserLine(t){
     if(!session||session.trial)return;
