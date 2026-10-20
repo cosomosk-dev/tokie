@@ -652,7 +652,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v20";
+  const APP_VER="2026-10-21 v21";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1908,12 +1908,12 @@
       const dv=T?{memory, visit_count:T.mode==="joren"?"60":"0", last_visit:T.mode==="joren"?"3日前":"初来店", greeting:trialGreeting(T)}
                 :{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:(session&&session.greetNext)||(extension?GREETING_EXT:giftGreeting(session)+makeGreeting())};
       if(session)session.greetNext="";
-      const useOv=!ovNG();if(session){session.ovTried=useOv;session.ovOk=false;}
+      const useOv=!ovNG()&&!!((SEATS[session&&session.seat]||SEATS.box).llm)&&!(session&&session.trial);if(session){session.ovTried=useOv;session.ovOk=false;}
       const gen=++convGen; // 入り直し（延長・席の移動）の時、前の会話の遅れて届く「切れた」合図で今の会話を閉めへんように
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
         dynamicVariables:dv,
-        ...(useOv?{overrides:{agent:{prompt:{llm:SEAT.llm}}}}:{}), // 席でママの頭脳を変える（ElevenLabs側で「LLMの上書き」を許可してある時だけ効く）
+        ...(useOv&&SEAT.llm?{overrides:{agent:{prompt:{llm:SEAT.llm}}}}:{}), // 席でママの頭脳を変える（ElevenLabs側で「LLMの上書き」を許可してある時だけ効く）
         onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
         onDisconnect:(d)=>{if(gen!==convGen)return;end(d);},
         onMessage:(m)=>{
@@ -2145,11 +2145,11 @@
   /* ───────── 席（カウンター／ボックス）：「賢さ」やなく「席」を売る ─────────
      カウンター＝Haiku（返事が速い・手帳は大事なとこだけ）／ボックス＝Sonnet（手帳を深く読む・今夜の要点・まとめが濃い・席料で瓶が1.5倍減る）。
      頭脳の切り替えは ElevenLabs の「LLMの上書き」が許可されてる時だけ効く（許可されてへん時は自動で上書きなしで入り直す）。
-     原価の目安（1分）：通話¥12＋頭脳代（Haiku約¥3／Sonnet実測約¥9）。 */
+     原価の目安（1分）：通話¥12＋頭脳代。ボックス＝ElevenLabsの画面で選んだ標準の頭脳（10/21からSonnet 5）、カウンター＝Haiku 4.5に上書き。 */
   const SEATS={
     counter:{name:"カウンター",llm:"claude-haiku-4-5",mult:1,memBytes:9000,yen:15,short:"標準・返事が速い",
       desc:"標準の席。ママの返事が速い。手帳は大事なとこだけ読む。"},
-    box:{name:"ボックス",llm:"claude-sonnet-4-5",mult:1.5,memBytes:MEMORY_BUDGET_BYTES,yen:21,short:"ママが冴える",
+    box:{name:"ボックス",llm:"",mult:1.5,memBytes:MEMORY_BUDGET_BYTES,yen:21,short:"ママが冴える",
       desc:"ママの頭が冴える席。手帳を深く読んで、今夜の話の筋も追う。お会計のまとめが濃い。席料で瓶が1.5倍減る。"}
   };
   const seatKey=()=>SEATS[settings().seat]?settings().seat:"box";
