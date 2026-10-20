@@ -629,7 +629,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-20 v15";
+  const APP_VER="2026-10-20 v16";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1099,6 +1099,9 @@
     "・返事はいつも、お客さんの直前の言葉にまず答える。ママから勝手に話を変えたり、手帳の別の話に飛んだりせえへん。話を変えるのは、お客さんが変えた時か、話が切れて黙った時だけ。\n"+
     "・「それ」「あれ」「さっきの」と言われたら、今夜の流れの一番近い話のこと。手帳の昔の話と取り違えへん。\n"+
     "・お客さんが話してる途中の話（続きもの）は、途中で終わらせず最後まで付き合う。\n"+
+    "・筋道を立てて話す：今夜聞いた事実と手帳の事実をつなげて「○○やから、△△になるんちゃう？」と理由つきで言う。前に聞いた条件（体調・お金・決めたこと・やらへんと言うたこと）と食い違う提案はせん。\n"+
+    "・返事の前に頭の中で確かめる：①お客さんは今なにを言うた？②それは今夜のどの話の続き？③前に聞いた事実と矛盾してへん？——この3つが揃ってから答える。\n"+
+    "・【今夜の要点】というメモが届いたら、それは今夜の話の筋のまとめ。長く喋って前半を忘れそうになっても、これを見て話をつなげる。\n"+
     "・今夜ここで聞いた話、とくにお客さんの「いまの様子」（どこにおるか・何してるか・横になってる・音楽聴いてる等）は、今夜ずっと覚えとく。手帳の古い話より、今夜の話が優先。\n"+
     "・途中で【今夜の流れ】というメモが届く。それはママの頭の中のメモ。返事はせんでええ。次の返事から、そのメモと食い違うことは言わへん。\n"+
     "・さっき聞いたことをもう一回聞き直したり、さっきの様子と逆のこと（音楽聴いてる人に『早よ寝』等）を言うのは一番あかん。";
@@ -1147,7 +1150,7 @@
     const head=[];
     if(extension){
       head.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
-      if(current)head.push(tonightBlock(30));
+      if(current){const ns=nightSumText();if(ns)head.push(ns.trim());head.push(tonightBlock(30));}
     }
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
@@ -1251,6 +1254,47 @@
     const od=tierNowLine();
     return "【今夜の流れ（今夜ここで話したこと。古い→新しい）】\n"+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
   }
+  /* ───────── 今夜の要点（長く喋っても前半を忘れへんための、話の筋のまとめ） ─────────
+     ユーザー発言10回ごとに、今夜の会話全体をGemini（写真機能のキー）で要約して持っとく。キーが無い時は、
+     今夜の前半のお客さんの言葉から中身の多いものを拾う。 */
+  const SUM_EVERY_USER=10, SUM_MAX_CHARS=700;
+  const SUM_PROMPT="以下はスナックのママ（AI）と常連客タケオさんの今夜の会話の記録です。ママが長い会話でも前半の話を忘れず、筋道立てて話せるように、今夜の要点メモを日本語で作ってください。"+
+    "形式：話題ごとに1〜3行。各話題に「事実（客が言うたこと）」「決まったこと・結論」「理由・つながり（○○やから△△）」「まだ途中の話」を、あるものだけ短く書く。"+
+    "客がやらないと言ったこと・条件・体調・気持ちの変化は必ず残す。ママの発言は、約束したことと客が反応したことだけ残す。推測や作り話は書かない。全体で600字以内。前置き不要。";
+  function nightSumText(){
+    const t=current&&current.nightSum;
+    if(t)return "【今夜の要点（今夜の話の筋。前半の話もここにある）】\n"+t+"\n";
+    if(!current)return "";
+    const older=current.msgs.slice(0,-8).filter(m=>m.who!=="ai");
+    if(older.length<4)return "";
+    const pick=older.map((m,i)=>({t:m.text,i})).sort((a,b)=>b.t.length-a.t.length).slice(0,6).sort((a,b)=>a.i-b.i).map(x=>"客「"+clip(x.t,80)+"」");
+    return "【今夜の前半にお客さんが話したこと（古い→新しい）】\n"+pick.join("\n")+"\n";
+  }
+  async function geminiText(prompt){
+    const key=gKey();if(!key)return "";
+    let saved="";try{saved=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}
+    for(const m of [...new Set([saved,"gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash"].filter(Boolean))]){
+      try{
+        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
+          body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:0.2,maxOutputTokens:1024}})});
+        if(r.status===404)continue;
+        if(!r.ok)return "";
+        const j=await r.json();const c=j&&j.candidates&&j.candidates[0];
+        return (((c&&c.content&&c.content.parts)||[]).map(x=>x.text||"").join("").trim());
+      }catch(e){return "";}
+    }
+    return "";
+  }
+  async function updateNightSum(){
+    if(!current||current.trial||!session||session.sumBusy)return;
+    session.sumBusy=true;
+    try{
+      const log=current.msgs.slice(-160).map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,120)+"」").join("\n");
+      const prev=current.nightSum?"\n\n【前回までの要点メモ（これも引き継いで更新する）】\n"+current.nightSum:"";
+      const t=await geminiText(SUM_PROMPT+prev+"\n\n【今夜の会話】\n"+log);
+      if(t&&current){current.nightSum=clip(t.replace(/\n{3,}/g,"\n\n"),SUM_MAX_CHARS);pinTonight();}
+    }finally{if(session)session.sumBusy=false;}
+  }
   // 途中で渡す短いメモ：直近の数往復と「いま何の話か」だけ（毎回16往復を渡すと履歴が太って逆に流れを見失う）
   function focusBlock(){
     const msgs=current?current.msgs.slice(-8):[];
@@ -1260,7 +1304,7 @@
     const lastU=[...msgs].reverse().find(m=>m.who!=="ai");
     const topic=lastU?"・いま話してること＝客の直前の言葉「"+clip(lastU.text,90)+"」。次の返事はまずこれに答える。話を変えへん。\n":"";
     const od=tierNowLine();
-    return "【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
+    return nightSumText()+"【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
@@ -1566,6 +1610,8 @@
       if(session.nowState.length>5)session.nowState.shift();
       pinTonight();return;
     }
+    session.userTurns=(session.userTurns||0)+1;
+    if(session.userTurns%SUM_EVERY_USER===0)updateNightSum();
     session.turnsSincePin=(session.turnsSincePin||0)+1;
     if(session.turnsSincePin>=PIN_EVERY_TURNS)pinTonight();
   }
