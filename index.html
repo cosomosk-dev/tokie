@@ -216,6 +216,12 @@
     color:var(--amber);font:700 12px "Zen Kaku Gothic New",sans-serif;letter-spacing:.15em;cursor:pointer;backdrop-filter:blur(6px)}
   .menurow{display:flex;gap:10px;justify-content:center;align-items:center}
   .ver{font-size:10px;color:var(--dim);text-align:center;opacity:.7;letter-spacing:.05em}
+  .tmodes{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+  .tmode{display:block;width:100%;text-align:left;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,184,92,.45);background:rgba(255,241,226,.06);color:var(--cream);cursor:pointer;font:400 12px/1.6 "Zen Kaku Gothic New",sans-serif}
+  .tmode b{display:block;font-size:15px;color:#ffe6ef;margin-bottom:2px}
+  .tmode span{display:block;color:var(--dim)}
+  .tmode em{display:block;font-style:normal;color:var(--amber);margin-top:4px}
+  .tmode.jo{border-color:rgba(230,192,104,.8);background:linear-gradient(135deg,rgba(20,10,16,.9),rgba(120,80,20,.3))}
   .demotag{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(255,184,92,.18);border:1px solid rgba(255,184,92,.5);color:var(--amber);font-size:10px;letter-spacing:.1em}
   .mitems{display:flex;flex-direction:column;gap:8px;margin-top:8px}
   .mi{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:rgba(255,241,226,.05);border:1px solid rgba(255,241,226,.12)}
@@ -600,6 +606,22 @@
   </div>
 </div>
 
+<!-- 立ち飲み体験（はじめての3分・無料。一見さん／常連さん扱いを選べる） -->
+<div class="sheet" id="trialsheet">
+  <div class="book">
+    <h2>立ち飲み（はじめての3分）</h2>
+    <p class="lead" id="triallead"></p>
+    <div class="tmodes">
+      <button class="tmode" data-mode="ichigen"><b>🍶 一見さんで入る</b><span>ほんまの初来店。ママは丁寧めに、まずあんたの話を聞く。</span><em>ママ「いらっしゃい。初めてのお客さんやね。まあこっち座り」</em></button>
+      <button class="tmode jo" data-mode="joren"><b>🌙 常連さんの扱いを体験</b><span>1年通った常連さんへの接し方を、今夜だけ先に味わう。名前で呼び捨て、いつもの席、遠慮のないツッコミ、常連にしか言わんママの身の上話。</span><em id="trialjoline">ママ「あら、来たん。いつもの席あけといたで」</em></button>
+    </div>
+    <div class="set"><div class="l">呼んでほしい名前<small>常連体験で使う。あだ名でええ（本名は要らん）。</small></div><input type="text" id="t_name" maxlength="8" placeholder="例：たっちゃん"></div>
+    <div class="set"><div class="l">最近のこと（ひとこと・書かんでもええ）<small>常連体験のママが「前から聞いてる話」として拾う。</small></div><input type="text" id="t_about" maxlength="40" placeholder="例：仕事が忙しい"></div>
+    <p class="mhint" id="trialcost"></p>
+    <div class="row"><button class="primary" id="closetrial">閉じる</button></div>
+  </div>
+</div>
+
 <script type="module">
   import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm";
   const AGENT_ID = "agent_7001m4xagrbxek580px43qgd8jza";
@@ -607,7 +629,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-20 v13";
+  const APP_VER="2026-10-20 v14";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -712,13 +734,14 @@
   // 今の会話を手帳に書き込む（会話中は上書きし続けるので、途中でブラウザを閉じても残る）
   let current=null; // {id,start,msgs,mamaNote,silentMs,ext,endKind}
   function writeCurrent(){
-    if(!current||!current.msgs.some(m=>m.who==="user"))return;
+    if(!current||current.trial||!current.msgs.some(m=>m.who==="user"))return; // 立ち飲み体験は手帳に書かへん
     const b=loadBook();
     const mins=Math.max(1,Math.round((Date.now()-current.start)/60000));
     const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),biz:bizDate(current.start),time:jstTime(new Date(current.start)),mins,
       silent:Math.round((current.silentMs||0)/60000),ext:current.ext||0,memo:digest(current.msgs)};
     if(current.mamaNote)v.mamaNote=current.mamaNote;
     if(current.endKind)v.endKind=current.endKind;
+    if(current.endWhy)v.endWhy=current.endWhy;
     const idx=b.visits.findIndex(x=>x.id===current.id);
     if(idx>=0)b.visits[idx]=v;else b.visits.unshift(v);
     saveBook(b);renderCount();
@@ -1056,10 +1079,11 @@
     "・「ほなおやすみ」「気ぃつけて帰りや」を2回以上言うのは絶対にあかん。1回言うて引き止められたら、それで送り出しは終わり。話に戻る。\n"+
     "・「寝よかな…」と迷ってる感じの時は、送り出さずに「ほな、あと一杯だけな」で付き合う。\n"+
     "・体の心配は「寝ろ」「帰れ」やなく「水飲みや」の一言で。1回の来店で1回まで。\n"+
-    "・お客さんが「お会計」「帰るわ」「おやすみ」と言うたら、それは本気。引き止めんと、店の合図に従って気持ちよう締める。\n"+
+    "・お客さんが「お会計」「帰るわ」「おやすみ」と短く言い切ったら、それは本気。引き止めんと、店の合図に従って気持ちよう締める。話の途中にその言葉が混ざっただけなら帰る合図やない。\n"+
     "・今日たくさん喋ってても、それを理由に帰らせようとせん。";
   const CHECKOUT_BLOCK="【お会計のしかた（いちばん大事）】\n"+
-    "・お客さんが「お会計」「帰るわ」「おやすみ」「今日はここまで」と言うたら、その1回の返事で全部言い切る：\n"+
+    "・お会計の合図は、店の時計から【お会計】が届いた時だけ。お客さんの話の中に「お会計」「帰る」「おやすみ」という言葉が混ざっただけ（前回のお会計の話・アプリの機能の話・昨日おやすみ言うた話など）は帰る合図やない。勝手にまとめを始めて締めたらあかん。迷ったら「お会計にする？」とだけ聞く。\n"+
+    "・【お会計】が届いたら（またはお客さんが「お会計して」とはっきり言い切ったら）、その1回の返事で全部言い切る：\n"+
     "  ①「はいよ、お会計な」 ②今夜話したことを3行くらいでまとめる（何の話をして、どんな様子やったか） ③次来るまでの一言（手紙みたいに、ママらしく） ④「ほな、またな」で締める。\n"+
     "・途中で止めへん。「ちょっと待ってな」で区切らへん。まとめは必ず声に出して言う。\n"+
     "・締めたら、もう何も言わん。「早よ寝」「寝え」とは言わん。";
@@ -1257,7 +1281,8 @@
       const d=document.createElement("div");d.className="visit"+(v.kind==="note"?" note":"");
       const head=document.createElement("div");head.className="d";
       const endTxt=v.endKind==="closed"?"・閉店":v.endKind==="idle"?"・寝落ち":v.endKind==="maxdur"?"・上限":"";
-      head.innerHTML=v.kind==="note"?`<span>✎ ${v.date} ${v.time}・手書きメモ</span>`:`<span>${v.date} ${v.time}・${v.mins}分${v.silent?`（無音${v.silent}分）`:""}${v.ext?`・延長${v.ext}回`:""}${endTxt}</span>`;
+      const whyTxt=v.endWhy?`・帰った合図＝${esc(v.endWhy)}`:"";
+      head.innerHTML=v.kind==="note"?`<span>✎ ${v.date} ${v.time}・手書きメモ</span>`:`<span>${v.date} ${v.time}・${v.mins}分${v.silent?`（無音${v.silent}分）`:""}${v.ext?`・延長${v.ext}回`:""}${endTxt}${whyTxt}</span>`;
       const del=document.createElement("button");del.textContent="このメモを消す";
       del.onclick=()=>{if(!confirm("このメモを消す？"))return;const bb=loadBook();bb.visits=bb.visits.filter(x=>x.id!==v.id);saveBook(bb);renderBook();renderCount();renderLetter();};
       head.appendChild(del);
@@ -1421,7 +1446,7 @@
   // 切れた理由を見分ける。ElevenLabsから返ってきた文言・サーバーエラー・つながる前に切れたか、で判定
   function diagnose(d){
     if(!d||d.reason==="user")return {kind:"user"};
-    if(d.reason==="closed"||d.reason==="idle"||d.reason==="dailycap")return {kind:d.reason};
+    if(d.reason==="closed"||d.reason==="idle"||d.reason==="dailycap"||d.reason==="trial")return {kind:d.reason};
     const ctx=d.context||{};
     const bits=[d.reason,d.message,d.closeCode,d.closeReason,ctx.type,ctx.reason,ctx.code,
       serverErr&&serverErr.msg,serverErr&&serverErr.ctx&&serverErr.ctx.errorType,serverErr&&serverErr.ctx&&serverErr.ctx.code].filter(x=>x!==undefined&&x!==null&&x!=="");
@@ -1471,14 +1496,14 @@
   const MSG_MUSIC_OFF="【店の様子】お客さんが音楽を聴き終わって、また喋れる。「おかえり。ええ曲やった？」くらいの一言で、さっきの話に戻る。寝る話はせん。";
   // 声でお会計（はっきり帰る言葉だけ。質問・説明っぽい言い方は拾わへん）
   const CHECKOUT_RE=/お会計|おあいそ|お愛想|チェックして|ごちそうさま|ご馳走さま|ご馳走様|帰るわ|帰ります|もう帰る|今日はここまで|今日はこの辺で|今日はこのへんで|もう切るわ|切るわ$|落ちるわ|おやすみ(なさい)?[。！!ー〜…]*$|もう寝るわ|寝るわ[。！!〜…]*$|寝ます[。！!〜…]*$/;
-  const NOT_CHECKOUT_RE=/[？?]|って何|ってどう|どうやって|ボタン|仕組み|機能|言うたら|言ったら|したら|なんで|まだ|もうちょ|もう少し|帰りたくない|寝たくない|寝れへん|寝られへん|眠れへん|眠れない/;
+  const NOT_CHECKOUT_RE=/[？?]|って何|ってどう|どうやって|ボタン|仕組み|機能|言うたら|言ったら|したら|なんで|まだ|もうちょ|もう少し|帰りたくない|寝たくない|寝れへん|寝られへん|眠れへん|眠れない|前回|この前|こないだ|昨日|前に|さっきの|の時|のとき|画面|アプリ|作っ|設計|って言う|という|みたいな|ように|書いて|まとめて(た|る)/;
   // 「いまの様子」：どこで何してるか（今夜ずっと覚えとく）
   const NOW_RE=/ベッド|ベット|布団|ふとん|横になっ|寝転|寝ころ|寝ながら|音楽|曲(を|聴|聞)|聴いて|聞きながら|イヤホン|風呂|お風呂|湯船|飯食|ご飯|晩飯|食べてる|飲んでる|酒|ビール|ハイボール|散歩|歩いて|外におる|外にいる|電車|車の中|運転|家におる|家にいる|部屋|ソファ|薬(飲|のん)|睡眠薬/;
   const MSG_STAY="【店の時計】お客さんが「もうちょっと喋りたい」言うた。延長や。「ほな、もうちょっと付き合うたろ」と一言で快く受けて、さっきの話の続きをする。今夜はもう閉店・帰り・寝る話はせん。「おやすみ」は言わん。";
   const STAY_RE=/(もうちょっと|もうちょい|もう少し|もうすこし|まだ)\s*(喋|しゃべ|話|はな|おりたい|居たい|いたい|おる|いる|ええ|いい|付き合|つきあ|飲|のみ)|帰りたくない|帰らへん|帰らない|帰らん|延長|寝たくない|まだ寝(え|ー)?へん|まだ寝ない|まだ眠くない|行かんといて|終わらんといて/;
   const VOICE_EXT_MIN=60; // 声で延長したら、そこから60分は看板にせん
   function stayLonger(){
-    if(!conv||!session)return;
+    if(!conv||!session||session.trial)return; // 立ち飲み体験は延長なし（原価の蓋）
     const now=Date.now();
     if(session.lastStayAt&&now-session.lastStayAt<45000)return; // 続けて言うても1回だけ
     session.lastStayAt=now;
@@ -1487,7 +1512,7 @@
     const wasClosing=!!session.closing,wasLo=!!session.loSent;
     session.loSent=false;session.voiceExt=(session.voiceExt||0)+1;session.voiceCheckout=0;
     if(session.closing){ // 閉店・お会計の途中でも取り消して話に戻る
-      session.closing=false;
+      session.closing=false;session.endWhy="";
       const c=session.capture;if(c){c.cancelled=true;c.res();}
       btn.textContent="お会計";btn.className="btn out";btn.disabled=false;
     }
@@ -1517,7 +1542,7 @@
     note(tonightBlock(16)+"\n"+toneReminder(settings().strength)+"\n（ママの頭の中のメモ。これには返事せんでええ）");
   }
   function onUserLine(t){
-    if(!session)return;
+    if(!session||session.trial)return;
     if(session.awaitReason&&session.lastOrder&&Date.now()-session.awaitReason<180000){
       session.awaitReason=0;const r=clip(t.trim(),30);session.lastOrder.reason=r;setOrderReason(session.lastOrder.ts,r);
     }
@@ -1531,9 +1556,30 @@
     if(session.turnsSincePin>=PIN_EVERY_TURNS)pinTonight();
   }
   // 声で「お会計」：ママが今の返事を言い終わるのを待ってから、お会計の流れへ（「もうちょっと」で取り消せる）
+  // 前は話の途中に「お会計」が1回出ただけで帰ってた（「前回のお会計で…」「お会計の機能が…」等）。
+  // いまは「短く言い切った時」だけ即お会計。長い話に混ざった時はママに「お会計にする？」と聞いてもらい、「うん」で初めて帰る
+  const LEAVE_MAX_LEN=24, LEAVE_TAIL=8;
+  const YES_RE=/^(うん|はい|ええよ|ええで|ええわ|お願い|おねがい|頼む|たのむ|せやな|そうする|そうして|するわ|お会計|よろしく)/;
+  const ASK_LEAVE_RE=/お会計にする|お会計しよか|お会計しとこ|お開きにする|もう帰る[？?]|帰るん[？?]|今日はここまでにする/;
+  const MSG_LEAVE_HINT="（ママの頭の中のメモ）お客さんの今の言葉に「帰る・お会計・おやすみ」みたいな言葉が混ざってたけど、話の中で出ただけかもしれん。ほんまに帰りたそうなら、返事の最後に「お会計にする？」とだけ聞いて。話の流れで出ただけなら、気にせんとそのまま話を続ける。勝手にまとめや見送りはせん。";
   function voiceCheckout(t){
     if(!session||session.closing||session.voiceCheckout)return;
+    const s=String(t||"").replace(/[\s、。，．,.！!？?〜ー…・「」『』（）()]/g,"");
+    // ママが「お会計にする？」と聞いた直後の「うん」
+    if(session.askLeaveAt&&Date.now()-session.askLeaveAt<60000&&s.length<=12&&YES_RE.test(s)&&!/まだ|もうちょ|もう少し/.test(s)){
+      session.askLeaveAt=0;session.endWhy="声で確認「"+clip(t.trim(),24)+"」";
+      if(session.trial){trialLeave();return;}
+      checkout(true);return;
+    }
     if(!CHECKOUT_RE.test(t)||NOT_CHECKOUT_RE.test(t))return;
+    const m=s.match(CHECKOUT_RE);
+    const short=m&&s.length<=LEAVE_MAX_LEN&&(s.length-(m.index+m[0].length))<=LEAVE_TAIL;
+    if(!short){ // 話に混ざっただけかも → ママに聞いてもらう
+      if(!session.leaveHintAt||Date.now()-session.leaveHintAt>60000){session.leaveHintAt=Date.now();note(MSG_LEAVE_HINT);}
+      return;
+    }
+    session.endWhy="声「"+clip(t.trim(),24)+"」";
+    if(session.trial){trialLeave();return;}
     checkout(true);
   }
   // 音楽タイム：マイクを休ませて、ママは静かに隣におる
@@ -1583,6 +1629,7 @@
     if(!listening)session.lastAi=now;
     const silent=listening&&(now-Math.max(userLastActive(),session.lastAi||0))>SILENCE_DISCOUNT_AFTER;
     if(silent&&current){current.silentMs=(current.silentMs||0)+TICK;}
+    if(session.trial){trialTick(now,listening);return;} // 立ち飲み体験：瓶は減らさず、3分で必ず切る
     // ボトルの減り：喋ってる間はそのまま、10秒超の無音は5%だけ（＝実際の課金と同じ割合）
     useTime(silent?TICK*SILENCE_RATE:TICK);renderBottleBtn();
     if(session.closing||session.capture)return;
@@ -1629,6 +1676,8 @@
   }
   async function checkout(byVoice){
     if(!conv||!session)return;
+    if(session.trial){if(byVoice){trialLeave();}else{session.endWhy="出るボタン";end({reason:"trial"});}return;}
+    if(!session.closing&&!session.endWhy)session.endWhy=byVoice?"声":"お会計ボタン";
     if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
     if(session.closing){ // 2回目のボタン＝すぐ出る（間違えて2回押してまとめが消えんように、確認してから）
       if(byVoice)return;
@@ -1663,7 +1712,7 @@
     end({reason:"user"});
   }
 
-  async function start(extension,force){
+  async function start(extension,force,trial){
     // 留守電を聞いてる途中で入店したら、留守電を先に止める（ママの声がかぶらんように）
     if(!extension){try{if(typeof vmStop==="function"&&vmStop)await vmStop();}catch(e){}try{vmCard.className="vm";}catch(e){}}
     if(!extension&&await checkUpdate()){statusEl.textContent="新しい版に入れ替えるで…";return;}
@@ -1672,31 +1721,34 @@
     const S=settings();const today=todayBiz();
     if(!extension){
       const usedToday=usedOn(today);
-      if(!force&&S.dailyCap>0&&usedToday>=S.dailyCap){
+      if(!trial&&!force&&S.dailyCap>0&&usedToday>=S.dailyCap){
         statusEl.textContent="今日はもう閉店や";btn.disabled=false;
         showNotice("maxdur","ママ：今日はもう閉店やで",
           `今日はもう${usedToday}分しゃべった（1日の上限${S.dailyCap}分）。体のためにも今日はここまで。明日またおいで。`,
           null,null,{label:"どうしても入る",onclick:()=>start(false,true)});
         return;
       }
-      const effClose=S.openMin; // 1日の上限は入店時のお知らせだけ。上限が近いからというて営業時間を削ると、すぐ「ほなおやすみ」になる
+      const effClose=trial?TRIAL_MIN:S.openMin; // 1日の上限は入店時のお知らせだけ。上限が近いからというて営業時間を削ると、すぐ「ほなおやすみ」になる
       const bi=bottleInfo(bottles());
       session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null,
-        bottleEmptySent:bi.empty,bottleLowSent:bi.pct<=10||bi.left<=3,passMs:0,bottleMs:0};
-      current={id:String(Date.now()),start:session.start,msgs:[],silentMs:0,ext:0};
-      const ni=rankIdx(visitCount()+1);if(ni>rankSeen())session.rankUp=ni; // この来店でランクが上がる
+        bottleEmptySent:bi.empty,bottleLowSent:bi.pct<=10||bi.left<=3,passMs:0,bottleMs:0,trial:trial||null,endWhy:""};
+      current={id:String(Date.now()),start:session.start,msgs:[],silentMs:0,ext:0,trial:!!trial};
+      if(!trial){const ni=rankIdx(visitCount()+1);if(ni>rankSeen())session.rankUp=ni;} // この来店でランクが上がる
     }else if(session){
       session.capture=null;session.mode="listening";
     }
     try{
       try{await navigator.mediaDevices.getUserMedia({audio:true});}
       catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;session=null;current=null;return;}
-      const digest=await loadDigest();
-      const memory=buildMemory(extension,digest);
+      const T=session&&session.trial;
+      const digest=T?null:await loadDigest(); // 立ち飲み体験には、タケオさんのメモは渡さへん
+      const memory=T?trialMemory(T):buildMemory(extension,digest);
+      const dv=T?{memory, visit_count:T.mode==="joren"?"60":"0", last_visit:T.mode==="joren"?"3日前":"初来店", greeting:trialGreeting(T)}
+                :{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:extension?GREETING_EXT:makeGreeting()};
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
-        dynamicVariables:{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:extension?GREETING_EXT:makeGreeting()},
-        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent="ママがカウンターに来た";btn.textContent="お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;}renderMusic();},
+        dynamicVariables:dv,
+        onConnect:()=>{connectedAt=Date.now();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;}renderMusic();},
         onDisconnect:(d)=>end(d),
         onMessage:(m)=>{
           if(!(m&&m.message))return;
@@ -1704,7 +1756,7 @@
           if(m.source!=="ai"&&session&&(session.injected.has(norm(raw))||/^【/.test(raw.trim())))return; // 店の時計の合図は客の発言やない
           const t=show(raw,m.source);
           if(!t||!current)return;
-          if(m.source==="ai"){current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);}
+          if(m.source==="ai"){current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);if(session&&ASK_LEAVE_RE.test(t))session.askLeaveAt=Date.now();}
           else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();if(STAY_RE.test(t))stayLonger();else voiceCheckout(t);onUserLine(t);}
           writeCurrent();
         },
@@ -1751,10 +1803,14 @@
     }
     const talked=!!(current&&current.msgs.some(m=>m.who==="user"));
     const ru=session&&session.rankUp!=null&&talked?session.rankUp:null;
+    const trialRes=session&&session.trial?Object.assign({},session.trial,{ms:connectedAt?Date.now()-connectedAt:0,silentMs:current?current.silentMs||0:0,talked}):null;
+    if(current&&session&&session.endWhy)current.endWhy=session.endWhy;
     if(current){writeCurrent();current=null;}
     session=null;
     if(ru!=null){setRankSeen(ru);setTimeout(()=>showRankUp(ru,false),1400);}
-    if(r.kind==="user"){
+    if(trialRes&&trialRes.ms>0&&(r.kind==="trial"||r.kind==="user"||r.kind==="dropped")){
+      showTrialEnd(trialRes);
+    }else if(r.kind==="user"){
       statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);
     }else if(r.kind==="closed"){
       statusEl.textContent="今日はここまで。またおいでな";
@@ -1786,9 +1842,11 @@
     }
     btn.textContent="入店する";btn.className="btn";btn.disabled=false;ending=false;
     connectedAt=null;renderMusic();renderLetter();renderBottleBtn();renderBond();renderVm();renderOrderBadge();renderPlate();
-    if(r.kind==="user")bottleNotice();
+    if(r.kind==="user"&&!trialRes)bottleNotice();
   }
-  btn.addEventListener("click",()=>{if(vmConv)return;conv?checkout():start(false,false);});
+  // はじめての人（来店0回・立ち飲み未使用）は、入店ボタンで立ち飲みの選択が先に出る（商用版と同じ入口）
+  const enterOrTrial=()=>{if(!visitCount()&&!trialUsed())openTrial(false);else start(false,false);};
+  btn.addEventListener("click",()=>{if(vmConv)return;conv?checkout():enterOrTrial();});
 
   /* ───────── ママとの仲（表示・ランクアップ演出・レビューのお願い） ───────── */
   const bondBtn=$("bondbtn"),bondSheet=$("bondsheet"),rankupSheet=$("rankupsheet");
@@ -1888,6 +1946,7 @@
   // お会計の時にママが言う「今夜○分・○円」（明朗会計）
   function billLine(){
     if(!session)return "";
+    if(session.trial)return "\n【今夜のお会計】立ち飲みの無料体験。お金の話はせん。";
     const i=bottleInfo(bottles());
     const pMin=(session.passMs||0)/60000,bMin=(session.bottleMs||0)/60000;
     const yen=Math.round(pMin*PRICES.pass/PASS_MIN+bMin*(PRICES[i.c.brand]||PRICES.ao)/i.size);
@@ -1897,8 +1956,108 @@
   }
   // 立ち飲み（商用版の無料枠）のデモ：インストール1人につき3分だけ無料。月の予算を使い切ったら止める
   const TRIAL_KEY="tokie_trial_demo_v1";
-  function trialState(){let t=null;try{t=JSON.parse(localStorage.getItem(TRIAL_KEY)||"null");}catch(e){}const now=ym(Date.now());if(!t||t.ym!==now)t={ym:now,n:0};return t;}
+  function trialState(){let t=null;try{t=JSON.parse(localStorage.getItem(TRIAL_KEY)||"null");}catch(e){}const now=ym(Date.now());if(!t||t.ym!==now)t={ym:now,n:0,yen:0};if(typeof t.yen!=="number")t.yen=t.n*TRIAL_MIN*settings().yenPerMin;return t;}
   function saveTrial(t){try{localStorage.setItem(TRIAL_KEY,JSON.stringify(t));}catch(e){}}
+
+  /* ───────── 立ち飲み体験（はじめての3分）：一見さん／常連さん扱いを選べる ─────────
+     原価の蓋：3分＋15秒で必ず切る（ママが喋ってても）・30秒黙ったら終わり・延長なし・写真なし・
+     手帳の記憶は渡さへん（入店が軽い）・瓶は減らさん。1回の原価は最大でも trialMaxYen() 円。 */
+  const TRIAL_MS=TRIAL_MIN*60000, TRIAL_WRAP_AT=TRIAL_MS-35000, TRIAL_GRACE=15000, TRIAL_IDLE=30000;
+  const TRIAL_USED_KEY="tokie_trial_used_v1";
+  const trialUsed=()=>{try{return !!localStorage.getItem(TRIAL_USED_KEY);}catch(e){return false;}};
+  const trialMaxYen=()=>Math.ceil((TRIAL_MS+TRIAL_GRACE)/60000*settings().yenPerMin);
+  const trialYen=(r)=>Math.round(Math.max(0,r.ms-(r.silentMs||0)*(1-SILENCE_RATE))/60000*settings().yenPerMin);
+  function trialGreeting(T){
+    const nm=T.name||"";
+    if(T.mode==="joren")return nm?`あら${nm}、来たん。いつもの席あけといたで。ほら座り、今日はどないやったん？`:"あら、来たん。いつもの席あけといたで。ほら座り、今日はどないやったん？";
+    return "いらっしゃい。初めてのお客さんやね。緊張せんでええから、まあこっち座り。なんて呼んだらええ？";
+  }
+  function trialMemory(T){
+    const S=settings();const nm=T.name||"あんた";
+    const base="【今夜は立ち飲み（はじめてのお客さんの無料体験・3分だけ）——いちばん大事】\n"+
+      "・今夜のお客さんはタケオさんやない。初めてこの店に来た別の人。最初の設定にあるタケオさんの話（仕事・家族・アプリ・病気など）は今夜は一切出さへん。名前も仕事も知らん前提。\n"+
+      "・3分しかない。ママの返事はいつもより短く（1〜2文）。お客さんにたくさん喋らせる。問いかけは1回に1つ。\n"+
+      "・値段・課金・ボトル・アプリの話はママからはせん。店の時計の合図が来たら、それに従って締める。\n"+
+      "・お客さんの過去の出来事は作り話せえへん。聞いてへんことを「前に言うてたやろ」とは言わん。\n"+
+      "・お客さんが「帰る」と言うたら、一言で気持ちよう見送る（まとめは要らん）。「早よ寝」とは言わん。";
+    const mode=T.mode==="joren"
+      ?"【常連さん体験（今夜だけの特別）】\n"+
+        `・このお客さん（${nm}）はほんまは初めてやけど、「1年通ってる常連の中の常連に、ママはこう接する」を先に味わってもらう体験。初対面の遠慮はなし。\n`+
+        `・呼び方は「${nm}」か「${nm}ちゃん」。「いつもの席あけといたで」「いつものでええな？」「あんたの顔見たら安心するわ」くらいの身内感。\n`+
+        "・遠慮のないツッコミと、身内みたいな心配。ええとこはちゃんと褒める。\n"+
+        "・常連にしか言わん身の上話を少しだけ（若い頃は北新地のクラブにおった／息子が東京で働いてて、なかなか電話くれへん）。\n"+
+        (T.about?`・前から聞いてる「最近のこと」：${clip(T.about,40)}。これだけは前から知ってる話として拾てええ（「で、あの件どないなったん？」）。それ以外の過去は作らん。\n`
+                 :"・過去の出来事は知らん。思い出話は作らず「最近どうなん」と本人に話させる。\n")
+      :"【一見さんの扱い】\n・初対面。丁寧めに、でもママらしい関西弁のあったかさは出す。まず呼び名か、今日どんな日やったかを1つだけ聞く。\n・馴れ馴れしすぎず、軽いツッコミは1回くらい。最後まで聞く側。\n";
+    return [base,mode,toneBlock(S.strength),PACE_BLOCK,toneReminder(S.strength)].join("\n\n");
+  }
+  const MSG_TRIAL_WRAP=(mode)=>"【店の時計】立ち飲みの3分がもうすぐ終わる（あと30秒）。今の話に一言返してから、全部で2〜3文で締める：①今日聞いた話をひと言で拾う ②"+
+    (mode==="joren"?"「これがうちの常連さんへの接し方や。通うてくれたら、ほんまにこうなるで」":"「通うてくれたら、だんだん名前で呼んで、話も覚えとくからな」")+
+    " ③「ほな、またおいでな」。値段の話はせん。締めたら、もう何も言わん。";
+  function trialTick(now,listening){
+    if(!session||!session.trial)return;
+    const el=now-(connectedAt||session.start);
+    const quiet=listening&&(now-session.lastVad>2000);
+    if(el>=TRIAL_MS+TRIAL_GRACE){end({reason:"trial"});return;}              // ここで必ず切る（原価の蓋）
+    if(el>=TRIAL_MS&&quiet){end({reason:"trial"});return;}                   // ママが言い終わってたら3分で切る
+    if(!session.trialWrapSent&&el>20000&&listening&&now-userLastActive()>=TRIAL_IDLE){end({reason:"trial"});return;} // 30秒黙ってたら終わり
+    if(!session.trialWrapSent&&el>=TRIAL_WRAP_AT&&(quiet||el>=TRIAL_WRAP_AT+12000)){
+      session.trialWrapSent=true;statusEl.textContent="立ち飲みはそろそろおしまい";inject(MSG_TRIAL_WRAP(session.trial.mode));
+    }
+    const left=Math.max(0,Math.ceil((TRIAL_MS-el)/1000));
+    clockEl.textContent=`立ち飲み 残り${Math.floor(left/60)}:${String(left%60).padStart(2,"0")}`;clockEl.className="clock"+(left<=35?" lo":"");
+  }
+  // 体験中に「帰るわ」／出るボタン：ママの見送り一言だけ聞いて出る（最長12秒）
+  async function trialLeave(){
+    if(!session||!session.trial||session.leaving)return;
+    const mine=session;mine.leaving=true;btn.disabled=true;statusEl.textContent="ママが見送ってくれてる…";
+    await captureReply(12000);
+    if(session===mine)end({reason:"trial"});
+  }
+  function showTrialEnd(r){
+    const S=settings();const yen=trialYen(r);
+    const t=trialState();t.n+=1;t.yen+=yen;saveTrial(t);
+    if(!r.demo){try{localStorage.setItem(TRIAL_USED_KEY,"1");}catch(e){}}
+    const mm=Math.floor(r.ms/60000),ss=Math.round(r.ms/1000)%60;
+    const label=r.mode==="joren"?"常連さん体験":"一見さん";
+    statusEl.textContent="立ち飲み、おおきに。またおいでな";
+    fmtTrialClockReset();
+    const body=`${label}で${mm}分${String(ss).padStart(2,"0")}秒。`+
+      (r.mode==="joren"?"常連さんには、ママはこんな感じや。通うてくれたら、ほんまにこうなるで。":"通うてくれたら、だんだん名前で呼んで、話も覚えとく。")+
+      `続きは小瓶（${hm(BRANDS.mini.size)}）初回¥${PRICES.miniFirst.toLocaleString()}から。`+
+      (r.demo?`　（デモ：原価 約¥${yen}／上限¥${trialMaxYen()}。あんたの瓶・手帳・ランクは使うてへん）`:"");
+    const other=r.mode==="joren"?"一見さんも試す":"常連さん体験も試す";
+    showNotice("bottle","ママ：立ち飲み、おおきに",body,null,null,
+      [{label:"お品書きを見る",primary:true,onclick:()=>{renderMenu();menuSheet.classList.add("open");}}].concat(r.demo?[{label:other,onclick:()=>openTrial(true,r.mode==="joren"?"ichigen":"joren")}]:[]));
+  }
+  function fmtTrialClockReset(){try{clockEl.textContent="";clockEl.className="clock";}catch(e){}}
+  const trialSheet=$("trialsheet");let trialDemo=false;
+  function openTrial(demo,focus){
+    trialDemo=!!demo;const S=settings();const t=trialState();
+    const left=Math.max(0,TRIAL_BUDGET-t.yen),seats=Math.floor(left/trialMaxYen());
+    $("triallead").innerHTML=demo
+      ?'<span class="demotag">デモ・あんたの瓶と手帳は使わへん</span><br>はじめての人に出す入口の試し。商用版は1人1回・どっちか1つだけ。デモは何回でも。'
+      :"最初の3分は無料（1回だけ）。どっちで入るか選んでな。";
+    $("trialcost").textContent=`どっちも同じ3分（原価は1回 最大 約¥${trialMaxYen()}）。3分で必ず閉まる・30秒黙ったら終わり・延長なし。今月の無料枠 あと約${seats.toLocaleString()}人。`;
+    try{const sv=JSON.parse(localStorage.getItem("tokie_trial_form_v1")||"{}");$("t_name").value=sv.name||"";$("t_about").value=sv.about||"";}catch(e){}
+    trialSheet.querySelectorAll(".tmode").forEach(b=>b.style.outline=focus&&b.dataset.mode===focus?"2px solid var(--amber)":"");
+    trialSheet.classList.add("open");
+  }
+  function enterTrial(mode){
+    if(conv)return;
+    const t=trialState();
+    if(t.yen+trialMaxYen()>TRIAL_BUDGET){
+      if(!trialDemo){alert("ママ：「今月のサービス席はいっぱいや、堪忍な。また来月おいで」");return;}
+      if(!confirm("今月の無料枠（元栓）は満席。商用版やとここで止まる。\nデモやから入る？"))return;
+    }
+    const name=$("t_name").value.trim().slice(0,8),about=$("t_about").value.trim().slice(0,40);
+    try{localStorage.setItem("tokie_trial_form_v1",JSON.stringify({name,about}));}catch(e){}
+    trialSheet.classList.remove("open");hideNotice();
+    start(false,true,{mode,name,about,demo:trialDemo});
+  }
+  trialSheet.querySelectorAll(".tmode").forEach(b=>b.addEventListener("click",()=>enterTrial(b.dataset.mode)));
+  $("closetrial").addEventListener("click",()=>trialSheet.classList.remove("open"));
+  trialSheet.addEventListener("click",(e)=>{if(e.target===trialSheet)trialSheet.classList.remove("open");});
   const MSG_DRINK="【店の様子】お客さんがママに一杯ご馳走してくれた。「えっ、ええの？おおきに！」と嬉しそうに乾杯して、お礼を一言。それ以上の特別扱いはせん。お金の話はせん。何回目でも毎回ちゃんと喜ぶ。";
   function treat(){
     if(!conv||!session)return;
@@ -1975,7 +2134,7 @@
   const photoBtn=$("photobtn"),photoFile=$("photofile"),photoView=$("photoview"),wallEl=$("wall");
   function renderPhotoBtn(){
     if(!photoBtn)return;
-    const on=!!(conv&&session);
+    const on=!!(conv&&session&&!session.trial);
     photoBtn.className="photobtn"+(on?" show":"");
     if(!on)return;
     const left=photoLeft();
@@ -2181,13 +2340,16 @@
     }
     // はじめての人（商用版の無料枠の元栓・デモ）
     {
-      const t=trialState();const used=t.n*TRIAL_MIN*S.yenPerMin;const left=Math.max(0,TRIAL_BUDGET-used);const seats=Math.floor(left/(TRIAL_MIN*S.yenPerMin));
+      const t=trialState();const used=t.yen;const left=Math.max(0,TRIAL_BUDGET-used);const seats=Math.floor(left/trialMaxYen());
       $("trialbox").innerHTML=`<div>無料は<b>立ち飲み${TRIAL_MIN}分</b>だけ（1人1回・原価約¥${Math.round(TRIAL_MIN*S.yenPerMin)}）。月ごとの無料分数は<b>なし</b>。無料でできるのは原価ゼロのもん：手帳・瓶棚・ランク・口調・録音の留守電・お品書きを見ること。</div>`+
         `<div>そのあとは<b>小瓶 初回¥${PRICES.miniFirst.toLocaleString()}</b>（${hm(BRANDS.mini.size)}）から。</div>`+
         `<div>サービス席の元栓：月の予算 <b>¥${TRIAL_BUDGET.toLocaleString()}</b>（約${Math.floor(TRIAL_BUDGET/(TRIAL_MIN*S.yenPerMin)).toLocaleString()}人ぶん）。今月 <b>${t.n.toLocaleString()}</b>人・使った原価 約¥${Math.round(used).toLocaleString()}・あと<b>${seats.toLocaleString()}</b>人${left<=0?'　<b style="color:var(--rose)">満席（今月の無料は打ち止め。「今日はサービス席いっぱいや、また来月な」）</b>':""}</div>`+
+        `<div>入るときに<b>「一見さん」か「常連さんの扱いを体験」</b>を選べる（どっちも同じ3分・同じ原価。両方はでけへん）。3分＋15秒で必ず切る・30秒黙ったら終わり・延長なし・瓶と手帳は使わへん。</div>`+
+        `<div class="row" style="margin-top:6px"><button class="primary" id="trialtry">立ち飲みを試す（一見／常連体験）</button></div>`+
         `<div class="row" style="margin-top:6px"><button id="trialplus">立ち飲みの客が来た（デモ +1）</button><button id="trialplus100">+100人</button><button class="ghost" id="trialreset">0に戻す</button></div>`;
-      const bump=(n)=>{const x=trialState();x.n+=n;saveTrial(x);renderMenu();};
-      $("trialplus").onclick=()=>bump(1);$("trialplus100").onclick=()=>bump(100);$("trialreset").onclick=()=>{saveTrial({ym:ym(Date.now()),n:0});renderMenu();};
+      const bump=(n)=>{const x=trialState();x.n+=n;x.yen+=n*TRIAL_MIN*S.yenPerMin;saveTrial(x);renderMenu();};
+      $("trialplus").onclick=()=>bump(1);$("trialplus100").onclick=()=>bump(100);$("trialreset").onclick=()=>{saveTrial({ym:ym(Date.now()),n:0,yen:0});renderMenu();};
+      $("trialtry").onclick=()=>{if(conv)return;menuSheet.classList.remove("open");openTrial(true);};
     }
     $("s_nightcap").value=S.nightDrinkCap;$("s_monthcap").value=S.monthCap;
     // デモ売上
@@ -2290,7 +2452,7 @@
   function closeGuide(){guide.classList.remove("open");try{localStorage.setItem(GKEY,"1");}catch(e){}}
   $("guidebtn").addEventListener("click",openGuide);
   $("closeguide").addEventListener("click",closeGuide);
-  $("guidestart").addEventListener("click",()=>{closeGuide();if(!conv)start(false,false);});
+  $("guidestart").addEventListener("click",()=>{closeGuide();if(!conv)enterOrTrial();});
   guide.addEventListener("click",(e)=>{if(e.target===guide)closeGuide();});
 
   renderBottleBtn();
