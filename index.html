@@ -629,7 +629,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-20 v16";
+  const APP_VER="2026-10-21 v17";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1297,7 +1297,7 @@
   }
   // 途中で渡す短いメモ：直近の数往復と「いま何の話か」だけ（毎回16往復を渡すと履歴が太って逆に流れを見失う）
   function focusBlock(){
-    const msgs=current?current.msgs.slice(-8):[];
+    const msgs=current?current.msgs.slice(-6):[];
     const now=(session&&session.nowState&&session.nowState.length)?"・いまの様子："+session.nowState.slice().reverse().map(x=>"「"+x+"」").join(" ")+"\n":"";
     const music=(session&&session.music)?"・今、お客さんは横になって音楽を聴いてる（マイク休み中）。話しかけへんで、静かに隣におる。\n":"";
     const flow=msgs.map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,90)+"」").join("\n");
@@ -1593,7 +1593,7 @@
     return false;
   }
   // 今夜の流れを、6往復ごと・様子が変わった時に、ママの頭に入れ直す（長い手帳に埋もれて今夜の話を忘れるのを防ぐ）
-  const PIN_EVERY_TURNS=4; // v15: 6→4。中身は短くして、会話の履歴が太りすぎんように
+  const PIN_EVERY_TURNS=10; // v17: 4→10。途中メモは会話の履歴に積み上がって毎回読み直されるので原価に効く。要点メモの更新(10発言ごと)と「いまの様子」が変わった時は別途すぐ渡す
   function pinTonight(){
     if(!session)return;
     session.turnsSincePin=0;session.lastPinAt=Date.now();
