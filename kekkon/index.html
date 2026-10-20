@@ -333,6 +333,19 @@ details.alb summary::-webkit-details-marker{display:none}
 .fb{display:grid;gap:9px;margin-top:8px;font-size:.88rem;line-height:1.55}.fb .fk{display:block;font-weight:800;font-size:.78rem;color:var(--rose-deep);letter-spacing:.02em}.fb .fk.L{color:#2E7D52}.fb .fk.F{color:#B8921C}
 .meter{position:relative;height:9px;border-radius:999px;background:rgba(59,36,48,.09);margin:8px 14px 22px}.meter .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--rose),var(--gold));transition:width .9s cubic-bezier(.2,.8,.2,1)}.meter .st{position:absolute;top:-4px;width:2px;height:17px;background:var(--ink-2);opacity:.45;transform:translateX(-1px)}.meter .ticks{position:absolute;left:0;right:0;top:11px;display:flex;justify-content:space-between;font-size:.62rem;color:var(--ink-2);letter-spacing:0}.meter .ticks span:first-child{transform:translateX(-30%)}.meter .ticks span:last-child{transform:translateX(30%)}
 #g-vs{background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px}.vh{font-size:.78rem;font-weight:800;color:var(--rose-deep);letter-spacing:.06em;margin-bottom:8px}.vcols{display:grid;grid-template-columns:1fr 1fr;gap:8px}.vc{border-radius:12px;padding:10px;background:rgba(232,69,124,.07)}.vc.alt{background:rgba(201,162,39,.1)}.vc b{display:block;font-size:.7rem;letter-spacing:.12em;color:var(--ink-2)}.vc span{display:block;font-size:.84rem;font-weight:700;margin:3px 0 6px;line-height:1.35}.vc em{font-style:normal;display:flex;flex-wrap:wrap;gap:4px 8px;font-size:.78rem;color:var(--ink-2)}.vc em b{display:inline;font-size:.92rem;letter-spacing:0}.vc em b.up{color:var(--gold)}.vc em b.dn{color:var(--rose-deep)}.vdiff{margin-top:8px;font-size:.84rem;font-weight:800;text-align:center}.vt{margin:8px 0 0;font-size:.8rem;color:var(--ink-2);line-height:1.5}.vt .blur{filter:blur(3.5px);user-select:none}.vt small{display:block;color:var(--rose-deep);font-weight:700;margin-top:2px}.hb{position:relative;height:0;text-align:center;pointer-events:none}.hb i{position:absolute;left:50%;bottom:0;font-style:normal;color:var(--m-love);font-size:1.4rem;opacity:0;animation:hbup 1.5s ease-out forwards}.hb i:nth-child(1){margin-left:-44px;animation-delay:.05s}.hb i:nth-child(2){margin-left:-10px;font-size:1.9rem;animation-delay:.2s}.hb i:nth-child(3){margin-left:26px;animation-delay:.38s}@keyframes hbup{0%{transform:translateY(0) scale(.6);opacity:0}20%{opacity:1}100%{transform:translateY(-78px) scale(1.25);opacity:0}}.vtab .vr{display:grid;grid-template-columns:.9fr 1.1fr 1.1fr;gap:6px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:.84rem;align-items:center}.vtab .vhead{font-weight:800;color:var(--rose-deep);font-size:.76rem}.vtab .vk{color:var(--ink-2);font-size:.76rem}.vtab .va{font-weight:800}.vtab .vb{color:var(--ink-2)}
+
+.why{display:flex;flex-direction:column;gap:3px;align-items:center;margin-top:8px;font-size:.8rem;color:var(--ink-2);line-height:1.45}
+.why div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;justify-content:center}
+.why b{font-weight:800;white-space:nowrap;color:var(--ink)}
+.why b.up{color:#2F9E6C}.why b.dn{color:var(--rose-deep)}
+#g-vs .vr{grid-template-columns:.62fr 1.19fr 1.19fr;padding:7px 0}
+#g-vs .vsel span{font-size:.74rem;font-weight:800;line-height:1.3;color:var(--ink)}
+#g-vs .vsel span:nth-child(2){color:var(--rose-deep)}
+#g-vs .vr b{font-weight:800;font-size:.9rem;color:var(--ink)}
+#g-vs .vr b.up{color:#2F9E6C}#g-vs .vr b.dn{color:var(--rose-deep)}#g-vs .vr b.eq{color:var(--ink-2);font-weight:600}
+#g-vs .vr small{display:block;font-size:.7rem;color:var(--ink-2);font-weight:600;line-height:1.3}
+#g-vs .vdiff{margin-top:8px}
+#g-vs .vnote{display:block;text-align:center;color:var(--rose-deep);font-weight:700;font-size:.74rem;margin-top:5px}
 </style>
 
 <div class="app">
@@ -434,7 +447,8 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="outcome" id="g-out"></div>
       <div id="g-pop"></div>
       <div class="dchips" id="g-chg"></div>
-      <div id="g-vs" hidden></div>
+      <div class="why" id="g-why"></div>
+      <div id="g-vs" class="vtab" hidden></div>
       <div class="nako" id="nako-game"></div>
       <div class="review" id="g-review" hidden>
         <h3>ここまで、楽しんでる？</h3>
@@ -1064,12 +1078,12 @@ details.alb summary::-webkit-details-marker{display:none}
   // 秘密: 10年前の読者モデル「REN」。口座が月末ゼロなのは浪費じゃなく、独立資金を別口座に積み立てているから
   EP.D=[
     {year:'交際1か月',title:'23時の、立ち食いそば',
-      text:()=>'美容師の彼とのデートは、閉店後の23時から。表参道の裏の立ち食いそば屋で、彼は小銭を数えて払った。「給料日前で。…かっこ悪いよね」。でも、あなたが食べ終わるまで、彼はずっと、あなたの髪の毛先を見ていた。「来月、少し傷んでくる。切らせて」',
+      text:()=>'23時、表参道。閉めたサロンの鍵をかけた彼の背中に、通りの向こうから女の子が走ってきた。「REN…!? 嘘、本物?」。彼は帽子を深くかぶり直して、あなたの手を取り、裏通りの立ち食いそば屋に滑り込んだ。「人違い。…よくあるんだ」。そばは一杯420円。彼は小銭を数えて払った。「給料日前で。…かっこ悪いよね」。でも、あなたが食べ終わるまで、彼はずっと、あなたの髪の毛先を見ていた。「来月、少し傷んでくる。切らせて」',
       ch:[
         {t:'「半分、出すよ」とそっと小銭を置く',o:'「…ありがとう」。彼は小銭を受け取らずに、あなたの手ごと包んだ。「次は、ちゃんとした店。予約、もう取ってある」',d:{L:10},x:{c:2,a:1},f:'half',
-          nak:'給料日前の男と割り勘。この子、相手の見栄を守れる子ね。',hook:'帰り道、すれ違った女子高生が、二度振り返った。「ねえ、今の人…どこかで見た」'},
+          nak:'給料日前の男と割り勘。この子、相手の見栄を守れる子ね。',hook:'帰り道。あなたはスマホに「REN」と打って、…消した。「人違い」と言ったときの彼が、嘘をつく顔だったから。'},
         {t:'「そばで十分。ここ、好き」',o:'彼は吹き出した。「よかった。実は、ここが一番うまいんだ」。帰りにコンビニで、彼はあなたの好きなアイスを当てた。「髪で分かる。…嘘。顔、見てたから」',d:{T:12},x:{t:3},f:'soba',
-          nak:'立ち食いそばでときめける女。顔100点の男と、安上がりなデート。最強の組み合わせね。',hook:'帰り道、すれ違った女子高生が、二度振り返った。「ねえ、今の人…どこかで見た」'},
+          nak:'立ち食いそばでときめける女。顔100点の男と、安上がりなデート。最強の組み合わせね。',hook:'帰り道。あなたはスマホに「REN」と打って、…消した。「人違い」と言ったときの彼が、嘘をつく顔だったから。'},
       ]},
     {year:'交際半年',title:'ハサミの、プロポーズ',img:'salon',
       text:()=>'閉店後のサロン。鏡の前に座らされて、毛先を少しだけ。ハサミの音が止まって、鏡の中で目が合った。「年収は300万。口座は、月末ゼロ。でも、5年後に自分の店を出す。計画は、ある」。彼はポケットから、小さな箱じゃなくて、折りたたんだ紙を出した。「君の髪は、一生、俺が切る。…結婚してほしい」',
@@ -1098,9 +1112,9 @@ details.alb summary::-webkit-details-marker{display:none}
           nak:'夫のへそくりを、ふたりの計画に。へそくりは、見つけた瞬間が勝負なのよ。',hook:'2年後。夫が、スマホの画面を見せた。「表参道に、空き物件が出た」'},
       ]},
     {year:'結婚3年目',title:'表参道の、空き物件',img:'salon',
-      text:()=>'表参道の裏通り、1階8坪。保証金と内装で、開業資金は1,500万円。夫の620万と、ふたりの貯金、足りない分は銀行の融資。店を開くには、保健所に「美容所の開設届」を出して、使う前に検査を受ける。美容師が2人以上いる店なら、「管理美容師」(実務3年と講習)も要る。夫は震える声で言った。「…やるか、やらないか。一緒に決めてほしい」',
+      text:()=>'表参道の裏通り、1階8坪、家賃47万。この辺りの1階は、坪5.8万が相場。保証金は家賃10か月分で470万、礼金と仲介で140万、スケルトンからの内装が640万、セット面2つとシャンプー台で250万、半年分の運転資金に400万。合わせて、約1,900万円。夫の620万と、ふたりの貯金400万を入れても、900万足りない。残りは日本政策金融公庫の創業融資(担保も保証人もなしで借りられる)。店を開くには、保健所に「美容所の開設届」を出して、使う前に検査を受ける。美容師が2人以上いる店なら、「管理美容師」(実務3年と講習)も要る。夫は震える声で言った。「…やるか、やらないか。一緒に決めてほしい」',
       ch:[
-        {t:'出す。二人で勝負',o:'620万を全部入れ、ふたりの貯金から400万、残りは融資。夫の店「ren」が開いた。初月の予約は、3か月先まで埋まった。借金は、残り500万。',d:{sav:-400,hw:-620,T:10},x:{m:1,t:1,s:1},f:'open',twist:true,
+        {t:'出す。二人で勝負',o:'620万を全部入れ、ふたりの貯金から400万、残りの900万は公庫から10年で借りた。返済は月8万ちょっと。夫の店「ren」が開いた。初月の予約は、3か月先まで埋まった。',d:{sav:-400,hw:-620,T:10},x:{m:1,t:1,s:1},f:'open',twist:true,
           nak:'美容室は全国に約27万軒。コンビニの5倍近くよ。それでも埋まる店は、埋まる。',hook:'開店1か月後。夫が投稿したヘアアレンジの動画が、一晩で100万回再生された。'},
         {t:'まずは、シェアサロンで一人で',o:'店は出さず、表参道のシェアサロンに席を借りた。業務委託だから、売上の6割が手元に残る。2024年11月からは法律で、業務委託の報酬や条件を書面(メールでも可)で示すことが義務になった。夫の手取りは、2倍になった。',d:{sav:300,L:6},x:{c:1,m:2},f:'share',
           nak:'フリーランスの美容師は年々増えてる。店を持たない選択も、今は普通よ。620万は、取っておきなさい。',hook:'翌月。夫が投稿したヘアアレンジの動画が、一晩で100万回再生された。'},
@@ -1118,7 +1132,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'「産後の2か月、夫も店を閉めて」',o:'夫は店に「育休中」の貼り紙を出した。表参道で、たぶん初めての美容室の育休。2か月の売上はゼロ。でも、娘の「凛(りん)」が初めて笑ったのは、夫の腕の中だった。',d:{sav:-300,L:12},x:{c:2,a:1},f:'close2m',
           nak:'個人事業の育休は、ぜんぶ自腹。2か月で300万の赤字。…でも、その2か月は買えないのよ。',hook:'結婚8年目の木曜。朝、スマホが鳴り止まない。週刊誌に、夫の名前があった。'},
-        {t:'「店は開けて。私と母で乗り切る」',o:'夫は店を開け、夜はおむつを替えた。あなたの母が毎日来てくれた。娘の「凛(りん)」。夫は寝る前に、凛の髪を指でとかすのが日課になった。',d:{sav:200,T:4},x:{m:1,s:2},f:'keepopen',
+        {t:'「店は開けて。私と母で乗り切る」',o:'夫は店を開け、夜はおむつを替えた。あなたの母が毎日来てくれた。娘の「凛(りん)」。夫は寝る前に、凛の髪を指でとかすのが日課になった。',d:{sav:200,L:8,T:4},x:{m:1,s:2},f:'keepopen',
           nak:'店を守る選択。現実的よ。ただし、夫の寝不足は、ハサミの手元に出るから気をつけなさい。',hook:'結婚8年目の木曜。朝、スマホが鳴り止まない。週刊誌に、夫の名前があった。'},
       ]},
     {year:'結婚8年目',title:'週刊誌',img:'hero',
@@ -1275,6 +1289,10 @@ details.alb summary::-webkit-details-marker{display:none}
     if(a.home!==b.home)out.push(`<span class="hm">⌂ ${esc(a.home)} へ引っ越し</span>`);
     return out.join('');
   }
+  // 愛情・ときめきが動いた理由(ルート→話→A/B→[愛情,ときめき])
+  const WHY={"D":[[["彼の見栄を、そっと守った","割り勘は、少し現実的"],["まだ出会ったばかり","背伸びしない彼に、ドキッ"]],[["鏡越しの返事を、信じた","鏡の中のプロポーズ"],["人生の計画を、共有した","ロマンより、現実の話"]],[["本人には、聞かなかった","秘密の匂いに、ドキドキ"],["聞かずに、信じた","ときめきより、安心"]],[["過去ごと、受け入れた","「全部好き」の一言"],["秘密を、ふたりの目標に","お金の話で、横ばい"]],[["勝負の緊張で、横ばい","一緒に賭ける、高揚感"],["無理をさせない選択","堅実さに、ときめきはない"]],[["彼の夢に、人生を乗せた","仕事モードで、横ばい"],["別々の道、距離は同じ","対等な関係が、少し新鮮"]],[["一緒に、娘を抱いた2か月","育児で、ときめきは横ばい"],["家族総出で、店を守った","働く夫の背中に、少し"]],[["嵐の中、隣に立った","一緒に戦う、ヒリヒリ感"],["静かに、守り合った","閉じこもる2週間で、減る"]],[["家にいる時間が、減った","画面の中の夫に、ドキッ"],["「鏡の前の蓮が好き」が届いた","選ばれた実感"]],[["夫の代わりに、店を背負った","必死で、ときめく余裕なし"],["弱った夫を、支えた","守る側に回って、少し"]],[["20年を、そのまま愛した","ハサミの音に、初日が戻る"],["思い出を、ふたりで共有","出会った日の、再現"]]],"A":[[["まだ、相手を知らない","ジェットで函館、非日常"],["お金より、会話を選んだ","派手さを断って、少し冷静"]],[["迷わず、信じた","即答の、高鳴り"],["答えを、確かめ中","理由を聞く、緊張"]],[["キヨとは、まだ距離","隠された過去に、ドキドキ"],["キヨの隣で、家族になった","穏やかで、ときめきは控えめ"]],[["何も聞かず、受け止めた","抱きしめた体温"],["夫より先に、他人に聞いた","謎を追う、スリル"]],[["夫婦は、別々の時間に","自分の道で、少し輝く"],["店に夢中で、横ばい","夢が動き出した"]],[["夫の顔を、立てた","型どおりの場で、なし"],["一族の空気は、変わらず","夫を自慢した、高揚感"]],[["ノートの名前が、現実に","新しい命に、少し"],["ふたりのまま、横ばい","旅と夜更かしの、恋人時間"]],[["一番苦しい時に、隣にいた","一緒に沈む覚悟に、震えた"],["線を引いた夜、夫は黙った","守ったのは、お金だけ"]],[["法律どおり、感情は動かず","手続きの話に、なし"],["お金より、家族の和","欲のない妻に、惚れ直す"]],[["合理的、でも思い出は消えた","夕日の島を、手放した"],["夫の夢を、形に残した","ふたりの島が、永遠に"]],[["3年分の想いを、受け取った","日記の中の、恋"],["バトンを、受け取った","続きを書く、わくわく"]]],"B":[[["まだ、出会った夜","個室で二人きりの、緊張"],["対等でいたい、と伝えた","主導権の話で、少し現実"]],[["全員の前で、応えた","100本のバラ、公開プロポーズ"],["1週間、毎朝待ってくれた","待たせる側の、落ち着き"]],[["彼の母を、見つめた","式の日でも、静か"],["夫の秘密は、まだ閉じたまま","隠し事に、気づいた"]],[["借金ごと、引き受けた","返済の話に、なし"],["線を引いて、信じた","本音で話せた夜"]],[["距離ゼロ、愛情は現状維持","砂漠の国で、ふたり"],["月1の再会を、大事にした","遠距離で、冷える"]],[["仕事の話で、横ばい","夫と組んだ、新事業"],["夫の母を、思いやった","家族の話に、なし"]],[["4週間、三人で過ごした","寝不足で、ときめく暇なし"],["房子さんと、乗り切った","夫の不在に、少し冷めた"]],[["疑って、聞いて、笑った","取り戻した、夫の目"],["黙って、自分の時間を作った","別の場所で、少し輝く"]],[["5年、同じ家で","ロンドンでの、新しい毎日"],["電話だけの、5年","離れて、心も遠く"]],[["役割を、入れ替えた","家で待つ夫に、新鮮"],["今の形を、守った","変わらない日々に、少し"]],[["20年前の続きを、受け取った","朝5時のバラ、再び"],["今度は私が、贈る側","作る時間の、ドキドキ"]]],"C":[[["一緒に、台所に立った","生活感で、少し"],["まだ、彼を知る前","焦げた卵焼きの、不器用さ"]],[["同じ金銭感覚で、安心","節約の話で、減る"],["お金の話は、まだ平行線","ドレスを着る日を、想像"]],[["夫の実家は、まだ遠い","隠された家に、ドキッ"],["夫の側の人を、立てた","宴会で、なし"]],[["夫の実家に、飛び込んだ","行動する妻に、夫が少し"],["夫の決断を、待った","任せる心地よさ"]],[["別々の時間が、増えた","自分の道で、少し輝く"],["蔵の未来のために、学んだ","勉強漬けで、なし"]],[["一緒に継いで、現状維持","新しい土地で、新鮮"],["夫の迷いに、寄り添った","普通の暮らしで、少し冷める"]],[["法律で、ふたりを守った","冷静な妻に、夫が頼った"],["蔵と一緒に、沈む覚悟","運命共同体の、高揚"]],[["子育ての方針が、一致","教育の話に、なし"],["意見は割れた、横ばい","子の未来に、少し"]],[["敵を、味方にした","ライバルの告白に、ドキッ"],["嫉妬を、正直に伝えた","夫が、私を選んだ"]],[["仕事で、夫婦の時間は減った","世界に挑む、高揚"],["夫のペースを、守った","堅実さに、なし"]],[["20年を、一本に込めた","初めての杯を、思い出す"],["名前を、並べた","ラベルの上の、ふたり"]]],"S":[[["初対面、まだ距離","ツッコミに、彼が笑った"],["努力を、認めた","褒め言葉は、無難"]],[["まだ、遊びの延長","球場で、ツーショット"],["彼の原点を、聞いた","質問タイムで、控えめ"]],[["まだ、知り合い","弾き語りに、ドキッ"],["作品に、興味を持った","曲を聴く、わくわく"]],[["ノリで応援、横ばい","総理の夢に、わくわく"],["本音を、引き出した","真面目な話で、減る"]],[["家族の手続きに、付き添った","法務局で、なし"],["まだ、理由を探してる","彼の優しさに、ドキッ"]],[["隠し事を、話し合えた","お金の話は、少し冷静"],["答えは変わらず、横ばい","即答の自分に、ドキドキ"]],[["お金で、愛情は動かず","もらう側になり、少し冷めた"],["親の金より、ふたり","決意の場面、なし"]],[["仕事の問題、横ばい","戦う妻に、夫が少し"],["決断を、夫が支えた","転職活動で、暇なし"]],[["お金で、愛情は動かない","30億でも、ときめかない"],["ふたりで築く、を選んだ","欲のなさに、惚れ直す"]],[["夢の隣に、立った","選挙戦で、暇なし"],["別々の夢、横ばい","自分の夢に、わくわく"]],[["最後の曲を、一緒に","ステージで、ふたり"],["彼の夢を、客席から","歌う彼に、ドキッ"]]]};
+  const whyOf=(rid,i,k)=>(((WHY[rid]||[])[i]||[])[k])||['',''];
+  function whyHTML(rid,i,k,d){const w=whyOf(rid,i,k);const row=(lab,v,txt)=>`<div><b class="${v>0?'up':v<0?'dn':''}">${lab} ${arrow(v)}</b><span>${esc(txt||(v?'':'この場面では、動かない'))}</span></div>`;return row('愛情',d.L||0,w[0])+row('ときめき',d.T||0,w[1]);}
   function applyD(s,d){for(const k in d){if(k==='home')s.home=d.home;else if(k==='sav')s.sav=Math.max(0,s.sav+d.sav);else if(k==='hw')s.hw=(s.hw||0)+d.hw;else if(k==='L'||k==='T')s[k]=clamp(s[k]+d[k]);}return s;}
   const resolve=(v,s)=>typeof v==='function'?v(s):v;
   // ときめきの振れ幅を大きく: ときめき軸の選択は最低+14、反対側(ときめきが無い選択)は−6
@@ -1282,9 +1300,12 @@ details.alb summary::-webkit-details-marker{display:none}
   function adjD(c,i,d){d=Object.assign({},d||{});const h=c.ch[i],o=c.ch[1-i];if(topAx(h.x)==='t'){if((d.T||0)<14)d.T=14;}else if(o&&topAx(o.x)==='t'&&!(d.T>0))d.T=(d.T||0)-6;return d;}
   const arrow=v=>v>=10?'↑↑':v>0?'↑':v<=-10?'↓↓':v<0?'↓':'→';
   function deltaHTML(a,b){const p=[];const d=a.sav-b.sav;if(d)p.push(`<b class="${d>0?'up':'dn'}">${d>0?'+':'−'}${yen(Math.abs(d))}</b>`);const dh=(a.hw||0)-(b.hw||0);if(dh)p.push(`<span class="hw">夫 ${dh>0?'+':'−'}${yen(Math.abs(dh))}</span>`);p.push(`<span>愛情 ${arrow(a.L-b.L)}</span>`);p.push(`<span>ときめき ${arrow(a.T-b.T)}</span>`);if(a.home!==b.home)p.push(`<span>⌂ ${esc(a.home)}</span>`);return p.join('');}
-  function vsHTML(c,i,b,a){const alt=c.ch[1-i];if(!alt)return '';const as=clone(b);applyD(as,adjD(c,1-i,resolve(alt.d,b)));if(alt.f)as.f[alt.f]=true;let ao='';try{ao=String(resolve(alt.o,as));}catch(e){ao='';}
+  function vsHTML(c,i,b,a){const alt=c.ch[1-i];if(!alt)return '';const ad=adjD(c,1-i,resolve(alt.d,b)),md=adjD(c,i,resolve(c.ch[i].d,b));const as=clone(b);applyD(as,ad);if(alt.f)as.f[alt.f]=true;
+    const wm=whyOf(cur.id,ci,i),wa=whyOf(cur.id,ci,1-i);
+    const money=s2=>{const p=[];const d=s2.sav-b.sav;if(d)p.push(`<b class="${d>0?'up':'dn'}">${d>0?'+':'−'}${yen(Math.abs(d))}</b>`);const dh=(s2.hw||0)-(b.hw||0);if(dh)p.push(`<small>夫 ${dh>0?'+':'−'}${yen(Math.abs(dh))}</small>`);if(s2.home!==b.home)p.push(`<small>⌂ ${esc(s2.home)}</small>`);return p.length?p.join(''):'<b class="eq">同じ</b>';};
+    const cell=(v,txt)=>`<b class="${v>0?'up':v<0?'dn':'eq'}">${arrow(v)}</b><small>${esc(txt||'')}</small>`;
     const dm=Math.abs(a.sav-as.sav),dT=Math.abs(hearts(a.T)-hearts(as.T)),dL=Math.abs(a.L-as.L);
-    return `<div class="vh">もし、反対を選んでいたら</div><div class="vcols"><div class="vc me"><b>あなた</b><span>${esc(resolve(c.ch[i].t,b))}</span><em>${deltaHTML(a,b)}</em></div><div class="vc alt"><b>反対</b><span>${esc(resolve(alt.t,b))}</span><em>${deltaHTML(as,b)}</em></div></div><div class="vdiff">${dm?'お金の差 '+yen(dm):'お金は同じ'}${dT?' ／ ときめき ♥'+dT+'個分':''}${dL>=10?' ／ 愛情の深さが変わる':''}</div><p class="vt"><span class="blur">${esc(ao.slice(0,46))}…</span><small>反対の続きは、2周目で読める</small></p>`;}
+    return `<div class="vh">もし、反対を選んでいたら</div><div class="vr vhead"><span></span><span>あなた</span><span>反対</span></div><div class="vr vsel"><span></span><span>${esc(resolve(c.ch[i].t,b))}</span><span>${esc(resolve(alt.t,b))}</span></div><div class="vr"><span class="vk">お金</span><span>${money(a)}</span><span>${money(as)}</span></div><div class="vr"><span class="vk">愛情</span><span>${cell(md.L||0,wm[0])}</span><span>${cell(ad.L||0,wa[0])}</span></div><div class="vr"><span class="vk">ときめき</span><span>${cell(md.T||0,wm[1])}</span><span>${cell(ad.T||0,wa[1])}</span></div><div class="vdiff">${dm?'お金の差 '+yen(dm):'お金は同じ'}${dT?' ／ ときめき ♥'+dT+'個分':''}${dL>=10?' ／ 愛情の深さが変わる':''}</div><small class="vnote">反対の続きは、2周目で読める</small>`;}
 
   // ================= トップ =================
   let me=pers.name||'ミユ',cur=null,st=null,ci=0,pi=0,proX=null,proScore={A:0,B:0,C:0,D:0,S:0};
@@ -1466,14 +1487,14 @@ details.alb summary::-webkit-details-marker{display:none}
   function choose(i){
     if(!$('#g-after').hidden)return;
     const r=R(),c=EP[cur.id][ci],h=c.ch[i];
-    const b=clone(st);applyD(st,adjD(c,i,resolve(h.d,b)));if(h.f)st.f[h.f]=true;addX(st.x,h.x||{});r.picks[ci]=i;
+    const b=clone(st),dd=adjD(c,i,resolve(h.d,b));applyD(st,dd);if(h.f)st.f[h.f]=true;addX(st.x,h.x||{});r.picks[ci]=i;
     $$('#g-choices button').forEach((x,j)=>{x.disabled=true;x.classList.add(j===i?'picked':'dim');});
     $('#g-stat').innerHTML=statHTML(b);setTimeout(()=>rollSav(b.sav,st.sav),300);
     setTimeout(()=>{const f=$('#g-stat .meter .fill');if(f)f.style.width=meterP(st.sav).toFixed(1)+'%';},350);
     setTimeout(()=>{if(!$('#s-game').hidden)$('#g-stat').innerHTML=statHTML(st);},1700);
     $('#g-twist').hidden=!h.twist;
     $('#g-out').textContent=resolve(h.o,st);
-    $('#g-pop').innerHTML=popHTML(b,st)+(st.T-b.T>=10?'<div class="hb"><i>♥</i><i>♥</i><i>♥</i></div>':'');$('#g-chg').innerHTML=chipsHTML(b,st);
+    $('#g-pop').innerHTML=popHTML(b,st)+(st.T-b.T>=10?'<div class="hb"><i>♥</i><i>♥</i><i>♥</i></div>':'');$('#g-chg').innerHTML=chipsHTML(b,st);$('#g-why').innerHTML=whyHTML(cur.id,ci,i,dd);
     $('#g-vs').innerHTML=vsHTML(c,i,b,st);$('#g-vs').hidden=false;
     nako('#nako-game',resolve(h.nak,st)+(hearts(st.T)===5&&hearts(b.T)<5?' …ときめき、満タンよ。':''),true);
     $('#g-review').hidden=!(c.reveal&&!pers.askedMid);
