@@ -1113,12 +1113,12 @@ body.demoing{padding-bottom:260px}
   }
   var MORE='そのほか：週1回の元気レポート（答えた日数・せいかい・時間）／着せ替えぜんぶプラン込み＋毎月1つ新作／答えがない日のSMS 回数制限なし／ガラケー・家の電話版／複数の親を1つの契約で';
   var FAQ=[
-    ['誰が払うの？','家族のうち1人だけ。その人の家族みんな（5人まで）に、同じ知らせが届きます。'],
+    ['誰が払うの？','家族のうち1人だけ。きょうだいは無料で、同じ知らせを受け取れます（あなたを含めて5人まで）。'],
     ['親のスマホは、何か変わる？','何も変わりません。課金のボタンも広告も、親の画面には出ません。'],
-    ['解約したら、記録は消える？','消えません。無料に戻るだけで、毎日の1問と「無事」の知らせはそのまま続きます。'],
+    ['解約したら、記録は消える？','残ります。無料に戻るだけで、過去の記録も、毎日の1問と「無事」の知らせも、そのまま続きます。'],
     ['iPhoneとAndroidが混ざっていても？','大丈夫。払う人のスマホで購入すれば、きょうだいの機種は関係ありません。'],
-    ['無料期間が終わる前に、知らせは来る？','来ます。終わる前にストア（Google Play／App Store）からお知らせが届きます。途中でやめれば0円です。'],
-    ['解約の仕方は？','スマホの定期購入の画面から（Android：Google Play→お支払いと定期購入／iPhone：設定→自分の名前→サブスクリプション）。アプリの中で何かする必要はありません。']
+    ['無料期間が終わる前に、知らせは来る？','来ます。終わる2日前と当日に、アプリからお知らせします（Androidは Google からもメールが届きます）。その前にやめれば0円です。'],
+    ['解約の仕方は？','スマホの設定から（iPhone：設定→自分の名前→サブスクリプション／Android：Playストア→お支払いと定期購入）。アプリを消しても解約にはならないので、ご注意を。']
   ];
   function faqHtml(){ return '<div class="faqs">'+FAQ.map(function(q){ return '<details><summary>'+q[0]+'</summary><p>'+q[1]+'</p></details>'; }).join('')+'</div>'; }
   function plusEnd(){ if(!S.planSince) return ''; var p=S.planSince.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2],12); d=new Date(d.getTime()+30*DAY); return (d.getMonth()+1)+'/'+d.getDate(); }
@@ -1129,7 +1129,7 @@ body.demoing{padding-bottom:260px}
     if(plus){
       h+='<h3>'+ico('i-check')+'ワンポチ家族プラン<span class="on">加入中</span></h3>';
       h+='<p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料。親の画面は何も変わっていません。</p>';
-      if(S.planTerm==='year' && S.planSince && key(today())<=key(new Date(new Date(S.planSince.replace(/-/g,'/')).getTime()+30*DAY))) h+='<p class="sub">無料期間は <b>'+plusEnd()+'</b> まで。終わる前にストアからお知らせが届きます。そのあと年2,000円（2か月分お得）。</p>';
+      if(S.planTerm==='year' && S.planSince && key(today())<=key(new Date(new Date(S.planSince.replace(/-/g,'/')).getTime()+30*DAY))) h+='<p class="sub">無料期間は <b>'+plusEnd()+'</b> まで。終わる2日前と当日に、アプリからお知らせします。そのあと年2,000円（2か月分お得）。</p>';
       else h+='<p class="sub">'+(S.planTerm==='year'?'年2,000円':'月200円')+'。更新・解約はスマホの定期購入から。</p>';
       h+='<div class="now"><div>「元気だった」の記録 のこり<b>'+shieldsLeft()+'回（今月）</b></div><div>知らせを受け取る人<b>'+(1+st.members.length)+'人 / 5人</b></div></div>';
       h+='<div class="scenes">'+scenes().map(function(f){ return '<div class="scene"><div class="em">'+f[0]+'</div><div><div class="a">'+f[2]+'</div></div></div>'; }).join('')+'</div>';
@@ -1152,11 +1152,11 @@ body.demoing{padding-bottom:260px}
     h+='<div class="scenes">'+scenes().map(function(f){ return '<div class="scene"><div class="em">'+f[0]+'</div><div><div class="q">'+f[1]+'</div><div class="a">'+f[2]+'</div></div></div>'; }).join('')+'</div>';
     h+='<details><summary>そのほかにできること</summary><p>'+MORE+'</p></details>';
     h+='<div class="opts">'
-      +'<button type="button" class="opt" id="opt-year" aria-pressed="'+(year?'true':'false')+'"><span class="best">おすすめ</span><span class="nm">年払い</span><span class="pr">2,000円<small>／年</small></span><span class="no">月あたり167円・2か月分お得<br>はじめの30日は無料</span></button>'
-      +'<button type="button" class="opt" id="opt-month" aria-pressed="'+(year?'false':'true')+'"><span class="nm">月払い</span><span class="pr">200円<small>／月</small></span><span class="no">いつでもやめられる<br>無料期間なし</span></button>'
+      +'<button type="button" class="opt" id="opt-year" aria-pressed="'+(year?'true':'false')+'"><span class="best">おすすめ</span><span class="nm">年払い</span><span class="pr">2,000円<small>／年</small></span><span class="no">はじめの30日は無料<br>31日目から年2,000円（月あたり167円・2か月分お得）</span></button>'
+      +'<button type="button" class="opt" id="opt-month" aria-pressed="'+(year?'false':'true')+'"><span class="nm">月払い</span><span class="pr">200円<small>／月</small></span><span class="no">無料期間なし<br>毎月200円・いつでもやめられる</span></button>'
       +'</div>';
     h+='<div class="cta"><button class="btn primary" type="button" id="plan-go">'+(year?'30日 無料で試す':'月200円で はじめる')+'</button><button type="button" class="later" id="plan-later">いまは無料のまま使う</button></div>';
-    h+='<p class="sub">払うのは1人。親のスマホは変わりません。解約しても記録は消えません。'+(year?'無料期間が終わる前に、ストアからお知らせが届きます。':'')+'</p>';
+    h+='<p class="sub">払うのは1人。親のスマホは変わりません。解約しても記録は残ります。'+(year?'無料期間が終わる2日前に、アプリからお知らせします。':'')+'解約はスマホの設定から（アプリを消しても解約にはなりません）。</p>';
     h+=faqHtml();
     h+='<p class="sub">試作：本番ではここで購入画面（Google Play / App Store）が開きます。</p>';
     box.innerHTML=h;
@@ -1482,7 +1482,7 @@ body.demoing{padding-bottom:260px}
       await chapter(6,'切り替えと解約','スマホの定期購入で');
       show('family'); window.scrollTo(0,0); await sleep(300);
       await focus(el('f-plan'));
-      await say('無料期間が終わる前に、ストアからお知らせが届きます','購入も解約も、スマホの定期購入（Google Play / App Store）から');
+      await say('無料期間が終わる2日前に、アプリからお知らせします','解約はスマホの設定から。アプリを消しても解約にはなりません');
       var fq=el('f-plan').querySelector('.faqs details:nth-child(3) summary'); if(fq){ line('よくある質問も、ここに'); await tap(fq); await sleep(600); fg.hidden=true; }
       await say('解約しても、記録は消えません','無料に戻るだけ。毎日の1問と「無事」の知らせは、そのまま続きます');
 
