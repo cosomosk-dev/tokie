@@ -652,7 +652,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v21";
+  const APP_VER="2026-10-21 v22";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2318,8 +2318,27 @@
     trialSheet.querySelectorAll(".tmode").forEach(b=>b.style.outline=focus&&b.dataset.mode===focus?"2px solid var(--amber)":"");
     trialSheet.classList.add("open");
   }
+  // v22: お店で喋ってる最中に「立ち飲みを試す」を押すと、前は何も言わずに無視してた（＝効かへんように見えた）。
+  // 今は「今の会話を閉めて立ち飲みに入る？」と聞いて、OKならその場で閉店→立ち飲みの選択を出す。
+  let trialSwitching=false;
+  async function trialFromMenu(){
+    if(trialSwitching)return;
+    if(conv||ending){
+      if(!confirm("今ママと喋ってる最中やから、このままやと立ち飲み（一見／常連体験）に入られへん。\n\n今の会話をここで閉店して（まとめは省く）、立ち飲みのデモに入る？"))return;
+      trialSwitching=true;menuSheet.classList.remove("open");
+      statusEl.textContent="いったん閉店して、立ち飲みに入り直すで…";
+      try{if(session)session.endWhy="立ち飲みデモへ切り替え";await end({reason:"user"});}catch(e){}
+      // 閉店の後片付け（瓶の案内など）が終わるのを少し待つ
+      for(let i=0;i<20&&(conv||ending);i++)await new Promise(r=>setTimeout(r,250));
+      trialSwitching=false;
+      if(conv){errEl.textContent="閉店でけへんかった。下の「お会計」で出てから、もう一回押してな";return;}
+      hideNotice();
+    }
+    menuSheet.classList.remove("open");
+    try{await openTrial(true);}catch(e){errEl.textContent="立ち飲みが開かれへん："+String(e&&e.message?e.message:e);}
+  }
   function enterTrial(mode){
-    if(conv)return;
+    if(conv){alert("ママ：「今まだ喋ってる最中やで。お会計してから立ち飲みにおいで」");return;}
     const t=trialState();
     if(t.yen+trialMaxYen()>TRIAL_BUDGET){
       if(!trialDemo){alert("ママ：「今月のサービス席はいっぱいや、堪忍な。また来月おいで」");return;}
@@ -2628,7 +2647,7 @@
         `<div class="row" style="margin-top:6px"><button id="trialplus">立ち飲みの客が来た（デモ +1）</button><button id="trialplus100">+100人</button><button class="ghost" id="trialreset">0に戻す</button></div>`;
       const bump=(n)=>{const x=trialState();x.n+=n;x.yen+=n*TRIAL_MIN*S.yenPerMin;saveTrial(x);renderMenu();};
       $("trialplus").onclick=()=>bump(1);$("trialplus100").onclick=()=>bump(100);$("trialreset").onclick=()=>{saveTrial({ym:ym(Date.now()),n:0,yen:0});renderMenu();};
-      $("trialtry").onclick=()=>{if(conv)return;menuSheet.classList.remove("open");openTrial(true);};
+      $("trialtry").onclick=()=>trialFromMenu();
     }
     $("s_nightcap").value=S.nightDrinkCap;$("s_monthcap").value=S.monthCap;
     // デモ売上
