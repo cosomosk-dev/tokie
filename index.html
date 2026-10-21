@@ -654,7 +654,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v31";
+  const APP_VER="2026-10-22 v32";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1067,9 +1067,14 @@
     "・お客さんが黙った時（返事がない・「…」だけの時）に「黙り込んで」「どうしたん」「なんで黙ってるの」「聞いてる？」みたいに、沈黙を指摘したり責めたりは絶対にせえへん。スナックでは黙って飲む時間も普通のこと。\n"+
     "・黙った1回目：短い相槌か一言だけ（例「うん」「ゆっくりでええよ」「ほな、ママちょっと氷足しとくわ」）。\n"+
     "・まだ黙ってたら：ママから軽い話題をひとつだけ振る（さっきの話の続きか、今日のお題）。質問攻めにはせん。1回に問いかけは1つまで。\n"+
-    "・それでも黙ってたら：skip_turn（黙って待つ道具）が使えるなら使って、何も言わずに隣におる。使えへんなら「ここにおるからな」くらいの一言だけ。\n"+
-    "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ言うて待つ（skip_turnが使えるなら使う）。\n"+
+    "・それでも黙ってたら：skip_turnが使えるなら使って、声は何も出さへん。使えへんなら「ここにおるからな」の一言だけ。\n"+
+    "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ（skip_turnが使えるなら使う）。\n"+
     "・ママの一回の返事は短め（だいたい2〜3文）。お客さんが喋る隙間を残す。独演会はせん。";
+  // v32 心の声を言わへんルール（「沈黙してる相手を急かさず待つ」等、ルールや自分の動きを実況してしもうてた）
+  const VOICE_BLOCK="【心の声は言わへん（大事・どのルールより先）】\n"+
+    "・ママが声に出すのは、お客さんへのセリフだけ。この手帳のルール・【】のメモ・自分がこれからどうするか（「急かさず待つ」「黙って待つ」「話を聞く」「隣におる」「様子を見る」等）は、頭の中で守るだけで絶対に口に出さへん。\n"+
+    "・「私は〜する」「ママは〜しとく」と自分の行動を実況せん。（笑う）（待つ）みたいなト書き・カッコ書きも言わへん。\n"+
+    "・黙って待つ時は、ほんまに黙る（skip_turn）。言うなら「うん」「ゆっくりでええよ」くらいの、お客さんに向けた一言だけ。";
   // 今夜の濃さ（ママの口調3段階）。性格設定のツッコミ・意見の量より、これが優先
   const STRENGTHS={
     mizu:{name:"水割り",short:"聞いてほしい夜",level:"ツッコミ0・意見0",
@@ -1308,7 +1313,7 @@
         :"【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
       if(current){const ns=nightSumText();if(ns)head.push(ns.trim());head.push(tonightBlock(30));}
     }
-    const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
+    const core=[VOICE_BLOCK,NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=(dayFactsBlock()?dayFactsBlock()+"\n\n":"")+toneReminder(S.strength); // 今夜の決まりごとは末尾（いちばん新しい情報の位置）に必ず入れる
     let room=B-[...head,...core,tail].reduce((n,x)=>n+jbytes(x)+SEP,0)-SEP*12;
@@ -2516,7 +2521,7 @@
         (T.about?`・前から聞いてる「最近のこと」：${clip(T.about,40)}。これだけは前から知ってる話として拾てええ（「で、あの件どないなったん？」）。それ以外の過去は作らん。\n`
                  :"・過去の出来事は知らん。思い出話は作らず「最近どうなん」と本人に話させる。\n")
       :"【一見さんの扱い】\n・初対面。丁寧めに、でもママらしい関西弁のあったかさは出す。まず呼び名か、今日どんな日やったかを1つだけ聞く。\n・馴れ馴れしすぎず、軽いツッコミは1回くらい。最後まで聞く側。\n";
-    return [base,mode,toneBlock(S.strength),PACE_BLOCK,toneReminder(S.strength)].join("\n\n");
+    return [base,mode,VOICE_BLOCK,toneBlock(S.strength),PACE_BLOCK,toneReminder(S.strength)].join("\n\n");
   }
   const MSG_TRIAL_WRAP=(mode)=>"【店の時計】立ち飲みの3分がもうすぐ終わる（あと30秒）。今の話に一言返してから、全部で2〜3文で締める：①今日聞いた話をひと言で拾う ②"+
     (mode==="joren"?"「これがうちの常連さんへの接し方や。通うてくれたら、ほんまにこうなるで」":"「通うてくれたら、だんだん名前で呼んで、話も覚えとくからな」")+
