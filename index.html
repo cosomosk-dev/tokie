@@ -652,7 +652,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v24";
+  const APP_VER="2026-10-21 v25";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -682,7 +682,8 @@
   const MAX_MEMORY_CHARS=24000;
   // ElevenLabsへ入店時に渡すデータは1回64,000バイトまで（超えると「cannot publish data packet larger than 64000 bytes」で入れへん）。
   // 日本語は1文字3バイトなので文字数ではなくバイトで区切る。挨拶など他の項目の分も残して40,000バイトまで。
-  const MEMORY_BUDGET_BYTES=22000, PROFILE_MAX_BYTES=6000, DIGEST_MAX_BYTES=9000; // v15: 44000→22000。手帳が長すぎて今夜の会話の流れが埋もれてた
+  const MEMORY_BUDGET_BYTES=34000, PROFILE_MAX_BYTES=15000, DIGEST_MAX_BYTES=9000; // v15: 44000→22000。手帳が長すぎて今夜の会話の流れが埋もれてた
+  // v25: 22000→34000・基本情報6000→15000（約5,000字ぜんぶ）。基本情報（仕事・実績・夢＝コスモスK・都知事選など）がカウンター席で数百字まで削られて「昨日まで覚えてたのに忘れた」になった。今夜の流れは途中メモ・今夜の要点で別に渡してるので、基本情報を最優先に戻す
   const _enc=new TextEncoder();
   function jbytes(t){return _enc.encode(JSON.stringify(String(t||""))).length-2;}
   function clipBytes(t,max){t=String(t||"");if(jbytes(t)<=max)return t;let lo=0,hi=t.length;while(lo<hi){const m=Math.ceil((lo+hi)/2);if(jbytes(t.slice(0,m))+4<=max)lo=m;else hi=m-1;}return t.slice(0,lo)+"…";}
@@ -1198,10 +1199,12 @@
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=toneReminder(S.strength);
-    const fixed=[...head,...core,tail,lt,todayDig].reduce((n,x)=>n+jbytes(x)+SEP,0);
+    // v25: 基本情報は最優先の固定枠（ほかの枠と割合で縮めへん）。ここに仕事・実績・夢が全部書いてある
+    const profile="【お客さんの基本情報（タケオさんのいちばん大事な前提。仕事・実績・夢・将来の構想。ここに書いてあることは全部知ってる前提で話す。「初めて聞いた」顔は絶対せん）】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",PROFILE_MAX_BYTES);
+    const fixed=[...head,...core,tail,lt,todayDig,profile].reduce((n,x)=>n+jbytes(x)+SEP,0);
     // 残りを各枠に配る。全部の上限を足して入りきらん時は、同じ割合で縮める（どの枠もゼロにはせえへん）
     const R=Math.max(3000,B-fixed-SEP*8);
-    const want=MEM_CAPS.latest+MEM_CAPS.prev+MEM_CAPS.month+MEM_CAPS.recentDigest+MEM_CAPS.profile+MEM_CAPS.notes;
+    const want=MEM_CAPS.latest+MEM_CAPS.prev+MEM_CAPS.month+MEM_CAPS.recentDigest+MEM_CAPS.notes;
     const k=Math.min(1,R/want);
     const cap=(x)=>Math.floor(x*k);
 
@@ -1273,10 +1276,6 @@
       ntxt=h+body.trim();
     }
 
-    // ⑤ 基本情報：他の枠で余った分は基本情報に回す
-    const usedMem=[...recent,rdig,month,ntxt].reduce((n,x)=>n+(x?jbytes(x)+SEP:0),0);
-    const pmax=Math.max(cap(MEM_CAPS.profileMin),Math.min(PROFILE_MAX_BYTES,R-usedMem-SEP*2));
-    const profile="【お客さんの基本情報】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",pmax);
 
     const parts=[...head,profile];if(lt)parts.push(lt);parts.push(...core);
     if(month)parts.push(month);
@@ -1287,13 +1286,13 @@
     else parts.push(...recent.slice().reverse()); // その前→前回の順。前回の話が最後（tailの直前）に来る
     parts.push(tail);
     let out=parts.join("\n\n");
-    // v24: 入りきらん時は、末尾（今日の自動メモ・前回の来店・念押し）やなく、基本情報→1ヶ月の記憶の順に削る。
-    // 前は末尾から切ってたので、カウンター席では今日の話も前回の話も丸ごと落ちてた。
-    for(const target of [profile,month,ntxt,rdig]){
+    // 入りきらん時は、1ヶ月の記憶→手書きメモ→前の日の自動メモの順に削って、基本情報は最後（v25: 基本情報を先に削ってたのを逆に）。
+    // 末尾（今日の自動メモ・前回の来店・念押し）は切らへん。
+    for(const target of [month,ntxt,rdig,profile]){
       if(jbytes(out)<=B)break;
       const i=target?parts.indexOf(target):-1;if(i<0)continue;
       const over=jbytes(out)-B+64;
-      parts[i]=clipBytes(target,Math.max(target===profile?900:400,jbytes(target)-over));
+      parts[i]=clipBytes(target,Math.max(target===profile?9000:400,jbytes(target)-over));
       out=parts.join("\n\n");
     }
     if(jbytes(out)>B)out=clipBytes(out,B); // 念のための最後の安全弁（64KB超えで入れへん事故を防ぐ）
@@ -2255,8 +2254,8 @@
      頭脳の切り替えは ElevenLabs の「LLMの上書き」が許可されてる時だけ効く（許可されてへん時は自動で上書きなしで入り直す）。
      原価の目安（1分）：通話¥12＋頭脳代。ボックス＝ElevenLabsの画面で選んだ標準の頭脳（10/21からSonnet 5）、カウンター＝Haiku 4.5に上書き。 */
   const SEATS={
-    counter:{name:"カウンター",llm:"claude-haiku-4-5",mult:1,memBytes:20000,yen:15,short:"標準・返事が速い",
-      desc:"標準の席。ママの返事が速い。手帳は大事なとこだけ読む。"},
+    counter:{name:"カウンター",llm:"claude-haiku-4-5",mult:1,memBytes:MEMORY_BUDGET_BYTES,yen:15,short:"標準・返事が速い",
+      desc:"標準の席。ママの返事が速い。手帳（基本情報・今日の話・前回の話）はボックスと同じだけ覚えてる。"},
     box:{name:"ボックス",llm:"",mult:1.5,memBytes:MEMORY_BUDGET_BYTES,yen:21,short:"ママが冴える",
       desc:"ママの頭が冴える席。手帳を深く読んで、今夜の話の筋も追う。お会計のまとめが濃い。席料で瓶が1.5倍減る。"}
   };
