@@ -205,6 +205,64 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .members .add{align-self:flex-start;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;background:var(--white)}
 .members .cap{font-size:13px;color:var(--ink-2)}
 .members .cap b{color:var(--shu)}
+.members .cap button{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;background:var(--shu-soft);border-color:var(--shu);color:var(--shu);margin-left:6px}
+.weeknote{font-size:13px;color:var(--ink-2);margin:-8px 4px 0;text-align:right}
+.weeknote button{border:none;padding:0;font-size:13px;font-weight:700;color:var(--shu);text-decoration:underline;text-underline-offset:3px}
+.milestone{background:linear-gradient(135deg,var(--shu-soft),var(--white));border-color:var(--shu)}
+.milestone .big{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.35}
+.milestone .big b{color:var(--shu);font-size:34px}
+.milestone .row2 .btn{font-size:15px;padding:9px 16px}
+.milestone .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink-2)}
+.trust{background:var(--ok-bg);border:1.5px solid var(--ok);color:var(--ok);border-radius:14px;padding:8px 12px;font-size:14px;font-weight:700;display:flex;gap:8px;align-items:center}
+.plan .lead{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.4}
+.plan .scenes{display:flex;flex-direction:column;gap:10px}
+.plan .scene{display:grid;grid-template-columns:40px 1fr;gap:10px;background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px}
+.plan .scene .em{font-size:26px;line-height:1.1;text-align:center}
+.plan .scene .q{font-family:var(--font-gothic);font-size:15px;color:var(--ink-2);font-weight:700;text-align:left;margin:0;line-height:1.5}
+.plan .scene .a{font-size:16px;font-weight:700;line-height:1.5}
+.plan .scene .a b{color:var(--shu)}
+.plan .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.plan .opt{position:relative;border-radius:18px;padding:12px 10px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;background:var(--white)}
+.plan .opt[aria-pressed="true"]{border-color:var(--shu);border-width:2px;background:var(--shu-soft)}
+.plan .opt .nm{font-size:13px;font-weight:700;color:var(--ink-2)}
+.plan .opt .pr{font-family:var(--font-mincho);font-weight:800;font-size:24px;line-height:1.1}
+.plan .opt .pr small{font-size:13px;color:var(--ink-2);font-family:var(--font-gothic)}
+.plan .opt .no{font-size:12px;color:var(--ink-2);line-height:1.4}
+.plan .opt .best{position:absolute;top:-10px;right:10px;background:var(--shu);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px}
+.plan .cta{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.plan .cta .btn{justify-content:center;font-size:17px;padding:13px 20px}
+.plan .cta .later{border:none;font-size:14px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;padding:4px}
+.plan details{border:1.5px solid var(--line);border-radius:16px;background:var(--white);padding:0 14px}
+.plan details+details{margin-top:6px}
+.plan summary{cursor:pointer;font-weight:700;font-size:15px;padding:10px 0;list-style:none;display:flex;justify-content:space-between;gap:8px}
+.plan summary::-webkit-details-marker{display:none}
+.plan summary::after{content:'＋';color:var(--shu);flex:0 0 auto}
+.plan details[open] summary::after{content:'−'}
+.plan details p{font-size:14px;color:var(--ink-2);padding:0 0 12px;line-height:1.6}
+.plan .faqs{display:flex;flex-direction:column}
+.plan .more{font-size:14px;color:var(--ink-2);padding-bottom:10px;line-height:1.7}
+.plan.mini{padding:14px 18px;flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+.plan.mini .t{font-weight:700;font-size:15px}
+.plan.mini .t small{display:block;font-size:12px;color:var(--ink-2);font-weight:500}
+.plan.mini button{border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;background:var(--white);white-space:nowrap}
+.cal .detail{flex-direction:column;align-items:stretch;gap:8px}
+.cal .detail .ok{border-radius:999px;padding:9px 14px;font-weight:700;font-size:15px;background:var(--shu);border-color:var(--shu);color:#fff}
+.cal .detail .ok:disabled{opacity:.5}
+.cal .detail .tiny{font-size:12px;color:var(--ink-2)}
+.welcome{position:fixed;inset:0;z-index:65;background:rgba(30,27,34,.55);display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.welcome .card{width:min(480px,100%);background:var(--paper);border-radius:28px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px -20px rgba(0,0,0,.5)}
+.welcome .hd{display:flex;align-items:center;gap:12px}
+.welcome .hd .petimg{width:64px;flex:0 0 auto}
+.welcome h3{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.3}
+.welcome .l{font-size:15px;line-height:1.6}
+.welcome .step{background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.welcome .step .n{font-size:13px;font-weight:700;color:var(--shu)}
+.welcome .step .t{font-weight:700;font-size:16px}
+.welcome .sub{font-size:14px;color:var(--ink-2)}
+.welcome .seg button{padding:8px 4px}
+.welcome .go{justify-content:center;font-size:17px}
+.welcome .x{align-self:center;border:none;font-size:14px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+body.demoing .welcome{z-index:52}
 .toast{position:fixed;z-index:20;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:999px;font-weight:700;font-size:15px;max-width:calc(100% - 32px);text-align:center}
 .vis{position:absolute;left:-9999px;top:0}
 @media (max-width:370px){.greet .g{font-size:24px}.streak b{font-size:52px}}
@@ -418,10 +476,14 @@ body.demoing{padding-bottom:260px}
     </header>
     <div class="status" id="f-status"></div>
     <div class="week" id="f-week"></div>
+    <p class="weeknote" id="f-weeknote" hidden></p>
     <div class="row2">
       <div class="badge" id="f-streak"></div>
       <button class="btn dark" id="f-share"><svg class="ico"><use href="#i-share"/></svg>家族にシェア</button>
     </div>
+
+    <!-- 節目のお祝い（7日ごと）。無料のときだけ、ここで初めて家族プランをそっと案内する -->
+    <section class="block milestone" id="f-milestone" hidden></section>
 
     <!-- 家族プラン：1か月のカレンダー -->
     <section class="block cal" id="f-cal" hidden>
@@ -429,7 +491,7 @@ body.demoing{padding-bottom:260px}
       <div class="hd"><button type="button" id="cal-prev">‹ 前の月</button><b id="cal-title"></b><button type="button" id="cal-next">次の月 ›</button></div>
       <div class="wd"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
       <div class="grid" id="cal-grid"></div>
-      <div class="legend"><span><i class="on"></i>答えた</span><span><i class="miss"></i>答えなし</span><span><i class="shield"></i>お休み保護</span></div>
+      <div class="legend"><span><i class="on"></i>答えた</span><span><i class="miss"></i>答えなし</span><span><i class="shield"></i>家族が「元気だった」と記録</span></div>
       <div class="sum" id="cal-sum"></div>
       <div class="detail" id="cal-detail">日付を押すと、その日の答えが見られます</div>
     </section>
@@ -440,7 +502,7 @@ body.demoing{padding-bottom:260px}
       <div class="tiles" id="rep-tiles"></div>
       <p class="txt" id="rep-text"></p>
       <div class="row2"><button class="btn dark" id="rep-copy"><svg class="ico"><use href="#i-share"/></svg>レポートをシェア</button></div>
-      <p class="sub">本番では、毎週月曜の朝にこの内容が通知でも届きます。</p>
+      <p class="sub" id="rep-note">本番では、毎週月曜の朝にこの内容が通知でも届きます。</p>
     </section>
 
     <section class="block">
@@ -472,6 +534,7 @@ body.demoing{padding-bottom:260px}
     </section>
     <section class="block">
       <h3><svg class="ico"><use href="#i-gear"/></svg>設定（家族だけが触る）</h3>
+      <p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料です。</p>
       <p class="sub">親の画面には設定もメニューも出ません。ここで決めたものがそのまま親の画面になります。</p>
       <div class="field"><label for="s-parent">親の名前</label><input type="text" id="s-parent"></div>
       <div class="field"><label for="s-family">あなたの名前</label><input type="text" id="s-family"></div>
@@ -482,6 +545,7 @@ body.demoing{padding-bottom:260px}
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
       <div class="field"><label>あなたへの連絡方法</label><div class="seg" id="s-contact"></div></div>
       <div class="field"><label>ほかに 知らせを受け取る人</label><div class="members" id="s-members"></div></div>
+      <div class="field" id="s-report-field" hidden><label>週1回の元気レポートを届ける日</label><div class="seg" id="s-report"></div></div>
       <div class="field"><label>しばらくお休み</label><div class="seg" id="s-pause"></div><p class="sub" id="s-pause-note"></p></div>
       <div class="field"><label for="s-phone">親の電話番号（知らせが来たとき、ここに電話します）</label><input type="text" id="s-phone" inputmode="tel"></div>
       <button class="btn primary" id="f-send"><svg class="ico"><use href="#i-mail"/></svg>親のスマホに送る</button>
@@ -491,6 +555,7 @@ body.demoing{padding-bottom:260px}
 </div>
 
 <div class="toast" id="toast" hidden></div>
+<div class="welcome" id="welcome" hidden></div>
 <div class="finger" id="finger" hidden></div>
 <div class="caption" id="caption" hidden>
   <div class="cap-top"><span class="chip" id="cap-chip"></span><span class="bar"><i id="cap-bar"></i></span><button type="button" id="cap-stop">✕ やめる</button></div>
@@ -638,7 +703,7 @@ body.demoing{padding-bottom:260px}
   function today(){ var d=new Date(); d.setHours(12,0,0,0); return new Date(d.getTime()+S.dayOffset*DAY); }
   function daysAgo(n){ return new Date(today().getTime()-n*DAY); }
   function fresh(){
-    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart', members:[{name:'たかし'}]}, answers:{}, gifts:[], worn:[], chosen:false, plan:'free', shield:{days:{}}};
+    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart', members:[{name:'たかし'}], reportDay:'月'}, answers:{}, gifts:[], worn:[], chosen:false, plan:'free', planTerm:'year', planSince:'', planHidden:'', shield:{days:{}}};
     S=s;
     var times=['8:12','7:55','8:40','9:03','8:21','8:08','7:48','8:33','8:15','9:10','8:02'];
     for(var i=1;i<=11;i++){ s.answers[key(daysAgo(i))]={pick:0, correct:i%5!==0, time:times[i-1], label:''}; }
@@ -652,6 +717,8 @@ body.demoing{padding-bottom:260px}
     if(S.plan!=='plus') S.plan='free';
     if(!S.shield||!S.shield.days) S.shield={days:{}};
     if(!S.settings.members) S.settings.members=[];
+    if(!S.planTerm) S.planTerm='year'; if(S.planSince===undefined) S.planSince=''; if(S.planHidden===undefined) S.planHidden='';
+    if(!S.settings.reportDay) S.settings.reportDay='月';
   }
   var demo=false;
   function save(){ if(demo) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -662,25 +729,15 @@ body.demoing{padding-bottom:260px}
   // 無料のまま使えるもの：毎日の1問・「無事」の知らせ・答えがない日の知らせ・相棒・連続記録（7日分）・着せ替え100円。
   // 家族プランで増えるもの：1か月カレンダー・お休み保護（月2回）・週1レポート・着せ替えプラン込み＋毎月の新作・知らせを受け取る人5人まで。
   function isPlus(){ return S.plan==='plus'; }
-  function setPlan(p){ if(p!=='plus'&&p!=='free') return; S.plan=p; save(); applyShields(); renderAll(); }
+  function setPlan(p){ if(p!=='plus'&&p!=='free') return; if(p==='plus'&&!isPlus()) S.planSince=key(today()); S.plan=p; save(); renderAll(); }
   function memberCap(){ return isPlus()?5:2; } // あなたを含めた人数
   function monthOf(k){ return k.slice(0,7); }
   function shieldsUsed(mk){ var n=0; Object.keys(S.shield.days).forEach(function(k){ if(monthOf(k)===mk) n++; }); return n; }
   function shieldsLeft(){ return Math.max(0, SHIELDS_PER_MONTH-shieldsUsed(monthOf(key(today())))); }
-  // お休み保護：きのうから さかのぼって、答えがなかった日に保護をあてる（月2回まで）。家族への知らせには一切ひびかない
-  function applyShields(){
-    if(!isPlus()) return;
-    var changed=false;
-    for(var i=1;i<60;i++){
-      var k=key(daysAgo(i));
-      if(S.answers[k]||S.shield.days[k]) continue;
-      var prior=false; for(var j=i+1;j<i+31;j++){ if(S.answers[key(daysAgo(j))]){ prior=true; break; } }
-      if(!prior) break; // 記録が始まる前の日には あてない
-      if(shieldsUsed(monthOf(k))>=SHIELDS_PER_MONTH) break;
-      S.shield.days[k]=true; changed=true;
-    }
-    if(changed) save();
-  }
+  // 「かわりに記録」：親が答えなかった日に、家族が電話などで元気を確かめたら「元気だった」と記録できる（月2回まで）。
+  // 自動では守らない（記録が切れたことを人質に売らない）。家族への知らせには一切ひびかない
+  function canRecordOk(k){ return isPlus() && !S.answers[k] && !S.shield.days[k] && k<key(today()) && shieldsUsed(monthOf(k))<SHIELDS_PER_MONTH; }
+  function recordOk(k){ if(!canRecordOk(k)) return false; S.shield.days[k]=true; save(); return true; }
   function streak(){ // 保護された日は、記録を切らずに飛ばす（日数には数えない）
     var n=0, start=S.answers[key(today())]?0:1;
     for(var i=start;i<400;i++){ var k=key(daysAgo(i)); if(S.answers[k]) n++; else if(S.shield.days[k]) continue; else break; }
@@ -922,7 +979,7 @@ body.demoing{padding-bottom:260px}
       w.appendChild(div);
     }
     var sh=streakShielded();
-    el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">🛡 お休み保護 '+sh+'回</span>':'');
+    el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">☎️ かわりに記録 '+sh+'回</span>':'');
 
     var plus=isPlus();
     el('f-gift-sub').textContent= plus
@@ -944,8 +1001,10 @@ body.demoing{padding-bottom:260px}
     });
 
     el('f-cal').hidden=!plus; el('f-report').hidden=!plus;
+    var wn=el('f-weeknote'); wn.hidden=plus; if(!plus){ wn.innerHTML='7日より前の記録は <button type="button" id="wn-go">家族プランの1か月カレンダー</button> で'; el('wn-go').addEventListener('click', openPlan); }
     if(plus){ renderCalendar(); renderReport(); }
-    renderPlan(); renderMembers();
+    renderMilestone(); renderPlan(); renderMembers();
+    var rf=el('s-report-field'); rf.hidden=!plus; if(plus) seg('s-report',['月','日'],st.reportDay||'月',function(v){ st.reportDay=v; },function(v){ return v+'曜の朝'; });
 
     el('s-parent').value=st.parentName; el('s-family').value=st.familyName; el('s-phone').value=st.phone;
     seg('s-relation',['むすめ','むすこ','まご'],st.relation,function(v){ st.relation=v; });
@@ -963,7 +1022,7 @@ body.demoing{padding-bottom:260px}
     vals.forEach(function(v){
       var b=document.createElement('button'); b.type='button'; b.id=id+'-'+v;
       b.innerHTML=label?label(v):v; b.setAttribute('aria-pressed', v===cur?'true':'false');
-      b.addEventListener('click', function(){ set(v); save(); renderAll(); });
+      b.addEventListener('click', function(){ set(v); save(); if(id==='w-day'){ seg(id, vals, v, set, label); } else renderAll(); });
       box.appendChild(b);
     });
   }
@@ -997,8 +1056,13 @@ body.demoing{padding-bottom:260px}
     if(!calSel){ det.textContent='日付を押すと、その日の答えが見られます'; return; }
     var p=calSel.split('-'), lab=(+p[1])+'/'+(+p[2]), r=S.answers[calSel];
     if(r){ var what=r.pick<0?'わからない':((r.label?r.label+'・':'')+(r.correct?'せいかい':(r.ans?'こたえは '+r.ans:'まちがい'))); det.textContent=lab+'：'+r.time+' に '+(r.via==='phone'?'電話で 知らせが来ました':'答えました（'+what+'）'); }
-    else if(S.shield.days[calSel]) det.textContent=lab+'：答えなし。お休み保護で、連続記録は切れていません';
+    else if(S.shield.days[calSel]) det.textContent=lab+'：答えなし。家族が「元気だった」と記録した日。連続記録は切れていません';
     else if(calSel===tk) det.textContent=lab+'：きょう。まだ答えていません';
+    else if(canRecordOk(calSel)){
+      det.innerHTML='<div>'+lab+'：答えなし。電話などで元気を確かめましたか？</div><button type="button" class="ok" id="cal-ok">「元気だった」と記録する（今月あと '+(SHIELDS_PER_MONTH-shieldsUsed(monthOf(calSel)))+'回）</button><div class="tiny">記録すると連続記録はつながります。家族への知らせには影響しません。</div>';
+      el('cal-ok').addEventListener('click', function(){ var k=calSel; if(recordOk(k)){ toast('「元気だった」と記録しました'); renderAll(); } });
+    }
+    else if(isPlus()) det.textContent=lab+'：答えなし（「元気だった」の記録は今月の2回を使いきりました）';
     else det.textContent=lab+'：答えなし';
   }
   el('cal-prev').addEventListener('click', function(){ calOff--; calSel=''; renderCalendar(); });
@@ -1029,6 +1093,7 @@ body.demoing{padding-bottom:260px}
       '<div class="tile"><b>'+(a.quiz?a.correct+'<small>/'+a.quiz+'問</small>':'–')+'</b><span>せいかい</span></div>'+
       '<div class="tile"><b>'+(a.tn?hhmm(a.tsum/a.tn):'–')+'</b><span>だいたいの時間</span></div>';
     el('rep-text').innerHTML=reportText().replace(/(先週より [0-9]+日 (多い|少ない)です)/,'<b>$1</b>');
+    el('rep-note').textContent='本番では、毎週'+(S.settings.reportDay||'月')+'曜の朝にこの内容が通知でも届きます。';
   }
   el('rep-copy').addEventListener('click', function(){
     var text='【ワンポチ 今週の元気レポート】'+reportText()+' #ワンポチ';
@@ -1037,39 +1102,95 @@ body.demoing{padding-bottom:260px}
   });
 
   // ---------- 家族プランのカード（課金ボタンはここだけ。親の画面には出ない）----------
-  var FEATS=[
-    ['📅','1か月のカレンダー。どの日に答えたかが ひと目で'],
-    ['🛡','お休み保護（月'+SHIELDS_PER_MONTH+'回）。答えられなかった日も、連続記録がとぎれない'],
-    ['📝','週1回の元気レポート。答えた日数・せいかい・時間をまとめて'],
-    ['🎁','着せ替え ぜんぶプラン込み。毎月1つ 新作'],
-    ['👪','知らせを受け取る人 5人まで（無料は2人）。答えがない日のSMS 回数制限なし'],
-    ['☎️','ガラケー・家の電話版'],
-    ['👵','複数の親を、1つの契約で']
+  // 「場面」で見せる3つ（機能一覧は「くわしく」の中へ）。
+  function scenes(){
+    var st=S.settings;
+    return [
+      ['📅','「先月は、何日 答えたっけ？」','<b>1か月のカレンダー</b>。どの日に・何時に・何を答えたかが残ります'],
+      ['☎️','「きのう答えてない…電話したら、寝坊だった」','電話で元気を確かめた日は、家族が<b>「元気だった」と記録</b>できます（月'+SHIELDS_PER_MONTH+'回）。連続記録はとぎれません'],
+      ['👪','「妹にも、弟にも届けたい」','知らせを受け取る人を<b>5人まで</b>。払うのは1人、きょうだい全員に届きます']
+    ];
+  }
+  var MORE='そのほか：週1回の元気レポート（答えた日数・せいかい・時間）／着せ替えぜんぶプラン込み＋毎月1つ新作／答えがない日のSMS 回数制限なし／ガラケー・家の電話版／複数の親を1つの契約で';
+  var FAQ=[
+    ['誰が払うの？','家族のうち1人だけ。その人の家族みんな（5人まで）に、同じ知らせが届きます。'],
+    ['親のスマホは、何か変わる？','何も変わりません。課金のボタンも広告も、親の画面には出ません。'],
+    ['解約したら、記録は消える？','消えません。無料に戻るだけで、毎日の1問と「無事」の知らせはそのまま続きます。'],
+    ['iPhoneとAndroidが混ざっていても？','大丈夫。払う人のスマホで購入すれば、きょうだいの機種は関係ありません。'],
+    ['無料期間が終わる前に、知らせは来る？','来ます。終わる前にストア（Google Play／App Store）からお知らせが届きます。途中でやめれば0円です。'],
+    ['解約の仕方は？','スマホの定期購入の画面から（Android：Google Play→お支払いと定期購入／iPhone：設定→自分の名前→サブスクリプション）。アプリの中で何かする必要はありません。']
   ];
+  function faqHtml(){ return '<div class="faqs">'+FAQ.map(function(q){ return '<details><summary>'+q[0]+'</summary><p>'+q[1]+'</p></details>'; }).join('')+'</div>'; }
+  function plusEnd(){ if(!S.planSince) return ''; var p=S.planSince.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2],12); d=new Date(d.getTime()+30*DAY); return (d.getMonth()+1)+'/'+d.getDate(); }
+  function openPlan(){ S.planHidden=''; save(); renderPlan(); el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }
   function renderPlan(){
-    var box=el('f-plan'), st=S.settings, plus=isPlus();
-    var list='<ul class="feat">'+FEATS.map(function(f){ return '<li><span class="em">'+f[0]+'</span><span>'+f[1]+'</span></li>'; }).join('')+'</ul>';
-    var h='';
+    var box=el('f-plan'), st=S.settings, plus=isPlus(), h='';
+    box.className='block plan';
     if(plus){
       h+='<h3>'+ico('i-check')+'ワンポチ家族プラン<span class="on">加入中</span></h3>';
-      h+='<div class="now"><div>お休み保護 のこり<b>'+shieldsLeft()+'回（今月）</b></div><div>知らせを受け取る人<b>'+(1+st.members.length)+'人 / 5人</b></div></div>';
-      h+=list;
-      h+='<p class="sub">解約は、スマホの定期購入（Google Play / App Store）から。解約しても、毎日の1問と「無事」の知らせは無料のまま続きます。</p>';
+      h+='<p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料。親の画面は何も変わっていません。</p>';
+      if(S.planTerm==='year' && S.planSince && key(today())<=key(new Date(new Date(S.planSince.replace(/-/g,'/')).getTime()+30*DAY))) h+='<p class="sub">無料期間は <b>'+plusEnd()+'</b> まで。終わる前にストアからお知らせが届きます。そのあと年2,000円（2か月分お得）。</p>';
+      else h+='<p class="sub">'+(S.planTerm==='year'?'年2,000円':'月200円')+'。更新・解約はスマホの定期購入から。</p>';
+      h+='<div class="now"><div>「元気だった」の記録 のこり<b>'+shieldsLeft()+'回（今月）</b></div><div>知らせを受け取る人<b>'+(1+st.members.length)+'人 / 5人</b></div></div>';
+      h+='<div class="scenes">'+scenes().map(function(f){ return '<div class="scene"><div class="em">'+f[0]+'</div><div><div class="a">'+f[2]+'</div></div></div>'; }).join('')+'</div>';
+      h+='<details><summary>そのほかの機能</summary><p>'+MORE+'</p></details>';
+      h+=faqHtml();
       h+='<button class="btn" type="button" id="plan-go">無料プランに戻す（試作）</button>';
-    }else{
-      h+='<h3>'+ico('i-gift')+'ワンポチ家族プラン</h3>';
-      h+='<div class="price"><b>月200円</b><span>／ 年2,000円（2か月分お得）・はじめの30日は無料</span></div>';
-      h+=list;
-      h+='<div class="free-note">毎日の1問・「無事」の知らせ・答えがない日の知らせは、<b>ずっと無料</b>。親の画面は何も変わりません。</div>';
-      h+='<button class="btn primary" type="button" id="plan-go">30日 無料で試す</button>';
-      h+='<p class="sub">試作：本番ではここで購入画面（Google Play / App Store）が開きます。</p>';
+      box.innerHTML=h;
+      el('plan-go').addEventListener('click', function(){ setPlan('free'); toast('無料プランに戻しました（試作）'); });
+      return;
     }
+    if(S.planHidden){ // 「いまは無料のまま」と言われたあとは、1行だけ
+      box.className='block plan mini';
+      box.innerHTML='<div class="t">ワンポチ家族プラン<small>月200円／年2,000円・きょうだい5人まで</small></div><button type="button" id="plan-open">みる</button>';
+      el('plan-open').addEventListener('click', openPlan); return;
+    }
+    var year=S.planTerm!=='month';
+    h+='<h3>'+ico('i-gift')+'ワンポチ家族プラン</h3>';
+    h+='<p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料です。</p>';
+    h+='<p class="lead">'+st.parentName+'さんの毎日を、<br>きょうだい みんなで。</p>';
+    h+='<div class="scenes">'+scenes().map(function(f){ return '<div class="scene"><div class="em">'+f[0]+'</div><div><div class="q">'+f[1]+'</div><div class="a">'+f[2]+'</div></div></div>'; }).join('')+'</div>';
+    h+='<details><summary>そのほかにできること</summary><p>'+MORE+'</p></details>';
+    h+='<div class="opts">'
+      +'<button type="button" class="opt" id="opt-year" aria-pressed="'+(year?'true':'false')+'"><span class="best">おすすめ</span><span class="nm">年払い</span><span class="pr">2,000円<small>／年</small></span><span class="no">月あたり167円・2か月分お得<br>はじめの30日は無料</span></button>'
+      +'<button type="button" class="opt" id="opt-month" aria-pressed="'+(year?'false':'true')+'"><span class="nm">月払い</span><span class="pr">200円<small>／月</small></span><span class="no">いつでもやめられる<br>無料期間なし</span></button>'
+      +'</div>';
+    h+='<div class="cta"><button class="btn primary" type="button" id="plan-go">'+(year?'30日 無料で試す':'月200円で はじめる')+'</button><button type="button" class="later" id="plan-later">いまは無料のまま使う</button></div>';
+    h+='<p class="sub">払うのは1人。親のスマホは変わりません。解約しても記録は消えません。'+(year?'無料期間が終わる前に、ストアからお知らせが届きます。':'')+'</p>';
+    h+=faqHtml();
+    h+='<p class="sub">試作：本番ではここで購入画面（Google Play / App Store）が開きます。</p>';
     box.innerHTML=h;
-    el('plan-go').addEventListener('click', function(){
-      setPlan(plus?'free':'plus');
-      toast(plus?'無料プランに戻しました（試作）':'家族プランになりました（試作：本番は購入のあと）');
-      if(!plus) el('f-cal').scrollIntoView({behavior:'smooth', block:'start'});
-    });
+    el('opt-year').addEventListener('click', function(){ S.planTerm='year'; save(); renderPlan(); });
+    el('opt-month').addEventListener('click', function(){ S.planTerm='month'; save(); renderPlan(); });
+    el('plan-later').addEventListener('click', function(){ S.planHidden=key(today()); save(); renderPlan(); toast('無料のまま使えます。いつでも戻れます'); });
+    el('plan-go').addEventListener('click', function(){ setPlan('plus'); renderWelcome(); });
+  }
+
+  // ---------- 節目のお祝い（7日ごと）：無料ならここで初めて、そっと案内 ----------
+  function renderMilestone(){
+    var box=el('f-milestone'), st=S.settings, n=streak(), plus=isPlus();
+    var show=n>0 && n%7===0;
+    box.hidden=!show; if(!show) return;
+    var h='<div class="big">🎉 '+st.parentName+'さん、<b>'+n+'</b>日 つづきました！</div>';
+    if(plus){ h+='<p class="sub">この記録は、下の1か月のカレンダーにずっと残ります。</p><div class="row2"><button class="btn dark" type="button" id="ms-share">'+ico('i-share')+'家族にシェア</button></div>'; }
+    else { h+='<p class="sub">無料で見られるのは7日分まで。この記録を、1か月のカレンダーで残しませんか？</p><div class="row2"><button class="btn primary" type="button" id="ms-go">家族プランをみる</button><button class="btn ghost" type="button" id="ms-no">いまはいい</button></div>'; }
+    box.innerHTML=h;
+    if(plus) el('ms-share').addEventListener('click', function(){ el('f-share').click(); });
+    else { el('ms-go').addEventListener('click', openPlan); el('ms-no').addEventListener('click', function(){ box.hidden=true; }); }
+  }
+
+  // ---------- 購入直後：ようこそ（やることは2つだけ） ----------
+  function renderWelcome(){
+    var w=el('welcome'), st=S.settings;
+    w.hidden=false;
+    w.innerHTML='<div class="card"><div class="hd">'+pet(st.animal, S.worn, true)+'<div><h3>家族プランへ ようこそ</h3><div class="l">'+st.parentName+'さんの毎日が、家族みんなに届きます。親のスマホは、何も変わりません。</div></div></div>'
+      +'<div class="step"><div class="n">1</div><div class="t">知らせを受け取る人を 追加する</div><div class="sub">あなたを含めて5人まで。あとから設定でも足せます。</div><button class="btn" type="button" id="w-add">'+ico('i-mail')+'設定で追加する</button></div>'
+      +'<div class="step"><div class="n">2</div><div class="t">週1回の元気レポートは、いつ届く？</div><div class="seg" id="w-day"></div></div>'
+      +'<button class="btn primary go" type="button" id="w-go">はじめる</button></div>';
+    seg('w-day',['月','日'],st.reportDay||'月',function(v){ st.reportDay=v; },function(v){ return v+'曜の朝'; });
+    function close(){ w.hidden=true; }
+    el('w-go').addEventListener('click', function(){ close(); renderAll(); el('f-cal').scrollIntoView({behavior:'smooth', block:'start'}); });
+    el('w-add').addEventListener('click', function(){ close(); renderAll(); var a=el('member-add'); if(a){ a.scrollIntoView({behavior:'smooth', block:'center'}); a.click(); } });
   }
 
   // ---------- 知らせを受け取る人（あなた＋ほかの家族。無料2人・家族プラン5人まで）----------
@@ -1090,9 +1211,10 @@ body.demoing{padding-bottom:260px}
       box.appendChild(add);
       cp.textContent='あなたを含めて '+total+'人 / '+cap+'人まで。'+(isPlus()?'':'家族プランなら 5人まで。');
     }else{
-      cp.innerHTML= isPlus()?'あなたを含めて 5人まで（いっぱいです）':'無料は あなたを含めて 2人まで。<b>家族プランなら 5人まで</b>（きょうだいで分担できます）';
+      cp.innerHTML= isPlus()?'あなたを含めて 5人まで（いっぱいです）':'無料は あなたを含めて 2人まで。<b>家族プランなら 5人まで</b>（きょうだいで分担できます）<button type="button" id="mem-go">みる</button>';
     }
     box.appendChild(cp);
+    if(el('mem-go')) el('mem-go').addEventListener('click', openPlan);
   }
 
   el('s-parent').addEventListener('change', function(){ S.settings.parentName=this.value.trim()||'おや'; save(); renderAll(); });
@@ -1145,7 +1267,7 @@ body.demoing{padding-bottom:260px}
   el('d-parent').addEventListener('click', function(){ show('parent'); });
   el('d-family').addEventListener('click', function(){ show('family'); });
   el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; PH.day=''; save(); renderAll(); toast('1日すすめました'); });
-  el('d-reset').addEventListener('click', function(){ var p=S.plan; PH.day=''; phClear(); fresh(); S.plan=p; S.phoneIntro=false; calOff=0; calSel=''; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
+  el('d-reset').addEventListener('click', function(){ var p=S.plan; PH.day=''; phClear(); fresh(); S.plan=p; if(p==='plus') S.planSince=key(today()); S.phoneIntro=false; calOff=0; calSel=''; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
   el('d-free').addEventListener('click', function(){ setPlan('free'); toast('無料プラン（試作）'); });
   el('d-plus').addEventListener('click', function(){ setPlan('plus'); toast('家族プラン（試作）'); });
 
@@ -1156,7 +1278,6 @@ body.demoing{padding-bottom:260px}
     var d=today();
     el('d-day').textContent=(S.dayOffset===0?'きょう':'+'+S.dayOffset+'日')+'（'+(d.getMonth()+1)+'/'+d.getDate()+' '+WDK[d.getDay()]+'）';
     el('d-free').setAttribute('aria-pressed', isPlus()?'false':'true'); el('d-plus').setAttribute('aria-pressed', isPlus()?'true':'false');
-    applyShields();
     renderParent(); renderFamily();
   }
 
@@ -1295,10 +1416,11 @@ body.demoing{padding-bottom:260px}
   // ---------- 家族プランのデモ（家族目線：無料のまま使う → 家族プランで増えるもの）----------
   function runPlanDemo(){ return runDemoWith(demoPlan, 6); }
   async function demoPlan(){
-      fresh(); S.chosen=true; S.plan='free'; S.settings.members=[{name:'たかし'}];
+      fresh(); S.chosen=true; S.plan='free'; S.planHidden=''; S.planTerm='year'; S.settings.members=[{name:'たかし'}];
+      for(var i=12;i<=13;i++){ S.answers[key(daysAgo(i))]={pick:0, correct:true, time:'8:1'+(i-12), label:'', via:'app'}; }
       var q0=questionFor(today()); S.answers[key(today())]={pick:q0.a, correct:true, time:'8:12', label:q0.c[q0.a][1], ans:q0.c[q0.a][1], via:'app'};
       renderAll(); show('family'); window.scrollTo(0,0);
-      await intro('無料のまま、ずっと使える。','家族プランで、もう少しだけ安心を。');
+      await intro('無料のまま、ずっと使える。','家族プランは、もう少しだけ安心したい人に。');
 
       await chapter(1,'無料で使う','むすめ・ゆかのスマホ');
       await focus(el('f-status'));
@@ -1306,33 +1428,41 @@ body.demoing{padding-bottom:260px}
       await focus(el('f-week'));
       await say('直近7日分の記録と、連続記録。ここまでが無料','着せ替えは1つ100円で プレゼントできます');
 
-      await chapter(2,'こんなとき','無料だと、ちょっと足りない');
-      var sk=streak(); S.dayOffset+=2; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
+      await chapter(2,'こんなとき','家族プランが気になる3つの場面');
+      var sk=streak();
+      await focus(el('f-milestone'));
+      await say(sk+'日 つづいた日に、はじめて家族プランの案内が出ます','うまくいった日にだけ。心配な日には出しません');
+      S.dayOffset+=2; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
       await focus(el('f-status'));
       await say('きのう、お母さんの答えがなかった日','電話したら、ただの寝坊。ホッとした');
       await focus(el('f-streak'));
-      await say('でも、'+sk+'日つづいた記録は 0 に戻ってしまう','お母さんの「つづけて◯日」は、親の画面の楽しみ');
-      await focus(el('f-week'));
-      await say('「先月は 何日 答えたっけ？」','7日より前は、見られない');
+      await say('でも、'+sk+'日つづいた記録は 0 に戻ってしまう','ここに課金の案内は出しません。無料のまま、知らせはちゃんと届きます');
       await focus(el('s-members'));
-      await say('弟のたかしには知らせが届く。でも、妹にも届けたい','無料は、あなたを含めて2人まで');
+      await say('弟のたかしには届く。妹にも届けたい','無料は、あなたを含めて2人まで');
 
       await chapter(3,'家族プランにする','払うのは、ひとりだけ');
       await focus(el('f-plan'));
-      await say('月200円、または年2,000円。はじめの30日は無料','毎日の1問と「無事」の知らせは、無料のまま');
-      line('「30日 無料で試す」を押すだけ'); await tap(el('plan-go')); await sleep(900); fg.hidden=true;
-      window.scrollTo(0,0); await sleep(300);
-      await focus(el('f-streak'));
-      await say(sk+'日の記録が、もどってきました','答えられなかった日は「お休み保護」。月2回まで');
+      await say('いちばん上に「ずっと無料」と書いてあります','その下は、機能の一覧ではなく「場面」で');
+      await focus(el('opt-year'));
+      await say('年2,000円なら はじめの30日が無料。月200円なら いつでもやめられる','年払いは2か月分お得。どちらも払うのは1人だけ');
+      line('「30日 無料で試す」を押す'); await tap(el('plan-go')); await sleep(900); fg.hidden=true;
+      await say('やることは2つだけ','知らせを受け取る人を追加して、レポートの曜日を決める');
+      line('レポートは月曜の朝に'); await tap(el('w-day-月')); await sleep(400);
+      line('はじめる'); await tap(el('w-go')); await sleep(600); fg.hidden=true;
 
       await chapter(4,'増えるもの','家族プランで できること');
       await focus(el('f-cal'));
-      await say('1か月のカレンダー。どの日に答えたか、ひと目で','日付を押すと、その日の答えと時間');
-      line('たとえば この日'); var onDay=el('cal-grid').querySelector('.c.on'); if(onDay){ await tap(onDay); } await sleep(500); fg.hidden=true;
+      await say('1か月のカレンダー。どの日に答えたか、ひと目で','点線は答えがなかった日');
+      var yk=key(daysAgo(1)), yc=el('cal-grid').querySelector('[data-k="'+yk+'"]');
+      line('きのうの日を押す'); if(yc){ await tap(yc); } await sleep(500); fg.hidden=true;
       await focus(el('cal-detail'));
-      await say('答えた時間と、何を答えたかが残ります','金色の日が「お休み保護」。記録は切れていません');
+      await say('電話で元気を確かめた日は、家族が「元気だった」と記録できます','月2回まで。家族への知らせには影響しません');
+      line('記録する'); await tap(el('cal-ok')); await sleep(700); fg.hidden=true;
+      window.scrollTo(0,0); await sleep(300);
+      await focus(el('f-streak'));
+      await say(sk+'日の記録が、もどってきました','「かわりに記録 1回」と残ります');
       await focus(el('f-report'));
-      await say('週1回の元気レポート。答えた日数・せいかい・だいたいの時間','本番では、毎週月曜の朝に通知でも届きます');
+      await say('週1回の元気レポート。答えた日数・せいかい・だいたいの時間','毎週月曜の朝、通知でも届きます');
       await focus(el('f-gifts'));
       await say('着せ替えは ぜんぶプラン込み。毎月1つ、新作が増えます','今月の新作はベレー帽');
       line('ベレー帽を贈ってみます'); await tap(el('gift-beret')); await sleep(600); fg.hidden=true;
@@ -1341,7 +1471,7 @@ body.demoing{padding-bottom:260px}
       line('妹を追加'); await tap(el('member-add')); await sleep(300); var ins=el('s-members').querySelectorAll('input'); if(ins.length){ ins[ins.length-1].value='みさき'; ins[ins.length-1].dispatchEvent(new Event('change')); } await sleep(500); fg.hidden=true;
 
       await chapter(5,'親の画面は そのまま','課金ボタンも、広告もない');
-      var qa=questionFor(today()); S.answers[key(today())]={pick:qa.a, correct:true, time:'8:30', label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'}; // この日はもう答えた、として翌朝へ
+      var qa=questionFor(today()); S.answers[key(today())]={pick:qa.a, correct:true, time:'8:30', label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'};
       S.dayOffset++; S.hello=false; renderAll(); show('parent'); window.scrollTo(0,0); await sleep(500);
       await say('お母さんの画面は、何も変わりません','課金のボタンも広告も、親の画面には出しません');
       await focus(el('p-qcard'));
@@ -1352,7 +1482,8 @@ body.demoing{padding-bottom:260px}
       await chapter(6,'切り替えと解約','スマホの定期購入で');
       show('family'); window.scrollTo(0,0); await sleep(300);
       await focus(el('f-plan'));
-      await say('購入も解約も、スマホの定期購入（Google Play / App Store）から','アプリは ?plan=plus でこの画面を開くだけ。切り替えは1行');
+      await say('無料期間が終わる前に、ストアからお知らせが届きます','購入も解約も、スマホの定期購入（Google Play / App Store）から');
+      var fq=el('f-plan').querySelector('.faqs details:nth-child(3) summary'); if(fq){ line('よくある質問も、ここに'); await tap(fq); await sleep(600); fg.hidden=true; }
       await say('解約しても、記録は消えません','無料に戻るだけ。毎日の1問と「無事」の知らせは、そのまま続きます');
 
       ending(pet('panda',['beret'],true), 'ワンポチ家族プラン', '月200円。親の画面は、そのまま。<br>毎日の生存確認は、ずっと無料。');
