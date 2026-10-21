@@ -411,6 +411,8 @@
     <div id="visits"></div>
 
     <div class="meter" id="meter"></div>
+    <div class="row"><button id="memdump">ママに渡してる中身を見る（コピーしてClaudeに貼る用）</button></div>
+    <textarea id="memdumpbox" readonly style="display:none;min-height:220px;font-size:11px"></textarea>
 
     <details>
       <summary>営業の設定（時間・自動お会計）</summary>
@@ -652,7 +654,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v25";
+  const APP_VER="2026-10-21 v26";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1183,6 +1185,16 @@
     for(const l of rest){const b=jbytes(l)+2;if(b>room){if(room>300)body.push(clipBytes(l,room-2));break;}body.push(l);room-=b;}
     return clipBytes(h+[...body,...keep].join("\n"),maxBytes);
   }
+  // v26: 最近（14日）見せてもろた写真。何を見せたか覚えとく
+  function recentPhotosBlock(maxBytes){
+    let a=[];try{a=JSON.parse(localStorage.getItem("tokie_photos_v1")||"[]");}catch(e){}
+    if(!Array.isArray(a))return "";
+    const since=Date.now()-14*86400000;a=a.filter(x=>x&&x.ts>=since&&x.desc).slice(0,6);
+    if(!a.length)return "";
+    const h="【最近お客さんに見せてもろた写真（新しい順。「こないだ見せてくれた写真の…」と自然に触れてええ）】\n";let body="";
+    for(const x of a){const line=`・${x.date||""}：${clip(String(x.desc).replace(/\s+/g," "),110)}\n`;if(jbytes(h+body+line)>maxBytes)break;body+=line;}
+    return body?(h+body).trim():"";
+  }
   function buildMemory(extension,digest,budget){
     const B=budget||MEMORY_BUDGET_BYTES;
     const b=loadBook();const S=settings();
@@ -1196,12 +1208,13 @@
     // v24: 今日のClaudeとのやりとり（自動メモ）は別枠で優先して丸ごと渡す。前は「最近2日」で1,800バイトを分け合ってて、今日の分は最初の2行しか届いてへんかった（カウンター席はゼロ）
     const dayList=(digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
     const todayDig=todayDigestBlock(dayList,B>=MEMORY_BUDGET_BYTES?7000:4200);
+    const photoMem=recentPhotosBlock(900);
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=toneReminder(S.strength);
     // v25: 基本情報は最優先の固定枠（ほかの枠と割合で縮めへん）。ここに仕事・実績・夢が全部書いてある
     const profile="【お客さんの基本情報（タケオさんのいちばん大事な前提。仕事・実績・夢・将来の構想。ここに書いてあることは全部知ってる前提で話す。「初めて聞いた」顔は絶対せん）】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",PROFILE_MAX_BYTES);
-    const fixed=[...head,...core,tail,lt,todayDig,profile].reduce((n,x)=>n+jbytes(x)+SEP,0);
+    const fixed=[...head,...core,tail,lt,todayDig,profile,photoMem].reduce((n,x)=>n+jbytes(x)+SEP,0);
     // 残りを各枠に配る。全部の上限を足して入りきらん時は、同じ割合で縮める（どの枠もゼロにはせえへん）
     const R=Math.max(3000,B-fixed-SEP*8);
     const want=MEM_CAPS.latest+MEM_CAPS.prev+MEM_CAPS.month+MEM_CAPS.recentDigest+MEM_CAPS.notes;
@@ -1281,6 +1294,7 @@
     if(month)parts.push(month);
     if(rdig)parts.push(rdig);
     if(todayDig)parts.push(todayDig);
+    if(photoMem)parts.push(photoMem);
     if(ntxt)parts.push(ntxt);
     if(!visits.length)parts.push("【これまでの来店】\n（初来店。まだ何も書いてない）");
     else parts.push(...recent.slice().reverse()); // その前→前回の順。前回の話が最後（tailの直前）に来る
@@ -1547,6 +1561,16 @@
     const mem=buildMemory(false,digestCache);const total=JSON.stringify(b).length;
     $("meter").textContent=`ママが入店時に読む量：${mem.length.toLocaleString()}文字（${Math.round(jbytes(mem)/1000)}KB／上限${MEMORY_BUDGET_BYTES/1000}KB。直近は詳しく・1ヶ月分は1日1行で渡す。手帳の中身は消えへん）／手帳全体：${total.toLocaleString()}文字`;
   }
+  // v26: 「ママが覚えてへん」時の調べ用。入店した時にママへ渡す中身を、そのまま見せてコピーする
+  $("memdump").addEventListener("click",async()=>{
+    const box=$("memdumpbox");box.style.display="block";box.value="読み込み中…";
+    const d=await loadDigest();const S=settings();const seat=SEATS[S.seat]?S.seat:"counter";
+    const mem=buildMemory(false,d,SEATS[seat].memBytes);const b=loadBook();
+    const dstat=d.status==="ok"?`届いてる（${d.updated}・${d.days.length}日分・今日の分${d.days.some(x=>dkey(x.date)===dkey(todayBiz()))?"あり":"なし"}）`:d.status==="nokey"?"鍵が入ってへん（この端末では自動メモが読めへん）":"読めへん（"+(d.msg||d.status)+"）";
+    const head=`版：${APP_VER}\n席：${SEATS[seat].name}\n自動メモ：${dstat}\n基本情報：${b.profile.trim().length}文字\n来店の記録：${b.visits.filter(v=>v.kind!=="note").length}回\n絶対忘れへんこと：${ltList().filter(ltHot).length}件\n写真の記録：${photos().length}枚\nママに渡す量：${mem.length}文字（${Math.round(jbytes(mem)/1000)}KB）\n――――――――――\n`;
+    box.value=head+mem;
+    try{await navigator.clipboard.writeText(box.value);$("saved").textContent="コピーした。Claudeに貼ってな";setTimeout(()=>$("saved").textContent="",3000);}catch(e){box.select();}
+  });
   async function renderDigest(){
     const st=$("digeststatus"),box=$("digestbox");
     const d=await loadDigest();
@@ -2651,6 +2675,8 @@
     if(t>=5){showPhoto(big,"ええ写真やなぁ");hang=confirm("この写真、額に入れて店の壁に飾る？（黒金の夜だけ・最大"+WALL_MAX+"枚。古いのから外れる）");}
     const rec={ts:Date.now(),biz:todayBiz(),date:jstDate(new Date()),t,desc:clipBytes(desc,600),caption:""};
     const a=photos();a.unshift(rec);savePhotos(a);
+    // v26: 見せた写真を来店の記録にも残す（前は手帳に残らず、次の日にはママが写真のことを丸ごと忘れてた）
+    try{if(current){current.msgs.push({who:"user",text:"（ママにスマホの写真を見せた："+clip(desc.replace(/\s+/g," "),140)+"）"});writeCurrent();}}catch(e){}
     if(hang){const w=wall();w.unshift({ts:rec.ts,date:rec.date,desc:clipBytes(desc,300),thumb});if(!saveWall(w))saveWall(w.slice(0,3));renderWall();}
     const msg=`【写真】お客さん（${nm}さん）がスマホの写真を見せてくれた。ママは今この写真を自分の目で見てる。写真に写ってるもの：「${desc}」\n`+
       `反応：${PHOTO_REACT(t,nm)}\n${PHOTO_SCORE[settings().strength]||PHOTO_SCORE.rock}${hang?`そのあと「ほな、これ額に入れて店の壁に飾っとくわ。${nm}さんの写真や」と嬉しそうに言う。`:""}\n`+

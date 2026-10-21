@@ -62,6 +62,7 @@ const MARK = {
   ydayDig: "目印キノウ：ワンポチ見積もり",
   prevVisit: "目印ゼンカイ：麻雀の話をした",
   lt: "目印ゼッタイ：毎朝6時に起きると決めた",
+  photo: "目印シャシン：夜景の前でドレスの女性が笑っている",
 };
 const profile = "名前はタケオ。" + "平塚で生まれ育った。毎日いろいろある話を書いておく。".repeat(180) + MARK.record + "。" + MARK.dream + "。";
 const visits = [];
@@ -72,7 +73,7 @@ for (let i = 0; i < 25; i++) {
     mamaNote: i === 0 ? "今夜は" + MARK.prevVisit + "。ほな、またな。" : (i % 2 ? "" : "今夜はアプリの話をようけした。"),
     memo: Array.from({ length: 30 }, (_, j) => "客: 今日はこんな話をしたんやけど、ほんまにいろいろあってな" + j + "\nママ: へえ").join("\n") });
 }
-const book = { profile, visits, lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
+const book = { __photo: MARK.photo, profile, visits, lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
 const longText = (mark) => ["・【夜の分】Claudeとの会話履歴は今日も直接読めへんかったので、要点から書いています。細かいところはママから聞いてあげて。", "・" + mark]
   .concat(Array.from({ length: 10 }, (_, i) => "・仕事の動き" + i + "：アプリの細かい話がいろいろあって、本人はかなり頑張ってた一日やったそうです。ほんまにお疲れさん。"))
   .concat(["・明日（木）：昼に用事、午後に確認", "・" + MARK.ask + "：ねぎらってあげて"]).join("\n");
@@ -124,6 +125,7 @@ async function page(seat, opt = {}) {
     localStorage.setItem("tokie_notebook_v1", JSON.stringify(book));
     localStorage.setItem("tokie_digest_key", key);
     if (gkey) localStorage.setItem("tokie_gemini_key_v1", "TEST");
+    localStorage.setItem("tokie_photos_v1", JSON.stringify([{ ts: Date.now() - 86400e3, date: "昨日", t: 1, desc: book.__photo, caption: "" }]));
     const s = JSON.parse(localStorage.getItem("tokie_settings_v1") || "{}"); s.seat = seat; localStorage.setItem("tokie_settings_v1", JSON.stringify(s));
   }, [book, b64u(KEY), seat, !!opt.gemini]);
   await p.goto(`http://localhost:${PORT}/`);
@@ -150,8 +152,14 @@ try {
     ok(`${nm}：「ママに頼みたいこと」まで届く`, todayBlock.includes("目印タノミ"), "今日の分の最後が切れてる");
     ok(`${nm}：前回の来店の話が届く`, memory.includes(MARK.prevVisit), "前回の来店が削られてる");
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
+    ok(`${nm}：見せた写真（昨日）が届く`, memory.includes(MARK.photo), "写真の記録がママに渡ってへん");
     ok(`${nm}：1ヶ月の記憶が届く`, memory.includes("【この1ヶ月の記憶"), "1ヶ月の記憶が無い");
     ok(`${nm}：入店データが64KB未満（${bytes}バイト）`, bytes < 60000, bytes + "バイト");
+    if (seat === "counter") {
+      await p.evaluate(() => document.getElementById("memdump").click()); await p.waitForTimeout(1500);
+      const dump = await p.$eval("#memdumpbox", (e) => e.value);
+      ok("「ママに渡してる中身を見る」ボタンで中身と版が出る", dump.includes("版：") && dump.includes(MARK.dream.slice(0, 6)) , dump.slice(0, 80));
+    }
     ok(`${nm}：画面のエラーなし`, errs.length === 0, errs.join(" / "));
     await ctx.close();
   }
