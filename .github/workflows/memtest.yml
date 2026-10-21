@@ -1,0 +1,18 @@
+name: トキエの記憶の自動検査
+on:
+  push:
+    branches: [main]
+    paths: ["index.html", "tools/memtest.mjs", ".github/workflows/memtest.yml"]
+  workflow_dispatch:
+jobs:
+  memtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm i --prefix tools playwright@1.47.2
+      - run: npx --prefix tools playwright install --with-deps chromium
+      - run: node tools/memtest.mjs
