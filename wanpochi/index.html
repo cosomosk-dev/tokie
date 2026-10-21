@@ -412,6 +412,9 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 .vc-col.plus .vc-price{color:var(--shu);border-color:var(--shu)}
 .vc-price small{display:block;font-size:11px;color:var(--ink-2);font-family:var(--font-gothic);font-weight:700}
 .slide .vc-t{font-size:14px} .slide .vc-t b{font-size:18px}
+.osnote{font-size:13px;font-weight:700;color:var(--ink-2);background:var(--paper-2);border-radius:999px;padding:4px 12px;align-self:flex-start}
+.osnote.ready{color:var(--ok);background:var(--ok-bg)}
+.fos{font-size:12px;font-weight:700;color:var(--ink-2);text-align:right;margin:-8px 4px 0}
 .toppill{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:58;width:min(460px,calc(100% - 24px));background:#1E1B22;color:#FFFDF9;border-radius:999px;padding:8px 16px;font-size:15px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px -8px rgba(0,0,0,.5);font-family:var(--font-gothic)}
 .toppill b{background:#D9442B;color:#fff;font-size:12px;padding:1px 10px;border-radius:999px;white-space:nowrap;flex:0 0 auto}
 .toppill b.free{background:#2F8A57} .toppill b.plus{background:#B9924A}
@@ -560,6 +563,7 @@ body.demoing{padding-bottom:260px}
       <h2 id="f-title"></h2>
       <div class="fsun" id="f-pet"></div>
     </header>
+    <p class="fos" id="f-os"></p>
     <div class="status" id="f-status"></div>
     <div class="week" id="f-week"></div>
     <p class="weeknote" id="f-weeknote" hidden></p>
@@ -577,7 +581,7 @@ body.demoing{padding-bottom:260px}
       <div class="hd"><button type="button" id="cal-prev">‹ 前の月</button><b id="cal-title"></b><button type="button" id="cal-next">次の月 ›</button></div>
       <div class="wd"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
       <div class="grid" id="cal-grid"></div>
-      <div class="legend"><span><i class="on"></i>答えた</span><span><i class="miss"></i>答えなし</span><span><i class="shield"></i>あとから「元気」にした日</span></div>
+      <div class="legend"><span><i class="on"></i>答えた</span><span><i class="miss"></i>答えなし</span><span><i class="shield"></i>うっかりセーフの日</span></div>
       <div class="sum" id="cal-sum"></div>
       <div class="detail" id="cal-detail">日付を押すと、その日の答えが見られます</div>
     </section>
@@ -612,7 +616,7 @@ body.demoing{padding-bottom:260px}
         <li><b>急な病気そのものは防げません。</b>防げるのは「何日も気づかれないこと」です。知らせが来たら、すぐ電話を</li>
         <li>旅行や入院の日は、まちがって知らせが届きます。下の「しばらくお休み」で止めてください</li>
         <li>電源切れ・圏外だと、メール版は届きません。迷惑メールの設定で止まることもあるので、最初の確認メールで必ず確かめます</li>
-        <li>家の固定電話しかない親には、自動では届けられません。電話で確かめて、あとから「元気」にする形でお使いください</li>
+        <li>家の固定電話しかない親には、自動では届けられません。電話で元気を確かめて「うっかりセーフ」を押す形でお使いください</li>
         <li>通信の遅れで、知らせが遅れることがあります。「知らせが来ない＝無事」と決めつけず、気になる日は電話を</li>
         <li>医療機器や緊急通報ではありません。緊急のときは119番へ</li>
       </ul></div>
@@ -626,7 +630,7 @@ body.demoing{padding-bottom:260px}
       <div class="field"><label for="s-family">あなたの名前</label><input type="text" id="s-family"></div>
       <div class="field"><label>親から見たあなた</label><div class="seg" id="s-relation"></div></div>
       <div class="field"><label>親のケータイ</label><div class="seg" id="s-device"></div></div>
-      <div class="field" id="s-mail-field" hidden><label for="s-mail">親のケータイのメールアドレス</label><input type="text" id="s-mail" inputmode="email" placeholder="例：fumiko@docomo.ne.jp"><p class="sub">親のケータイで「受信許可」の設定が要ることがあります。確認メールのリンクが開けたら登録完了（届かない設定をここで見つけます）。家の固定電話しかない親は、電話で確かめて、あとから「元気」にする形でお使いください。</p></div>
+      <div class="field" id="s-mail-field" hidden><label for="s-mail">親のケータイのメールアドレス</label><input type="text" id="s-mail" inputmode="email" placeholder="例：fumiko@docomo.ne.jp"><p class="sub">親のケータイで「受信許可」の設定が要ることがあります。確認メールのリンクが開けたら登録完了（届かない設定をここで見つけます）。家の固定電話しかない親は、電話で元気を確かめて「うっかりセーフ」を押す形でお使いください。</p></div>
       <div class="field"><label>相棒</label><div class="seg" id="s-animal"></div></div>
       <div class="field"><label>答えが来ないとき、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
@@ -694,7 +698,11 @@ body.demoing{padding-bottom:260px}
   function curMonth(){ return today().getMonth()+1; }
   function itemAvailable(id){ var it=ITEMS[id]; return !it.plus || !it.month || it.month<=curMonth(); } // 今月より先の新作はまだ出さない
   function newItemId(){ var m=curMonth(), out=null; Object.keys(ITEMS).forEach(function(id){ if(ITEMS[id].month===m) out=id; }); return out; }
-  var SHIELDS_PER_MONTH=2; // 家族プラン：「あとから元気」は月2回まで
+  // iPhone版の公開スイッチ。公開日に true にするだけで、案内・FAQ・デモの文言が全部切り替わる（?ios=1 でも試せる）
+  var IOS_READY=false;
+  try{ var _q=new URLSearchParams(location.search).get('ios'); if(_q==='1') IOS_READY=true; if(_q==='0') IOS_READY=false; }catch(e){}
+  function iosNote(){ return IOS_READY ? 'Android・iPhone どちらでも使えます' : 'いまはAndroid版。iPhone版は近日公開'; }
+  var SHIELDS_PER_MONTH=2; // 家族プラン：「うっかりセーフ」は月2回まで
   var SPARK='<path d="M12 30 l 2 -6 l 2 6 l 6 2 l -6 2 l -2 6 l -2 -6 l -6 -2 z" fill="#FFD166"/><path d="M84 22 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" fill="#FFD166"/>';
   function pet(animal, worn, happy){
     var a=IMG[animal]?animal:'dog', s='';
@@ -1012,6 +1020,7 @@ body.demoing{padding-bottom:260px}
   function renderFamily(){
     var st=S.settings, t=key(today()), done=S.answers[t], missed=missedBeforeToday(), an=ANIMALS[st.animal];
     el('f-title').textContent=st.parentName+'さんの きょう';
+    el('f-os').textContent=IOS_READY?'':'🍎 iPhone版は近日公開'; el('f-os').hidden=IOS_READY;
     el('f-pet').innerHTML=pet(st.animal, S.worn, !!done);
     var s=el('f-status'), h='';
     if(done){
@@ -1045,7 +1054,7 @@ body.demoing{padding-bottom:260px}
       w.appendChild(div);
     }
     var sh=streakShielded();
-    el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">☎️ あとから元気 '+sh+'回</span>':'');
+    el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">🙆 うっかりセーフ '+sh+'回</span>':'');
 
     var plus=isPlus();
     el('f-gift-sub').textContent= plus
@@ -1125,13 +1134,13 @@ body.demoing{padding-bottom:260px}
     if(!calSel){ det.textContent='日付を押すと、その日の答えが見られます'; return; }
     var p=calSel.split('-'), lab=(+p[1])+'/'+(+p[2]), r=S.answers[calSel];
     if(r){ var what=r.pick<0?'わからない':((r.label?r.label+'・':'')+(r.correct?'せいかい':(r.ans?'こたえは '+r.ans:'まちがい'))); det.textContent=lab+'：'+r.time+' に '+(r.via==='mail'?'メールを開きました'+(r.pick>=0?'（'+what+'）':''):'答えました（'+what+'）'); }
-    else if(S.shield.days[calSel]) det.textContent=lab+'：答えなしだったけど、あとから「元気」にした日';
+    else if(S.shield.days[calSel]) det.textContent=lab+'：押し忘れたけど、元気だった日（うっかりセーフ）';
     else if(calSel===tk) det.textContent=lab+'：きょう。まだ答えていません';
     else if(canRecordOk(calSel)){
-      det.innerHTML='<div>'+lab+'：答えなし。電話して、元気でしたか？</div><button type="button" class="ok" id="cal-ok">この日を「元気」にする</button><div class="tiny">連続記録がつながります（今月あと '+(SHIELDS_PER_MONTH-shieldsUsed(monthOf(calSel)))+'回）。家族への知らせには関係ありません。</div>';
-      el('cal-ok').addEventListener('click', function(){ var k=calSel; if(recordOk(k)){ toast('「元気」にしました'); renderAll(); } });
+      det.innerHTML='<div>'+lab+'：押し忘れ。電話したら元気だった？</div><button type="button" class="ok" id="cal-ok">🙆 元気だった（うっかりセーフ）</button><div class="tiny">押すと「つづけて◯日」が 0 にならない。今月あと '+(SHIELDS_PER_MONTH-shieldsUsed(monthOf(calSel)))+'回。</div>';
+      el('cal-ok').addEventListener('click', function(){ var k=calSel; if(recordOk(k)){ toast('うっかりセーフ！記録はつづきます'); renderAll(); } });
     }
-    else if(isPlus()) det.textContent=lab+'：答えなし（あとから「元気」にできるのは月2回まで。今月は使いきりました）';
+    else if(isPlus()) det.textContent=lab+'：答えなし（うっかりセーフは月2回まで。今月はもう使いました）';
     else det.textContent=lab+'：答えなし';
   }
   el('cal-prev').addEventListener('click', function(){ calOff--; calSel=''; renderCalendar(); });
@@ -1176,7 +1185,7 @@ body.demoing{padding-bottom:260px}
     var st=S.settings;
     return [
       ['📅','「先月は、何日 答えたっけ？」','<b>1か月のカレンダー</b>。どの日に・何時に・何を答えたかが残ります'],
-      ['☎️','「きのう答えてない…電話したら、寝坊だった」','押し忘れの日を、<b>あとから「元気」にできる</b>。連続記録がつながります（月'+SHIELDS_PER_MONTH+'回まで）'],
+      ['🙆','「きのう押し忘れてた。電話したら元気だった」','<b>うっかりセーフ</b>。押し忘れても「つづけて◯日」が 0 にならない（月'+SHIELDS_PER_MONTH+'回まで）'],
       ['👪','「妹にも、弟にも届けたい」','知らせを受け取る人を<b>5人まで</b>。払うのは1人、きょうだい全員に届きます']
     ];
   }
@@ -1185,7 +1194,7 @@ body.demoing{padding-bottom:260px}
     ['誰が払うの？','家族のうち1人だけ。きょうだいは無料で、同じ知らせを受け取れます（あなたを含めて5人まで）。'],
     ['親のスマホは、何か変わる？','何も変わりません。課金のボタンも広告も、親の画面には出ません。'],
     ['解約したら、記録は消える？','残ります。無料に戻るだけで、過去の記録も、毎日の1問と「無事」の知らせも、そのまま続きます。'],
-    ['iPhoneとAndroidが混ざっていても？','大丈夫。払う人のスマホで購入すれば、きょうだいの機種は関係ありません。'],
+    ['iPhoneでも使える？', function(){ return IOS_READY ? '使えます。iPhoneとAndroidが混ざっていても、払う人が1人いれば きょうだい全員に届きます。' : 'いまはAndroid版です。iPhone版は近日公開。それまで iPhoneの家族には、知らせがメールで届きます。'; }],
     ['無料期間が終わる前に、知らせは来る？','来ます。終わる2日前と当日に、アプリからお知らせします（Androidは Google からもメールが届きます）。その前にやめれば0円です。'],
     ['解約の仕方は？','スマホの設定から（iPhone：設定→自分の名前→サブスクリプション／Android：Playストア→お支払いと定期購入）。アプリを消しても解約にはならないので、ご注意を。']
   ];
@@ -1196,7 +1205,7 @@ body.demoing{padding-bottom:260px}
       ['「無事」の知らせ', ok+'<br><small>家族2人まで</small>', ok+'<br><small>家族<b>5人</b>まで</small>'],
       ['答えがない日の知らせ', ok+'<br><small>SMSは月3通</small>', ok+'<br><small>SMS 回数制限なし</small>'],
       ['記録', '直近<b>7日</b>', '<b>1か月</b>のカレンダー<br><small>答えた時間・内容も</small>'],
-      ['連続記録', ok, ok+'<br><small>＋押し忘れを あとから「元気」に</small>'],
+      ['押し忘れた日', '記録が 0 に戻る', '<b>うっかりセーフ</b><br><small>記録が 0 にならない</small>'],
       ['週1回の元気レポート', no, ok],
       ['着せ替え', '1つ100円', '<b>ぜんぶ込み</b><br><small>＋毎月1日に新作が自動で</small>'],
       ['ガラケー（メール）版', no, ok],
@@ -1216,7 +1225,7 @@ body.demoing{padding-bottom:260px}
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[])+'</div><div class="vc-t">毎日の1問<br><small>「無事」が届く</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic ppl">'+people(2)+'</div><div class="vc-t">届く人<br><b>2人</b></div></div>'
       +'<div class="vc-row"><div class="vc-ic"><div class="vc-dots d7">'+dots(7,7)+'</div></div><div class="vc-t">記録<br><b>7日分</b></div></div>'
-      +'<div class="vc-row off"><div class="vc-ic">✅</div><div class="vc-t">押し忘れを<br>あとから「元気」に<br><small>−</small></div></div>'
+      +'<div class="vc-row"><div class="vc-ic">😢</div><div class="vc-t">押し忘れたら<br><b>記録 0</b></div></div>'
       +'<div class="vc-row off"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>−</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,['straw'])+'</div><div class="vc-t">着せ替え<br><b>1つ100円</b></div></div>'
       +'<div class="vc-row off"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><small>−</small></div></div>'
@@ -1225,14 +1234,14 @@ body.demoing{padding-bottom:260px}
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[],true)+'</div><div class="vc-t">毎日の1問<br><small>「無事」が届く</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic ppl">'+people(5)+'</div><div class="vc-t">届く人<br><b>5人</b></div></div>'
       +'<div class="vc-row"><div class="vc-ic"><div class="vc-dots d30">'+dots(30,28)+'</div></div><div class="vc-t">記録<br><b>1か月</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">✅</div><div class="vc-t">押し忘れを<br>あとから「元気」に<br><small>連続記録がつづく</small></div></div>'
+      +'<div class="vc-row"><div class="vc-ic">🙆</div><div class="vc-t">押し忘れても<br><b>セーフ</b><br><small>記録が 0 にならない</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>届く</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[newId||'beret'])+'</div><div class="vc-t">着せ替え<br><b>ぜんぶ込み</b><br><small>毎月 新作</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><small>メールを開くだけ</small></div></div>'
       +'<div class="vc-price">月200円<small>年2,000円・30日無料</small></div></div>';
     return '<div class="vc">'+free+plus+'</div>';
   }
-  function faqHtml(){ return '<div class="faqs">'+FAQ.map(function(q){ return '<details><summary>'+q[0]+'</summary><p>'+q[1]+'</p></details>'; }).join('')+'</div>'; }
+  function faqHtml(){ return '<div class="faqs">'+FAQ.map(function(q){ return '<details><summary>'+q[0]+'</summary><p>'+(typeof q[1]==='function'?q[1]():q[1])+'</p></details>'; }).join('')+'</div>'; }
   function plusEnd(){ if(!S.planSince) return ''; var p=S.planSince.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2],12); d=new Date(d.getTime()+30*DAY); return (d.getMonth()+1)+'/'+d.getDate(); }
   function openPlan(){ S.planHidden=''; save(); renderPlan(); el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }
   function renderPlan(){
@@ -1243,7 +1252,7 @@ body.demoing{padding-bottom:260px}
       h+='<p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料。親の画面は何も変わっていません。</p>';
       if(S.planTerm==='year' && S.planSince && key(today())<=key(new Date(new Date(S.planSince.replace(/-/g,'/')).getTime()+30*DAY))) h+='<p class="sub">無料期間は <b>'+plusEnd()+'</b> まで。終わる2日前と当日に、アプリからお知らせします。そのあと年2,000円（2か月分お得）。</p>';
       else h+='<p class="sub">'+(S.planTerm==='year'?'年2,000円':'月200円')+'。更新・解約はスマホの定期購入から。</p>';
-      h+='<div class="now"><div>あとから「元気」に のこり<b>'+shieldsLeft()+'回（今月）</b></div><div>知らせを受け取る人<b>'+(1+st.members.length)+'人 / 5人</b></div></div>';
+      h+='<div class="now"><div>うっかりセーフ のこり<b>'+shieldsLeft()+'回（今月）</b></div><div>知らせを受け取る人<b>'+(1+st.members.length)+'人 / 5人</b></div></div>';
       h+='<div class="scenes">'+scenes().map(function(f){ return '<div class="scene"><div class="em">'+f[0]+'</div><div><div class="a">'+f[2]+'</div></div></div>'; }).join('')+'</div>';
       h+='<details><summary>そのほかの機能</summary><p>'+MORE+'</p></details>';
       h+=faqHtml();
@@ -1260,6 +1269,7 @@ body.demoing{padding-bottom:260px}
     var year=S.planTerm!=='month';
     h+='<h3>'+ico('i-gift')+'ワンポチ家族プラン</h3>';
     h+='<p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料です。</p>';
+    h+='<p class="osnote'+(IOS_READY?' ready':'')+'">'+(IOS_READY?'📱 Android・🍎 iPhone 対応':'📱 Android版 公開中　🍎 iPhone版 近日公開')+'</p>';
     h+='<p class="lead">'+st.parentName+'さんの毎日を、<br>きょうだい みんなで。</p>';
     h+='<div class="scenes">'+scenes().map(function(f){ return '<div class="scene"><div class="em">'+f[0]+'</div><div><div class="q">'+f[1]+'</div><div class="a">'+f[2]+'</div></div></div>'; }).join('')+'</div>';
     h+=visualHtml();
@@ -1545,7 +1555,7 @@ body.demoing{padding-bottom:260px}
       await chapter(2,'こんなとき','家族プランが気になる3つの場面');
       var sk=streak();
       await focus(el('f-milestone'));
-      await say(sk+'日 つづいた日に、はじめて家族プランの案内が出ます','うまくいった日にだけ。心配な日には出しません');
+      await say(sk+'日つづいた「おめでとう」の日に、家族プランの案内','心配な日には出しません');
       S.dayOffset+=2; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
       await focus(el('f-status'));
       await say('きのう、お母さんの答えがなかった日','電話したら、ただの寝坊。ホッとした');
@@ -1570,11 +1580,11 @@ body.demoing{padding-bottom:260px}
       var yk=key(daysAgo(1)), yc=el('cal-grid').querySelector('[data-k="'+yk+'"]');
       line('きのうの日を押す'); if(yc){ await tap(yc); } await sleep(500); fg.hidden=true;
       await focus(el('cal-detail'));
-      await say('押し忘れの日を、あとから「元気」にできます','電話して元気だったら、押すだけ。月2回まで');
+      await say('押し忘れても「うっかりセーフ」','電話して元気だったら、ボタンを押すだけ。記録が 0 にならない（月2回）');
       line('記録する'); await tap(el('cal-ok')); await sleep(700); fg.hidden=true;
       window.scrollTo(0,0); await sleep(300);
       await focus(el('f-streak'));
-      await say(sk+'日の記録が、もどってきました','「あとから元気 1回」と残ります');
+      await say(sk+'日の記録が、もどってきました','「うっかりセーフ 1回」と残ります');
       await focus(el('f-report'));
       await say('週1回の元気レポート。答えた日数・せいかい・だいたいの時間','毎週月曜の朝、通知でも届きます');
       await focus(el('f-gifts'));
@@ -1678,9 +1688,9 @@ body.demoing{padding-bottom:260px}
       renderAll(); show('family'); window.scrollTo(0,0);
       await slide('plus', '第2部<br>月200円で、<b>こう変わる</b>', visualHtml(), 7000);
 
-      await slide('plus', '案内が出るのは、<b>うまくいった日</b>だけ',
-        '<div class="quote">🎉 ふみこさん、14日つづきました！</div><ul>'+li('🙂','7日・14日・21日…の節目に、家族の画面にだけ')+li('🚫','答えがない日・心配な日には、課金の案内を出さない')+'</ul>');
-      await focus(el('f-milestone')); await step('plus','14日つづいた日に、はじめて「家族プランをみる」が出ます',4500);
+      await slide('plus', '家族プランの案内は<br><b>お祝いの日</b>だけ',
+        '<div class="quote">🎉 ふみこさん、14日つづきました！</div><ul>'+li('🎉','7日・14日…つづいた日に「おめでとう」と一緒に出る')+li('🙅','答えがない日・心配な日には出さない。不安にさせて売らない')+'</ul>');
+      await focus(el('f-milestone')); await step('plus','14日つづいた「おめでとう」の日に、はじめて案内が出ます',4500);
       await step('plus','押すと、プランの案内へ',1500); await tap(el('ms-go')); await hold(1800); fg.hidden=true;
       await focus(el('f-plan')); await step('plus','いちばん上に「ずっと無料」。その下に、無料との比較表',5000);
       await focus(el('opt-year')); await step('plus','年2,000円は はじめの30日が無料（2か月分お得）。月200円は 無料期間なし・いつでもやめられる',5500);
@@ -1694,18 +1704,18 @@ body.demoing{padding-bottom:260px}
       var onDay=el('cal-grid').querySelector('.c.on'); if(onDay){ await step('plus','この日を押すと…',1500); await tap(onDay); await hold(800); fg.hidden=true; }
       await focus(el('cal-detail')); await step('plus','答えた時間と、何を答えたかが残っています',4000);
 
-      await slide('plus', '場面2<br>「きのう答えてない…<br>電話したら、<b>寝坊</b>だった」',
-        '<div class="quote">押し忘れの日を、あとから「元気」にできる</div><ul>'+li('😮‍💨','ホッとした。でも、14日つづいた記録は 0 に戻ってしまう')+li('👆','カレンダーで その日を押して「元気」にする。それだけ')+li('🔁','連続記録がつながる（月2回まで）')+'</ul>');
+      await slide('plus', '場面2<br>「きのう押し忘れてた。<br>電話したら<b>元気</b>だった」',
+        '<div class="quote">🙆 うっかりセーフ<br>押し忘れても、記録は 0 にならない</div><ul>'+li('😢','無料だと：14日つづいた記録が 0 にもどる')+li('👆','家族プランだと：カレンダーで その日を押して「元気だった」。それだけ')+li('🔢','月2回まで')+'</ul>');
       S.dayOffset+=2; renderAll(); show('family'); window.scrollTo(0,0); await hold(800);
-      await focus(el('f-status')); await step('plus','きのうの答えがなかった。電話したら寝坊だった',4000);
-      await focus(el('f-streak')); await step('plus','連続記録は 0 に…',3000);
+      await focus(el('f-status')); await step('plus','きのう押し忘れ。電話したら元気だった',4000);
+      await focus(el('f-streak')); await step('plus','このままだと「つづけて」が 0 に…',3000);
       var yk=key(daysAgo(1)), yc=el('cal-grid').querySelector('[data-k="'+yk+'"]');
       await focus(el('f-cal')); await step('plus','カレンダーで「きのう」を押す',1800); if(yc){ await tap(yc); } await hold(800); fg.hidden=true;
-      await focus(el('cal-detail')); await step('plus','「この日を元気にする」を押す',3000); await tap(el('cal-ok')); await hold(1200); fg.hidden=true;
+      await focus(el('cal-detail')); await step('plus','「元気だった（うっかりセーフ）」を押す',3000); await tap(el('cal-ok')); await hold(1200); fg.hidden=true;
       window.scrollTo(0,0); await hold(500); await focus(el('f-streak')); await step('plus','14日の記録が、もどってきました',4000);
 
       await slide('plus', '場面3<br>「妹にも、弟にも<b>届けたい</b>」',
-        '<ul>'+li('👪','知らせを受け取る人を、あなたを含めて5人まで')+li('💳','払うのは1人だけ。きょうだいは無料で受け取る')+li('📱','iPhoneとAndroidが混ざっていても大丈夫')+'</ul>');
+        '<ul>'+li('👪','知らせを受け取る人を、あなたを含めて5人まで')+li('💳','払うのは1人だけ。きょうだいは無料で受け取る')+li('📱', IOS_READY?'iPhoneとAndroidが混ざっていても大丈夫':'いまはAndroid版。iPhone版は近日公開（それまでiPhoneの家族にはメールで届く）')+'</ul>');
       await focus(el('s-members')); await step('plus','知らせを受け取る人。無料は2人、家族プランは5人まで',4000);
       await step('plus','妹を追加',1500); await tap(el('member-add')); await hold(600); var ins=el('s-members').querySelectorAll('input'); if(ins.length){ ins[ins.length-1].value='みさき'; ins[ins.length-1].dispatchEvent(new Event('change')); } await hold(1500); fg.hidden=true;
 
@@ -1754,7 +1764,7 @@ body.demoing{padding-bottom:260px}
   load();
   // 本番アプリからのプラン切り替え：?plan=plus / ?plan=free（URL）、window.wanpochi.setPlan('plus')（WebViewから）、postMessage（iframeから）
   try{ var qp=new URLSearchParams(location.search).get('plan'); if(qp==='plus'||qp==='free'){ S.plan=qp; save(); } }catch(e){}
-  window.wanpochi={ setPlan:function(p){ setPlan(p); }, getPlan:function(){ return S.plan; } };
+  window.wanpochi={ setPlan:function(p){ setPlan(p); }, getPlan:function(){ return S.plan; }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
   window.addEventListener('message', function(e){ var m=e&&e.data; if(m&&m.type==='wanpochi:plan') setPlan(m.plan); });
   renderAll();
   var v='parent'; try{ v=localStorage.getItem(KEY+'_view')||'parent'; }catch(e){} if(v==='choose') v='parent';
