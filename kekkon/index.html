@@ -462,7 +462,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="quote" id="d-quote"></div>
       <dl class="specs" id="d-specs"></dl>
       <div class="lockline"><b>SECRET</b><span id="d-lock"></span></div>
-      <p class="small muted" id="d-price" hidden style="text-align:center">1話目は無料。2話目〜11話目は ¥980 の買い切り(1回払えば、ずっと読めます)</p>
+      <p class="small muted" id="d-price" hidden style="text-align:center">第1話は無料。第2話からは、ほかの4人と同じ(待てば無料／CMで1話／¥480で全話の買い切り)。<br>彼の名前と肩書きは、第2話が開いた時点で分かります。</p>
     </div>
     <div class="nako" id="nako-detail"></div>
     <button class="btn-rose btn-block" id="marry" style="min-height:64px;font-size:1.15rem">💍 この人に指輪を渡す</button>
@@ -629,7 +629,7 @@ details.alb summary::-webkit-details-marker{display:none}
       lock:'その顔、どこかで見たことがある気がする。',nak:'顔100点、口座0点。顔で選んだら一生後悔するわよ。…するかもね。'},
   ];
   const E5={id:'E',name:'相沢 樹',age:39,job:'小学校の先生',catch:'中学の同級生。初恋の人。',income:'年収 480万円',looks:4};
-  // シークレット(5人目)。モデルは作者本人。名前・肩書きは ¥980 の買い切り後に解禁
+  // シークレット(5人目)。モデルは作者本人。名前・肩書きは第2話が開いた時点(待ち・CM・購入のどれでも)で解禁
   const SEC={id:'S',age:39,income:'年収 800万円',looks:3,secret:true,
     get name(){return secBought()?'タカヒロ':'？？？';},
     get job(){return secBought()?'街の法律家(行政書士・社会保険労務士)':'肩書きが7つある男';},
@@ -637,7 +637,6 @@ details.alb summary::-webkit-details-marker{display:none}
     quote:'肩書きは多いけど、中身はまだ修行中です。',tags:['英語がペラペラ','ピアノもギターも弾く','暮らしは質素'],
     lock:'暮らしは質素なのに、高級店での立ち居ふるまいだけ、妙に慣れている。',
     nak:'この人ね、紹介リストに載せられない事情があるの。1話目は会わせてあげる。その先は…あんた次第よ。'};
-  const SEC_PRICE=980;
   const READY={A:true,B:true,C:true,D:true,S:true};
   const HA={A:'玉の輿派',B:'チャレンジ派',C:'堅実派',D:'ときめき派'};
 
@@ -914,7 +913,7 @@ details.alb summary::-webkit-details-marker{display:none}
 
 
   // ================= シークレット(5人目・作者がモデル)全11話 =================
-  // 1話目は無料。2話目〜11話目は ¥980 の買い切り(待てば無料・CMはなし)
+  // 第1話は無料。第2話からは他の4人と同じゲート(待てば無料・CMで1話・¥480で全話)。5人セット¥1,480にも含む
   EP.S=[
     {year:'お見合い当日',title:'紹介リストにない人',
       text:()=>'千代子に呼ばれたホテルのラウンジ。そこにいたのは、紹介リストに載っていない男だった。隣の席で困っていた海外の観光客に、彼は流れるような英語で道を教え、かかってきた電話には中国語で短く答えた。席に着くと、名刺を出した。肩書きが、7つ並んでいた。行政書士、社会保険労務士、宅建士…。「全部、自分で取りました。…まだ、どれも本番じゃないですけど」。名前の欄だけ、なぜか指で隠している。千代子が耳元でささやいた。「この人、まだ何者でもないの。でもね、全部持ってる。あたしの300組で、いちばん"化ける"枠よ」',
@@ -1468,7 +1467,7 @@ details.alb summary::-webkit-details-marker{display:none}
   function fmtTime(t){if(!t)return '';const d=new Date(t),n=new Date();const same=d.toDateString()===n.toDateString();const hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');return (same?'今日 ':'明日 ')+hm;}
   function resume(){
     const r=R();st=clone(r.st);ci=r.ci;checkFree();
-    if(locked(ci)){if(!r.freeAt&&cur.id!=='S'){r.freeAt=Date.now()+WAIT;save();}showGate();}
+    if(locked(ci)){if(!r.freeAt){r.freeAt=Date.now()+WAIT;save();}showGate();}
     else{renderEp();show('s-game');}
   }
   function showGate(){
