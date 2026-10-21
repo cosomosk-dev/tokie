@@ -70,7 +70,7 @@ const MARK = {
 const profile = "名前はタケオ。" + "平塚で生まれ育った。毎日いろいろある話を書いておく。".repeat(180) + MARK.record + "。" + MARK.dream + "。";
 const visits = [];
 for (let i = 0; i < 25; i++) {
-  const ms = now - (i + 1) * 86400e3;
+  const ms = now - (i + 2) * 86400e3; // 深夜0〜5時は営業日が前日扱いになるので、前回の来店は2日前にしとく（「今日2回目」の挨拶にならんように）
   const d = jstYmd(ms).replace(/-/g, "/");
   visits.push({ id: "v" + i, date: d, time: "21:00", start: ms, mins: 60, kind: "visit",
     mamaNote: i === 0 ? "今夜は" + MARK.prevVisit + "。ほな、またな。" : i === 2 ? "今夜は" + MARK.v2 + "をした。" : (i % 2 ? "" : "今夜はアプリの話をようけした。"),

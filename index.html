@@ -654,7 +654,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v28";
+  const APP_VER="2026-10-22 v29";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1826,13 +1826,14 @@
       return `今日${n}回目！ほんまにもう、店に住み。ほら座り、続き聞いたるわ。`;
     }
     const ti=titleActive();
-    if(ti)return `あら、${ti.name}やないの。いらっしゃい。ほら、いつもの席あけといたで。`;
-    if(h<5)return "あら、いらっしゃい。ママも夜型やから、この時間がいちばん調子ええねん。ほら座り。";
     if(d>=14)return "ちょっと、あんた！久しぶりやないの。どこ行っとったん。はよ座り。";
+    // v28: 「あれどうなったん？」を、深夜の挨拶・称号の挨拶より先に（前は0〜5時に入ると夜型の挨拶が先に出て、続きを聞かへんかった）
     const th=threadAsk();
     if(th){session&&(session.askedThread=th.id);
-      if(d>=4)return `おかえり。しばらく顔見せへんから心配しとったんやで。ほら座り。…で、${th.ask}、あれからどうなったん？`;
-      return `あら、おかえり。待っとったで、ほら座って。そういえば${th.ask}、あれどうなったん？`;}
+      const lead=ti?`あら、${ti.name}やないの。いらっしゃい。`:h<5?"あら、いらっしゃい。ママも夜型やから、この時間がいちばん調子ええねん。":d>=4?"おかえり。しばらく顔見せへんから心配しとったんやで。":"あら、おかえり。待っとったで。";
+      return `${lead}ほら座り。…そういえば${th.ask}、あれからどうなったん？`;}
+    if(ti)return `あら、${ti.name}やないの。いらっしゃい。ほら、いつもの席あけといたで。`;
+    if(h<5)return "あら、いらっしゃい。ママも夜型やから、この時間がいちばん調子ええねん。ほら座り。";
     if(d>=4)return "おかえり。しばらく顔見せへんから心配しとったんやで。ほら、こっち。";
     return GREETING;
   }
