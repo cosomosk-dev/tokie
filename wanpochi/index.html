@@ -397,8 +397,7 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 .vc-row.off{opacity:.35}
 .vc-ic{font-size:26px;line-height:1;text-align:center}
 .vc-ic .petimg{width:44px}
-.vc-ic.ppl{font-size:15px;letter-spacing:-2px;text-align:left;white-space:nowrap;line-height:1.1}
-.vc-col.plus .vc-ic.ppl{font-size:13px;letter-spacing:-2px}
+.vc-ic.ppl{font-size:14px;letter-spacing:0;text-align:center;white-space:normal;word-break:break-all;line-height:1.2}
 .vc-t{font-size:13px;line-height:1.35;font-weight:700}
 .vc-t small{display:block;font-size:11px;color:var(--ink-2);font-weight:500}
 .vc-t b{color:var(--shu);font-size:16px}
@@ -1228,7 +1227,7 @@ body.demoing{padding-bottom:260px}
       +'<div class="vc-row"><div class="vc-ic">😢</div><div class="vc-t">押し忘れたら<br><b>記録 0</b></div></div>'
       +'<div class="vc-row off"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>−</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,['straw'])+'</div><div class="vc-t">着せ替え<br><b>1つ100円</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールを開くだけ</small></div></div>'
+      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールで</small></div></div>'
       +'<div class="vc-price">0円</div></div>';
     var plus='<div class="vc-col plus"><div class="vc-h">家族プラン</div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[],true)+'</div><div class="vc-t">毎日の1問<br><small>「無事」が届く</small></div></div>'
@@ -1237,7 +1236,7 @@ body.demoing{padding-bottom:260px}
       +'<div class="vc-row"><div class="vc-ic">🙆</div><div class="vc-t">押し忘れても<br><b>セーフ</b><br><small>記録が 0 にならない</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>届く</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[newId||'beret'])+'</div><div class="vc-t">着せ替え<br><b>ぜんぶ込み</b><br><small>毎月 新作</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールを開くだけ</small></div></div>'
+      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールで</small></div></div>'
       +'<div class="vc-price">月200円<small>年2,000円・30日無料</small></div></div>';
     return '<div class="vc">'+free+plus+'</div>';
   }
