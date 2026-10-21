@@ -844,7 +844,7 @@ body.demoing{padding-bottom:260px}
   // アプリ本体への購入依頼。アプリ側は購入が終わったら window.wanpochi.purchased('costume_straw') / window.wanpochi.setPlan('plus') を呼ぶ
   function hasNative(){ return !demo && !!(window.WanpochiNative || window.ReactNativeWebView); }
   function askNative(m){ var j=JSON.stringify(m); try{ if(window.WanpochiNative&&window.WanpochiNative.postMessage) window.WanpochiNative.postMessage(j); else if(window.ReactNativeWebView) window.ReactNativeWebView.postMessage(j); }catch(e){} }
-  var pendingGift=null;
+  var buyingGift=null; // アプリ本体で購入中の着せ替え
   function isPlus(){ return S.plan==='plus'; }
   function setPlan(p){ if(p!=='plus'&&p!=='free') return; if(p==='plus'&&!isPlus()) S.planSince=key(today()); S.plan=p; save(); renderAll(); }
   function memberCap(){ return isPlus()?5:2; } // あなたを含めた人数
@@ -1081,7 +1081,7 @@ body.demoing{padding-bottom:260px}
       if(worn){ b.className='worn'; b.textContent='着ています'; b.disabled=true; }
       else if(sent){ b.className='sent'; b.textContent='あす朝とどく'; b.disabled=true; }
       else if(locked){ b.className='lock'; b.textContent='プランで解放'; b.addEventListener('click', function(){ el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }); }
-      else { b.textContent='贈る'; b.addEventListener('click', function(){ if(hasNative()&&PRODUCTS.costume[id]){ pendingGift=id; askNative({type:'wanpochi:buy', productId:PRODUCTS.costume[id]}); return; } giftDone(id); }); }
+      else { b.textContent='贈る'; b.addEventListener('click', function(){ if(hasNative()&&PRODUCTS.costume[id]){ buyingGift=id; askNative({type:'wanpochi:buy', productId:PRODUCTS.costume[id]}); return; } giftDone(id); }); }
       card.appendChild(b); g.appendChild(card);
     });
 
@@ -1774,7 +1774,7 @@ body.demoing{padding-bottom:260px}
   try{ var qp=new URLSearchParams(location.search).get('plan'); if(qp==='plus'||qp==='free'){ S.plan=qp; save(); } }catch(e){}
   function giftDone(id){ S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+S.settings.parentName+'さんの画面にとどきます'); }
   window.wanpochi={ products:PRODUCTS,
-    purchased:function(pid){ var id=null; Object.keys(PRODUCTS.costume).forEach(function(k){ if(PRODUCTS.costume[k]===pid) id=k; }); if(id){ pendingGift=null; giftDone(id); } },
+    purchased:function(pid){ var id=null; Object.keys(PRODUCTS.costume).forEach(function(k){ if(PRODUCTS.costume[k]===pid) id=k; }); if(id){ buyingGift=null; giftDone(id); } },
     setPlan:function(p){ var was=isPlus(); setPlan(p); if(p==='plus'&&!was) renderWelcome(); }, getPlan:function(){ return S.plan; }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
   window.addEventListener('message', function(e){ var m=e&&e.data; if(m&&m.type==='wanpochi:plan') setPlan(m.plan); });
   renderAll();
