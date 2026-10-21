@@ -380,6 +380,12 @@ details.alb summary::-webkit-details-marker{display:none}
 
 .valt{text-align:center;font-size:.8rem;font-weight:700;color:var(--ink-2);margin:-4px 0 8px}
 .vq .on b.up{color:#2F9E6C}.vq .on b.dn{color:var(--rose-deep)}
+
+.howto{font-size:.84rem;line-height:1.6;background:var(--rose-soft);border-radius:12px;padding:10px 12px;color:var(--ink);margin-bottom:10px}
+.howto b{color:var(--rose-deep);font-weight:800;white-space:nowrap}
+#gt-others .moshi{grid-template-columns:repeat(4,1fr);gap:6px}
+#gt-others .moshi button{padding:8px 4px;font-size:.72rem}
+#gt-others .moshi .mf{width:46px;height:46px}
 </style>
 
 <div class="app">
@@ -499,6 +505,7 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="top"><div class="brand" id="gt-brand"></div><span class="pill gold" id="gt-pos"></span></div>
     <div class="hook show"><div class="k">Next episode…</div><p id="gt-tease"></p></div>
     <div class="card gate">
+      <div class="howto" id="gt-howto"></div>
       <div class="small muted" id="gt-lead">次の話は、待てば無料で読めます</div>
       <div class="clock" id="gt-time"></div>
       <div class="cd" id="gt-cd"></div>
@@ -511,6 +518,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <button class="linkbtn" id="gt-restore">購入を復元する(機種変更・再インストールのとき)</button>
       <button class="testbtn btn-block" id="gt-test">⏩ 試作版だけのボタン:待ち時間を飛ばす</button>
     </div>
+    <div class="card stack" id="gt-others"><div><div class="eyebrow">Or</div><h3 style="font-size:1rem;margin:0">ほかの人の第1話は、いつでも無料</h3><p class="small muted">待っている間に、別の人生をのぞいてみる。</p></div><div class="moshi" id="gt-moshi"></div></div>
     <div class="nako" id="nako-gate"></div>
   </section>
 
@@ -1471,6 +1479,9 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#gt-time').textContent=fmtTime(r.freeAt)+' に無料で開きます';
     $('#gt-ad').disabled=r.adDay===today();$('#gt-ad').textContent=r.adDay===today()?'CMの1話は、また明日':'千代子のCMを見て、もう1話読む(15秒・1日1回)';
     const sec=cur.id==='S';
+    $('#gt-howto').innerHTML=sec?'ここから先(第2話〜第11話)は <b>¥'+SEC_PRICE+'の買い切り</b>。ほかの人の第1話は、いつでも無料。':'ここから先(第2話〜)の読み方は3つ: <b>①待つ(無料)</b> <b>②CMを見る(1話)</b> <b>③買う(全話)</b>。ほかの人の第1話は、いつでも無料。';
+    $('#gt-moshi').innerHTML=P.concat([SEC]).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':(p.id==='S'?'1話 無料 ・ 以降 ¥'+SEC_PRICE:'1話 無料')}</span></button>`).join('');
+    $$('#gt-moshi button').forEach(b=>b.addEventListener('click',()=>{clearInterval(gateTimer);openDetail(b.dataset.id);}));
     $('#gt-or').hidden=sec;$('#gt-ad').hidden=sec;$('#gt-test').hidden=sec;$('#gt-all').hidden=sec||['A','B','C','D'].every(k=>pers.routes[k]&&pers.routes[k].bought);
     $('#gt-buy').textContent=sec?`¥${SEC_PRICE}で 第2話〜第11話を開く(買い切り)`:'今すぐ全話読む ¥480';
     $('#gt-note').textContent=sec?'中身:シークレットキャラ1人分の物語(第2話〜第11話)と、結末3種。1回払えば、何度でも最初から読めます。月額ではありません。':'中身:この夫の第2話〜第11話と結末3種(セットは4人分)。1回払えば2周目も何度でも。月額ではありません。どの夫も、待てば全話無料です。';
