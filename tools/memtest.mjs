@@ -180,7 +180,7 @@ try {
   { // 会話の途中で大事な話が昇格するか
     const { p, ctx } = await page("counter", { gemini: true });
     await enter(p);
-    const say = ["目印ヤクソク、都知事選のポスター作るで", "今日は雨やった", "ほんで目印ヤクソクの話やけど", "アプリの話", "目印ヤクソク、ちゃんとやる", "眠いわ", "目印ヤクソク覚えといて", "まあええわ"];
+    const say = ["目印ヤクソク、都知事選のポスター作るで", "今日は雨やった", "ほんで目印ヤクソクの話やけど", "アプリの話", "目印ヤクソク、ちゃんとやる", "眠いわ", "目印ヤクソク覚えといて", "まあええわ", "睡眠薬飲んでるから今日はお酒飲めへんねん"];
     for (const t of say) {
       await p.evaluate((t) => window.__o.onMessage({ message: t, source: "user" }), t); await p.waitForTimeout(120);
       await p.evaluate(() => window.__o.onMessage({ message: "へえ、そうなん", source: "ai" })); await p.waitForTimeout(80);
@@ -192,6 +192,10 @@ try {
     await p.waitForTimeout(2500);
     const th = await p.evaluate(() => JSON.stringify((JSON.parse(localStorage.getItem("tokie_notebook_v1")).threads || []).map((x) => [x.t, x.done])));
     ok("お会計で「話の続き帳」に今夜の途中の話が入る", th.includes("目印ツギ"), th);
+    ok("体調・薬・お酒の話は、言うたその場で「今夜の決まりごと」としてママに届く", notes.includes("今夜の決まりごと") && notes.includes("睡眠薬"), "決まりごとのメモが届いてへん");
+    await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
+    const again = await enter(p);
+    ok("入り直しても「今夜の決まりごと」（睡眠薬・お酒飲めへん）を覚えてる", again.memory.includes("今夜の決まりごと") && again.memory.includes("睡眠薬"), "入り直したら消えてる");
     await ctx.close();
   }
   { // 喋ってる最中に「立ち飲みを試す」

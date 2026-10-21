@@ -654,7 +654,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v29";
+  const APP_VER="2026-10-22 v30";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1308,7 +1308,7 @@
     }
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
-    const tail=toneReminder(S.strength);
+    const tail=(dayFactsBlock()?dayFactsBlock()+"\n\n":"")+toneReminder(S.strength); // 今夜の決まりごとは末尾（いちばん新しい情報の位置）に必ず入れる
     let room=B-[...head,...core,tail].reduce((n,x)=>n+jbytes(x)+SEP,0)-SEP*12;
 
     const visits=b.visits.filter(v=>v.kind!=="note"&&!(extension&&current&&v.id===current.id));
@@ -1429,7 +1429,7 @@
     return "";
   }
   async function updateNightSum(){
-    if(!current||current.trial||!session||session.sumBusy||session.seat!=="box")return; // 今夜の要点はボックス席だけ
+    if(!current||current.trial||!session||session.sumBusy)return; // v30: 今夜の要点はどの席でも作る（前はボックス席だけで、カウンターは長話の筋を見失ってた）
     session.sumBusy=true;
     try{
       const log=current.msgs.slice(-160).map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,120)+"」").join("\n");
@@ -1447,7 +1447,8 @@
     const lastU=[...msgs].reverse().find(m=>m.who!=="ai");
     const topic=lastU?"・いま話してること＝客の直前の言葉「"+clip(lastU.text,90)+"」。次の返事はまずこれに答える。話を変えへん。\n":"";
     const od=tierNowLine();
-    return nightSumText()+"【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
+    const df=dayFactsBlock();
+    return (df?df+"\n":"")+nightSumText()+"【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
@@ -1503,7 +1504,7 @@
     "拾うのは「今後も残る話」：夢・目標・人生の計画、仕事、家族・人間関係、体調・生活、決めたこと・やらないと言ったこと、好き嫌い、何度も出る悩みや口ぐせ。今夜限りの出来事・その場の気分・あいづちは拾わない。\n"+"女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。\n"+
     "各話に「大事さ imp」1〜5をつける：\n"+
     "5＝夢・目標・人生の大きな計画・本人の強いこだわり（例：都知事選や衆院選に挑む、アプリで独立する）\n"+
-    "4＝仕事・家族・体調・お金・決めたこと・やらないと言ったこと\n3＝好み・習慣・よく会う人や店\n2＝最近の出来事・近況\n1＝雑談・どうでもええ話\n"+
+    "体調・薬・お酒が飲めない（飲まない）話は、命と体に関わるので必ず5にする。\n"+"4＝仕事・家族・体調・お金・決めたこと・やらないと言ったこと\n3＝好み・習慣・よく会う人や店\n2＝最近の出来事・近況\n1＝雑談・どうでもええ話\n"+
     "「tonight」＝今夜その話が出た回数（言い方が違っても同じ話なら1回と数える。客の言葉だけ数える）。\n"+
     "ルール：\n"+
     "1. 【数え表】にある話が今夜出ていたら、その id で出す。内容が具体的になった・気が変わったのが明らかな時だけ t を書き直す（変えない時は t を省く）。\n"+
@@ -1895,8 +1896,24 @@
     session.turnsSincePin=0;session.lastPinAt=Date.now();
     note(focusBlock()+"\n"+toneReminder(settings().strength)+"\n（ママの頭の中のメモ。これには返事せんでええ）");
   }
+  /* v30「今夜の決まりごと」：体調・薬・お酒が飲めへん等、今夜ずっと守ってほしいことは別枠で持つ。
+     入り直し（版の入れ替え・延長・席の移動・もう一回入店）しても、その営業日のあいだは消えへん。 */
+  const DAYFACT_KEY="tokie_dayfacts_v1";
+  const DAYFACT_RE=/睡眠薬|薬(を|は)?(飲|のん)|飲まれへん|飲めへん|飲めない|飲まれない|飲んだらあかん|酒(は|を)?(あかん|アカン|ダメ|だめ|やめ|控え|飲め)|禁酒|ノンアル|体調|しんどい|頭痛|頭が痛|熱(が|ある)|病院|通院|眠れ(へん|ない)|寝られ(へん|ない)|お腹(が)?痛|胃が|吐き気|疲れ(てる|た)|腰(が)?痛/;
+  function dayFacts(){try{const o=JSON.parse(localStorage.getItem(DAYFACT_KEY)||"null");if(o&&o.biz===dkey(todayBiz())&&Array.isArray(o.f))return o.f;}catch(e){}return [];}
+  function addDayFact(t){
+    const x=clip(String(t).replace(/\s+/g," ").trim(),70);if(!x)return false;
+    const f=dayFacts().filter(y=>y!==x);f.push(x);while(f.length>8)f.shift();
+    try{localStorage.setItem(DAYFACT_KEY,JSON.stringify({biz:dkey(todayBiz()),f}));}catch(e){}
+    return true;
+  }
+  function dayFactsBlock(){
+    const f=dayFacts();if(!f.length)return "";
+    return "【今夜の決まりごと（今夜お客さんが言うた体調・薬・お酒の話。今夜ずっと覚えてて、必ず守る。お酒が飲めへんと言うてたら、お酒を勧めへん・乾杯もお茶やソフトドリンクで。体調が悪いと言うてたら気遣う。何回も確認せえへん）】\n"+f.map(x=>"・客「"+x+"」").join("\n");
+  }
   function onUserLine(t){
     if(!session||session.trial)return;
+    if(DAYFACT_RE.test(t)&&addDayFact(t)){note(dayFactsBlock()+"\n（ママの頭の中のメモ。これには返事せんでええ）");}
     if(session.awaitReason&&session.lastOrder&&Date.now()-session.awaitReason<180000){
       session.awaitReason=0;const r=clip(t.trim(),30);session.lastOrder.reason=r;setOrderReason(session.lastOrder.ts,r);
     }
