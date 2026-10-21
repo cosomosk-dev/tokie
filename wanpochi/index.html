@@ -1189,7 +1189,7 @@ body.demoing{padding-bottom:260px}
       ['👪','「妹にも、弟にも届けたい」','知らせを受け取る人を<b>5人まで</b>。払うのは1人、きょうだい全員に届きます']
     ];
   }
-  var MORE='そのほか：週1回の元気レポート（答えた日数・せいかい・時間）／着せ替えぜんぶプラン込み＋毎月1日に新作が自動で／答えがない日のSMS 回数制限なし／ガラケー（メール）版／複数の親を1つの契約で';
+  var MORE='そのほか：週1回の元気レポート（答えた日数・せいかい・時間）／着せ替えぜんぶプラン込み＋毎月1日に新作が自動で／答えがない日のSMS 回数制限なし／複数の親を1つの契約で';
   var FAQ=[
     ['誰が払うの？','家族のうち1人だけ。きょうだいは無料で、同じ知らせを受け取れます（あなたを含めて5人まで）。'],
     ['親のスマホは、何か変わる？','何も変わりません。課金のボタンも広告も、親の画面には出ません。'],
@@ -1208,7 +1208,7 @@ body.demoing{padding-bottom:260px}
       ['押し忘れた日', '記録が 0 に戻る', '<b>うっかりセーフ</b><br><small>記録が 0 にならない</small>'],
       ['週1回の元気レポート', no, ok],
       ['着せ替え', '1つ100円', '<b>ぜんぶ込み</b><br><small>＋毎月1日に新作が自動で</small>'],
-      ['ガラケー（メール）版', no, ok],
+      ['ガラケーの親（メール版）', ok, ok],
       ['複数の親', no, ok]
     ];
     var h='<table class="cmp"><tr><th></th><th>無料</th><th class="plus">家族プラン</th></tr>';
@@ -1228,7 +1228,7 @@ body.demoing{padding-bottom:260px}
       +'<div class="vc-row"><div class="vc-ic">😢</div><div class="vc-t">押し忘れたら<br><b>記録 0</b></div></div>'
       +'<div class="vc-row off"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>−</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,['straw'])+'</div><div class="vc-t">着せ替え<br><b>1つ100円</b></div></div>'
-      +'<div class="vc-row off"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><small>−</small></div></div>'
+      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールを開くだけ</small></div></div>'
       +'<div class="vc-price">0円</div></div>';
     var plus='<div class="vc-col plus"><div class="vc-h">家族プラン</div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[],true)+'</div><div class="vc-t">毎日の1問<br><small>「無事」が届く</small></div></div>'
@@ -1237,7 +1237,7 @@ body.demoing{padding-bottom:260px}
       +'<div class="vc-row"><div class="vc-ic">🙆</div><div class="vc-t">押し忘れても<br><b>セーフ</b><br><small>記録が 0 にならない</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>届く</small></div></div>'
       +'<div class="vc-row"><div class="vc-ic">'+pet(an,[newId||'beret'])+'</div><div class="vc-t">着せ替え<br><b>ぜんぶ込み</b><br><small>毎月 新作</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><small>メールを開くだけ</small></div></div>'
+      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールを開くだけ</small></div></div>'
       +'<div class="vc-price">月200円<small>年2,000円・30日無料</small></div></div>';
     return '<div class="vc">'+free+plus+'</div>';
   }
@@ -1733,7 +1733,7 @@ body.demoing{padding-bottom:260px}
       var q3=questionFor(today()); await tap(el('choice-'+q3.a)); await hold(1200); fg.hidden=true;
       await focus(el('p-result')); await step('plus','変わるのは、相棒が新作を着て来ること',4000);
 
-      await slide('plus', 'ガラケーの親も<br><b>メール</b>で',
+      await slide('plus', 'ガラケーの親も<br><b>メール</b>で（無料でもOK）',
         '<ul>'+li('✉️','毎朝、親のケータイにメールを1通')+li('👆','メールの中の大きなリンクを<b>開くだけで「無事」</b>。答えなくてもOK。返信でもOK')+li('🔁','開かれなければ、昼と夕方に もう一度')+li('✅','最初に確認メール。リンクが開けたら登録完了')+'</ul><p class="note">SMSも電話番号も使わないので、通信費はかかりません。固定電話しかない親は「元気だった」の記録でカバー。</p>');
       var snap=JSON.stringify(S);
       S.settings.device='phone'; S.phoneIntro=true; delete S.answers[key(today())]; PH.day=''; renderAll(); show('parent'); window.scrollTo(0,0); await hold(800);
