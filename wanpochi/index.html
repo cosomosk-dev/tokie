@@ -342,6 +342,7 @@ body.demoing{padding-bottom:260px}
   <div class="demo">
     <div class="row">
       <button class="play" id="d-demo">▶ デモを見る</button>
+      <button class="play" id="d-demo2">▶ 家族プランのデモ</button>
       <span class="lbl">試作メニュー</span>
       <button id="d-parent" aria-pressed="true">親の画面</button>
       <button id="d-family" aria-pressed="false">家族の画面</button>
@@ -500,8 +501,8 @@ body.demoing{padding-bottom:260px}
 <div class="dim" id="dim"></div>
 <div class="notif" id="notif"><span id="notif-pet"></span><div><b>ワンポチ ・ いま</b><span id="notif-tx"></span></div></div>
 <div class="phone" id="phone"><div class="card"><div class="to" id="phone-to"></div><div class="msg" id="phone-msg"></div></div></div>
-<div class="intro" id="intro"><div class="dot"></div><div class="l1">ひとり暮らしの、<br>生存確認。</div><div class="l2">毎日1問に、答えるだけ。</div></div>
-<div class="endcard" id="endcard"><div id="end-pet"></div><div class="t">ワンポチ</div><div class="cp">毎日1問の、生存確認。<br>答えなければ、家族に知らせる。</div><div class="row"><button id="end-again">もう一度見る</button><button class="w" id="end-close">さわってみる</button></div></div>
+<div class="intro" id="intro"><div class="dot"></div><div class="l1" id="intro-1">ひとり暮らしの、<br>生存確認。</div><div class="l2" id="intro-2">毎日1問に、答えるだけ。</div></div>
+<div class="endcard" id="endcard"><div id="end-pet"></div><div class="t" id="end-t">ワンポチ</div><div class="cp" id="end-cp">毎日1問の、生存確認。<br>答えなければ、家族に知らせる。</div><div class="row"><button id="end-again">もう一度見る</button><button class="w" id="end-close">さわってみる</button></div></div>
 <textarea class="vis" id="clip" aria-hidden="true" tabindex="-1"></textarea>
 
 <script>
@@ -1190,13 +1191,26 @@ body.demoing{padding-bottom:260px}
   }
   async function point(node){ var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(950); chk(); }
   async function tap(node){ await point(node); await sleep(350); fg.classList.add('press'); await sleep(180); fg.classList.remove('press'); node.click(); await sleep(650); chk(); }
-  async function runDemo(){
+  var lastDemo=null;
+  async function intro(l1, l2){
+    el('intro-1').innerHTML=l1; el('intro-2').innerHTML=l2;
+    var it=el('intro'); it.classList.add('show'); await sleep(1800); it.classList.add('two'); await wait(2600); it.classList.remove('show','two'); await sleep(450); chk();
+  }
+  function ending(petHtml, t, cp){ cap.hidden=true; el('end-pet').innerHTML=petHtml; el('end-t').textContent=t; el('end-cp').innerHTML=cp; el('endcard').classList.add('show'); }
+  async function runDemoWith(script, chapters){
     if(demo) return;
     var saved=JSON.stringify(S), back=view;
-    demo=true; stopReq=false; document.body.classList.add('demoing');
-    try{
+    demo=true; stopReq=false; CH=chapters; lastDemo=script; document.body.classList.add('demoing');
+    try{ await script(); }
+    catch(e){ el('endcard').classList.remove('show'); }
+    skip=null; phClear(); PH.day=''; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
+    S=JSON.parse(saved); demo=false; calOff=0; calSel=''; document.body.classList.remove('demoing');
+    renderAll(); show(back); window.scrollTo(0,0);
+  }
+  function runDemo(){ return runDemoWith(demoMain, 7); }
+  async function demoMain(){
       fresh(); renderAll(); show('choose'); window.scrollTo(0,0);
-      var it=el('intro'); it.classList.add('show'); await sleep(1800); it.classList.add('two'); await wait(2600); it.classList.remove('show','two'); await sleep(450); chk();
+      await intro('ひとり暮らしの、<br>生存確認。','毎日1問に、答えるだけ。');
 
       await chapter(1,'相棒をえらぶ','いちばん最初の1回だけ');
       await say('まず、相棒を1匹えらびます','ポチ・タマ・パン・ミミの4匹。あとから家族の画面でも変えられます');
@@ -1275,14 +1289,77 @@ body.demoing{padding-bottom:260px}
       await focus(el('f-know'));
       await say('できないことも、家族の画面に はっきり書いてあります','急な病気は防げない。防げるのは「何日も気づかれないこと」');
 
-      cap.hidden=true; el('end-pet').innerHTML=pet('panda',['straw'],true); el('endcard').classList.add('show');
-    }catch(e){ el('endcard').classList.remove('show'); }
-    skip=null; phClear(); PH.day=''; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
-    S=JSON.parse(saved); demo=false; document.body.classList.remove('demoing');
-    renderAll(); show(back); window.scrollTo(0,0);
+      ending(pet('panda',['straw'],true), 'ワンポチ', '毎日1問の、生存確認。<br>答えなければ、家族に知らせる。');
+  }
+
+  // ---------- 家族プランのデモ（家族目線：無料のまま使う → 家族プランで増えるもの）----------
+  function runPlanDemo(){ return runDemoWith(demoPlan, 6); }
+  async function demoPlan(){
+      fresh(); S.chosen=true; S.plan='free'; S.settings.members=[{name:'たかし'}];
+      var q0=questionFor(today()); S.answers[key(today())]={pick:q0.a, correct:true, time:'8:12', label:q0.c[q0.a][1], ans:q0.c[q0.a][1], via:'app'};
+      renderAll(); show('family'); window.scrollTo(0,0);
+      await intro('無料のまま、ずっと使える。','家族プランで、もう少しだけ安心を。');
+
+      await chapter(1,'無料で使う','むすめ・ゆかのスマホ');
+      await focus(el('f-status'));
+      await say('お母さんが朝の1問に答えると、「きょうも無事」が届きます','これは ずっと無料。答えがない日の知らせも無料');
+      await focus(el('f-week'));
+      await say('直近7日分の記録と、連続記録。ここまでが無料','着せ替えは1つ100円で プレゼントできます');
+
+      await chapter(2,'こんなとき','無料だと、ちょっと足りない');
+      var sk=streak(); S.dayOffset+=2; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
+      await focus(el('f-status'));
+      await say('きのう、お母さんの答えがなかった日','電話したら、ただの寝坊。ホッとした');
+      await focus(el('f-streak'));
+      await say('でも、'+sk+'日つづいた記録は 0 に戻ってしまう','お母さんの「つづけて◯日」は、親の画面の楽しみ');
+      await focus(el('f-week'));
+      await say('「先月は 何日 答えたっけ？」','7日より前は、見られない');
+      await focus(el('s-members'));
+      await say('弟のたかしには知らせが届く。でも、妹にも届けたい','無料は、あなたを含めて2人まで');
+
+      await chapter(3,'家族プランにする','払うのは、ひとりだけ');
+      await focus(el('f-plan'));
+      await say('月200円、または年2,000円。はじめの30日は無料','毎日の1問と「無事」の知らせは、無料のまま');
+      line('「30日 無料で試す」を押すだけ'); await tap(el('plan-go')); await sleep(900); fg.hidden=true;
+      window.scrollTo(0,0); await sleep(300);
+      await focus(el('f-streak'));
+      await say(sk+'日の記録が、もどってきました','答えられなかった日は「お休み保護」。月2回まで');
+
+      await chapter(4,'増えるもの','家族プランで できること');
+      await focus(el('f-cal'));
+      await say('1か月のカレンダー。どの日に答えたか、ひと目で','日付を押すと、その日の答えと時間');
+      line('たとえば この日'); var onDay=el('cal-grid').querySelector('.c.on'); if(onDay){ await tap(onDay); } await sleep(500); fg.hidden=true;
+      await focus(el('cal-detail'));
+      await say('答えた時間と、何を答えたかが残ります','金色の日が「お休み保護」。記録は切れていません');
+      await focus(el('f-report'));
+      await say('週1回の元気レポート。答えた日数・せいかい・だいたいの時間','本番では、毎週月曜の朝に通知でも届きます');
+      await focus(el('f-gifts'));
+      await say('着せ替えは ぜんぶプラン込み。毎月1つ、新作が増えます','今月の新作はベレー帽');
+      line('ベレー帽を贈ってみます'); await tap(el('gift-beret')); await sleep(600); fg.hidden=true;
+      await focus(el('s-members'));
+      await say('知らせを受け取る人は、あなたを含めて5人まで','きょうだいで分担できます');
+      line('妹を追加'); await tap(el('member-add')); await sleep(300); var ins=el('s-members').querySelectorAll('input'); if(ins.length){ ins[ins.length-1].value='みさき'; ins[ins.length-1].dispatchEvent(new Event('change')); } await sleep(500); fg.hidden=true;
+
+      await chapter(5,'親の画面は そのまま','課金ボタンも、広告もない');
+      var qa=questionFor(today()); S.answers[key(today())]={pick:qa.a, correct:true, time:'8:30', label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'}; // この日はもう答えた、として翌朝へ
+      S.dayOffset++; S.hello=false; renderAll(); show('parent'); window.scrollTo(0,0); await sleep(500);
+      await say('お母さんの画面は、何も変わりません','課金のボタンも広告も、親の画面には出しません');
+      await focus(el('p-qcard'));
+      line('いつもどおり、きょうの1問'); var q=questionFor(today()); await tap(el('choice-'+q.a)); await sleep(900); fg.hidden=true;
+      await focus(el('p-result'));
+      await say('変わるのは、相棒が新しい帽子をかぶって来ること','「ゆかさんからのプレゼント」と、親の画面に出ます');
+
+      await chapter(6,'切り替えと解約','スマホの定期購入で');
+      show('family'); window.scrollTo(0,0); await sleep(300);
+      await focus(el('f-plan'));
+      await say('購入も解約も、スマホの定期購入（Google Play / App Store）から','アプリは ?plan=plus でこの画面を開くだけ。切り替えは1行');
+      await say('解約しても、記録は消えません','無料に戻るだけ。毎日の1問と「無事」の知らせは、そのまま続きます');
+
+      ending(pet('panda',['beret'],true), 'ワンポチ家族プラン', '月200円。親の画面は、そのまま。<br>毎日の生存確認は、ずっと無料。');
   }
   el('d-demo').addEventListener('click', function(){ if(!demo) runDemo(); });
-  el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(runDemo,300); });
+  el('d-demo2').addEventListener('click', function(){ if(!demo) runPlanDemo(); });
+  el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(function(){ runDemoWith(lastDemo||demoMain, lastDemo===demoPlan?6:7); },300); });
   el('end-close').addEventListener('click', function(){ el('endcard').classList.remove('show'); show(S.chosen?'parent':'choose'); window.scrollTo(0,0); });
   load();
   // 本番アプリからのプラン切り替え：?plan=plus / ?plan=free（URL）、window.wanpochi.setPlan('plus')（WebViewから）、postMessage（iframeから）
@@ -1294,6 +1371,7 @@ body.demoing{padding-bottom:260px}
   if(location.search.indexOf('view=family')>=0) v='family';
   show(v);
   if(location.hash==='#demo') setTimeout(runDemo,500);
+  if(location.hash==='#demo2') setTimeout(runPlanDemo,500);
 })();
 </script>
 
