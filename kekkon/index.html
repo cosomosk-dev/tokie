@@ -377,6 +377,9 @@ details.alb summary::-webkit-details-marker{display:none}
 .vq .on b{color:var(--rose-deep);font-size:.95rem;font-weight:800;white-space:nowrap}
 #r-next h3{font-size:1.05rem}
 #r-next .moshi button b{font-size:.8rem}
+
+.valt{text-align:center;font-size:.8rem;font-weight:700;color:var(--ink-2);margin:-4px 0 8px}
+.vq .on b.up{color:#2F9E6C}.vq .on b.dn{color:var(--rose-deep)}
 </style>
 
 <div class="app">
@@ -503,7 +506,8 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="or" id="gt-or">待てない人は</div>
       <button class="btn-rose btn-block" id="gt-buy" style="min-height:60px">今すぐ全話読む ¥480</button>
       <button class="btn-gold btn-block" id="gt-ad">千代子のCMを見て、もう1話読む(15秒・1日1回)</button>
-      <p class="small muted" id="gt-note">4人全員分のセットは ¥1,480。どの夫も、待てば全話無料です。</p>
+      <button class="btn-line btn-block" id="gt-all">4人全員の全話を読む ¥1,480(1人 ¥370)</button>
+      <p class="small muted" id="gt-note">どの夫も、第1話は無料。待てば全話無料です。</p>
       <button class="linkbtn" id="gt-restore">購入を復元する(機種変更・再インストールのとき)</button>
       <button class="testbtn btn-block" id="gt-test">⏩ 試作版だけのボタン:待ち時間を飛ばす</button>
     </div>
@@ -1348,11 +1352,12 @@ details.alb summary::-webkit-details-marker{display:none}
     const dS=as.sav-a.sav,dHw=(as.hw||0)-(a.hw||0),dM=Math.abs(dS)+Math.abs(dHw),dL=as.L-a.L,dH=hearts(as.T)-hearts(a.T);
     const sc={m:dM?1+Math.log10(dM):0,l:Math.abs(dL)/6,t:Math.abs(dH)*1.5};let best=['m','l','t'].reduce((p,k)=>sc[k]>sc[p]?k:p,'m');
     if(!sc[best])best=['m','l','t'][Math.floor(Math.random()*3)];
-    const money=()=>{const p=[];if(dS)p.push((dS>0?'+':'−')+yen(Math.abs(dS)));if(dHw)p.push('夫 '+(dHw>0?'+':'−')+yen(Math.abs(dHw)));return p.length?'あなたより '+p.join(' '):'あなたと同じ';};
-    const love=()=>dL>=10?'あなたより ↑↑ 深い':dL>0?'あなたより ↑ 深い':dL<=-10?'あなたより ↓↓ 浅い':dL<0?'あなたより ↓ 浅い':'あなたと同じ';
-    const toki=()=>dH>0?'あなたより ♥ +'+dH:dH<0?'あなたより ♥ −'+(-dH):'あなたと同じ';
-    const cell=(k,lab,fn)=>best===k?`<span class="on">${lab}<b>${esc(fn())}</b></span>`:`<span>${lab}<i>?</i></span>`;
-    return `<div class="vh">もし「${esc(resolve(alt.t,b))}」を選んでいたら？</div><div class="vq">${cell('m','お金',money)}${cell('l','愛情',love)}${cell('t','ときめき',toki)}</div><small class="vnote">分かるのは、いちばん変わる1つだけ。残りは2周目で。全部反対を選んだ20年との差は、結末の表で。</small>`;}
+    const money=()=>{if(!dM)return ['同じ',''];const main=dS||dHw;const lab=(dS?'':'夫の財産が ')+yen(Math.abs(main))+(main>0?' 多い':' 少ない');return [lab,main>0?'up':'dn'];};
+    const love=()=>dL>=10?['もっと深い','up']:dL>0?['少し深い','up']:dL<=-10?['ずっと浅い','dn']:dL<0?['少し浅い','dn']:['同じ',''];
+    const toki=()=>dH>0?['♥が'+dH+'つ多い','up']:dH<0?['♥が'+(-dH)+'つ少ない','dn']:['同じ',''];
+    const cell=(k,lab,fn)=>{if(best!==k)return `<span>${lab}<i>?</i></span>`;const [t,cl]=fn();return `<span class="on">${lab}<b class="${cl}">${esc(t)}</b></span>`;};
+    const at=String(resolve(alt.t,b));
+    return `<div class="vh">もし、反対を選んでいたら？</div><div class="valt">${esc(at.length>22?at.slice(0,22)+'…':at)}</div><div class="vq">${cell('m','お金',money)}${cell('l','愛情',love)}${cell('t','ときめき',toki)}</div><small class="vnote">今のあなたと比べて、いちばん変わる1つだけ。残りは2周目で。</small>`;}
 
   // ================= トップ =================
   let me=pers.name||'ミユ',cur=null,st=null,ci=0,pi=0,proX=null,proScore={A:0,B:0,C:0,D:0,S:0};
@@ -1466,9 +1471,9 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#gt-time').textContent=fmtTime(r.freeAt)+' に無料で開きます';
     $('#gt-ad').disabled=r.adDay===today();$('#gt-ad').textContent=r.adDay===today()?'CMの1話は、また明日':'千代子のCMを見て、もう1話読む(15秒・1日1回)';
     const sec=cur.id==='S';
-    $('#gt-or').hidden=sec;$('#gt-ad').hidden=sec;$('#gt-test').hidden=sec;
+    $('#gt-or').hidden=sec;$('#gt-ad').hidden=sec;$('#gt-test').hidden=sec;$('#gt-all').hidden=sec||['A','B','C','D'].every(k=>pers.routes[k]&&pers.routes[k].bought);
     $('#gt-buy').textContent=sec?`¥${SEC_PRICE}で 第2話〜第11話を開く(買い切り)`:'今すぐ全話読む ¥480';
-    $('#gt-note').textContent=sec?'中身:シークレットキャラ1人分の物語(第2話〜第11話)と、結末3種。1回払えば、何度でも最初から読めます。月額ではありません。':'4人全員分のセットは ¥1,480。どの夫も、待てば全話無料です。';
+    $('#gt-note').textContent=sec?'中身:シークレットキャラ1人分の物語(第2話〜第11話)と、結末3種。1回払えば、何度でも最初から読めます。月額ではありません。':'中身:この夫の第2話〜第11話と結末3種(セットは4人分)。1回払えば2周目も何度でも。月額ではありません。どの夫も、待てば全話無料です。';
     if(sec){
       $('#gt-lead').textContent='ここから先は、シークレットキャラの物語です';
       $('#gt-time').textContent=`全11話 ¥${SEC_PRICE}(買い切り)`;$('#gt-cd').textContent='名前も、肩書きも、秘密も、ここから解禁';
@@ -1483,6 +1488,7 @@ details.alb summary::-webkit-details-marker{display:none}
   }
   $('#gt-wait').addEventListener('click',()=>{checkFree();if(!locked(ci)){renderEp();show('s-game');return;}renderIntro();});
   $('#gt-buy').addEventListener('click',()=>{const pr=cur.id==='S'?SEC_PRICE:480;if(!confirm(`【試作版】本番ではここでストアの決済(¥${pr})が出ます。購入したことにして続けますか？`))return;const r=R();r.bought=true;save();toast(cur.id==='S'?'名前が解禁されました。彼の名前は、タカヒロ':cur.name+'ルートの全話が開きました');renderEp();show('s-game');});
+  $('#gt-all').addEventListener('click',()=>{if(!confirm('【試作版】本番ではここでストアの決済(¥1,480)が出ます。購入したことにして続けますか？'))return;['A','B','C','D'].forEach(k=>{const r=pers.routes[k]||(pers.routes[k]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});r.bought=true;});save();toast('4人全員の全話が開きました');renderEp();show('s-game');});
   $('#gt-restore').addEventListener('click',()=>toast('【試作版】本番では、ストアの購入履歴を確認して、買った物語を復元します'));
   // CMの中身: 同じ「結婚相談所」ばかりだと鬱陶しいので、角度を日替わりで変える(全部、婚活女子向けの提携先=アフィリエイト)
   const CMS=[
@@ -1605,7 +1611,7 @@ details.alb summary::-webkit-details-marker{display:none}
     nako('#nako-pr','物語はここまで。本物を探すなら、「'+ty.n+'」のあんたには「'+ty.cat+'」が合うわ。あたしが選んどいたから、のぞくだけのぞいてみなさい。');
     $('#pr-btn').href='osusume.html#'+tk;
     $('#review').hidden=!(!pers.asked&&e.k!=='bitter');
-    $('#r-moshi').innerHTML=P.concat([SEC]).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">秘密 ???</span></button>`).join('');
+    $('#r-moshi').innerHTML=P.concat([SEC]).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">秘密 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':(p.id==='S'?'1話 無料 ・ 以降 ¥'+SEC_PRICE:'1話 無料')}</span></button>`).join('');
     $$('#r-moshi button').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.id;if(READY[id])openDetail(id);else toast(byId(id).name+'との結婚生活は、近日公開です');}));
     const n=pers.coll.length;$('#z-n').textContent=n+'/15';$('#z-sub').textContent=cur.name+'との結末 '+END[cur.id].filter(x=>pers.coll.includes(x.id)).length+'/3 ・ 選び方を変えると、ちがう結末';
     $('#r-slots').style.gridTemplateColumns='repeat(3,1fr)';
