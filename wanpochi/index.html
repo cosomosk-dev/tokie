@@ -157,6 +157,54 @@ h1,h2,h3,p{margin:0}
 input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;border:1.5px solid var(--line);border-radius:16px;background:var(--white);color:var(--ink);width:100%}
 .smsbox{background:var(--shu-soft);border:1.5px solid var(--shu);border-radius:18px;padding:12px 14px;font-size:15px;display:flex;flex-direction:column;gap:6px}
 .smsbox .from{font-size:12px;color:var(--ink-2)}
+/* ===== 家族プラン（有料）の部品。親の画面には一切出ない ===== */
+.badge .sh{font-size:12px;color:var(--gold);font-family:var(--font-gothic);font-weight:700;margin-left:4px;white-space:nowrap}
+.cal .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cal .hd b{font-family:var(--font-mincho);font-size:18px}
+.cal .hd button{border-radius:999px;padding:4px 14px;font-weight:700;background:var(--white);font-size:15px}
+.cal .hd button:disabled{opacity:.35;cursor:default}
+.cal .wd{display:grid;grid-template-columns:repeat(7,1fr);font-size:12px;color:var(--ink-2);text-align:center;font-weight:700;margin-top:4px}
+.cal .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .c{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;border:1.5px solid transparent;background:none;padding:0;color:var(--ink)}
+.cal .c.on{background:var(--shu);border-color:var(--shu);color:#fff}
+.cal .c.miss{border:1.5px dashed var(--bad);color:var(--bad)}
+.cal .c.shield{border:1.5px solid var(--gold);color:var(--gold);background:rgba(185,146,74,.14)}
+.cal .c.today{border:1.5px dashed var(--shu);color:var(--shu)}
+.cal .c.future{color:var(--line);cursor:default}
+.cal .c.sel{box-shadow:0 0 0 3px var(--ink)}
+.cal .c.blank{visibility:hidden}
+.cal .detail{background:var(--white);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;font-size:14px;min-height:46px;display:flex;align-items:center}
+.cal .sum{font-size:15px;font-weight:700}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin-right:4px;border:1.5px solid transparent}
+.legend i.on{background:var(--shu)} .legend i.miss{border:1.5px dashed var(--bad)} .legend i.shield{border-color:var(--gold);background:rgba(185,146,74,.14)}
+.report .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.report .tile{background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:10px 4px;text-align:center;min-width:0}
+.report .tile b{display:block;font-family:var(--font-mincho);font-size:26px;color:var(--shu);line-height:1.15;font-variant-numeric:tabular-nums}
+.report .tile b small{font-size:13px;color:var(--ink-2);font-family:var(--font-gothic)}
+.report .tile span{font-size:12px;color:var(--ink-2);font-weight:700}
+.report .txt{font-size:15px;line-height:1.7}
+.report .txt b{color:var(--shu)}
+.plan .price{font-size:16px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.plan .price b{font-family:var(--font-mincho);font-size:30px;color:var(--shu);line-height:1}
+.plan ul.feat{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}
+.plan ul.feat li{display:flex;gap:8px;align-items:flex-start}
+.plan ul.feat .em{flex:0 0 auto;font-size:18px;line-height:1.3}
+.plan ul.feat li.off{opacity:.55}
+.plan .on{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);font-size:12px;padding:1px 10px;border-radius:999px;margin-left:6px;font-family:var(--font-gothic);font-weight:700}
+.plan .now{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.plan .now div{background:var(--white);border:1.5px solid var(--line);border-radius:16px;padding:8px 10px;font-size:13px;color:var(--ink-2);font-weight:700}
+.plan .now div b{display:block;font-size:17px;color:var(--ink)}
+.plan .free-note{background:var(--white);border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.6}
+.gift .tag.inc{background:var(--ok)} .gift .tag.lock{background:var(--ink-2)} .gift .tag.new{background:var(--shu)}
+.gift button.lock{background:var(--paper-2);color:var(--ink-2);border-color:var(--line)}
+.members{display:flex;flex-direction:column;gap:8px}
+.members .m{display:flex;gap:8px;align-items:center}
+.members .m input{flex:1 1 auto;min-width:0}
+.members .m .x{border-radius:999px;width:40px;height:40px;padding:0;font-weight:700;font-size:16px;flex:0 0 auto;background:var(--white)}
+.members .add{align-self:flex-start;border-radius:999px;padding:6px 14px;font-weight:700;font-size:14px;background:var(--white)}
+.members .cap{font-size:13px;color:var(--ink-2)}
+.members .cap b{color:var(--shu)}
 .toast{position:fixed;z-index:20;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 20px;border-radius:999px;font-weight:700;font-size:15px;max-width:calc(100% - 32px);text-align:center}
 .vis{position:absolute;left:-9999px;top:0}
 @media (max-width:370px){.greet .g{font-size:24px}.streak b{font-size:52px}}
@@ -304,6 +352,12 @@ body.demoing{padding-bottom:260px}
       <button id="d-next">1日すすめる</button>
       <button id="d-reset">はじめから</button>
     </div>
+    <div class="row">
+      <span class="lbl">プラン</span>
+      <button id="d-free" aria-pressed="true">無料</button>
+      <button id="d-plus" aria-pressed="false">家族プラン</button>
+      <span class="lbl">（本番は ?plan=plus で切り替え）</span>
+    </div>
   </div>
 
   <!-- ===== 相棒えらび（いちばん最初の1回だけ） ===== -->
@@ -368,11 +422,34 @@ body.demoing{padding-bottom:260px}
       <button class="btn dark" id="f-share"><svg class="ico"><use href="#i-share"/></svg>家族にシェア</button>
     </div>
 
+    <!-- 家族プラン：1か月のカレンダー -->
+    <section class="block cal" id="f-cal" hidden>
+      <h3><svg class="ico"><use href="#i-clock"/></svg>1か月のカレンダー</h3>
+      <div class="hd"><button type="button" id="cal-prev">‹ 前の月</button><b id="cal-title"></b><button type="button" id="cal-next">次の月 ›</button></div>
+      <div class="wd"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
+      <div class="grid" id="cal-grid"></div>
+      <div class="legend"><span><i class="on"></i>答えた</span><span><i class="miss"></i>答えなし</span><span><i class="shield"></i>お休み保護</span></div>
+      <div class="sum" id="cal-sum"></div>
+      <div class="detail" id="cal-detail">日付を押すと、その日の答えが見られます</div>
+    </section>
+
+    <!-- 家族プラン：週1回の元気レポート -->
+    <section class="block report" id="f-report" hidden>
+      <h3><svg class="ico"><use href="#i-check"/></svg>今週の元気レポート</h3>
+      <div class="tiles" id="rep-tiles"></div>
+      <p class="txt" id="rep-text"></p>
+      <div class="row2"><button class="btn dark" id="rep-copy"><svg class="ico"><use href="#i-share"/></svg>レポートをシェア</button></div>
+      <p class="sub">本番では、毎週月曜の朝にこの内容が通知でも届きます。</p>
+    </section>
+
     <section class="block">
       <h3><svg class="ico"><use href="#i-gift"/></svg>着せ替えをプレゼント</h3>
-      <p class="sub">1つ100円。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。</p>
+      <p class="sub" id="f-gift-sub">1つ100円。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。</p>
       <div class="gifts" id="f-gifts"></div>
     </section>
+
+    <!-- 家族プラン（月200円／年2,000円）。課金はこの画面だけ。親の画面には出ない -->
+    <section class="block plan" id="f-plan"></section>
 
 
     <section class="block know" id="f-know">
@@ -403,6 +480,7 @@ body.demoing{padding-bottom:260px}
       <div class="field"><label>答えが来ないとき、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
       <div class="field"><label>あなたへの連絡方法</label><div class="seg" id="s-contact"></div></div>
+      <div class="field"><label>ほかに 知らせを受け取る人</label><div class="members" id="s-members"></div></div>
       <div class="field"><label>しばらくお休み</label><div class="seg" id="s-pause"></div><p class="sub" id="s-pause-note"></p></div>
       <div class="field"><label for="s-phone">親の電話番号（知らせが来たとき、ここに電話します）</label><input type="text" id="s-phone" inputmode="tel"></div>
       <button class="btn primary" id="f-send"><svg class="ico"><use href="#i-mail"/></svg>親のスマホに送る</button>
@@ -443,8 +521,13 @@ body.demoing{padding-bottom:260px}
     straw:{name:'麦わら帽子', slot:'head', svg:function(p){ var y=HAT[p]||30; return '<ellipse cx="50" cy="'+y+'" rx="44" ry="9" fill="#E6C97A"/><path d="M28 '+y+' C 28 '+(y-22)+', 72 '+(y-22)+', 72 '+y+' Z" fill="#F0D98E"/><path d="M28 '+(y-2)+' h 44" stroke="#D9442B" stroke-width="5"/>'; }},
     crown:{name:'王冠', slot:'head', svg:function(p){ var y=(HAT[p]||30)-4; return '<g transform="translate(0 '+(y-30)+')"><path d="M30 30 l 6 -16 l 10 10 l 4 -14 l 4 14 l 10 -10 l 6 16 z" fill="#E0B94C"/><rect x="30" y="28" width="40" height="6" rx="2" fill="#C9A034"/><circle cx="50" cy="18" r="2.5" fill="#D9442B"/></g>'; }},
     glasses:{name:'まるメガネ', slot:'face', svg:function(p){ var e=EYE[p]||EYE.dog; return '<circle cx="'+e[0]+'" cy="'+e[1]+'" r="10" stroke="#1E1B22" stroke-width="2.4" fill="rgba(255,255,255,.22)"/><circle cx="'+e[2]+'" cy="'+e[3]+'" r="10" stroke="#1E1B22" stroke-width="2.4" fill="rgba(255,255,255,.22)"/><path d="M'+(e[0]+10)+' '+e[1]+' h '+(e[2]-e[0]-20)+' M'+(e[0]-10)+' '+(e[1]-1)+' h -6 M'+(e[2]+10)+' '+(e[3]-1)+' h 6" stroke="#1E1B22" stroke-width="2.4"/>'; }},
-    scarf:{name:'マフラー', slot:'neck', svg:function(){ return '<path d="M20 78 C 30 70, 70 70, 80 78 C 70 86, 30 86, 20 78 Z" fill="#2F7D6B"/><path d="M64 80 l 10 18 l -12 -4 z" fill="#2F7D6B"/><path d="M24 78 h 52" stroke="#F7DCD3" stroke-width="2" stroke-dasharray="4 4"/>'; }}
+    scarf:{name:'マフラー', slot:'neck', svg:function(){ return '<path d="M20 78 C 30 70, 70 70, 80 78 C 70 86, 30 86, 20 78 Z" fill="#2F7D6B"/><path d="M64 80 l 10 18 l -12 -4 z" fill="#2F7D6B"/><path d="M24 78 h 52" stroke="#F7DCD3" stroke-width="2" stroke-dasharray="4 4"/>'; }},
+    // ここから下は家族プラン限定（プラン込み）。毎月1つ「今月の新作」が増える
+    beret:{name:'ベレー帽', slot:'head', plus:true, isNew:true, svg:function(p){ var y=(HAT[p]||30)-2; return '<g transform="rotate(-10 50 '+y+')"><ellipse cx="50" cy="'+(y-6)+'" rx="30" ry="12" fill="#3B4A8C"/><ellipse cx="50" cy="'+(y-2)+'" rx="24" ry="6" fill="#2C3870"/><circle cx="52" cy="'+(y-18)+'" r="3" fill="#2C3870"/></g>'; }},
+    bowtie:{name:'ちょうネクタイ', slot:'neck', plus:true, svg:function(){ return '<path d="M50 80 l -18 -8 v 16 z M50 80 l 18 -8 v 16 z" fill="#D9442B"/><rect x="45" y="75" width="10" height="10" rx="3" fill="#B2321E"/>'; }},
+    flower:{name:'はなかんむり', slot:'head', plus:true, svg:function(p){ var y=(HAT[p]||30)-4, s='', xs=[24,34,44,54,64,74], cs=['#F39BB8','#FFD166','#F39BB8','#FFD166','#F39BB8','#FFD166']; for(var i=0;i<xs.length;i++){ var yy=y-Math.sin((i+.5)/xs.length*Math.PI)*8; s+='<circle cx="'+xs[i]+'" cy="'+yy+'" r="4.5" fill="'+cs[i]+'"/><circle cx="'+xs[i]+'" cy="'+yy+'" r="1.6" fill="#D9442B"/>'; } return '<path d="M22 '+y+' Q 50 '+(y-12)+' 78 '+y+'" stroke="#4E8F57" stroke-width="2.4" fill="none"/>'+s; }}
   };
+  var SHIELDS_PER_MONTH=2; // 家族プラン：お休み保護は月2回まで
   var SPARK='<path d="M12 30 l 2 -6 l 2 6 l 6 2 l -6 2 l -2 6 l -2 -6 l -6 -2 z" fill="#FFD166"/><path d="M84 22 l 1.5 -4 l 1.5 4 l 4 1.5 l -4 1.5 l -1.5 4 l -1.5 -4 l -4 -1.5 z" fill="#FFD166"/>';
   function pet(animal, worn, happy){
     var a=IMG[animal]?animal:'dog', s='';
@@ -554,21 +637,57 @@ body.demoing{padding-bottom:260px}
   function today(){ var d=new Date(); d.setHours(12,0,0,0); return new Date(d.getTime()+S.dayOffset*DAY); }
   function daysAgo(n){ return new Date(today().getTime()-n*DAY); }
   function fresh(){
-    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart'}, answers:{}, gifts:[], worn:[], chosen:false};
+    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart', members:[{name:'たかし'}]}, answers:{}, gifts:[], worn:[], chosen:false, plan:'free', shield:{days:{}}};
     S=s;
     var times=['8:12','7:55','8:40','9:03','8:21','8:08','7:48','8:33','8:15','9:10','8:02'];
     for(var i=1;i<=11;i++){ s.answers[key(daysAgo(i))]={pick:0, correct:i%5!==0, time:times[i-1], label:''}; }
     return s;
   }
   function load(){
-    try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); return; } } }catch(e){}
+    try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); migrate(); return; } } }catch(e){}
     fresh();
+  }
+  function migrate(){ // 前の版の保存データに、プランまわりの項目を足す
+    if(S.plan!=='plus') S.plan='free';
+    if(!S.shield||!S.shield.days) S.shield={days:{}};
+    if(!S.settings.members) S.settings.members=[];
   }
   var demo=false;
   function save(){ if(demo) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
-  function streak(){
+
+  // ---------- 家族プラン（月200円／年2,000円）----------
+  // 本番：購入・解約はアプリ側（Google Play / App Store）。アプリはこのページを ?plan=plus で開くか、
+  // window.wanpochi.setPlan('plus') を呼ぶか、postMessage({type:'wanpochi:plan', plan:'plus'}) を送るだけ。
+  // 無料のまま使えるもの：毎日の1問・「無事」の知らせ・答えがない日の知らせ・相棒・連続記録（7日分）・着せ替え100円。
+  // 家族プランで増えるもの：1か月カレンダー・お休み保護（月2回）・週1レポート・着せ替えプラン込み＋毎月の新作・知らせを受け取る人5人まで。
+  function isPlus(){ return S.plan==='plus'; }
+  function setPlan(p){ if(p!=='plus'&&p!=='free') return; S.plan=p; save(); applyShields(); renderAll(); }
+  function memberCap(){ return isPlus()?5:2; } // あなたを含めた人数
+  function monthOf(k){ return k.slice(0,7); }
+  function shieldsUsed(mk){ var n=0; Object.keys(S.shield.days).forEach(function(k){ if(monthOf(k)===mk) n++; }); return n; }
+  function shieldsLeft(){ return Math.max(0, SHIELDS_PER_MONTH-shieldsUsed(monthOf(key(today())))); }
+  // お休み保護：きのうから さかのぼって、答えがなかった日に保護をあてる（月2回まで）。家族への知らせには一切ひびかない
+  function applyShields(){
+    if(!isPlus()) return;
+    var changed=false;
+    for(var i=1;i<60;i++){
+      var k=key(daysAgo(i));
+      if(S.answers[k]||S.shield.days[k]) continue;
+      var prior=false; for(var j=i+1;j<i+31;j++){ if(S.answers[key(daysAgo(j))]){ prior=true; break; } }
+      if(!prior) break; // 記録が始まる前の日には あてない
+      if(shieldsUsed(monthOf(k))>=SHIELDS_PER_MONTH) break;
+      S.shield.days[k]=true; changed=true;
+    }
+    if(changed) save();
+  }
+  function streak(){ // 保護された日は、記録を切らずに飛ばす（日数には数えない）
     var n=0, start=S.answers[key(today())]?0:1;
-    for(var i=start;i<400;i++){ if(S.answers[key(daysAgo(i))]) n++; else break; }
+    for(var i=start;i<400;i++){ var k=key(daysAgo(i)); if(S.answers[k]) n++; else if(S.shield.days[k]) continue; else break; }
+    return n;
+  }
+  function streakShielded(){ // いまの連続記録の中で、保護が使われた回数
+    var n=0, start=S.answers[key(today())]?0:1;
+    for(var i=start;i<400;i++){ var k=key(daysAgo(i)); if(S.answers[k]) continue; else if(S.shield.days[k]) n++; else break; }
     return n;
   }
   function missedBeforeToday(){
@@ -801,19 +920,31 @@ body.demoing{padding-bottom:260px}
       div.innerHTML='<span>'+WDK[d.getDay()]+'</span><i class="'+(rec?'on':(i===0?'today':'miss'))+'"></i>';
       w.appendChild(div);
     }
-    el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日';
+    var sh=streakShielded();
+    el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">🛡 お休み保護 '+sh+'回</span>':'');
 
+    var plus=isPlus();
+    el('f-gift-sub').textContent= plus
+      ? '家族プランなので、ぜんぶプラン込み。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。毎月1つ、新作が増えます。'
+      : '1つ100円。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。';
     var g=el('f-gifts'); g.innerHTML='';
     Object.keys(ITEMS).forEach(function(id){
-      var worn=S.worn.indexOf(id)>=0, sent=S.gifts.some(function(x){ return x.id===id && S.worn.indexOf(id)<0; });
+      var it=ITEMS[id], worn=S.worn.indexOf(id)>=0, sent=S.gifts.some(function(x){ return x.id===id && S.worn.indexOf(id)<0; });
+      var locked=!!it.plus && !plus;
+      var tag= locked?'<span class="tag lock">家族プラン</span>':(it.isNew&&plus?'<span class="tag new">今月の新作</span>':(plus?'<span class="tag inc">プラン込み</span>':'<span class="tag">¥100</span>'));
       var card=document.createElement('div'); card.className='gift';
-      card.innerHTML='<span class="tag">¥100</span>'+pet(st.animal,[id])+'<div class="nm">'+ITEMS[id].name+'</div>';
+      card.innerHTML=tag+pet(st.animal,[id])+'<div class="nm">'+it.name+'</div>';
       var b=document.createElement('button'); b.type='button'; b.id='gift-'+id;
       if(worn){ b.className='worn'; b.textContent='着ています'; b.disabled=true; }
       else if(sent){ b.className='sent'; b.textContent='あす朝とどく'; b.disabled=true; }
+      else if(locked){ b.className='lock'; b.textContent='プランで解放'; b.addEventListener('click', function(){ el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }); }
       else { b.textContent='贈る'; b.addEventListener('click', function(){ S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+st.parentName+'さんの画面にとどきます'); }); }
       card.appendChild(b); g.appendChild(card);
     });
+
+    el('f-cal').hidden=!plus; el('f-report').hidden=!plus;
+    if(plus){ renderCalendar(); renderReport(); }
+    renderPlan(); renderMembers();
 
     el('s-parent').value=st.parentName; el('s-family').value=st.familyName; el('s-phone').value=st.phone;
     seg('s-relation',['むすめ','むすこ','まご'],st.relation,function(v){ st.relation=v; });
@@ -835,6 +966,134 @@ body.demoing{padding-bottom:260px}
       box.appendChild(b);
     });
   }
+
+  // ---------- 家族プラン：1か月のカレンダー ----------
+  var calOff=0, calSel='';
+  function firstAnswerKey(){ var ks=Object.keys(S.answers).sort(); return ks.length?ks[0]:''; }
+  function renderCalendar(){
+    var t=today(), base=new Date(t.getFullYear(), t.getMonth()+calOff, 1, 12);
+    var y=base.getFullYear(), m=base.getMonth(), tk=key(t), first=firstAnswerKey();
+    el('cal-title').textContent=y+'年'+(m+1)+'月';
+    el('cal-next').disabled=calOff>=0;
+    var grid=el('cal-grid'); grid.innerHTML='';
+    var last=new Date(y, m+1, 0).getDate();
+    for(var b=0;b<base.getDay();b++){ var e=document.createElement('span'); e.className='c blank'; grid.appendChild(e); }
+    var answered=0, missed=0;
+    for(var d=1;d<=last;d++){
+      var k=key(new Date(y,m,d,12)), rec=S.answers[k], cls='c';
+      if(rec){ cls+=' on'; answered++; }
+      else if(k===tk) cls+=' today';
+      else if(k>tk) cls+=' future';
+      else if(S.shield.days[k]) cls+=' shield';
+      else if(first && k>first){ cls+=' miss'; missed++; }
+      if(k===calSel) cls+=' sel';
+      var c=document.createElement('button'); c.type='button'; c.className=cls; c.textContent=d; c.setAttribute('data-k',k);
+      if(k<=tk) c.addEventListener('click', function(){ calSel=this.getAttribute('data-k'); renderCalendar(); }); else c.tabIndex=-1;
+      grid.appendChild(c);
+    }
+    el('cal-sum').textContent='この月：'+answered+'日 答えた'+(missed?'・答えなし '+missed+'日':'');
+    var det=el('cal-detail');
+    if(!calSel){ det.textContent='日付を押すと、その日の答えが見られます'; return; }
+    var p=calSel.split('-'), lab=(+p[1])+'/'+(+p[2]), r=S.answers[calSel];
+    if(r){ var what=r.pick<0?'わからない':((r.label?r.label+'・':'')+(r.correct?'せいかい':(r.ans?'こたえは '+r.ans:'まちがい'))); det.textContent=lab+'：'+r.time+' に '+(r.via==='phone'?'電話で 知らせが来ました':'答えました（'+what+'）'); }
+    else if(S.shield.days[calSel]) det.textContent=lab+'：答えなし。お休み保護で、連続記録は切れていません';
+    else if(calSel===tk) det.textContent=lab+'：きょう。まだ答えていません';
+    else det.textContent=lab+'：答えなし';
+  }
+  el('cal-prev').addEventListener('click', function(){ calOff--; calSel=''; renderCalendar(); });
+  el('cal-next').addEventListener('click', function(){ if(calOff<0){ calOff++; calSel=''; renderCalendar(); } });
+
+  // ---------- 家族プラン：今週の元気レポート（本番は毎週月曜の朝に通知でも届く）----------
+  function mins(t){ var p=(t||'').split(':'); return p.length===2?(+p[0])*60+(+p[1]):null; }
+  function hhmm(m){ m=Math.round(m); return Math.floor(m/60)+':'+pad(m%60); }
+  function weekStats(off){ // off=0：きょうまでの7日、off=7：その前の7日
+    var s={days:0, quiz:0, correct:0, phone:0, tsum:0, tn:0};
+    for(var i=off;i<off+7;i++){ var r=S.answers[key(daysAgo(i))]; if(!r) continue; s.days++; if(r.via==='phone') s.phone++; else if(r.pick>=0){ s.quiz++; if(r.correct) s.correct++; } var mm=mins(r.time); if(mm!==null){ s.tsum+=mm; s.tn++; } }
+    return s;
+  }
+  function reportText(){
+    var st=S.settings, a=weekStats(0), b=weekStats(7), diff=a.days-b.days;
+    var t=st.parentName+'さん、今週は 7日中 '+a.days+'日 答えました。';
+    if(a.quiz) t+='クイズは '+a.quiz+'問中 '+a.correct+'問 せいかい。';
+    if(a.phone) t+='電話での知らせが '+a.phone+'日。';
+    if(a.tn) t+='答えた時間は だいたい '+hhmm(a.tsum/a.tn)+'。';
+    t+= diff>0?'先週より '+diff+'日 多いです。':(diff<0?'先週より '+(-diff)+'日 少ないです。':'先週と同じペースです。');
+    var sk=streak(); if(sk>=7) t+='つづけて '+sk+'日。えらい！';
+    return t;
+  }
+  function renderReport(){
+    var a=weekStats(0);
+    el('rep-tiles').innerHTML=
+      '<div class="tile"><b>'+a.days+'<small>/7日</small></b><span>答えた日</span></div>'+
+      '<div class="tile"><b>'+(a.quiz?a.correct+'<small>/'+a.quiz+'問</small>':'–')+'</b><span>せいかい</span></div>'+
+      '<div class="tile"><b>'+(a.tn?hhmm(a.tsum/a.tn):'–')+'</b><span>だいたいの時間</span></div>';
+    el('rep-text').innerHTML=reportText().replace(/(先週より [0-9]+日 (多い|少ない)です)/,'<b>$1</b>');
+  }
+  el('rep-copy').addEventListener('click', function(){
+    var text='【ワンポチ 今週の元気レポート】'+reportText()+' #ワンポチ';
+    function fallback(){ var ta=el('clip'); ta.value=text; ta.select(); try{ document.execCommand('copy'); }catch(e){} toast('コピーしました'); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){ toast('コピーしました'); }, fallback); } else fallback();
+  });
+
+  // ---------- 家族プランのカード（課金ボタンはここだけ。親の画面には出ない）----------
+  var FEATS=[
+    ['📅','1か月のカレンダー。どの日に答えたかが ひと目で'],
+    ['🛡','お休み保護（月'+SHIELDS_PER_MONTH+'回）。答えられなかった日も、連続記録がとぎれない'],
+    ['📝','週1回の元気レポート。答えた日数・せいかい・時間をまとめて'],
+    ['🎁','着せ替え ぜんぶプラン込み。毎月1つ 新作'],
+    ['👪','知らせを受け取る人 5人まで（無料は2人）。答えがない日のSMS 回数制限なし'],
+    ['☎️','ガラケー・家の電話版'],
+    ['👵','複数の親を、1つの契約で']
+  ];
+  function renderPlan(){
+    var box=el('f-plan'), st=S.settings, plus=isPlus();
+    var list='<ul class="feat">'+FEATS.map(function(f){ return '<li><span class="em">'+f[0]+'</span><span>'+f[1]+'</span></li>'; }).join('')+'</ul>';
+    var h='';
+    if(plus){
+      h+='<h3>'+ico('i-check')+'ワンポチ家族プラン<span class="on">加入中</span></h3>';
+      h+='<div class="now"><div>お休み保護 のこり<b>'+shieldsLeft()+'回（今月）</b></div><div>知らせを受け取る人<b>'+(1+st.members.length)+'人 / 5人</b></div></div>';
+      h+=list;
+      h+='<p class="sub">解約は、スマホの定期購入（Google Play / App Store）から。解約しても、毎日の1問と「無事」の知らせは無料のまま続きます。</p>';
+      h+='<button class="btn" type="button" id="plan-go">無料プランに戻す（試作）</button>';
+    }else{
+      h+='<h3>'+ico('i-gift')+'ワンポチ家族プラン</h3>';
+      h+='<div class="price"><b>月200円</b><span>／ 年2,000円（2か月分お得）・はじめの30日は無料</span></div>';
+      h+=list;
+      h+='<div class="free-note">毎日の1問・「無事」の知らせ・答えがない日の知らせは、<b>ずっと無料</b>。親の画面は何も変わりません。</div>';
+      h+='<button class="btn primary" type="button" id="plan-go">30日 無料で試す</button>';
+      h+='<p class="sub">試作：本番ではここで購入画面（Google Play / App Store）が開きます。</p>';
+    }
+    box.innerHTML=h;
+    el('plan-go').addEventListener('click', function(){
+      setPlan(plus?'free':'plus');
+      toast(plus?'無料プランに戻しました（試作）':'家族プランになりました（試作：本番は購入のあと）');
+      if(!plus) el('f-cal').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  }
+
+  // ---------- 知らせを受け取る人（あなた＋ほかの家族。無料2人・家族プラン5人まで）----------
+  function renderMembers(){
+    var box=el('s-members'), st=S.settings, cap=memberCap(), total=1+st.members.length; box.innerHTML='';
+    st.members.forEach(function(m, i){
+      var row=document.createElement('div'); row.className='m';
+      var inp=document.createElement('input'); inp.type='text'; inp.value=m.name; inp.placeholder='名前（例：たかし）'; inp.setAttribute('aria-label','知らせを受け取る人 '+(i+2)+'人目');
+      inp.addEventListener('change', function(){ m.name=this.value.trim(); save(); renderPlan(); });
+      var x=document.createElement('button'); x.type='button'; x.className='x'; x.textContent='✕'; x.setAttribute('aria-label','この人を外す');
+      x.addEventListener('click', function(){ st.members.splice(i,1); save(); renderAll(); });
+      row.appendChild(inp); row.appendChild(x); box.appendChild(row);
+    });
+    var cp=document.createElement('p'); cp.className='cap';
+    if(total<cap){
+      var add=document.createElement('button'); add.type='button'; add.className='add'; add.id='member-add'; add.textContent='＋ 追加する（あと '+(cap-total)+'人）';
+      add.addEventListener('click', function(){ st.members.push({name:''}); save(); renderAll(); var ins=el('s-members').querySelectorAll('input'); if(ins.length) ins[ins.length-1].focus(); });
+      box.appendChild(add);
+      cp.textContent='あなたを含めて '+total+'人 / '+cap+'人まで。'+(isPlus()?'':'家族プランなら 5人まで。');
+    }else{
+      cp.innerHTML= isPlus()?'あなたを含めて 5人まで（いっぱいです）':'無料は あなたを含めて 2人まで。<b>家族プランなら 5人まで</b>（きょうだいで分担できます）';
+    }
+    box.appendChild(cp);
+  }
+
   el('s-parent').addEventListener('change', function(){ S.settings.parentName=this.value.trim()||'おや'; save(); renderAll(); });
   el('s-family').addEventListener('change', function(){ S.settings.familyName=this.value.trim()||'かぞく'; save(); renderAll(); });
   el('s-phone').addEventListener('change', function(){ S.settings.phone=this.value.trim(); save(); renderAll(); });
@@ -885,7 +1144,9 @@ body.demoing{padding-bottom:260px}
   el('d-parent').addEventListener('click', function(){ show('parent'); });
   el('d-family').addEventListener('click', function(){ show('family'); });
   el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; PH.day=''; save(); renderAll(); toast('1日すすめました'); });
-  el('d-reset').addEventListener('click', function(){ PH.day=''; phClear(); fresh(); S.phoneIntro=false; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
+  el('d-reset').addEventListener('click', function(){ var p=S.plan; PH.day=''; phClear(); fresh(); S.plan=p; S.phoneIntro=false; calOff=0; calSel=''; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
+  el('d-free').addEventListener('click', function(){ setPlan('free'); toast('無料プラン（試作）'); });
+  el('d-plus').addEventListener('click', function(){ setPlan('plus'); toast('家族プラン（試作）'); });
 
   var toastTimer;
   function toast(msg){ if(demo) return; var t=el('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.hidden=true; }, 2600); }
@@ -893,6 +1154,8 @@ body.demoing{padding-bottom:260px}
   function renderAll(){
     var d=today();
     el('d-day').textContent=(S.dayOffset===0?'きょう':'+'+S.dayOffset+'日')+'（'+(d.getMonth()+1)+'/'+d.getDate()+' '+WDK[d.getDay()]+'）';
+    el('d-free').setAttribute('aria-pressed', isPlus()?'false':'true'); el('d-plus').setAttribute('aria-pressed', isPlus()?'true':'false');
+    applyShields();
     renderParent(); renderFamily();
   }
 
@@ -1021,8 +1284,14 @@ body.demoing{padding-bottom:260px}
   el('d-demo').addEventListener('click', function(){ if(!demo) runDemo(); });
   el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(runDemo,300); });
   el('end-close').addEventListener('click', function(){ el('endcard').classList.remove('show'); show(S.chosen?'parent':'choose'); window.scrollTo(0,0); });
-  load(); renderAll();
+  load();
+  // 本番アプリからのプラン切り替え：?plan=plus / ?plan=free（URL）、window.wanpochi.setPlan('plus')（WebViewから）、postMessage（iframeから）
+  try{ var qp=new URLSearchParams(location.search).get('plan'); if(qp==='plus'||qp==='free'){ S.plan=qp; save(); } }catch(e){}
+  window.wanpochi={ setPlan:function(p){ setPlan(p); }, getPlan:function(){ return S.plan; } };
+  window.addEventListener('message', function(e){ var m=e&&e.data; if(m&&m.type==='wanpochi:plan') setPlan(m.plan); });
+  renderAll();
   var v='parent'; try{ v=localStorage.getItem(KEY+'_view')||'parent'; }catch(e){} if(v==='choose') v='parent';
+  if(location.search.indexOf('view=family')>=0) v='family';
   show(v);
   if(location.hash==='#demo') setTimeout(runDemo,500);
 })();
