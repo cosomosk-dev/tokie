@@ -811,7 +811,7 @@ body.demoing{padding-bottom:260px}
   function today(){ var d=new Date(); d.setHours(12,0,0,0); return new Date(d.getTime()+S.dayOffset*DAY); }
   function daysAgo(n){ return new Date(today().getTime()-n*DAY); }
   function fresh(){
-    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'panda', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart', members:[{name:'たかし'}], reportDay:'月'}, answers:{}, gifts:[], worn:[], chosen:false, plan:'free', planTerm:'year', planSince:'', planHidden:'', shield:{days:{}}};
+    var s={dayOffset:0, settings:{parentName:'ふみこ', familyName:'ゆか', relation:'むすめ', animal:'dog', alertAfter:2, timeOfDay:'あさ', contact:'SMS', phone:'090-1234-5678', device:'smart', members:[{name:'たかし'}], reportDay:'月'}, answers:{}, gifts:[], worn:[], chosen:false, plan:'free', planTerm:'year', planSince:'', planHidden:'', shield:{days:{}}};
     S=s;
     var times=['8:12','7:55','8:40','9:03','8:21','8:08','7:48','8:33','8:15','9:10','8:02'];
     for(var i=1;i<=11;i++){ s.answers[key(daysAgo(i))]={pick:0, correct:i%5!==0, time:times[i-1], label:''}; }
