@@ -284,6 +284,29 @@ body.demoing .welcome{z-index:52}
 .g-screen .hr span{font-size:12px;opacity:.75}
 .g-screen .hr.on{background:#1E2A24;color:#E7F2EC}
 .ph-hint b{color:var(--ink)}
+.g-screen{height:auto;min-height:168px;justify-content:flex-start}
+.g-screen .inbox{width:100%;text-align:left;font-size:14px}
+.g-screen .ib{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 6px;border-radius:6px;border-bottom:1px solid rgba(30,42,36,.15)}
+.g-screen .ib.on{background:#1E2A24;color:#E7F2EC}
+.g-screen .ib .fr{font-weight:800;white-space:nowrap}
+.g-screen .ib .sj{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.g-screen .ib .tm{font-size:11px;opacity:.75;white-space:nowrap}
+.g-screen .ib .nw{background:#D9442B;color:#fff;font-size:10px;padding:0 5px;border-radius:999px}
+.g-screen .mail{width:100%;text-align:left;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:6px}
+.g-screen .mail .mh{font-size:11px;opacity:.75;border-bottom:1px solid rgba(30,42,36,.3);padding-bottom:3px}
+.g-screen .mail .mh b{display:block;font-size:13px;opacity:1}
+.g-screen .mail .mb{font-weight:500}
+.g-screen .mail .lnk{display:block;background:#1E2A24;color:#E7F2EC;text-align:center;border-radius:8px;padding:8px 6px;font-weight:800;font-size:16px;text-decoration:underline;text-underline-offset:3px}
+.g-screen .mail .lnk.hot{animation:blinkt 1s steps(2) infinite}
+.g-screen .web{width:100%;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px}
+.g-screen .web .url{font-size:10px;opacity:.6;align-self:stretch;text-align:left;border-bottom:1px solid rgba(30,42,36,.3)}
+.g-screen .web .petimg{width:60px}
+.g-screen .web .q{font-family:var(--font-gothic);font-size:15px;font-weight:800;margin:0;line-height:1.3}
+.g-screen .web .ch{display:flex;gap:4px;width:100%}
+.g-screen .web .ch button{flex:1;border-radius:8px;border:1.5px solid #1E2A24;background:#fff;font-size:13px;font-weight:800;padding:6px 2px}
+.g-screen .web .ch button.on{background:#1E2A24;color:#E7F2EC}
+.g-screen .seal2{background:#D9442B;color:#fff;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:17px;transform:rotate(-8deg)}
+.g-keys .call{font-size:14px}
 .know{display:flex;flex-direction:column;gap:10px}
 .know h4{font-size:15px;font-weight:800;margin:4px 0 0}
 .know ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:1.6}
@@ -297,7 +320,7 @@ body.demoing .welcome{z-index:52}
 .g-keys button:active{transform:translateY(2px);box-shadow:0 1px 0 #9C968A}
 .g-keys .call{background:linear-gradient(#5BC27D,#2F8A57);color:#fff;font-size:15px;box-shadow:0 3px 0 #1E5E3A}
 .g-keys .end{background:linear-gradient(#F07A66,#C8382A);color:#fff;font-size:15px;box-shadow:0 3px 0 #8A2216}
-.g-keys .mid{background:linear-gradient(#8B909B,#5E636E);box-shadow:0 3px 0 #3B3F47;pointer-events:none}
+.g-keys .mid{background:linear-gradient(#8B909B,#5E636E);color:#fff;font-size:14px;box-shadow:0 3px 0 #3B3F47}
 .g-keys button.hot{outline:3px solid #F0634A;outline-offset:2px}
 .g-keys button.off{opacity:.4}
 .voice{margin-top:14px;background:var(--white);border:1.5px solid var(--line);border-radius:22px;padding:12px 16px 14px;font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
@@ -448,12 +471,12 @@ body.demoing{padding-bottom:260px}
     </div>
     </div>
     <div id="p-phone" hidden>
-      <div class="ph-head"><span id="ph-title"></span><button type="button" id="ph-mute">🔊 声あり</button></div>
+      <div class="ph-head"><span id="ph-title"></span><button type="button" id="ph-mute" hidden>🔊 声あり</button></div>
       <div class="garake" id="garake">
         <div class="g-ear"></div>
         <div class="g-screen" id="g-screen"></div>
         <div class="g-keys" id="g-keys">
-          <button type="button" class="call" id="g-call">📞 通話</button><button type="button" class="mid" tabindex="-1" aria-hidden="true"></button><button type="button" class="end" id="g-end">切る</button>
+          <button type="button" class="call" id="g-call">✉️ メール</button><button type="button" class="mid" id="g-ok" tabindex="0" aria-label="決定">決定</button><button type="button" class="end" id="g-end">戻る</button>
           <button type="button" id="g-k1">1</button><button type="button" id="g-k2">2</button><button type="button" id="g-k3">3</button>
           <button type="button" id="g-k4">4</button><button type="button" id="g-k5">5</button><button type="button" id="g-k6">6</button>
           <button type="button" id="g-k7">7</button><button type="button" id="g-k8">8</button><button type="button" id="g-k9">9</button>
@@ -462,7 +485,7 @@ body.demoing{padding-bottom:260px}
       </div>
       <div class="voice" id="g-voice" hidden></div>
       <p class="ph-hint" id="g-hint"></p>
-      <button type="button" class="ph-again" id="g-again" hidden>もう一度 電話がかかってくる</button>
+      <button type="button" class="ph-again" id="g-again" hidden>開かなかったら → 昼に もう一度 届く</button>
     </div>
     <div class="done" id="p-result" hidden></div>
   </section>
@@ -519,14 +542,14 @@ body.demoing{padding-bottom:260px}
       <h3><svg class="ico"><use href="#i-check"/></svg>ワンポチで できること・できないこと</h3>
       <div class="can"><h4>できること</h4><ul>
         <li>異変に、早ければ<b>次の日</b>に気づけます。いまは、ひとりで亡くなってから見つかるまで平均18日かかっています</li>
-        <li>寝坊しても大丈夫。着信履歴は消えないので、起きてから かけ直せばOK。昼と夕方にも もう一度鳴らします</li>
+        <li>寝坊しても大丈夫。メールは消えないので、起きてから開けばOK。昼と夕方にも もう一度届きます</li>
         <li>知らせが来たら、画面の電話番号から すぐ電話できます</li>
       </ul></div>
       <div class="cant"><h4>できないこと（知っておいてほしいこと）</h4><ul>
         <li><b>急な病気そのものは防げません。</b>防げるのは「何日も気づかれないこと」です。知らせが来たら、すぐ電話を</li>
         <li>旅行や入院の日は、まちがって知らせが届きます。下の「しばらくお休み」で止めてください</li>
-        <li>電源切れ・圏外・非通知の設定だと、電話版は届きません。非通知なら番号の頭に「186」を</li>
-        <li>留守番電話が早く出る設定だと、ポチの電話が留守電につながることがあります。その日は かけ直しを待ちます</li>
+        <li>電源切れ・圏外だと、メール版は届きません。迷惑メールの設定で止まることもあるので、最初の確認メールで必ず確かめます</li>
+        <li>家の固定電話しかない親には、自動では届けられません。電話で確かめて「元気だった」を記録する形でお使いください</li>
         <li>通信の遅れで、知らせが遅れることがあります。「知らせが来ない＝無事」と決めつけず、気になる日は電話を</li>
         <li>医療機器や緊急通報ではありません。緊急のときは119番へ</li>
       </ul></div>
@@ -539,7 +562,8 @@ body.demoing{padding-bottom:260px}
       <div class="field"><label for="s-parent">親の名前</label><input type="text" id="s-parent"></div>
       <div class="field"><label for="s-family">あなたの名前</label><input type="text" id="s-family"></div>
       <div class="field"><label>親から見たあなた</label><div class="seg" id="s-relation"></div></div>
-      <div class="field"><label>親の電話</label><div class="seg" id="s-device"></div></div>
+      <div class="field"><label>親のケータイ</label><div class="seg" id="s-device"></div></div>
+      <div class="field" id="s-mail-field" hidden><label for="s-mail">親のケータイのメールアドレス</label><input type="text" id="s-mail" inputmode="email" placeholder="例：fumiko@docomo.ne.jp"><p class="sub">親のケータイで「受信許可」の設定が要ることがあります。確認メールのリンクが開けたら登録完了（届かない設定をここで見つけます）。家の固定電話しかない親は、電話で確かめて「元気だった」を記録する形でお使いください。</p></div>
       <div class="field"><label>相棒</label><div class="seg" id="s-animal"></div></div>
       <div class="field"><label>答えが来ないとき、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
@@ -820,121 +844,86 @@ body.demoing{padding-bottom:260px}
     save(); renderParent(); renderFamily();
   }
 
-  // ---------- ガラケー・家の電話：ポチが鳴らす → 親が着信履歴から折り返す ----------
-  // 本番：毎朝ポチの番号（050）から親の電話を2〜3回だけ鳴らして切る（出なければ0円）。
-  // 親が折り返すと、出ずにすぐ切る（Reject・0円）。かかってきた番号で「無事」を家族に知らせる。
-  // 親がうっかり出たら、短い声で「元気だね」と言って切る。それも「無事」。初日だけ、使い方を声で伝える電話を1回かける。
-  var PH={state:'ring', day:'', round:0, timers:[]}, muted=false;
+  // ---------- ガラケー（ガラホ）の親：メール版 ----------
+  // 本番：毎朝、親のケータイのメールアドレスへ「きょうの1問」を1通送る（Amazon SESなど、1通0.01円台。SMSも電話番号も使わない）。
+  // 親がメールの中の大きなリンクを開いた時点で「無事」（URLに親ごとのトークン）。開いたページには1問と3択が出るが、答えなくても無事。
+  // 返信が来た場合も「無事」（本文は何でもOK）。開かれなければ昼・夕方に再送。初回は確認メールで「届く・開ける」を確かめて登録完了。
+  var PH={state:'inbox', day:'', round:0, timers:[], pick:-1}, muted=false;
   var ROUND=['あさ','ひる','ゆうがた'];
-  function phClear(){ PH.timers.forEach(clearTimeout); PH.timers=[]; try{ window.speechSynthesis&&speechSynthesis.cancel(); }catch(e){} }
+  function phClear(){ PH.timers.forEach(clearTimeout); PH.timers=[]; }
   function phLater(fn, ms){ PH.timers.push(setTimeout(fn, ms)); }
-  function speak(t){
-    if(muted) return;
-    try{ if(!window.speechSynthesis) return; speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'')); u.lang='ja-JP'; u.rate=0.95; u.pitch=1.2; speechSynthesis.speak(u); }catch(e){}
-  }
-  function voiceLine(t, label){ var v=el('g-voice'); v.hidden=false; v.setAttribute('data-l', label||'🔊 電話から聞こえる 相棒の声'); v.innerHTML=t; if(!label) speak(t); }
-  function readTime(t){ return Math.max(2600, 900+t.replace(/<[^>]+>/g,'').length*150); }
   function ringTime(){ return (S.settings.timeOfDay==='ひる'?'12:00':(S.settings.timeOfDay==='よる'?'19:00':'8:00')); }
+  function mailSubject(){ var an=ANIMALS[S.settings.animal]; return S.phoneIntro ? an.name+'から：きょうの1問' : an.name+'から：はじめまして（確認）'; }
   function renderPhone(){
-    var st=S.settings, t=key(today()), done=S.answers[t], an=ANIMALS[st.animal];
-    if(PH.day!==t){ phClear(); PH.day=t; PH.round=0; PH.state=done?'done':(S.phoneIntro?'ring':'intro'); if(PH.state==='ring'||PH.state==='intro') autoMiss(); }
-    if(done && ['bye','busy','calling'].indexOf(PH.state)<0) PH.state='done';
-    el('ph-title').textContent='☎️ '+st.parentName+'さんの電話';
-    el('ph-mute').textContent=muted?'🔇 声なし':'🔊 声あり';
-    var sc=el('g-screen'); sc.className='g-screen'; el('g-again').hidden=true;
+    var st=S.settings, t=key(today()), done=S.answers[t], an=ANIMALS[st.animal], qq=questionFor(today());
+    if(PH.day!==t){ phClear(); PH.day=t; PH.round=0; PH.pick=-1; PH.wasIntro=false; PH.state=done?'done':'inbox'; }
+    if(done && PH.state!=='web' && PH.state!=='web-done') PH.state='done';
+    el('ph-title').textContent='📱 '+st.parentName+'さんのケータイ（ガラホ）';
+    var sc=el('g-screen'); sc.className='g-screen'; el('g-again').hidden=true; el('g-voice').hidden=true;
     ['1','2','3','4','5','6','7','8','9','0','s','h'].forEach(function(k){ el('g-k'+k).classList.add('off'); el('g-k'+k).classList.remove('hot'); });
-    var callOn=['intro','ring','missed','history'].indexOf(PH.state)>=0;
-    el('g-call').classList.toggle('off', !callOn);
-    el('g-call').classList.toggle('hot', PH.state==='missed'||PH.state==='history');
-    el('g-end').classList.toggle('off', !(PH.state==='ring'||PH.state==='intro'||PH.state==='history'));
+    el('g-call').classList.toggle('off', PH.state!=='inbox'); el('g-call').classList.toggle('hot', PH.state==='inbox');
+    el('g-ok').classList.toggle('off', !(PH.state==='list'||PH.state==='mail')); el('g-ok').classList.toggle('hot', PH.state==='list'||PH.state==='mail');
+    el('g-end').classList.toggle('off', PH.state==='inbox'||PH.state==='done');
     var hint='';
-    if(PH.state==='intro'||PH.state==='ring'){
-      sc.classList.add('ring');
-      sc.innerHTML=pet(st.animal,S.worn)+'<div class="big">着信中…</div><div class="sm">'+an.name+'（ワンポチ）</div>';
-      el('g-voice').hidden=true;
-      hint = PH.state==='intro'
-        ? 'はじめての日だけ、'+an.name+'が使い方を伝える電話をかけます。<br>緑の「通話」を押して出てください。'
-        : an.name+'が '+ROUND[PH.round]+' 2〜3回だけ鳴らします。<br><b>出なくて大丈夫。</b>鳴りやんだら かけ直してください。';
-    }else if(PH.state==='missed'){
-      sc.innerHTML='<div class="big">不在着信 1件</div><div class="sm">'+an.name+'（ワンポチ）'+ringTime()+'</div>';
-      el('g-voice').hidden=true;
-      hint='緑の「通話」を押すと着信履歴が出ます。<br>もう一度「通話」で、'+an.name+'に かけ直すだけ。';
-      el('g-again').hidden=PH.round>=2; el('g-again').textContent='かけ直さなかったら → '+ROUND[Math.min(PH.round+1,2)]+'に もう一度鳴る';
-    }else if(PH.state==='history'){
-      sc.innerHTML='<div class="hist"><div class="hh">着信履歴</div><div class="hr on">▶ '+an.name+'（ワンポチ）<span>'+ringTime()+'</span></div><div class="hr">'+st.familyName+'<span>きのう</span></div><div class="hr">'+st.familyName+'<span>3日前</span></div></div>';
-      hint='いちばん上の「'+an.name+'」を選んだまま、「通話」を押す。';
-    }else if(PH.state==='calling'){
-      sc.innerHTML=pet(st.animal,S.worn)+'<div class="big">発信中…</div><div class="sm">'+an.name+'（ワンポチ）</div>';
+    if(PH.state==='inbox'){
+      sc.innerHTML=pet(st.animal,S.worn)+'<div class="big">✉️ 新着メール 1件</div><div class="sm">'+mailSubject()+'　'+ringTime()+'</div>';
+      hint = S.phoneIntro
+        ? an.name+'から毎'+st.timeOfDay+'、メールが1通届きます。<br>「メール」ボタンで開いてください。'
+        : 'はじめての日だけ、'+an.name+'から「確認のメール」が届きます。<br>開いてリンクを押せたら、登録完了です。';
+      el('g-again').hidden=PH.round>=2; el('g-again').textContent='開かなかったら → '+ROUND[Math.min(PH.round+1,2)]+'に もう一度 届く';
+    }else if(PH.state==='list'){
+      sc.innerHTML='<div class="inbox"><div class="ib on"><span class="nw">NEW</span><span class="fr">'+an.name+'</span><span class="sj">'+mailSubject()+'</span><span class="tm">'+ringTime()+'</span></div><div class="ib"><span class="fr">'+st.familyName+'</span><span class="sj">写真おくるね</span><span class="tm">きのう</span></div><div class="ib"><span class="fr">'+an.name+'</span><span class="sj">'+an.name+'から：きょうの1問</span><span class="tm">きのう</span></div></div>';
+      hint='いちばん上の「'+an.name+'」を選んだまま、「決定」。';
+    }else if(PH.state==='mail'){
+      var body = S.phoneIntro
+        ? st.parentName+'さん、おはよう。'+an.name+'だよ。<br>きょうの1問：'+qq.q+'<br>したの「ここを押す」を押してね。それだけで '+st.familyName+'さんに「元気だよ」が届くよ。'
+        : st.parentName+'さん、はじめまして。'+an.name+'だよ。<br>あしたから毎'+st.timeOfDay+'、メールを1通送るね。<br>したの「ここを押す」を押せたら、準備OK。<br>'+an.name+'は お名前・住所・お金・暗証番号を聞くことは ぜったいに ないよ。';
+      sc.innerHTML='<div class="mail"><div class="mh">差出人：'+an.name+'（ワンポチ）<b>'+mailSubject()+'</b></div><div class="mb">'+body+'</div><a class="lnk hot" id="g-link" href="#">▶ ここを押す</a></div>';
+      hint='<b>「ここを押す」を選んで「決定」。</b>押した時点で「無事」が届きます。<br>返信をしてもOK（本文は何でも、空でも）。';
+    }else if(PH.state==='web'){
+      sc.innerHTML='<div class="web"><div class="url">wanpochi.app/m/8k2m…</div>'+pet(st.animal,S.worn,true)+'<div class="seal2">無事</div><div class="sm">'+st.familyName+'さんに「元気だよ」が届きました</div>'+(!PH.wasIntro?'<p class="q">'+qq.q+'</p><div class="ch" id="g-ch">'+qq.c.map(function(c,i){ return '<button type="button" data-i="'+i+'">'+c[0]+' '+c[1]+'</button>'; }).join('')+'</div><div class="sm">答えなくても 大丈夫</div>':'<div class="sm">登録できました。あしたから 毎'+st.timeOfDay+'に届きます</div>')+'</div>';
+      hint = !PH.wasIntro ? '開いた時点で「無事」。<b>答えは おまけ</b>。押せたら 相棒がよろこびます。' : '確認できました。<b>登録完了。</b>あしたから 毎'+st.timeOfDay+'に「きょうの1問」が届きます。';
+      Array.prototype.forEach.call(sc.querySelectorAll('#g-ch button'), function(bt){ bt.addEventListener('click', function(){ var i=+this.getAttribute('data-i'); PH.pick=i; var rec=S.answers[t]; if(rec){ rec.pick=i; rec.correct=i===qq.a; rec.label=qq.c[i][1]; rec.ans=qq.c[qq.a][1]; save(); } PH.state='web-done'; renderPhone(); renderFamily(); }); });
+    }else if(PH.state==='web-done'){
+      sc.innerHTML='<div class="web">'+pet(st.animal,S.worn,true)+'<div class="big">'+(PH.pick===qq.a?'せいかい！':'こたえは「'+qq.c[qq.a][1]+'」')+'</div><div class="sm">また あした。</div></div>';
       hint='';
-    }else if(PH.state==='busy'){
-      sc.innerHTML='<div class="big">プー プー プー</div><div class="sm">すぐに切れます</div>';
-      hint='<b>すぐ切れるのが正常です。</b>つながらないので、通話料は0円。<br>これで '+st.familyName+'さんに「無事」が届きます。';
-    }else{ // bye / done
-      sc.innerHTML=pet(st.animal,S.worn,true)+'<div class="big">きょうは 済み</div><div class="sm">また あした '+ROUND[0]+' 鳴らします</div>';
-      if(PH.state==='done') el('g-voice').hidden=true;
+    }else{ // done
+      sc.innerHTML=pet(st.animal,S.worn,true)+'<div class="big">きょうは 済み</div><div class="sm">また あした '+ROUND[0]+' メールが届きます</div>';
     }
     el('g-hint').innerHTML=hint;
   }
-  function autoMiss(){ // 2〜3回鳴らしたら、ポチの方から切る（出なければ0円）
-    phLater(function(){ if(PH.state==='ring'){ PH.state='missed'; renderPhone(); } }, 6500);
-  }
   function commitPhone(how){
     var now=new Date();
-    var rec={pick:-1, correct:false, time:now.getHours()+':'+pad(now.getMinutes()), label:'', via:'phone', how:how};
+    var rec={pick:-1, correct:false, time:now.getHours()+':'+pad(now.getMinutes()), label:'', via:'mail', how:how};
     S.answers[key(today())]=rec; S.hello=false;
     var g=pendingGift(); if(g){ wear(g.id); rec.gift=g.id; }
     save(); renderParent(); renderFamily();
   }
-  function answerRing(){ // 鳴っている電話に出た
-    var st=S.settings, an=ANIMALS[st.animal];
-    phClear();
-    if(PH.state==='intro'){
-      PH.state='bye'; renderPhone();
-      var l1='もしもし、'+st.parentName+'さん。'+an.name+'だよ。はじめまして！';
-      var l2='あしたから毎'+st.timeOfDay+'、ちょっとだけ 電話を鳴らすね。出なくて いいよ。';
-      var l3='鳴りやんだら、かけ直してね。すぐ切れるけど、それで 大丈夫。お金も かからないよ。';
-      var l35='それから、'+an.name+'は お名前や 住所、お金や 暗証番号を 聞くことは ぜったいに ないよ。もし聞かれたら、それは '+an.name+'じゃないからね。';
-      var l4=st.familyName+'さんに「元気だよ」が とどくからね。また あした！';
-      voiceLine(l1); var t=readTime(l1);
-      phLater(function(){ voiceLine(l2); }, t); t+=readTime(l2);
-      phLater(function(){ voiceLine(l3); }, t); t+=readTime(l3);
-      phLater(function(){ voiceLine(l35); }, t); t+=readTime(l35);
-      phLater(function(){ voiceLine(l4); }, t); t+=readTime(l4);
-      phLater(function(){ S.phoneIntro=true; commitPhone('intro'); PH.state='bye'; renderPhone(); }, t);
-      return;
-    }
-    PH.state='bye'; renderPhone();
-    var l=st.parentName+'さん、'+an.name+'だよ。元気だね！'+st.familyName+'さんに 知らせておくね。また あした！';
-    voiceLine(l);
-    phLater(function(){ commitPhone('answered'); PH.state='bye'; renderPhone(); }, readTime(l));
+  function openLink(){ // メールの中のリンクを開いた＝無事
+    var intro=!S.phoneIntro;
+    PH.wasIntro=intro; if(intro) S.phoneIntro=true;
+    commitPhone(intro?'intro':'open'); PH.state='web'; renderPhone();
   }
-  function callBack(){ // 着信履歴から折り返す → 出ずに切る（0円）
-    phClear(); PH.state='calling'; renderPhone(); el('g-voice').hidden=true;
-    phLater(function(){
-      PH.state='busy'; renderPhone();
-      voiceLine('プー、プー、プー（つながらずに切れます）','📞 電話から聞こえる音');
-      phLater(function(){ commitPhone('callback'); PH.state='bye'; renderPhone(); }, 2600);
-    }, 1600);
-  }
-  el('g-call').addEventListener('click', function(){
-    if(PH.state==='ring'||PH.state==='intro') answerRing();
-    else if(PH.state==='missed'){ PH.state='history'; renderPhone(); }
-    else if(PH.state==='history') callBack();
+  el('g-call').addEventListener('click', function(){ if(PH.state==='inbox'){ PH.state='list'; renderPhone(); } });
+  el('g-ok').addEventListener('click', function(){
+    if(PH.state==='list'){ PH.state='mail'; renderPhone(); }
+    else if(PH.state==='mail') openLink();
   });
+  el('g-screen').addEventListener('click', function(e){ var a=e.target.closest&&e.target.closest('#g-link'); if(a){ e.preventDefault(); if(PH.state==='mail') openLink(); } });
   el('g-end').addEventListener('click', function(){
-    if(PH.state==='ring'){ phClear(); PH.state='missed'; renderPhone(); }
-    else if(PH.state==='intro'){ phClear(); PH.state='missed'; renderPhone(); }
-    else if(PH.state==='history'){ PH.state='missed'; renderPhone(); }
+    if(PH.state==='list'){ PH.state='inbox'; renderPhone(); }
+    else if(PH.state==='mail'){ PH.state='list'; renderPhone(); }
+    else if(PH.state==='web'||PH.state==='web-done'){ PH.state='done'; renderPhone(); }
   });
-  el('g-again').addEventListener('click', function(){ PH.round=Math.min(PH.round+1,2); PH.state='ring'; renderPhone(); autoMiss(); });
-  el('ph-mute').addEventListener('click', function(){ muted=!muted; if(muted) try{ speechSynthesis.cancel(); }catch(e){} renderPhone(); });
+  el('g-again').addEventListener('click', function(){ PH.round=Math.min(PH.round+1,2); PH.state='inbox'; renderPhone(); });
+  el('ph-mute').addEventListener('click', function(){ muted=!muted; renderPhone(); });
   function renderResult(rec){
     var st=S.settings;
     var h='<div class="seal">無事</div>';
     h+='<div class="big">'+st.parentName+'さん、<br>きょうも 元気。</div>';
     if(rec.pick>=0){ h+= rec.correct?'<div class="chip">せいかい！</div>':'<div class="note">こたえは「'+rec.ans+'」でした</div>'; }
     else if(rec.ans){ h+='<div class="note">こたえは「'+rec.ans+'」でした</div>'; }
-    if(rec.via==='phone') h+='<div class="note">'+(rec.how==='callback'?'折り返しの電話で 知らせました':'電話に 出ました')+'</div>';
+    if(rec.via==='mail') h+='<div class="note">'+(rec.how==='reply'?'メールの返信で 知らせました':'メールのリンクを 開きました')+'</div>';
     h+='<div class="sent">'+ico('i-check')+st.relation+'の '+st.familyName+'さんに「無事」が とどきました</div>';
     h+='<div class="mini">'+pet(st.animal, S.worn, true)+'<div class="st">つづけて<br><b>'+streak()+'</b> 日</div></div>';
     if(rec.gift&&ITEMS[rec.gift]){ h+='<div class="gift">'+st.relation+'の '+st.familyName+'さんから<br>「'+ITEMS[rec.gift].name+'」が とどきました！</div>'; }
@@ -950,8 +939,8 @@ body.demoing{padding-bottom:260px}
     var s=el('f-status'), h='';
     if(done){
       s.className='status ok';
-      h='<div class="st">'+ico('i-check')+'きょう '+done.time+' に '+(done.via==='phone'?'電話で 知らせが来ました':'答えました')+'</div>';
-      if(done.via==='phone') h+='<div class="sub">'+(done.how==='callback'?an.name+'の電話に 折り返しがありました（通話料0円）':(done.how==='intro'?'はじめての案内電話に 出ました':an.name+'の電話に 出ました'))+'</div>';
+      h='<div class="st">'+ico('i-check')+'きょう '+done.time+' に '+(done.via==='mail'?'メールを 開きました':'答えました')+'</div>';
+      if(done.via==='mail') h+='<div class="sub">'+(done.how==='intro'?'はじめての確認メールのリンクを開きました（登録完了）':(done.how==='reply'?an.name+'のメールに 返信がありました':an.name+'のメールのリンクを開きました'))+(done.pick>=0?'。答え：'+done.label+(done.correct?'（せいかい）':'（こたえは '+done.ans+'）'):'')+'</div>';
       else h+='<div class="sub">きょうの答え：'+(done.pick<0?'わからない':done.label+(done.correct?'（せいかい）':'（こたえは '+done.ans+'）'))+'</div>';
       if(done.gift&&ITEMS[done.gift]) h+='<div class="sub">「'+ITEMS[done.gift].name+'」を受け取りました</div>';
       h+='<div class="sms">'+st.contact+'で届いた知らせ<br><b>【ワンポチ】'+st.parentName+'さん、きょうも無事です（'+done.time+'）</b></div>';
@@ -1008,8 +997,9 @@ body.demoing{padding-bottom:260px}
 
     el('s-parent').value=st.parentName; el('s-family').value=st.familyName; el('s-phone').value=st.phone;
     seg('s-relation',['むすめ','むすこ','まご'],st.relation,function(v){ st.relation=v; });
-    seg('s-device',['smart','phone'],st.device||'smart',function(v){ st.device=v; el('f-sms').hidden=true; },function(v){ return v==='smart'?'📱 スマホ':'☎️ ガラケー・家の電話'; });
-    el('f-send').innerHTML=ico('i-mail')+((st.device==='phone')?'この番号に 電話をかける（試し）':'親のスマホに送る');
+    seg('s-device',['smart','phone'],st.device||'smart',function(v){ st.device=v; el('f-sms').hidden=true; },function(v){ return v==='smart'?'📱 スマホ':'📧 ガラケー（メール）'; });
+    el('s-mail-field').hidden=st.device!=='phone'; el('s-mail').value=st.mail||'';
+    el('f-send').innerHTML=ico('i-mail')+((st.device==='phone')?'確認のメールを送る（試し）':'親のスマホに送る');
     seg('s-animal',['dog','cat','panda','rabbit'],st.animal,function(v){ st.animal=v; },function(v){ return pet(v,[])+'<span>'+ANIMALS[v].name+'</span>'; });
     seg('s-alert',[1,2,3],st.alertAfter,function(v){ st.alertAfter=v; },function(v){ return ['次の日','2日後','3日後'][v-1]; });
     seg('s-time',['あさ','ひる','よる'],st.timeOfDay,function(v){ st.timeOfDay=v; });
@@ -1055,7 +1045,7 @@ body.demoing{padding-bottom:260px}
     var det=el('cal-detail');
     if(!calSel){ det.textContent='日付を押すと、その日の答えが見られます'; return; }
     var p=calSel.split('-'), lab=(+p[1])+'/'+(+p[2]), r=S.answers[calSel];
-    if(r){ var what=r.pick<0?'わからない':((r.label?r.label+'・':'')+(r.correct?'せいかい':(r.ans?'こたえは '+r.ans:'まちがい'))); det.textContent=lab+'：'+r.time+' に '+(r.via==='phone'?'電話で 知らせが来ました':'答えました（'+what+'）'); }
+    if(r){ var what=r.pick<0?'わからない':((r.label?r.label+'・':'')+(r.correct?'せいかい':(r.ans?'こたえは '+r.ans:'まちがい'))); det.textContent=lab+'：'+r.time+' に '+(r.via==='mail'?'メールを開きました'+(r.pick>=0?'（'+what+'）':''):'答えました（'+what+'）'); }
     else if(S.shield.days[calSel]) det.textContent=lab+'：答えなし。家族が「元気だった」と記録した日。連続記録は切れていません';
     else if(calSel===tk) det.textContent=lab+'：きょう。まだ答えていません';
     else if(canRecordOk(calSel)){
@@ -1073,14 +1063,14 @@ body.demoing{padding-bottom:260px}
   function hhmm(m){ m=Math.round(m); return Math.floor(m/60)+':'+pad(m%60); }
   function weekStats(off){ // off=0：きょうまでの7日、off=7：その前の7日
     var s={days:0, quiz:0, correct:0, phone:0, tsum:0, tn:0};
-    for(var i=off;i<off+7;i++){ var r=S.answers[key(daysAgo(i))]; if(!r) continue; s.days++; if(r.via==='phone') s.phone++; else if(r.pick>=0){ s.quiz++; if(r.correct) s.correct++; } var mm=mins(r.time); if(mm!==null){ s.tsum+=mm; s.tn++; } }
+    for(var i=off;i<off+7;i++){ var r=S.answers[key(daysAgo(i))]; if(!r) continue; s.days++; if(r.via==='mail'&&r.pick<0) s.phone++; else if(r.pick>=0){ s.quiz++; if(r.correct) s.correct++; } var mm=mins(r.time); if(mm!==null){ s.tsum+=mm; s.tn++; } }
     return s;
   }
   function reportText(){
     var st=S.settings, a=weekStats(0), b=weekStats(7), diff=a.days-b.days;
     var t=st.parentName+'さん、今週は 7日中 '+a.days+'日 答えました。';
     if(a.quiz) t+='クイズは '+a.quiz+'問中 '+a.correct+'問 せいかい。';
-    if(a.phone) t+='電話での知らせが '+a.phone+'日。';
+    if(a.phone) t+='メールを開いただけの日が '+a.phone+'日。';
     if(a.tn) t+='答えた時間は だいたい '+hhmm(a.tsum/a.tn)+'。';
     t+= diff>0?'先週より '+diff+'日 多いです。':(diff<0?'先週より '+(-diff)+'日 少ないです。':'先週と同じペースです。');
     var sk=streak(); if(sk>=7) t+='つづけて '+sk+'日。えらい！';
@@ -1111,7 +1101,7 @@ body.demoing{padding-bottom:260px}
       ['👪','「妹にも、弟にも届けたい」','知らせを受け取る人を<b>5人まで</b>。払うのは1人、きょうだい全員に届きます']
     ];
   }
-  var MORE='そのほか：週1回の元気レポート（答えた日数・せいかい・時間）／着せ替えぜんぶプラン込み＋毎月1つ新作／答えがない日のSMS 回数制限なし／ガラケー・家の電話版／複数の親を1つの契約で';
+  var MORE='そのほか：週1回の元気レポート（答えた日数・せいかい・時間）／着せ替えぜんぶプラン込み＋毎月1つ新作／答えがない日のSMS 回数制限なし／ガラケー（メール）版／複数の親を1つの契約で';
   var FAQ=[
     ['誰が払うの？','家族のうち1人だけ。きょうだいは無料で、同じ知らせを受け取れます（あなたを含めて5人まで）。'],
     ['親のスマホは、何か変わる？','何も変わりません。課金のボタンも広告も、親の画面には出ません。'],
@@ -1220,12 +1210,13 @@ body.demoing{padding-bottom:260px}
   el('s-parent').addEventListener('change', function(){ S.settings.parentName=this.value.trim()||'おや'; save(); renderAll(); });
   el('s-family').addEventListener('change', function(){ S.settings.familyName=this.value.trim()||'かぞく'; save(); renderAll(); });
   el('s-phone').addEventListener('change', function(){ S.settings.phone=this.value.trim(); save(); renderAll(); });
+  el('s-mail').addEventListener('change', function(){ S.settings.mail=this.value.trim(); save(); });
   el('f-send').addEventListener('click', function(){
     var st=S.settings, b=el('f-sms');
     b.hidden=false;
     if(st.device==='phone'){
-      b.innerHTML='<div class="from">'+st.parentName+'さんの電話（'+st.phone+'）</div><div>まず1回だけ、「'+ANIMALS[st.animal].name+'」が使い方を声で伝える電話をかけます。<br>あすから毎'+st.timeOfDay+'、'+ANIMALS[st.animal].name+'が2〜3回だけ鳴らします。<br><b>親は 出なくていい。着信履歴から かけ直すだけ。</b>すぐ切れて、通話料は0円です。</div><div class="from">ガラケーでも家の電話でも使えます。親の電話に番号を登録する必要はありません。かけ直しがなければ昼と夕方にも鳴らし、'+st.alertAfter+'日続けて かけ直しがないと あなたに知らせます。</div>';
-      S.phoneIntro=false; PH.day=''; save(); toast('案内の電話をかけました（試作のため実際にはかかりません）'); return;
+      b.innerHTML='<div class="from">'+st.parentName+'さんのケータイ（'+(st.mail||'メールアドレス未入力')+'）に届くメール（例）</div><div>件名：'+ANIMALS[st.animal].name+'から：はじめまして（確認）<br>'+st.parentName+'さん、はじめまして。'+ANIMALS[st.animal].name+'だよ。あしたから毎'+st.timeOfDay+'、メールを1通送るね。<br><b>▶ ここを押す</b></div><div class="from">リンクを開けたら登録完了。あすから毎'+st.timeOfDay+'「きょうの1問」が届き、<b>開いた時点で「無事」</b>（答えなくてもOK・返信でもOK）。開かれなければ昼と夕方にもう一度。'+st.alertAfter+'日続けて開かれないと あなたに知らせます。SMSも電話番号も使わないので、通信費はかかりません。</div><div class="from">受信許可の設定：docomo「メール設定→受信リスト」／au「迷惑メールフィルター→受信リスト」／SoftBank「迷惑メールブロック設定→受信許可リスト」に wanpochi.app を追加</div>';
+      S.phoneIntro=false; PH.day=''; save(); renderParent(); toast('確認メールを送りました（試作のため実際には送られません）'); return;
     }
     b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くSMS（例）</div><div>'+st.familyName+'です。これを押すと「'+ANIMALS[st.animal].name+'」が毎'+st.timeOfDay+'あいさつに来ます。押すだけでいいよ。<br><b>wanpochi.app/f/8k2m</b></div><div class="from">リンクを押した瞬間に親の画面になります。名前・相棒・時間はここで決めた通り。親側の登録・コード入力はありません。帰省したときはこのQRを目の前で読ませてもOK。</div>';
     toast('送りました（試作のため実際には送られません）');
@@ -1351,20 +1342,20 @@ body.demoing{padding-bottom:260px}
       await focus(el('p-result'));
       await say('「無事」のハンコが出たら、きょうはおしまい','ここまで10秒くらい。字は大きく、ボタンも大きく');
 
-      // 2.5 ガラケー・家の電話（この章のあとは元に戻す）
-      await chapter(3,'ガラケー・家の電話','スマホがない親でも');
+      // 2.5 ガラケー（メール版）（この章のあとは元に戻す）
+      await chapter(3,'ガラケーの親','スマホがなくても、メールで');
       var snap=JSON.stringify(S);
       S.settings.device='phone'; S.phoneIntro=true; delete S.answers[key(today())]; PH.day=''; renderAll(); show('parent'); window.scrollTo(0,0); await sleep(400);
-      await say('スマホがない親には、相棒が毎朝 電話を鳴らします','ガラケーでも、家の電話でもOK。親の電話に番号を登録する必要もありません');
+      await say('スマホがない親には、相棒が毎朝 メールを1通送ります','ガラケー（ガラホ）でOK。電話番号もSMSも使いません');
       await focus(el('garake'));
-      line('2〜3回だけ鳴って、相棒の方から切ります','親は出なくて大丈夫。出なければ 0円');
-      for(var w=0; w<60 && PH.state!=='missed'; w++){ await sleep(250); chk(); }
-      await sleep(900); chk();
-      line('鳴りやんだら、着信履歴から かけ直すだけ','「通話」→ もう一度「通話」。ボタン2つ'); await tap(el('g-call')); await sleep(900); await tap(el('g-call')); fg.hidden=true;
-      for(var w2=0; w2<60 && !S.answers[key(today())]; w2++){ await sleep(250); chk(); }
-      await say('かけ直した電話は、つながらずに すぐ切れます','通話料は0円。それで家族に「無事」が届きます');
+      line('「メール」を押して、いちばん上を「決定」'); await tap(el('g-call')); await sleep(700); await tap(el('g-ok')); await sleep(600); fg.hidden=true;
+      await say('メールの中に、大きなリンクが1つだけ','「ここを押す」。それだけ');
+      line('「決定」で開く'); await tap(el('g-ok')); await sleep(900); fg.hidden=true;
+      for(var w2=0; w2<40 && !S.answers[key(today())]; w2++){ await sleep(250); chk(); }
+      await say('開いた時点で「無事」が家族に届きます','答えは おまけ。答えなくても大丈夫。返信でもOK');
+      var cb=el('g-screen').querySelector('#g-ch button'); if(cb){ line('答えると、相棒がよろこびます'); await tap(cb); await sleep(700); fg.hidden=true; }
       await focus(el('p-result'));
-      await say('寝坊しても大丈夫。昼と夕方にも もう一度鳴らします','着信履歴は消えないので、起きてから かけ直せばOK');
+      await say('寝坊しても大丈夫。昼と夕方にも もう一度届きます','メールは消えないので、起きてから開けばOK');
       phClear(); S=JSON.parse(snap); PH.day=''; renderAll(); show('parent');
 
       await chapter(4,'家族のスマホ','離れて暮らす家族が見る画面');
@@ -1398,7 +1389,7 @@ body.demoing{padding-bottom:260px}
       await focus(el('s-animal'));
       await say('設定は家族の画面にだけあります','親の画面には、メニューも設定も出ません');
       await focus(el('s-device'));
-      await say('親がガラケーなら、ここで「ガラケー・家の電話」をえらぶだけ','最初に1回、相棒が使い方を声で伝えます。あすから毎朝 鳴らします');
+      await say('親がガラケーなら、ここで「ガラケー（メール）」をえらんで、メールアドレスを入れるだけ','最初に1回、確認のメールが届きます。リンクが開けたら登録完了');
       await focus(el('s-animal'));
       line('相棒も、ここで変えられます'); await tap(el('s-animal-rabbit')); await sleep(700); await tap(el('s-animal-panda')); await sleep(300); fg.hidden=true;
       await focus(el('s-alert'));
