@@ -654,7 +654,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v26";
+  const APP_VER="2026-10-22 v27";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -684,15 +684,15 @@
   const MAX_MEMORY_CHARS=24000;
   // ElevenLabsへ入店時に渡すデータは1回64,000バイトまで（超えると「cannot publish data packet larger than 64000 bytes」で入れへん）。
   // 日本語は1文字3バイトなので文字数ではなくバイトで区切る。挨拶など他の項目の分も残して40,000バイトまで。
-  const MEMORY_BUDGET_BYTES=34000, PROFILE_MAX_BYTES=15000, DIGEST_MAX_BYTES=9000; // v15: 44000→22000。手帳が長すぎて今夜の会話の流れが埋もれてた
+  const MEMORY_BUDGET_BYTES=40000, PROFILE_MAX_BYTES=15000, DIGEST_MAX_BYTES=9000; // v15: 44000→22000。手帳が長すぎて今夜の会話の流れが埋もれてた
   // v25: 22000→34000・基本情報6000→15000（約5,000字ぜんぶ）。基本情報（仕事・実績・夢＝コスモスK・都知事選など）がカウンター席で数百字まで削られて「昨日まで覚えてたのに忘れた」になった。今夜の流れは途中メモ・今夜の要点で別に渡してるので、基本情報を最優先に戻す
   const _enc=new TextEncoder();
   function jbytes(t){return _enc.encode(JSON.stringify(String(t||""))).length-2;}
   function clipBytes(t,max){t=String(t||"");if(jbytes(t)<=max)return t;let lo=0,hi=t.length;while(lo<hi){const m=Math.ceil((lo+hi)/2);if(jbytes(t.slice(0,m))+4<=max)lo=m;else hi=m-1;}return t.slice(0,lo)+"…";}
   const SILENCE_DISCOUNT_AFTER=10000; // 10秒を超えた無音から割引
   const SILENCE_RATE=0.05;            // 無音は通常の5%（95%引き）
-  const empty=()=>({profile:"",visits:[],lt:[]});
-  function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[],lt:Array.isArray(b.lt)?b.lt:[]}:empty();}catch(e){return empty();}}
+  const empty=()=>({profile:"",visits:[],lt:[],threads:[]});
+  function loadBook(){try{const b=JSON.parse(localStorage.getItem(KEY)||"null");return (b&&typeof b==="object")?{profile:b.profile||"",visits:Array.isArray(b.visits)?b.visits:[],lt:Array.isArray(b.lt)?b.lt:[],threads:Array.isArray(b.threads)?b.threads:[]}:empty();}catch(e){return empty();}}
   let saveWarned=false;
   function saveBook(b){
     try{localStorage.setItem(KEY,JSON.stringify(b));return true;}
@@ -1164,9 +1164,10 @@
     const ls=String(text||"").split("\n").map(l=>l.replace(/^[・\-\*\s#■]+/,"").trim()).filter(Boolean);
     return clip(ls.slice(0,3).join("／"),len);
   }
-  function visitDetail(v,cap,label){
-    const memo=v.mamaNote?("ママが書いたまとめ: "+v.mamaNote+"\n"+clipLines(keyLines(v.memo,14,90).map(t=>"客: "+t).join("\n"),14))
-                         :keyLines(v.memo,16,90).map(t=>"客: "+t).join("\n");
+  function visitDetail(v,cap,label,nLines){
+    const nl=nLines||16;
+    const memo=v.mamaNote?("ママが書いたまとめ: "+v.mamaNote+"\n"+clipLines(keyLines(v.memo,nl,90).map(t=>"客: "+t).join("\n"),nl))
+                         :keyLines(v.memo,nl,90).map(t=>"客: "+t).join("\n");
     return clipBytes(`${label}（${v.date} ${v.time}・${v.mins}分）\n${memo||"（中身のメモなし）"}`,cap);
   }
   // 自動メモの前置き（「会話履歴は読めへんかった」等）はママには要らんので外す
@@ -1195,6 +1196,107 @@
     for(const x of a){const line=`・${x.date||""}：${clip(String(x.desc).replace(/\s+/g," "),110)}\n`;if(jbytes(h+body+line)>maxBytes)break;body+=line;}
     return body?(h+body).trim():"";
   }
+  /* ───────── v27「ほんまのスナックのママ」の記憶：直近の話がいちばん、基本情報は要約 ─────────
+     本物のママは「あれどうなったん？」「その後どない進んでるん？」と、直近の話の続きを覚えてる。
+     優先順（入りきらん時は下から削る）：
+       ①話の続き帳 ②直近3回の来店 ③今日の出来事 ④何回も言うた話 ⑤昨日の出来事 ⑥見せてもろた写真
+       ⑦基本情報（要約・核だけ） ⑧手書きメモ ⑨1ヶ月の記憶 */
+  const MEM_PLAN=[["threads",2200],["v0",4200],["v1",2600],["v2",1600],["today",6000],["lt",3200],["yday",2600],["photo",900],["profile",4500],["notes",1500],["month",3500]];
+
+  /* 話の続き帳：進行中の話・これからやること・結果待ちを、お会計のたびに拾う（片付いたら閉じる・21日出えへんかったら消える） */
+  const TH_MAX=14, TH_DAYS=21;
+  function threadsOpen(){return (loadBook().threads||[]).filter(x=>x&&!x.done&&(Date.now()-(x.lastTs||0))<TH_DAYS*86400000);}
+  function threadsBlock(maxBytes){
+    const a=threadsOpen().sort((x,y)=>(y.lastTs||0)-(x.lastTs||0));
+    if(!a.length)return "";
+    const h="【話の続き（前に聞いた、まだ途中の話。ほんまのスナックのママみたいに「あれどうなったん？」「その後どない進んでるん？」と気にかける。入って最初の方で1つだけ自然に聞いて、返ってきた話をちゃんと拾う。全部いっぺんに聞かへん。聞かれる前に結果を決めつけへん）】\n";
+    let body="";
+    for(const x of a){
+      const ago=Math.max(0,Math.round((Date.now()-(x.lastTs||Date.now()))/86400000));
+      const line=`・${x.t}（${ago?ago+"日前":"今日"}に聞いた${x.next?"／次に気になること："+x.next:""}）\n`;
+      if(jbytes(h+body+line)>maxBytes)break;body+=line;
+    }
+    return body?(h+body).trim():"";
+  }
+  const TH_PROMPT="あなたはスナックのママの手帳係（話の続き係）です。常連客タケオさんの今夜の言葉を読んで、ママが次に来た時に「あれどうなったん？」と聞けるように、【話の続き帳】を更新してください。\n"+
+    "拾うのは「まだ途中で、この先に結果や進展がある話」だけ：進めてる仕事やアプリ（次の段取り）、これからやると言ったこと、結果待ち（審査・返事・数字）、会う予定・LINEしてる相手との進展、迷ってて決めてない話、体調で様子を見てること。\n"+
+    "拾わない：もう終わった話、その場の雑談、ずっと変わらない事実（それは基本情報）。\n"+
+    "ルール：\n1. 帳にある話で、今夜「片付いた・結果が出た・やめた」と分かったものは status を \"done\" にする。進展があったら t と next を書き直す。今夜出てない話は出さない。\n"+
+    "2. 新しい話は id を \"new\" にして書く。t＝何の話か（40字以内・具体的に。固有名詞を残す）、ask＝ママが聞く時の短い言い方（20字以内・「〜の件」「〜の発注」のような名詞句）、next＝次に気になること（25字以内）。\n"+
+    "3. 作り話はしない。客が言ってないことは書かない。新しい話は今夜1〜5件まで。\n"+
+    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"status\":\"open\",\"t\":\"…\",\"ask\":\"…\",\"next\":\"…\"}]}";
+  // 話の続き帳が空の時だけ、最近2日の自動メモ（Claudeとのやりとり）から最初の続きを拾う（1回だけ）
+  async function seedThreadsFromDigest(d){
+    try{
+      if(!gKey()||localStorage.getItem("tokie_threads_seeded_v1")||threadsOpen().length)return;
+      if(!d||d.status!=="ok"||!d.days.length)return;
+      const lines=d.days.slice(0,2).flatMap(x=>digestClean(x.text).split("\n")).map(l=>l.replace(/^・/,"").trim()).filter(l=>l.length>=6&&!/頼みたい/.test(l));
+      if(!lines.length)return;
+      localStorage.setItem("tokie_threads_seeded_v1","1");
+      await updateThreads(lines.map(t=>({who:"user",text:t})));
+    }catch(e){}
+  }
+  async function updateThreads(msgs){
+    if(!gKey())return;
+    const lines=(msgs||[]).filter(m=>m.who!=="ai").map(m=>String(m.text||"").trim()).filter(t=>t.length>=4);
+    if(lines.length<2)return;
+    const open=threadsOpen().map(x=>({id:x.id,t:x.t,next:x.next||""}));
+    let said=lines.map(t=>"・"+clip(t,160)).join("\n");if(said.length>24000)said=said.slice(-24000);
+    const out=await geminiText(TH_PROMPT+"\n\n【話の続き帳（今まで・まだ途中の話）】\n"+JSON.stringify({items:open})+"\n\n【今夜の客の言葉（古い→新しい）】\n"+said,{json:true,max:4096});
+    if(!out)return;
+    let j=null;try{j=JSON.parse(out.replace(/^[^{]*/,"").replace(/[^}]*$/,""));}catch(e){return;}
+    if(!j||!Array.isArray(j.items))return;
+    const bb=loadBook();const list=(bb.threads||[]).slice();const now=Date.now(),today=jstDate(new Date());
+    let added=0;
+    for(const y of j.items){
+      if(!y)continue;
+      const t=String(y.t||"").trim().slice(0,60),ask=String(y.ask||"").trim().slice(0,30),next=String(y.next||"").trim().slice(0,40);
+      let x=(y.id&&y.id!=="new")?list.find(z=>z.id===String(y.id)):null;
+      if(!x){
+        if(!t||y.status==="done"||added>=5)continue;
+        x={id:"T"+now.toString(36)+Math.random().toString(36).slice(2,5),t,ask:ask||clip(t,20),next,first:today,last:today,lastTs:now,done:false};list.unshift(x);added++;continue;
+      }
+      if(y.status==="done"){x.done=true;x.doneAt=today;}
+      if(t)x.t=t;if(ask)x.ask=ask;if(next)x.next=next;x.last=today;x.lastTs=now;
+    }
+    // 閉じた話は30件まで残して、古い順に消す。開いてる話は TH_MAX 件まで
+    const openL=list.filter(x=>!x.done&&(now-(x.lastTs||0))<TH_DAYS*86400000).slice(0,TH_MAX);
+    const doneL=list.filter(x=>x.done).slice(0,30);
+    bb.threads=[...openL,...doneL];saveBook(bb);
+  }
+  // 入店の第一声で聞く「あれどうなったん？」（前回聞いた話は後回しにして、順番に聞く）
+  function threadAsk(){
+    const a=threadsOpen().filter(x=>x.ask).sort((x,y)=>((x.askedTs||0)-(y.askedTs||0))||((y.lastTs||0)-(x.lastTs||0)));
+    return a[0]||null;
+  }
+  function markAsked(id){try{const b=loadBook();const x=(b.threads||[]).find(z=>z.id===id);if(x){x.askedTs=Date.now();saveBook(b);}}catch(e){}}
+
+  /* 基本情報の要約（核だけ・約1,500字）。基本情報が変わった時だけ作り直す。キーが無い時は頭と最後を残して真ん中を省く */
+  const PCORE_KEY="tokie_profile_core_v1";
+  const pHash=(t)=>{let h=0;for(const c of String(t))h=(h*31+c.charCodeAt(0))|0;return String(t.length)+":"+(h>>>0).toString(36);};
+  function headTail(t,max){t=String(t||"");if(jbytes(t)<=max)return t;const a=clipBytes(t,Math.floor(max*0.62));let lo=0,hi=t.length;const want=Math.floor(max*0.34);
+    while(lo<hi){const m=Math.floor((lo+hi)/2);if(jbytes(t.slice(m))>want)lo=m+1;else hi=m;}return a+"\n…（中略）…\n"+t.slice(lo);}
+  function profileCore(maxBytes){
+    const p=loadBook().profile.trim();if(!p)return "";
+    let c=null;try{c=JSON.parse(localStorage.getItem(PCORE_KEY)||"null");}catch(e){}
+    if(c&&c.h===pHash(p)&&c.t)return clipBytes(c.t,maxBytes);
+    return headTail(p,maxBytes);
+  }
+  const PCORE_PROMPT="あなたはスナックのママの手帳係（基本情報の要約係）です。下の「お客さんの基本情報」を、ママが頭に入れとく核だけ1,400字以内に要約してください。\n"+
+    "必ず残す：名前・仕事・肩書き、実績（数字はそのまま）、夢・目標・将来の構想、家族・大事な人、体調で気をつけること、好き嫌い、こだわり。固有名詞と数字は消さない。\n"+
+    "削ってよい：細かい経緯・同じ話の繰り返し・飾りの言葉。箇条書き（・）で。前置き不要。";
+  let pcoreBusy=null;
+  async function ensureProfileCore(){
+    const p=loadBook().profile.trim();if(!p||!gKey())return;
+    if(jbytes(p)<=4400)return; // 短い時は要約せんでもそのまま入る
+    let c=null;try{c=JSON.parse(localStorage.getItem(PCORE_KEY)||"null");}catch(e){}
+    if(c&&c.h===pHash(p))return;
+    if(pcoreBusy)return pcoreBusy;
+    pcoreBusy=(async()=>{try{const t=await geminiText(PCORE_PROMPT+"\n\n【お客さんの基本情報】\n"+p.slice(0,20000),{max:4096});
+      if(t&&t.length>200)localStorage.setItem(PCORE_KEY,JSON.stringify({h:pHash(p),t:t.trim(),at:Date.now()}));}catch(e){}finally{pcoreBusy=null;}})();
+    return pcoreBusy;
+  }
+
   function buildMemory(extension,digest,budget){
     const B=budget||MEMORY_BUDGET_BYTES;
     const b=loadBook();const S=settings();
@@ -1204,49 +1306,60 @@
       head.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
       if(current){const ns=nightSumText();if(ns)head.push(ns.trim());head.push(tonightBlock(30));}
     }
-    const lt=ltBlock();
-    // v24: 今日のClaudeとのやりとり（自動メモ）は別枠で優先して丸ごと渡す。前は「最近2日」で1,800バイトを分け合ってて、今日の分は最初の2行しか届いてへんかった（カウンター席はゼロ）
-    const dayList=(digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
-    const todayDig=todayDigestBlock(dayList,B>=MEMORY_BUDGET_BYTES?7000:4200);
-    const photoMem=recentPhotosBlock(900);
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=toneReminder(S.strength);
-    // v25: 基本情報は最優先の固定枠（ほかの枠と割合で縮めへん）。ここに仕事・実績・夢が全部書いてある
-    const profile="【お客さんの基本情報（タケオさんのいちばん大事な前提。仕事・実績・夢・将来の構想。ここに書いてあることは全部知ってる前提で話す。「初めて聞いた」顔は絶対せん）】\n"+clipBytes(b.profile.trim()||"（まだ書いてない）",PROFILE_MAX_BYTES);
-    const fixed=[...head,...core,tail,lt,todayDig,profile,photoMem].reduce((n,x)=>n+jbytes(x)+SEP,0);
-    // 残りを各枠に配る。全部の上限を足して入りきらん時は、同じ割合で縮める（どの枠もゼロにはせえへん）
-    const R=Math.max(3000,B-fixed-SEP*8);
-    const want=MEM_CAPS.latest+MEM_CAPS.prev+MEM_CAPS.month+MEM_CAPS.recentDigest+MEM_CAPS.notes;
-    const k=Math.min(1,R/want);
-    const cap=(x)=>Math.floor(x*k);
+    let room=B-[...head,...core,tail].reduce((n,x)=>n+jbytes(x)+SEP,0)-SEP*12;
 
     const visits=b.visits.filter(v=>v.kind!=="note"&&!(extension&&current&&v.id===current.id));
     const notes=b.visits.filter(v=>v.kind==="note");
-    const days=dayList;
+    const days=(digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
     const todayKey=dkey(todayBiz());
-    const olderDays=days.filter(x=>dkey(x.date)!==todayKey); // 今日の分は上の別枠で渡してる
-
-    // ① 前回・その前の来店（詳しめ）
-    const recent=[];
-    if(visits[0])recent.push(visitDetail(visits[0],cap(MEM_CAPS.latest),"【前回の来店】"));
-    // 2つめは「前の日」の来店（同じ日に何回も来ても、昨日の話が押し出されへんように）
-    const prevDay=visits[0]?visits.find(v=>dkey(vBiz(v))!==dkey(vBiz(visits[0]))):null;
-    const prev=prevDay||visits[1];
-    if(prev)recent.push(visitDetail(prev,cap(MEM_CAPS.prev),prevDay?"【前の日の来店】":"【その前の来店】"));
-
-    // ② 最近2日の自動メモ（Claudeとのやりとり。詳しめ）
-    let rdig="";
-    if(olderDays.length){
-      const h="【前の日にタケオさんの身に起きたこと（毎日の自動メモ）】\n";
-      const c=cap(MEM_CAPS.recentDigest);let body="";
-      for(const x of olderDays.slice(0,1)){
-        body+=clipBytes(`■${x.date}\n${digestClean(x.text)}`,c-jbytes(h))+"\n";
-      }
-      rdig=h+body.trim();
+    const olderDays=days.filter(x=>dkey(x.date)!==todayKey);
+    // 直近3回の来店（2つめ以降は「別の日」を優先：同じ日に何回も来ても、前の日の話が押し出されへんように）
+    const picks=[];
+    if(visits[0]){picks.push(visits[0]);
+      for(const v of visits.slice(1)){if(picks.length>=3)break;if(!picks.some(p=>dkey(vBiz(p))===dkey(vBiz(v))))picks.push(v);}
+      for(const v of visits.slice(1)){if(picks.length>=3)break;if(!picks.includes(v))picks.push(v);}
     }
+    const VLABEL=["【前回の来店（いちばん新しい話。ここの続きを気にかける）】","【その前の来店】","【3回前の来店】"];
+    const VLINES=[30,16,8];
 
-    // ③ この1ヶ月の記憶（1日1行。店で話したこと＋その日の出来事）
+    const make={
+      threads:(c)=>threadsBlock(c),
+      v0:(c)=>picks[0]?visitDetail(picks[0],c,VLABEL[0],VLINES[0]):"",
+      v1:(c)=>picks[1]?visitDetail(picks[1],c,VLABEL[1],VLINES[1]):"",
+      v2:(c)=>picks[2]?visitDetail(picks[2],c,VLABEL[2],VLINES[2]):"",
+      today:(c)=>todayDigestBlock(days,c),
+      lt:(c)=>ltBlockCap(c),
+      yday:(c)=>{if(!olderDays.length)return "";const h="【昨日（前の日）タケオさんの身に起きたこと（毎日の自動メモ）】\n";return clipBytes(h+`■${olderDays[0].date}\n${digestClean(olderDays[0].text)}`,c);},
+      photo:(c)=>recentPhotosBlock(c),
+      profile:(c)=>{const t=profileCore(c-400);return t?"【お客さんの基本情報（核だけの要約。仕事・実績・夢・将来の構想。知ってる前提で話す）】\n"+t:"";},
+      notes:(c)=>{if(!notes.length)return "";const h="【お客さんについてママが書き留めたこと（新しい順）】\n";let body="";
+        for(const n of notes){const block=`■${n.date}に書いたメモ\n${n.memo}\n`;const r=c-jbytes(h+body);if(r<200)break;body+=jbytes(block)>r?clipBytes(block,r)+"\n":block;}return body?h+body.trim():"";},
+      month:(c)=>monthBlock(visits,days,c),
+    };
+    const got={};
+    for(const [k,cap] of MEM_PLAN){
+      if(room<300)break;
+      const t=make[k](Math.min(cap,room));
+      if(t){got[k]=t;room-=jbytes(t)+SEP;}
+    }
+    // 並び：変わらん話→最近の話→いちばん新しい話（末尾ほど新しい。モデルは末尾をよう覚えてる）
+    const parts=[...head];
+    if(got.profile)parts.push(got.profile);
+    if(got.lt)parts.push(got.lt);
+    parts.push(...core);
+    for(const k of ["month","notes","yday","photo","today"])if(got[k])parts.push(got[k]);
+    if(!visits.length)parts.push("【これまでの来店】\n（初来店。まだ何も書いてない）");
+    for(const k of ["v2","v1","v0"])if(got[k])parts.push(got[k]);
+    if(got.threads)parts.push(got.threads);
+    parts.push(tail);
+    let out=parts.join("\n\n");
+    if(jbytes(out)>B)out=clipBytes(out,B); // 念のための最後の安全弁（64KB超えで入れへん事故を防ぐ）
+    return out;
+  }
+  function monthBlock(visits,days,c){
     const byDay=new Map();
     const today=dkey(todayBiz());
     const since=Date.now()-31*86400000;
@@ -1258,59 +1371,19 @@
     }
     for(const x of days){const key=dkey(x.date);if(!key)continue;if(!byDay.has(key))byDay.set(key,{v:[],d:""});byDay.get(key).d=x.text;}
     const keys=[...byDay.keys()].filter(x=>{const t=Date.parse(x+"T00:00:00+09:00");return !isNaN(t)&&t>=since-86400000;}).sort().reverse();
-    let month="";
-    if(keys.length){
-      const h="【この1ヶ月の記憶（1日1行の断片・新しい順）】\n";
-      const c=cap(MEM_CAPS.month);let body="";
-      for(const key of keys){
-        const e=byDay.get(key);
-        const mins=e.v.reduce((n,v)=>n+(v.mins||0),0);
-        const shop=e.v.length?`店${e.v.length}回${mins}分: `+e.v.slice(0,2).map(v=>visitGist(v,e.v.length>1?45:80)).join("／"):"";
-        const life=e.d?"その日: "+digestGist(e.d,e.v.length?50:90):"";
-        const tag=key===today?"（今日）":"";
-        const line=clipBytes(`■${shortDate(key)}${tag} `+[shop,life].filter(Boolean).join(" ｜ "),MEM_CAPS.monthDay);
-        if(jbytes(h+body+line+"\n")>c)break;
-        body+=line+"\n";
-      }
-      if(body)month=h+body.trim();
+    if(!keys.length)return "";
+    const h="【この1ヶ月の記憶（1日1行の断片・新しい順）】\n";let body="";
+    for(const key of keys){
+      const e=byDay.get(key);
+      const mins=e.v.reduce((n,v)=>n+(v.mins||0),0);
+      const shop=e.v.length?`店${e.v.length}回${mins}分: `+e.v.slice(0,2).map(v=>visitGist(v,e.v.length>1?45:80)).join("／"):"";
+      const life=e.d?"その日: "+digestGist(e.d,e.v.length?50:90):"";
+      const tag=key===today?"（今日）":"";
+      const line=clipBytes(`■${shortDate(key)}${tag} `+[shop,life].filter(Boolean).join(" ｜ "),MEM_CAPS.monthDay);
+      if(jbytes(h+body+line+"\n")>c)break;
+      body+=line+"\n";
     }
-
-    // ④ 手書きメモ（新しい順・入る分だけ。1件が長くても切って入れる）
-    let ntxt="";
-    if(notes.length){
-      const h="【お客さんについてママが書き留めたこと（新しい順）】\n";
-      const c=cap(MEM_CAPS.notes);let body="";
-      for(const n of notes){
-        const block=`■${n.date}に書いたメモ\n${n.memo}\n`;
-        const room=c-jbytes(h+body);
-        if(room<200)break;
-        body+=jbytes(block)>room?clipBytes(block,room)+"\n":block;
-      }
-      ntxt=h+body.trim();
-    }
-
-
-    const parts=[...head,profile];if(lt)parts.push(lt);parts.push(...core);
-    if(month)parts.push(month);
-    if(rdig)parts.push(rdig);
-    if(todayDig)parts.push(todayDig);
-    if(photoMem)parts.push(photoMem);
-    if(ntxt)parts.push(ntxt);
-    if(!visits.length)parts.push("【これまでの来店】\n（初来店。まだ何も書いてない）");
-    else parts.push(...recent.slice().reverse()); // その前→前回の順。前回の話が最後（tailの直前）に来る
-    parts.push(tail);
-    let out=parts.join("\n\n");
-    // 入りきらん時は、1ヶ月の記憶→手書きメモ→前の日の自動メモの順に削って、基本情報は最後（v25: 基本情報を先に削ってたのを逆に）。
-    // 末尾（今日の自動メモ・前回の来店・念押し）は切らへん。
-    for(const target of [month,ntxt,rdig,profile]){
-      if(jbytes(out)<=B)break;
-      const i=target?parts.indexOf(target):-1;if(i<0)continue;
-      const over=jbytes(out)-B+64;
-      parts[i]=clipBytes(target,Math.max(target===profile?9000:400,jbytes(target)-over));
-      out=parts.join("\n\n");
-    }
-    if(jbytes(out)>B)out=clipBytes(out,B); // 念のための最後の安全弁（64KB超えで入れへん事故を防ぐ）
-    return out;
+    return body?h+body.trim():"";
   }
   // 今夜の会話の流れ（延長で入り直す時と、途中で渡す【今夜の流れ】メモ用）
   function tonightBlock(nTurns){
@@ -1398,7 +1471,9 @@
   function ltScore(x){const days=(Date.now()-(x.lastTs||Date.now()))/86400000;return (ltHot(x)?1000:0)+(x.pin?500:0)+ltImp(x)*10+ltTotal(x)*3-Math.min(30,days)/3;}
   function ltList(){return (loadBook().lt||[]).map(ltNorm);}
   (function ltMigrate(){try{const b=loadBook();if((b.lt||[]).some(x=>!x.id||!x.nights)){b.lt=b.lt.map(ltNorm);saveBook(b);}}catch(e){}})();
-  function ltBlock(){
+  function ltBlockCap(cap){const o=LT_BYTES;try{return ltBlockInner(Math.min(cap,LT_BYTES+LT_SUB_BYTES));}catch(e){return "";}}
+  function ltBlock(){return ltBlockInner(LT_BYTES+LT_SUB_BYTES);}
+  function ltBlockInner(maxAll){
     const all=ltList().sort((a,c)=>ltScore(c)-ltScore(a));
     const hot=all.filter(ltHot);
     let out="";
@@ -1408,7 +1483,7 @@
       for(const x of hot){
         const tag=x.pin?"覚えといてと言われた":`${ltImp(x)>=5?"いちばん大事・":ltImp(x)>=4?"大事・":""}${ltTotal(x)}回聞いた`;
         const line="・"+x.t+"（"+tag+"）\n";
-        if(jbytes(h+body+line)>LT_BYTES)break;
+        if(jbytes(h+body+line)>Math.min(LT_BYTES,maxAll))break;
         body+=line;
       }
       out=(h+body).trim();
@@ -1417,7 +1492,7 @@
     const sub=all.filter(x=>!ltHot(x)&&ltImp(x)>=4);
     if(sub.length){
       const h="【最近出てきた大事そうな話（まだ数えてる途中）】\n";let body="";
-      for(const x of sub){const line="・"+x.t+"\n";if(jbytes(h+body+line)>LT_SUB_BYTES)break;body+=line;}
+      for(const x of sub){const line="・"+x.t+"\n";if(jbytes(h+body+line)>Math.min(LT_SUB_BYTES,maxAll-jbytes(out)-4))break;body+=line;}
       if(body)out+=(out?"\n\n":"")+(h+body).trim();
     }
     return out;
@@ -1752,6 +1827,10 @@
     if(ti)return `あら、${ti.name}やないの。いらっしゃい。ほら、いつもの席あけといたで。`;
     if(h<5)return "あら、いらっしゃい。ママも夜型やから、この時間がいちばん調子ええねん。ほら座り。";
     if(d>=14)return "ちょっと、あんた！久しぶりやないの。どこ行っとったん。はよ座り。";
+    const th=threadAsk();
+    if(th){session&&(session.askedThread=th.id);
+      if(d>=4)return `おかえり。しばらく顔見せへんから心配しとったんやで。ほら座り。…で、${th.ask}、あれからどうなったん？`;
+      return `あら、おかえり。待っとったで、ほら座って。そういえば${th.ask}、あれどうなったん？`;}
     if(d>=4)return "おかえり。しばらく顔見せへんから心配しとったんやで。ほら、こっち。";
     return GREETING;
   }
@@ -2033,6 +2112,7 @@
       catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;session=null;current=null;return;}
       const T=session&&session.trial;
       const digest=T?null:await loadDigest(); // 立ち飲み体験には、タケオさんのメモは渡さへん
+      if(!T&&!extension){try{await Promise.race([Promise.all([ensureProfileCore(),seedThreadsFromDigest(digest)]),new Promise(r=>setTimeout(r,8000))]);}catch(e){}} // 基本情報が変わってたら要約を作り直す（最大8秒待つ）
       const SEAT=SEATS[session&&session.seat]||SEATS.box;
       const memory=T?trialMemory(T):buildMemory(extension,digest,SEAT.memBytes)+seatBlock(session);
       const dv=T?{memory, visit_count:T.mode==="joren"?"60":"0", last_visit:T.mode==="joren"?"3日前":"初来店", greeting:trialGreeting(T)}
@@ -2119,6 +2199,8 @@
     const ltKey=current?current.id:null;
     if(current){writeCurrent();current=null;}
     if(ltMsgs)updateLongterm(ltMsgs,{key:ltKey}).catch(()=>{}); // 裏で数える（終わるまで待たへん）
+    if(ltMsgs)updateThreads(ltMsgs).catch(()=>{}); // v27: 話の続き帳を更新（次の入店で「あれどうなったん？」）
+    if(session&&session.askedThread){markAsked(session.askedThread);session.askedThread=null;}
     session=null;
     if(ru!=null){setRankSeen(ru);setTimeout(()=>showRankUp(ru,false),1400);}
     if(trialRes&&trialRes.ms>0&&(r.kind==="trial"||r.kind==="user"||r.kind==="dropped")){

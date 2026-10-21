@@ -63,6 +63,9 @@ const MARK = {
   prevVisit: "目印ゼンカイ：麻雀の話をした",
   lt: "目印ゼッタイ：毎朝6時に起きると決めた",
   photo: "目印シャシン：夜景の前でドレスの女性が笑っている",
+  thread: "目印ツヅキ：ウェディングの発注資料をbuntyanに送る",
+  threadAsk: "ウェディングの発注資料",
+  v2: "目印サンカイマエ：六本木の店の話",
 };
 const profile = "名前はタケオ。" + "平塚で生まれ育った。毎日いろいろある話を書いておく。".repeat(180) + MARK.record + "。" + MARK.dream + "。";
 const visits = [];
@@ -70,10 +73,12 @@ for (let i = 0; i < 25; i++) {
   const ms = now - (i + 1) * 86400e3;
   const d = jstYmd(ms).replace(/-/g, "/");
   visits.push({ id: "v" + i, date: d, time: "21:00", start: ms, mins: 60, kind: "visit",
-    mamaNote: i === 0 ? "今夜は" + MARK.prevVisit + "。ほな、またな。" : (i % 2 ? "" : "今夜はアプリの話をようけした。"),
+    mamaNote: i === 0 ? "今夜は" + MARK.prevVisit + "。ほな、またな。" : i === 2 ? "今夜は" + MARK.v2 + "をした。" : (i % 2 ? "" : "今夜はアプリの話をようけした。"),
     memo: Array.from({ length: 30 }, (_, j) => "客: 今日はこんな話をしたんやけど、ほんまにいろいろあってな" + j + "\nママ: へえ").join("\n") });
 }
-const book = { __photo: MARK.photo, profile, visits, lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
+const book = { __photo: MARK.photo, profile, visits,
+  threads: [{ id: "T1", t: MARK.thread, ask: MARK.threadAsk, next: "送ったか", first: "", last: "", lastTs: now - 86400e3, done: false }],
+  lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
 const longText = (mark) => ["・【夜の分】Claudeとの会話履歴は今日も直接読めへんかったので、要点から書いています。細かいところはママから聞いてあげて。", "・" + mark]
   .concat(Array.from({ length: 10 }, (_, i) => "・仕事の動き" + i + "：アプリの細かい話がいろいろあって、本人はかなり頑張ってた一日やったそうです。ほんまにお疲れさん。"))
   .concat(["・明日（木）：昼に用事、午後に確認", "・" + MARK.ask + "：ねぎらってあげて"]).join("\n");
@@ -113,7 +118,11 @@ async function page(seat, opt = {}) {
   await p.route("https://generativelanguage.googleapis.com/**", async (r) => {
     const txt = JSON.parse(r.request().postData()).contents[0].parts[0].text;
     let out = "要点メモ";
-    if (txt.includes("手帳係")) {
+    if (txt.includes("基本情報の要約係")) {
+      out = "・名前はタケオ。平塚。\n・" + MARK.record + "\n・" + MARK.dream + "\n・アプリを作ってる";
+    } else if (txt.includes("話の続き係")) {
+      out = JSON.stringify({ items: [{ id: "new", status: "open", t: "目印ツギ：都知事選のポスターを作る", ask: "ポスター", next: "できたか" }] });
+    } else if (txt.includes("手帳係")) {
       const said = txt.split("【今夜の客の言葉")[1] || "";
       const n = (said.match(/目印ヤクソク/g) || []).length;
       out = JSON.stringify({ items: n ? [{ id: "new", t: "目印ヤクソク：都知事選のポスターを作る", imp: 5, tonight: n }, { id: "new", t: "雨やった", imp: 1, tonight: 1 }] : [] });
@@ -140,10 +149,12 @@ async function enter(p) {
 }
 
 try {
+  // カウンター＝Geminiあり（基本情報は要約）／ボックス＝Geminiなし（基本情報は頭と最後を残す）の両方を試す
   for (const seat of ["counter", "box"]) {
-    const nm = seat === "box" ? "ボックス" : "カウンター";
-    const { p, ctx, errs } = await page(seat);
+    const nm = seat === "box" ? "ボックス(キー無し)" : "カウンター(キーあり)";
+    const { p, ctx, errs } = await page(seat, { gemini: seat === "counter" });
     const { memory, all } = await enter(p);
+    const greeting = JSON.parse(all).greeting || "";
     const bytes = Buffer.byteLength(all, "utf8");
     const todayBlock = memory.split("【今日タケオさんの身に起きたこと")[1] || "";
     ok(`${nm}：夢（基本情報の最後）が届く`, memory.includes(MARK.dream), "基本情報が削られてる");
@@ -151,6 +162,9 @@ try {
     ok(`${nm}：今日の自動メモが届く`, todayBlock.includes(MARK.todayDig) || todayBlock.includes(MARK.ydayDig), "今日の分が無い／削られてる");
     ok(`${nm}：「ママに頼みたいこと」まで届く`, todayBlock.includes("目印タノミ"), "今日の分の最後が切れてる");
     ok(`${nm}：前回の来店の話が届く`, memory.includes(MARK.prevVisit), "前回の来店が削られてる");
+    ok(`${nm}：3回前の来店まで届く`, memory.includes(MARK.v2), "直近3回の来店が入ってへん");
+    ok(`${nm}：話の続き（途中の話）が届く`, memory.includes(MARK.thread), "話の続き帳が入ってへん");
+    ok(`${nm}：入店の第一声で「あれどうなったん？」と聞く`, greeting.includes(MARK.threadAsk) && greeting.includes("どうなった"), greeting);
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
     ok(`${nm}：見せた写真（昨日）が届く`, memory.includes(MARK.photo), "写真の記録がママに渡ってへん");
     ok(`${nm}：1ヶ月の記憶が届く`, memory.includes("【この1ヶ月の記憶"), "1ヶ月の記憶が無い");
@@ -174,6 +188,10 @@ try {
     await p.waitForTimeout(1500);
     const notes = await p.evaluate(() => (window.__notes || []).join("\n"));
     ok("会話の途中で、何回も言うた大事な話がその場で昇格する", notes.includes("手帳に昇格") && notes.includes("目印ヤクソク"), "昇格のメモがママに届いてへん");
+    await p.evaluate(() => window.__o.onDisconnect && window.__o.onDisconnect({ reason: "user" }));
+    await p.waitForTimeout(2500);
+    const th = await p.evaluate(() => JSON.stringify((JSON.parse(localStorage.getItem("tokie_notebook_v1")).threads || []).map((x) => [x.t, x.done])));
+    ok("お会計で「話の続き帳」に今夜の途中の話が入る", th.includes("目印ツギ"), th);
     await ctx.close();
   }
   { // 喋ってる最中に「立ち飲みを試す」
