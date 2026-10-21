@@ -654,7 +654,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v30";
+  const APP_VER="2026-10-22 v31";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1303,7 +1303,9 @@
     const SEP=4; // 区切りの改行2つぶん（JSONで\n\n）
     const head=[];
     if(extension){
-      head.push("【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
+      head.push(session&&session.silentGreet
+        ?"【いまの状況】会話の途中。店の都合で一瞬つなぎ直しただけで、お客さんには何も起きてへん。挨拶・「延長」・「おかえり」は言わへん。黙ってお客さんの次の言葉を待って、下の【今夜の要点】【今夜の流れ】の続きとして自然に返す。今夜もう話した内容を、初めて聞いたように扱わへん。"
+        :"【いまの状況】さっきまで2時間しゃべってて、そのまま延長に入ったところ。挨拶し直さず、今夜の流れの一番新しい話の続きから自然に話す。");
       if(current){const ns=nightSumText();if(ns)head.push(ns.trim());head.push(tonightBlock(30));}
     }
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
@@ -2006,6 +2008,12 @@
       }
     }catch(e){}finally{mine.digBusy=false;}
   }
+  const REFRESH_MIN=18; // 何分ごとに静かに入り直すか（Sonnet実測：13分$0.058/分→51分$0.18/分。読み直す履歴を短う保つ）
+  function silentRefresh(){
+    if(!conv||!session||session.trial||session.closing||session.refreshing||session.moving)return;
+    session.refreshing=true;try{conv.endSession();}catch(e){session.refreshing=false;}
+  }
+  try{if(localStorage.getItem("tokie_test_hooks")==="1")window.__tokieTest={silentRefresh:()=>silentRefresh()};}catch(e){}
   function tick(){
     if(!conv||!session||ending)return;
     const now=Date.now();const S=settings();
@@ -2023,6 +2031,12 @@
     if(session.gift&&!session.gift.endSent&&now>=session.gift.until&&!session.closing&&!session.capture&&listening&&now-session.lastVad>2000){giftEnd();return;}
     if(session.closing||session.capture)return;
     const quiet=listening&&(now-session.lastVad>2000); // 客が喋ってる最中は合図を入れへん
+    // v31 静かな入り直し（頭脳代の上がり止め）：2分前に今夜の要点を作っとく→時間が来て、ママが言い終わって客も黙ってる隙に入り直す
+    if(connectedAt&&!session.refreshing){
+      const ce=now-connectedAt;
+      if(!session.preSumDone&&ce>=(REFRESH_MIN-2)*60000){session.preSumDone=true;updateNightSum();}
+      if(ce>=REFRESH_MIN*60000&&quiet&&now-userLastActive()>=2500&&now-(session.lastAi||0)>=1500&&!session.sumBusy){silentRefresh();return;}
+    }
     const el=now-session.start;
     // 営業時間：10分前にラストオーダー、時間が来たら閉店
     if(el>=session.effClose*60000&&quiet){closeByTime();return;}
@@ -2136,8 +2150,8 @@
       const SEAT=SEATS[session&&session.seat]||SEATS.box;
       const memory=T?trialMemory(T):buildMemory(extension,digest,SEAT.memBytes)+seatBlock(session);
       const dv=T?{memory, visit_count:T.mode==="joren"?"60":"0", last_visit:T.mode==="joren"?"3日前":"初来店", greeting:trialGreeting(T)}
-                :{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:(session&&session.greetNext)||(extension?GREETING_EXT:giftGreeting(session)+makeGreeting())};
-      if(session)session.greetNext="";
+                :{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:(session&&session.silentGreet)?"":((session&&session.greetNext)||(extension?GREETING_EXT:giftGreeting(session)+makeGreeting()))};
+      if(session){session.greetNext="";session.silentGreet=false;}
       const useOv=!ovNG()&&!!((SEATS[session&&session.seat]||SEATS.box).llm)&&!(session&&session.trial);if(session){session.ovTried=useOv;session.ovOk=false;}
       const gen=++convGen; // 入り直し（延長・席の移動）の時、前の会話の遅れて届く「切れた」合図で今の会話を閉めへんように
       conv=await Conversation.startSession({
@@ -2190,6 +2204,12 @@
       setOvState("ng");session.ovTried=false;session.ovRetried=true;ending=false;
       if(!session.greetNext)session.greetNext=session.trial?trialGreeting(session.trial):makeGreeting();
       statusEl.textContent="もう一回つなぐで…";setTimeout(()=>start(true),600);return;
+    }
+    // v31 静かな入り直し：長話で頭脳代が上がり続けんように、REFRESH_MINごとに今夜の要点＋直近の流れだけ持って裏で入り直す（お客さんには分からんように、挨拶なし）
+    if(session&&session.refreshing&&current){
+      session.refreshing=false;session.silentGreet=true;session.preSumDone=false;session.refreshes=(session.refreshes||0)+1;ending=false;
+      btn.textContent="お会計";btn.className="btn out";btn.disabled=true;
+      setTimeout(()=>start(true),250);return;
     }
     // 席の移動：いったん切って、続きから入り直す（約3秒）
     if(session&&session.moving&&current){

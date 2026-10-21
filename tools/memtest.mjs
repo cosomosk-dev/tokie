@@ -198,6 +198,23 @@ try {
     ok("入り直しても「今夜の決まりごと」（睡眠薬・お酒飲めへん）を覚えてる", again.memory.includes("今夜の決まりごと") && again.memory.includes("睡眠薬"), "入り直したら消えてる");
     await ctx.close();
   }
+  { // 静かな入り直し（長話の頭脳代の上がり止め）：挨拶なしで、今夜の話を持ったまま入り直すか
+    const { p, ctx } = await page("box", { gemini: true });
+    await p.evaluate(() => localStorage.setItem("tokie_test_hooks", "1"));
+    await p.reload(); await p.waitForTimeout(1200);
+    await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
+    await enter(p);
+    for (const t of ["目印コンヤ：今夜は六本木の店の話をした", "ほんでな、続きやけど", "目印コンヤ2：来週また行くつもり"]) {
+      await p.evaluate((t) => window.__o.onMessage({ message: t, source: "user" }), t); await p.waitForTimeout(120);
+      await p.evaluate(() => window.__o.onMessage({ message: "へえ、そうなん", source: "ai" })); await p.waitForTimeout(80);
+    }
+    await p.evaluate(() => window.__tokieTest.silentRefresh()); await p.waitForTimeout(2500);
+    const r = await p.evaluate(() => { const o = window.__o || {}; const dv = o.dynamicVariables || (o.overrides && o.overrides.dynamicVariables) || {}; return { g: dv.greeting, m: dv.memory || "" }; });
+    const btn = await p.textContent("#btn");
+    ok("静かな入り直し：挨拶なしでつながり直す", r.g === "" && btn.includes("お会計"), JSON.stringify({ g: r.g, btn }));
+    ok("静かな入り直し：今夜の話（入り直す前の話）を持ったまま", r.m.includes("目印コンヤ") && r.m.includes("つなぎ直した"), "今夜の流れが渡ってへん");
+    await ctx.close();
+  }
   { // 喋ってる最中に「立ち飲みを試す」
     const { p, ctx } = await page("counter");
     await enter(p);
