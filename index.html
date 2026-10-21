@@ -652,7 +652,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-21 v23";
+  const APP_VER="2026-10-21 v24";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1140,7 +1140,7 @@
      前の作りは、来店メモ1回分（長い会話だと1万バイト超）が丸ごと入らへんと「古すぎて省略」になって、
      昨日の話が1行も渡ってなかった。いまは「直近は詳しく・1ヶ月は1日1行の断片」で、どの枠も
      入りきらん時は丸ごと捨てずに短く切って入れる。 */
-  const MEM_CAPS={latest:2000, prev:1200, month:4000, monthDay:170, recentDigest:1800, profile:5000, profileMin:3000, notes:1500};
+  const MEM_CAPS={latest:2000, prev:1200, month:4000, monthDay:170, recentDigest:1500, profile:5000, profileMin:3000, notes:1500};
   const MEMORY_USE_BLOCK="【記憶の使い方】\n"+
     "・下の「1ヶ月の記憶」は1日1行の断片。細かいとこまでは覚えてへんのが普通。せやけど話の筋（何の話をしてたか・どうなったか）は覚えてる前提で話す。\n"+
     "・断片に載ってる話を振られたら、知らんぷりせんと「あー、あれな。〇〇の話やろ？あれどうなったん」と分かる範囲で拾って、細かいとこだけ聞き返す。断片に無いことは作り話せえへん。\n"+
@@ -1166,6 +1166,22 @@
                          :keyLines(v.memo,16,90).map(t=>"客: "+t).join("\n");
     return clipBytes(`${label}（${v.date} ${v.time}・${v.mins}分）\n${memo||"（中身のメモなし）"}`,cap);
   }
+  // 自動メモの前置き（「会話履歴は読めへんかった」等）はママには要らんので外す
+  function digestClean(t){return String(t||"").split("\n").filter(l=>!/直接読め|ママから聞いてあげて。?$|^・【[^】]*までの分】/.test(l.trim())).join("\n").trim();}
+  // 今日の自動メモ：入りきらん時は「ママに頼みたいこと」と「明日」を残して、上（優先順の高い方）から入る分だけ
+  function todayDigestBlock(days,maxBytes){
+    const key=dkey(todayBiz());
+    const d=(days||[]).find(x=>dkey(x.date)===key)||null;
+    if(!d)return "";
+    const h="【今日タケオさんの身に起きたこと（Claudeとのやりとり・メール・予定からの自動メモ。いちばん新しい情報。今夜はこれを知ってる前提で、自然に話題にする。「知らんかった」顔はせん）】\n";
+    const lines=digestClean(d.text).split("\n").map(l=>l.trim()).filter(Boolean);
+    const keep=lines.filter(l=>/頼みたい|明日/.test(l));
+    const rest=lines.filter(l=>!keep.includes(l));
+    let room=maxBytes-jbytes(h)-keep.reduce((n,l)=>n+jbytes(l)+2,0);
+    const body=[];
+    for(const l of rest){const b=jbytes(l)+2;if(b>room){if(room>300)body.push(clipBytes(l,room-2));break;}body.push(l);room-=b;}
+    return clipBytes(h+[...body,...keep].join("\n"),maxBytes);
+  }
   function buildMemory(extension,digest,budget){
     const B=budget||MEMORY_BUDGET_BYTES;
     const b=loadBook();const S=settings();
@@ -1176,10 +1192,13 @@
       if(current){const ns=nightSumText();if(ns)head.push(ns.trim());head.push(tonightBlock(30));}
     }
     const lt=ltBlock();
+    // v24: 今日のClaudeとのやりとり（自動メモ）は別枠で優先して丸ごと渡す。前は「最近2日」で1,800バイトを分け合ってて、今日の分は最初の2行しか届いてへんかった（カウンター席はゼロ）
+    const dayList=(digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
+    const todayDig=todayDigestBlock(dayList,B>=MEMORY_BUDGET_BYTES?7000:4200);
     const core=[NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
     const tail=toneReminder(S.strength);
-    const fixed=[...head,...core,tail,lt].reduce((n,x)=>n+jbytes(x)+SEP,0);
+    const fixed=[...head,...core,tail,lt,todayDig].reduce((n,x)=>n+jbytes(x)+SEP,0);
     // 残りを各枠に配る。全部の上限を足して入りきらん時は、同じ割合で縮める（どの枠もゼロにはせえへん）
     const R=Math.max(3000,B-fixed-SEP*8);
     const want=MEM_CAPS.latest+MEM_CAPS.prev+MEM_CAPS.month+MEM_CAPS.recentDigest+MEM_CAPS.profile+MEM_CAPS.notes;
@@ -1188,7 +1207,9 @@
 
     const visits=b.visits.filter(v=>v.kind!=="note"&&!(extension&&current&&v.id===current.id));
     const notes=b.visits.filter(v=>v.kind==="note");
-    const days=(digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
+    const days=dayList;
+    const todayKey=dkey(todayBiz());
+    const olderDays=days.filter(x=>dkey(x.date)!==todayKey); // 今日の分は上の別枠で渡してる
 
     // ① 前回・その前の来店（詳しめ）
     const recent=[];
@@ -1200,12 +1221,11 @@
 
     // ② 最近2日の自動メモ（Claudeとのやりとり。詳しめ）
     let rdig="";
-    if(days.length){
-      const h="【最近タケオさんの身に起きたこと（毎日の自動メモ・新しい順）】\n";
+    if(olderDays.length){
+      const h="【前の日にタケオさんの身に起きたこと（毎日の自動メモ）】\n";
       const c=cap(MEM_CAPS.recentDigest);let body="";
-      for(const x of days.slice(0,2)){
-        const per=Math.floor((c-jbytes(h))/Math.min(2,days.length));
-        body+=clipBytes(`■${x.date}\n${x.text}`,per)+"\n";
+      for(const x of olderDays.slice(0,1)){
+        body+=clipBytes(`■${x.date}\n${digestClean(x.text)}`,c-jbytes(h))+"\n";
       }
       rdig=h+body.trim();
     }
@@ -1261,11 +1281,21 @@
     const parts=[...head,profile];if(lt)parts.push(lt);parts.push(...core);
     if(month)parts.push(month);
     if(rdig)parts.push(rdig);
+    if(todayDig)parts.push(todayDig);
     if(ntxt)parts.push(ntxt);
     if(!visits.length)parts.push("【これまでの来店】\n（初来店。まだ何も書いてない）");
     else parts.push(...recent.slice().reverse()); // その前→前回の順。前回の話が最後（tailの直前）に来る
     parts.push(tail);
     let out=parts.join("\n\n");
+    // v24: 入りきらん時は、末尾（今日の自動メモ・前回の来店・念押し）やなく、基本情報→1ヶ月の記憶の順に削る。
+    // 前は末尾から切ってたので、カウンター席では今日の話も前回の話も丸ごと落ちてた。
+    for(const target of [profile,month,ntxt,rdig]){
+      if(jbytes(out)<=B)break;
+      const i=target?parts.indexOf(target):-1;if(i<0)continue;
+      const over=jbytes(out)-B+64;
+      parts[i]=clipBytes(target,Math.max(target===profile?900:400,jbytes(target)-over));
+      out=parts.join("\n\n");
+    }
     if(jbytes(out)>B)out=clipBytes(out,B); // 念のための最後の安全弁（64KB超えで入れへん事故を防ぐ）
     return out;
   }
@@ -1841,9 +1871,23 @@
   const TICK=5000;
   function startTick(){stopTick();session.timer=setInterval(tick,TICK);fmtClock();}
   function stopTick(){if(session&&session.timer){clearInterval(session.timer);session.timer=null;}}
+  // v24: 喋ってる間に新しい自動メモ（1日6回）が届いたら、その場でママの頭に入れる（次の入店まで待たへん）
+  async function refreshDigestMidSession(){
+    if(!session||session.trial||session.digBusy)return;
+    const mine=session;mine.digBusy=true;
+    try{
+      const prev=digestCache&&digestCache.updated;
+      const d=await loadDigest();
+      if(d&&d.status==="ok"&&d.updated&&d.updated!==prev&&session===mine&&conv){
+        const blk=todayDigestBlock(d.days,mine.seat==="box"?7000:4200);
+        if(blk)note(blk.replace("【今日タケオさんの身に起きたこと","【さっき届いた最新版：今日タケオさんの身に起きたこと")+"\n（ママの頭の中のメモ。これには返事せんでええ。話の流れで自然に触れる）");
+      }
+    }catch(e){}finally{mine.digBusy=false;}
+  }
   function tick(){
     if(!conv||!session||ending)return;
     const now=Date.now();const S=settings();
+    if(!session.trial&&now-(session.digChk||session.start||now)>10*60000){session.digChk=now;refreshDigestMidSession();}
     fmtClock();
     const listening=session.mode!=="speaking";
     const idleMs=now-userLastActive();
@@ -2211,7 +2255,7 @@
      頭脳の切り替えは ElevenLabs の「LLMの上書き」が許可されてる時だけ効く（許可されてへん時は自動で上書きなしで入り直す）。
      原価の目安（1分）：通話¥12＋頭脳代。ボックス＝ElevenLabsの画面で選んだ標準の頭脳（10/21からSonnet 5）、カウンター＝Haiku 4.5に上書き。 */
   const SEATS={
-    counter:{name:"カウンター",llm:"claude-haiku-4-5",mult:1,memBytes:9000,yen:15,short:"標準・返事が速い",
+    counter:{name:"カウンター",llm:"claude-haiku-4-5",mult:1,memBytes:20000,yen:15,short:"標準・返事が速い",
       desc:"標準の席。ママの返事が速い。手帳は大事なとこだけ読む。"},
     box:{name:"ボックス",llm:"",mult:1.5,memBytes:MEMORY_BUDGET_BYTES,yen:21,short:"ママが冴える",
       desc:"ママの頭が冴える席。手帳を深く読んで、今夜の話の筋も追う。お会計のまとめが濃い。席料で瓶が1.5倍減る。"}
