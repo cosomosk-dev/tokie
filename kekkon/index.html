@@ -1494,14 +1494,21 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#gt-buy').addEventListener('click',()=>{const pr=480;if(!confirm(`【試作版】本番ではここでストアの決済(¥${pr})が出ます。購入したことにして続けますか？`))return;const r=R();r.bought=true;save();toast(cur.id==='S'?'名前が解禁されました。彼の名前は、タカヒロ':cur.name+'ルートの全話が開きました');renderEp();show('s-game');});
   $('#gt-all').addEventListener('click',()=>{if(!confirm('【試作版】本番ではここでストアの決済(¥1,480)が出ます。購入したことにして続けますか？'))return;['A','B','C','D','S'].forEach(k=>{const r=pers.routes[k]||(pers.routes[k]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});r.bought=true;});save();toast('5人全員の全話が開きました');renderEp();show('s-game');});
   $('#gt-restore').addEventListener('click',()=>toast('【試作版】本番では、ストアの購入履歴を確認して、買った物語を復元します'));
-  // CMの中身: 同じ「結婚相談所」ばかりだと鬱陶しいので、角度を日替わりで変える(全部、婚活女子向けの提携先=アフィリエイト)
+  // CMの中身: A8.netで承認済みの12社(メディア「ウェデイングストーリー」で発行したリンク、2026/10/21)。
+  // 同じジャンルが続かないように並べ、日替わり+遊んだ回数で順番に出す
   const CMS=[
-    {tag:'結婚相談所',t:'本気で探すなら、仲人がつく相談所。',s:'無料カウンセリングだけなら、お金はかからないわ。',nak:'このゲームで選べた子は、本物でも選べるわよ。'},
-    {tag:'ブライダルフェア',t:'式場のフェアは、試食つきで無料。',s:'相手が決まる前に見に行く子、意外と多いのよ。',nak:'ドレスを見ると、本気になるの。不思議よね。'},
-    {tag:'婚活パーティー',t:'今週末、1回だけ行ってみる？',s:'成婚した子の平均は、お見合い11回。1回目は今週よ。',nak:'数をこなした子が、最後に笑うの。'},
-    {tag:'コスメ',t:'お見合いの前の日の、肌。',s:'デパコスのお試しセット、送料だけで届くわ。',nak:'第一印象は0.5秒。その0.5秒に投資しなさい。'},
-    {tag:'ふたりの家計',t:'夫婦にとって、お金の相談はいちばん大事。',s:'家計の無料相談は、新婚でも、結婚10年目でも。',nak:'お金の話ができる夫婦は、ケンカが半分になるの。独身でも既婚でも、よ。'},
-    {tag:'ふたりの旅行',t:'初めてのふたり旅は、早割で。',s:'旅行で見える相手の素顔、お見合い10回分よ。',nak:'旅先で優しい男は、家でも優しいわ。'},
+    {tag:"結婚相談所",t:"自分に合う相談所、まず診断で。",s:"いくつかの相談所の無料体験を、まとめて比べられるわ。",nak:"このゲームで選べた子は、本物でも選べるわよ。",brand:"結婚相談所比較ネット",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+8MSAK2+1PJA+2BFH02",imp:"https://www14.a8.net/0.gif?a8mat=4BEL1J+8MSAK2+1PJA+2BFH02"},
+    {tag:"婚活パーティー",t:"今週末、1回だけ行ってみる？",s:"少人数の婚活パーティー。ひとり参加の子も多いのよ。",nak:"数をこなした子が、最後に笑うの。",brand:"フィオーレパーティー",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+BET46Q+2RIS+5YJRM",imp:"https://www13.a8.net/0.gif?a8mat=4BEL1K+BET46Q+2RIS+5YJRM"},
+    {tag:"コスメ",t:"お見合いの前の日の、肌。",s:"美肌のために作られた化粧品。",nak:"第一印象は0.5秒。その0.5秒に投資しなさい。",brand:"ジュランツ",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+9A075E+3AT8+5YJRM",imp:"https://www15.a8.net/0.gif?a8mat=4BEL1J+9A075E+3AT8+5YJRM"},
+    {tag:"オンライン相談所",t:"登録料も成婚料も、0円の相談所。",s:"オンラインで完結。忙しい子でも続けやすいわ。",nak:"仕事が忙しいは、言い訳にならない時代よ。",brand:"リトマリ",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+91O4OI+5BUE+BWVTE",imp:"https://www19.a8.net/0.gif?a8mat=4BEL1J+91O4OI+5BUE+BWVTE"},
+    {tag:"ふたりの家計",t:"夫婦にとって、お金の相談はいちばん大事。",s:"保険の見直しを、無料でプロに相談できる。",nak:"お金の話ができる夫婦は、ケンカが半分になるの。独身でも既婚でも、よ。",brand:"保険の無料相談 ガーデン",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+AP7H6A+4GN2+NV9N6",imp:"https://www15.a8.net/0.gif?a8mat=4BEL1K+AP7H6A+4GN2+NV9N6"},
+    {tag:"じぶん磨き",t:"脱毛は、早く始めた子の勝ち。",s:"定額制で通える全身の医療脱毛。",nak:"デートの前の日に慌てない女は、強いのよ。",brand:"シロノクリニック",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+CVSP0Y+24LS+BWVTE",imp:"https://www10.a8.net/0.gif?a8mat=4BEL1K+CVSP0Y+24LS+BWVTE"},
+    {tag:"婚活パーティー",t:"お見合いパーティー、のぞくだけでも。",s:"全国でひらかれているお見合いパーティー。",nak:"会ってみないと、ときめきは分からないの。",brand:"IBJ Matching(PARTY☆PARTY)",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+BFEJSI+FOG+3H5BCY",imp:"https://www10.a8.net/0.gif?a8mat=4BEL1K+BFEJSI+FOG+3H5BCY"},
+    {tag:"美顔器",t:"おうちで、顔のお手入れ。",s:"ランキング1位の美顔器。",nak:"肌は、毎日の積み重ねよ。結婚と同じ。",brand:"BIOAESTECH デュアルオーブ",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+99ERJM+5VXQ+5YRHE",imp:"https://www10.a8.net/0.gif?a8mat=4BEL1J+99ERJM+5VXQ+5YRHE"},
+    {tag:"趣味婚",t:"好きなものが同じ人と、出会いたい。",s:"アニメ・マンガ・ゲーム好き専門の結婚相談所。",nak:"趣味が合う夫婦は、休日がいちばん楽しいわ。",brand:"ヲタ婚",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+BGLF02+3LOM+BZ0Z6",imp:"https://www12.a8.net/0.gif?a8mat=4BEL1K+BGLF02+3LOM+BZ0Z6"},
+    {tag:"子どもの将来",t:"学資保険、何から考える？",s:"学資保険を、無料でプロに相談できる。",nak:"子どもの話は、生まれる前から始まってるの。",brand:"学資保険の無料相談 ガーデン",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+AQECDU+4GN2+60OXE",imp:"https://www15.a8.net/0.gif?a8mat=4BEL1K+AQECDU+4GN2+60OXE"},
+    {tag:"じぶん磨き",t:"永久脱毛で、毎朝が軽くなる。",s:"92.4%の女性が満足した医療脱毛。",nak:"手間が減ると、心に余裕ができるのよ。",brand:"カルミア美肌クリニック",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+CV79F6+2NSW+BWVTE",imp:"https://www17.a8.net/0.gif?a8mat=4BEL1K+CV79F6+2NSW+BWVTE"},
+    {tag:"ボディケア",t:"全身を、やさしくケア。",s:"低刺激のスクロール型で全身をなめらかに。",nak:"見えないところまで手を抜かない子は、選ばれるわ。",brand:"JOVS Dora scroll",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+CXKZUA+5W9E+5YRHE",imp:"https://www17.a8.net/0.gif?a8mat=4BEL1K+CXKZUA+5W9E+5YRHE"}
   ];
   const CM_SEC=15;
   $('#gt-ad').addEventListener('click',()=>{
@@ -1510,10 +1517,12 @@ details.alb summary::-webkit-details-marker{display:none}
     ov.innerHTML=`<div class="cmcard"><div class="cmtop"><span class="prb">PR</span><span class="cmtag">今日のCM ・ ${esc(cm.tag)}</span><span class="cmcd" id="cm-cd">${CM_SEC}</span></div>
       <div class="cmt">${esc(cm.t)}</div><div class="cms">${esc(cm.s)}</div>
       <div class="nako" style="margin:12px 0 0"><div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(cm.nak)}</div></div>
-      <a class="btn-gold btn-block" href="osusume.html" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:12px">くわしく見る(外部サイト)</a>
+      <div class="small muted" style="margin-top:10px">${esc(cm.brand)}</div>
+      <a class="btn-gold btn-block" href="${esc(cm.href)}" target="_blank" rel="sponsored noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:6px">くわしく見る(外部サイト)</a>
       <button class="btn-line btn-block" id="cm-close" disabled style="margin-top:8px">${CM_SEC}秒後に、1話開きます</button>
       <p class="small muted" style="margin:8px 0 0;text-align:center">※広告(アフィリエイト)です。押さなくても1話もらえます。CMは1日1回まで。</p></div>`;
     document.body.appendChild(ov);
+    try{const px=new Image(1,1);px.src=cm.imp;}catch(e){}
     let n=CM_SEC;const cd=ov.querySelector('#cm-cd'),cb=ov.querySelector('#cm-close');
     const iv=setInterval(()=>{n--;cd.textContent=n;cb.textContent=n>0?`${n}秒後に、1話開きます`:'閉じて、第'+(ci+1)+'話を読む';if(n<=0){clearInterval(iv);cb.disabled=false;cd.textContent='✓';}},1000);
     cb.addEventListener('click',()=>{ov.remove();const r2=R();r2.adDay=today();r2.unlocked=Math.max(r2.unlocked,ci);r2.freeAt=null;save();toast('1話開きました');renderEp();show('s-game');});
