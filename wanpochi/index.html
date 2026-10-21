@@ -836,6 +836,15 @@ body.demoing{padding-bottom:260px}
   // window.wanpochi.setPlan('plus') を呼ぶか、postMessage({type:'wanpochi:plan', plan:'plus'}) を送るだけ。
   // 無料のまま使えるもの：毎日の1問・「無事」の知らせ・答えがない日の知らせ・相棒・連続記録（7日分）・着せ替え100円。
   // 家族プランで増えるもの：1か月カレンダー・お休み保護（月2回）・週1レポート・着せ替えプラン込み＋毎月の新作・知らせを受け取る人5人まで。
+  // ---------- ストアの商品ID（Google Play Console / App Store Connect に同じIDで登録） ----------
+  // 着せ替え：アイテム（買い切り・1つ100円）。毎月の新作12種は家族プラン込みなので商品IDなし
+  var PRODUCTS={ costume:{ ribbon:'costume_ribbon', straw:'costume_straw', crown:'costume_crown', glasses:'costume_glasses', scarf:'costume_scarf' },
+    // 家族プラン：定期購入。基本プランは月払い・年払いの2つ、年払いだけ30日無料の特典
+    plan:{ id:'family_plan', monthly:'monthly', yearly:'yearly', yearlyTrial:'yearly-trial-30d' } };
+  // アプリ本体への購入依頼。アプリ側は購入が終わったら window.wanpochi.purchased('costume_straw') / window.wanpochi.setPlan('plus') を呼ぶ
+  function hasNative(){ return !demo && !!(window.WanpochiNative || window.ReactNativeWebView); }
+  function askNative(m){ var j=JSON.stringify(m); try{ if(window.WanpochiNative&&window.WanpochiNative.postMessage) window.WanpochiNative.postMessage(j); else if(window.ReactNativeWebView) window.ReactNativeWebView.postMessage(j); }catch(e){} }
+  var pendingGift=null;
   function isPlus(){ return S.plan==='plus'; }
   function setPlan(p){ if(p!=='plus'&&p!=='free') return; if(p==='plus'&&!isPlus()) S.planSince=key(today()); S.plan=p; save(); renderAll(); }
   function memberCap(){ return isPlus()?5:2; } // あなたを含めた人数
@@ -1072,7 +1081,7 @@ body.demoing{padding-bottom:260px}
       if(worn){ b.className='worn'; b.textContent='着ています'; b.disabled=true; }
       else if(sent){ b.className='sent'; b.textContent='あす朝とどく'; b.disabled=true; }
       else if(locked){ b.className='lock'; b.textContent='プランで解放'; b.addEventListener('click', function(){ el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }); }
-      else { b.textContent='贈る'; b.addEventListener('click', function(){ S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+st.parentName+'さんの画面にとどきます'); }); }
+      else { b.textContent='贈る'; b.addEventListener('click', function(){ if(hasNative()&&PRODUCTS.costume[id]){ pendingGift=id; askNative({type:'wanpochi:buy', productId:PRODUCTS.costume[id]}); return; } giftDone(id); }); }
       card.appendChild(b); g.appendChild(card);
     });
 
@@ -1285,7 +1294,7 @@ body.demoing{padding-bottom:260px}
     el('opt-year').addEventListener('click', function(){ S.planTerm='year'; save(); renderPlan(); });
     el('opt-month').addEventListener('click', function(){ S.planTerm='month'; save(); renderPlan(); });
     el('plan-later').addEventListener('click', function(){ S.planHidden=key(today()); save(); renderPlan(); toast('無料のまま使えます。いつでも戻れます'); });
-    el('plan-go').addEventListener('click', function(){ setPlan('plus'); renderWelcome(); });
+    el('plan-go').addEventListener('click', function(){ if(hasNative()){ askNative({type:'wanpochi:subscribe', productId:PRODUCTS.plan.id, basePlanId:year?PRODUCTS.plan.yearly:PRODUCTS.plan.monthly, offerId:year?PRODUCTS.plan.yearlyTrial:''}); return; } setPlan('plus'); renderWelcome(); });
   }
 
   // ---------- 節目のお祝い（7日ごと）：無料ならここで初めて、そっと案内 ----------
@@ -1763,7 +1772,10 @@ body.demoing{padding-bottom:260px}
   load();
   // 本番アプリからのプラン切り替え：?plan=plus / ?plan=free（URL）、window.wanpochi.setPlan('plus')（WebViewから）、postMessage（iframeから）
   try{ var qp=new URLSearchParams(location.search).get('plan'); if(qp==='plus'||qp==='free'){ S.plan=qp; save(); } }catch(e){}
-  window.wanpochi={ setPlan:function(p){ setPlan(p); }, getPlan:function(){ return S.plan; }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
+  function giftDone(id){ S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+S.settings.parentName+'さんの画面にとどきます'); }
+  window.wanpochi={ products:PRODUCTS,
+    purchased:function(pid){ var id=null; Object.keys(PRODUCTS.costume).forEach(function(k){ if(PRODUCTS.costume[k]===pid) id=k; }); if(id){ pendingGift=null; giftDone(id); } },
+    setPlan:function(p){ var was=isPlus(); setPlan(p); if(p==='plus'&&!was) renderWelcome(); }, getPlan:function(){ return S.plan; }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
   window.addEventListener('message', function(e){ var m=e&&e.data; if(m&&m.type==='wanpochi:plan') setPlan(m.plan); });
   renderAll();
   var v='parent'; try{ v=localStorage.getItem(KEY+'_view')||'parent'; }catch(e){} if(v==='choose') v='parent';
