@@ -535,13 +535,6 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="report" id="r-report"></div>
     </div>
     <div class="nako" id="nako-result"></div>
-    <div class="card" id="r-vs" hidden></div>
-    <div class="card stack" id="r-next">
-      <div><div class="eyebrow">Next</div><h3>この夫の物語は、ここまで。次は？</h3><p class="small muted">夫が変われば、秘密も、資産も、結末も変わる。まずは、ほかの人の1周目へ。</p></div>
-      <div class="moshi" id="r-moshi"></div>
-      <button class="btn-line btn-block" id="r-again2">同じ夫で、反対を選んでみる(2周目) →</button>
-    </div>
-
     <div id="r-author" hidden class="stack">
       <div class="secret"><div class="stamp">SECRET</div><div class="sub">最後の秘密</div><p>このキャラのモデルは、このゲームの作者本人です。</p></div>
       <div class="card stack">
@@ -554,9 +547,16 @@ details.alb summary::-webkit-details-marker{display:none}
         </dl>
       </div>
       <div class="nako" id="nako-author"></div>
-      <a class="btn-gold btn-block" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:60px;border-radius:999px;font-weight:700">作者のリンク集を見る(曲・アプリ・SNS)</a>
-      <p class="small muted" style="text-align:center">※外部のページ(リンクツリー)に移動します。<br>※大富豪の設定をふくめ、物語はフィクションです。</p>
+      <a class="btn-gold btn-block" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:60px;border-radius:999px;font-weight:700">作者のほかの作品を見る(曲・アプリ)</a>
+      <p class="small muted" style="text-align:center">※外部のページ(作者の作品リンク集)に移動します。<br>※大富豪の設定をふくめ、物語はフィクションです。</p>
     </div>
+    <div class="card" id="r-vs" hidden></div>
+    <div class="card stack" id="r-next">
+      <div><div class="eyebrow">Next</div><h3>この夫の物語は、ここまで。次は？</h3><p class="small muted">夫が変われば、秘密も、資産も、結末も変わる。まずは、ほかの人の1周目へ。</p></div>
+      <div class="moshi" id="r-moshi"></div>
+      <button class="btn-line btn-block" id="r-again2">同じ夫で、反対を選んでみる(2周目) →</button>
+    </div>
+
 
     <div class="diag">
       <div class="lab">結婚観診断 ・ あなたが選んだ道から出た、あなたの結婚観タイプ</div>
@@ -1396,6 +1396,8 @@ details.alb summary::-webkit-details-marker{display:none}
   });
   $('#reset-all').addEventListener('click',()=>{if(!confirm('遊んだ記録をすべて消して、最初からやり直しますか？'))return;try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
 
+  // 外部リンク: アプリ(WebView)で新しいウィンドウが開けない時は、同じ画面で開く(戻るで帰れる)
+  document.addEventListener('click',e=>{const a=e.target&&e.target.closest?e.target.closest('a[target=_blank]'):null;if(!a||!a.href)return;e.preventDefault();let w=null;try{w=window.open(a.href,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else{location.href=a.href}});
   // ================= 序章 =================
   // 3つの質問のあと、まず「あなたにぴったりな人」(答えで決まる)と会い、残りは 蓮→黒田→悠太→誠一郎 の順で体験お見合い
   let proTop=null;const liveTop=()=>['A','B','C','D'].slice().sort((p,q)=>(proScore[q]||0)-(proScore[p]||0))[0];const PTOP=()=>proTop||liveTop();
@@ -1597,7 +1599,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const extra=(lstage(st.L)==='一生の人'?' 愛情は「一生の人」。あたしが見てきた300組でも、上から数えた方が早いわ。':'')+(hearts(st.T)<=2?' …ただ、ときめきは冷めかけてる。そこだけは、お金じゃ買えないのよ。':'');
     nako('#nako-result',e.nak+extra,true);
     $('#r-author').hidden=cur.id!=='S';
-    if(cur.id==='S'){$('#ra-face').src=IMG.S;nako('#nako-author','お見合いの席に作者が座るなんて、300組で初めてよ。曲やアプリが気になったら、下のリンク集をのぞいてみなさい。感想は、ひと言でも喜ぶわよ。');}
+    if(cur.id==='S'){$('#ra-face').src=IMG.S;nako('#nako-author','お見合いの席に作者が座るなんて、300組で初めてよ。曲やアプリが気になったら、下のリンク集をのぞいてみなさい。物語の続きは、作品のほうにあるかもね。');}
     {const flip=replayRows(r.picks.map(p=>1-p));const fs=flip.st;const fe=END[cur.id].find(x=>x.test(fs));const known=pers.coll.includes(fe.id);
      const row=(k,a,b)=>`<div class="vr"><span class="vk">${k}</span><span class="va">${a}</span><span class="vb">${b}</span></div>`;
      const ratio=Math.max(st.sav,fs.sav)/Math.max(1,Math.min(st.sav,fs.sav));
