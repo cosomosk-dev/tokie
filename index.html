@@ -318,6 +318,30 @@
   .stage.on .strength button small{display:none}
   .stage.on .caption{max-height:30vh;max-height:30dvh;min-height:80px}
   @media (max-height:760px){.letter{max-height:18vh;max-height:18dvh}.strength button small{display:none}}
+  /* 2026-10-22 ママの顔を字で隠さへん（お袋さんの指摘）：顔のあたり＝画面の上から4割には、看板以外の字や枠を置かへん */
+  .letter,.vm{margin-top:0}
+  .letter{padding:9px 12px;font-size:12px;line-height:1.6;max-height:none;overflow:hidden}
+  .letter b{margin-bottom:2px}
+  .letter p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .vm{padding:8px 12px;font-size:12px}
+  .vm{width:auto;text-align:center;padding:7px 14px}
+  .vm small{display:none}
+  @media (max-height:800px){.letter p{-webkit-line-clamp:1}.letter{padding:7px 12px}}
+  .caption:empty{min-height:0;padding:0}
+  .knobs{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+  .stage.on .knobs{flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:6px}
+  .stage.on .knobs .strength{flex:0 0 auto;width:auto}
+  .stage.on .knobs .opts{gap:4px}
+  .stage.on .knobs button{min-width:0;padding:6px 7px 5px;font-size:11px;letter-spacing:.02em}
+  .stage.on #seatpick{padding-left:6px;border-left:1px solid rgba(255,241,226,.25)}
+  .stage.on .caption{max-height:22vh;max-height:22dvh;min-height:60px}
+  .stage.on .mama{font-size:19px;line-height:1.5}
+  .stage.on .mama.long{font-size:16px}
+  .stage.on .you{font-size:12px}
+  .stage.on .musicbtn{padding:7px;font-size:12px}
+  /* 顔のあたりをタップ：字を全部しまってママの顔だけ見る（もう一回タップで戻る） */
+  .top>*,.bottom>*{transition:opacity .3s}
+  .stage.peek .top>*:not(.neon):not(.sub),.stage.peek .bottom>*:not(#btn),.stage.peek .notebtn,.stage.peek .bottlebtn{opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -342,13 +366,13 @@
     <div class="wall" id="wall" title="黒金の夜に飾った写真"></div>
   </div>
 
-  <button class="vm" id="vmcard">📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small></button>
-  <div class="letter" id="letter"></div>
-
   <div class="bottom" id="bottom">
+    <button class="vm" id="vmcard">📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small></button>
+    <div class="letter" id="letter"></div>
     <div class="caption" id="caption"></div>
     <div class="notice" id="notice"></div>
     <div class="status" id="status">本日も営業中</div>
+    <div class="knobs" id="knobs">
     <div class="strength" id="strength">
       <div class="sl">今夜の濃さ ＝ ママの口調 <button class="q" id="strengthq" aria-label="今夜の濃さの説明">？</button></div>
       <div class="opts">
@@ -366,6 +390,7 @@
         <button data-seat="box">ボックス<small>ママが冴える</small></button>
       </div>
       <div class="sd" id="seatdesc"></div>
+    </div>
     </div>
     <button class="musicbtn" id="musicbtn">🎵 音楽タイム（マイク休み・ママは静かに隣におる）</button>
     <button class="btn" id="btn">入店する</button>
@@ -654,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v34";
+  const APP_VER="2026-10-22 v35";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1683,6 +1708,8 @@
     letterEl.appendChild(b);letterEl.appendChild(p);letterEl.className="letter show";
   }
   letterEl.addEventListener("click",()=>{renderBook();sheet.classList.add("open");});
+  // 顔のあたり（何もない所）をタップしたら字をしまう／戻す
+  stage.addEventListener("click",(e)=>{const t=e.target;if(t===stage||t.classList.contains("photo")||t.classList.contains("veil")||t.classList.contains("bokeh")||t.classList.contains("top"))stage.classList.toggle("peek");});
   let saveTimer=null;
   profileEl.addEventListener("input",()=>{const b=loadBook();b.profile=profileEl.value;profileLen.textContent=`${profileEl.value.length}文字`;if(saveBook(b))savedEl.textContent="保存した";clearTimeout(saveTimer);saveTimer=setTimeout(()=>savedEl.textContent="",1500);});
   $("addnote").addEventListener("click",()=>{
@@ -2026,7 +2053,7 @@
   const musicBtn=$("musicbtn");
   function renderMusic(){
     musicBtn.className="musicbtn"+(session&&connectedAt&&!ending?" show":"")+(session&&session.music?" on":"");
-    musicBtn.textContent=session&&session.music?"🎤 また喋る（音楽タイム終わり）":"🎵 音楽タイム（マイク休み・ママは静かに隣におる）";
+    musicBtn.textContent=session&&session.music?"🎤 また喋る（音楽タイム終わり）":"🎵 音楽タイム（マイク休み）";
   }
   function setMusic(on){
     if(!conv||!session||session.closing)return;
