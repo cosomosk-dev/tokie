@@ -1704,6 +1704,17 @@ details.alb summary::-webkit-details-marker{display:none}
 
   renderIntro();
 
+  // 確認用: ?test=taka11 でタカヒロの最終話(第11話)へ直行(第1〜10話はA寄りで自動通過・購入済み扱い)
+  try{if(new URLSearchParams(location.search).get('test')==='taka11'){
+    if(!pers.name){pers.name='あなた';me='あなた';}
+    if(!pers.pro)pers.pro={x:{},sc:{A:0,B:0,C:0,D:0,S:4}};
+    cur=SEC;const r=R();r.bought=true;r.preApplied=false;
+    st=Object.assign(clone(START),{f:{},x:clone(pers.pro.x||{})});ci=0;r.ci=0;r.st=clone(st);r.picks=[];r.done=false;save();
+    const last=EP.S.length-1;
+    for(let k=0;k<last;k++){renderEp();choose(0);const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
+    renderEp();show('s-game');
+  }}catch(e){console.log('test jump failed',e);}
+
 })();
 </script>
 </body></html>
