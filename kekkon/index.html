@@ -1496,11 +1496,12 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#gt-buy').addEventListener('click',()=>{const pr=480;if(!confirm(`【試作版】本番ではここでストアの決済(¥${pr})が出ます。購入したことにして続けますか？`))return;const r=R();r.bought=true;save();toast(cur.id==='S'?'名前が解禁されました。彼の名前は、タカヒロ':cur.name+'ルートの全話が開きました');renderEp();show('s-game');});
   $('#gt-all').addEventListener('click',()=>{if(!confirm('【試作版】本番ではここでストアの決済(¥1,480)が出ます。購入したことにして続けますか？'))return;['A','B','C','D','S'].forEach(k=>{const r=pers.routes[k]||(pers.routes[k]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});r.bought=true;});save();toast('5人全員の全話が開きました');renderEp();show('s-game');});
   $('#gt-restore').addEventListener('click',()=>toast('【試作版】本番では、ストアの購入履歴を確認して、買った物語を復元します'));
-  // CMの中身: A8.netで承認済みの12社(メディア「ウェデイングストーリー」で発行したリンク、2026/10/21)。
+  // CMの中身: A8.netで承認済みの13社(メディア「ウェデイングストーリー」で発行したリンク、2026/10/21、レインボーファクトリーは10/22追加)。
   // 同じジャンルが続かないように並べ、日替わり+遊んだ回数で順番に出す
   const CMS=[
     {tag:"結婚相談所",t:"自分に合う相談所、まず診断で。",s:"いくつかの相談所の無料体験を、まとめて比べられるわ。",nak:"このゲームで選べた子は、本物でも選べるわよ。",brand:"結婚相談所比較ネット",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+8MSAK2+1PJA+2BFH02",imp:"https://www14.a8.net/0.gif?a8mat=4BEL1J+8MSAK2+1PJA+2BFH02"},
     {tag:"婚活パーティー",t:"今週末、1回だけ行ってみる？",s:"少人数の婚活パーティー。ひとり参加の子も多いのよ。",nak:"数をこなした子が、最後に笑うの。",brand:"フィオーレパーティー",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+BET46Q+2RIS+5YJRM",imp:"https://www13.a8.net/0.gif?a8mat=4BEL1K+BET46Q+2RIS+5YJRM"},
+    {tag:"婚活パーティー",t:"ひとりで行くのが、ふつうの婚活パーティー。",s:"参加者のほとんどがお一人さま。友達を誘わなくて大丈夫。",nak:"友達と一緒だと、友達の顔色を見ちゃうの。ひとりの方が、ちゃんと選べるわ。",brand:"レインボーファクトリー",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+BE7OKY+4MPE+C03K2",imp:"https://www19.a8.net/0.gif?a8mat=4BEL1K+BE7OKY+4MPE+C03K2"},
     {tag:"コスメ",t:"お見合いの前の日の、肌。",s:"美肌のために作られた化粧品。",nak:"第一印象は0.5秒。その0.5秒に投資しなさい。",brand:"ジュランツ",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+9A075E+3AT8+5YJRM",imp:"https://www15.a8.net/0.gif?a8mat=4BEL1J+9A075E+3AT8+5YJRM"},
     {tag:"オンライン相談所",t:"登録料も成婚料も、0円の相談所。",s:"オンラインで完結。忙しい子でも続けやすいわ。",nak:"仕事が忙しいは、言い訳にならない時代よ。",brand:"リトマリ",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1J+91O4OI+5BUE+BWVTE",imp:"https://www19.a8.net/0.gif?a8mat=4BEL1J+91O4OI+5BUE+BWVTE"},
     {tag:"ふたりの家計",t:"夫婦にとって、お金の相談はいちばん大事。",s:"保険の見直しを、無料でプロに相談できる。",nak:"お金の話ができる夫婦は、ケンカが半分になるの。独身でも既婚でも、よ。",brand:"保険の無料相談 ガーデン",href:"https://px.a8.net/svt/ejp?a8mat=4BEL1K+AP7H6A+4GN2+NV9N6",imp:"https://www15.a8.net/0.gif?a8mat=4BEL1K+AP7H6A+4GN2+NV9N6"},
