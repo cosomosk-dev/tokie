@@ -1514,7 +1514,7 @@ details.alb summary::-webkit-details-marker{display:none}
   ];
   const CM_SEC=15;
   $('#gt-ad').addEventListener('click',()=>{
-    const r=R();const cm=CMS[(pers.plays+(r.picks||[]).length+new Date().getDate())%CMS.length];
+    const r=R();const cm=window.__testCM?CMS[Math.floor(Math.random()*CMS.length)]:CMS[(pers.plays+(r.picks||[]).length+new Date().getDate())%CMS.length];
     const ov=document.createElement('div');ov.className='adov cm';
     ov.innerHTML=`<div class="cmcard"><div class="cmtop"><span class="prb">PR</span><span class="cmtag">今日のCM ・ ${esc(cm.tag)}</span><span class="cmcd" id="cm-cd">${CM_SEC}</span></div>
       <div class="cmt">${esc(cm.t)}</div><div class="cms">${esc(cm.s)}</div>
@@ -1713,6 +1713,17 @@ details.alb summary::-webkit-details-marker{display:none}
     for(let k=0;k<last;k++){renderEp();choose(0);const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
     renderEp();show('s-game');
   }}catch(e){console.log('test jump failed',e);}
+
+  // 確認用: ?test=cm で誠一郎の第2話の前(課金・CMの画面)へ直行。CMの1日1回制限をリセットし、CMは毎回ランダム
+  try{if(new URLSearchParams(location.search).get('test')==='cm'){
+    window.__testCM=true;
+    if(!pers.name){pers.name='あなた';me='あなた';}
+    if(!pers.pro)pers.pro={x:{},sc:{A:4,B:0,C:0,D:0,S:0}};
+    cur=P[0];const r=R();r.bought=false;r.unlocked=0;r.adDay=null;r.preApplied=false;
+    st=Object.assign(clone(START),{f:{},x:clone(pers.pro.x||{})});ci=0;r.ci=0;r.st=clone(st);r.picks=[];r.done=false;save();
+    renderEp();choose(0);const r2=R();ci=1;r2.ci=1;r2.st=clone(st);r2.preApplied=false;r2.freeAt=Date.now()+WAIT;save();
+    showGate();
+  }}catch(e){console.log('test cm failed',e);}
 
 })();
 </script>
