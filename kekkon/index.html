@@ -413,7 +413,7 @@ details.alb summary::-webkit-details-marker{display:none}
 
   <!-- ===== 序章 ===== -->
   <section id="s-pro" hidden class="stack">
-    <div class="top"><div class="brand">序章 お見合い</div><span class="pill gold" id="p-pos"></span></div>
+    <div class="top"><div class="brand">序章 体験お見合い</div><span class="pill gold" id="p-pos"></span></div>
     <div class="pdots" id="p-dots"></div>
     <div class="card stack" id="p-card">
       <div id="p-who"></div>
@@ -430,15 +430,15 @@ details.alb summary::-webkit-details-marker{display:none}
 
   <!-- ===== 序章の結果(ミニ診断) ===== -->
   <section id="s-pmini" hidden class="stack">
-    <div class="top"><div class="brand">お見合いでのあなた</div><span class="eyebrow">Preview</span></div>
+    <div class="top"><div class="brand">体験お見合いでのあなた</div><span class="eyebrow">Preview</span></div>
     <div class="diag">
-      <div class="lab">結婚観診断(仮) ・ 3つの質問と4人のお見合いから</div>
+      <div class="lab">結婚観診断(仮) ・ 3つの質問と4人との体験お見合いから</div>
       <div id="pm-radar"></div>
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="pm-type" style="font-size:1.5rem"></div>
       <p class="td" id="pm-desc"></p>
       <div class="datab"><b>5人との相性(早見表)</b><div class="compat" id="pm-compat"></div></div>
-      <p class="small muted">これは「お見合い」だけの仮の診断。結婚して20年たつと、完成版が出ます。</p>
+      <p class="small muted">これは「体験お見合い」だけの仮の診断。結婚して20年たつと、完成版が出ます。</p>
     </div>
     <div class="nako" id="nako-pmini"></div>
     <div class="row"><button class="btn-gold" id="pm-save" style="flex:1">画像で保存</button></div>
@@ -1383,13 +1383,13 @@ details.alb summary::-webkit-details-marker{display:none}
     const live=Object.keys(READY).find(k=>pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done);const r=live?pers.routes[live]:null;
     const btn=$('#start'),sub=$('#intro-sub');
     $('#name-wrap').hidden=!!pers.pro;
-    if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。3つの質問と、4人とのお見合い(約5分)';}
+    if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。3つの質問と、4人との体験お見合い(約5分)';}
     else if(r){cur=byId(live);checkFree();btn.textContent=`つづきを読む ・ ${cur.name.split(' ').pop()} 第${r.ci+1}話`;sub.textContent=!locked(r.ci)?'今すぐ読めます':`次の話は ${fmtTime(r.freeAt)} に無料で開きます`;}
     else{btn.textContent='指輪を渡す人を選ぶ';sub.textContent=pers.coll.length?`エンディング図鑑 ${pers.coll.length}/15`:'序章はクリア済み。次は、結婚相手を選びます';}
     show('s-intro');
   }
   $('#start').addEventListener('click',()=>{
-    if(!pers.pro){me=$('#my-name').value.trim()||'あなた';pers.name=me;save();pi=0;proX={};proScore={A:0,B:0,C:0,D:0,S:0};renderPro();show('s-pro');return;}
+    if(!pers.pro){me=$('#my-name').value.trim()||'あなた';pers.name=me;save();pi=0;proTop=null;proX={};proScore={A:0,B:0,C:0,D:0,S:0};renderPro();show('s-pro');return;}
     const live=Object.keys(READY).find(k=>pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done);
     if(live){cur=byId(live);resume();return;}
     renderList();show('s-list');
@@ -1397,7 +1397,9 @@ details.alb summary::-webkit-details-marker{display:none}
   $('#reset-all').addEventListener('click',()=>{if(!confirm('遊んだ記録をすべて消して、最初からやり直しますか？'))return;try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
 
   // ================= 序章 =================
-  const SEQ=()=>{const qs=PRO.filter(x=>x.who==='N');const OMI=['D','B','C','A'];const om=PRO.filter(x=>x.who!=='N').slice().sort((p,q)=>OMI.indexOf(p.who)-OMI.indexOf(q.who));return qs.concat(om);};
+  // 3つの質問のあと、まず「あなたにぴったりな人」(答えで決まる)と会い、残りは 蓮→黒田→悠太→誠一郎 の順で体験お見合い
+  let proTop=null;const liveTop=()=>['A','B','C','D'].slice().sort((p,q)=>(proScore[q]||0)-(proScore[p]||0))[0];const PTOP=()=>proTop||liveTop();
+  const SEQ=()=>{const qs=PRO.filter(x=>x.who==='N');const t=PTOP();const OMI=[t].concat(['D','B','C','A'].filter(k=>k!==t));const om=PRO.filter(x=>x.who!=='N').slice().sort((p,q)=>OMI.indexOf(p.who)-OMI.indexOf(q.who));return qs.concat(om);};
   function renderPro(){
     const seq=SEQ(),sc=seq[pi];
     $('#p-pos').textContent=`${pi+1} / ${seq.length}`;
@@ -1406,7 +1408,7 @@ details.alb summary::-webkit-details-marker{display:none}
     if(sc.who==='N'){$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img('N','千代子')}</div><b>仲人・千代子</b><span>成婚300組の毒舌仲人</span></div>`;}
     else{const p=byId(sc.who);$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img(p.id,p.name)}</div><b>${esc(p.name)}(${p.age})</b><span>${esc(p.job)} ・ ${p.income}</span></div>`;}
     $('#p-card').classList.toggle('qcard',sc.who==='N');
-    $('#p-ep').textContent=sc.who==='N'?sc.ep:`お見合い ${pi-qn+1}人目`+(sc.who===topCand()?' ・ 千代子のイチオシ':'');$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
+    $('#p-ep').textContent=sc.who==='N'?sc.ep:(pi===qn?'千代子が選んだ、あなたにぴったりな人':`体験お見合い ${pi-qn}人目 / 3人`);$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
     $('#p-choices').innerHTML=sc.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${['A','B','C'][i]}</span><span>${esc(h.t)}</span></button>`).join('');
     $$('#p-choices button').forEach(b=>b.addEventListener('click',()=>proChoose(+b.dataset.i)));
     $('#p-after').hidden=true;window.scrollTo(0,0);
@@ -1416,10 +1418,10 @@ details.alb summary::-webkit-details-marker{display:none}
     const h=SEQ()[pi].ch[i];addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
     $$('#p-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
     $('#p-out').textContent=typeof h.o==='function'?h.o():h.o;nako('#nako-pro',h.nak,true);
-    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?(seq[pi+1].who===topCand()?'イチオシの':'まずは')+byId(seq[pi+1].who).name.split(' ').pop()+'に会う':'次のお見合いへ'));
+    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+byId(seq[pi+1].who).name.split(' ').pop()+'に会う':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ')));
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
-  $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
+  $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){if(SEQ()[pi].who==='N'&&SEQ()[pi+1].who!=='N')proTop=liveTop();pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
@@ -1669,7 +1671,7 @@ details.alb summary::-webkit-details-marker{display:none}
     };
     const finish=()=>{
       if(kind==='mini'){
-        tx('お見合いでのあなた',W/2,330,40,GOT,'#B8921C',700);
+        tx('体験お見合いでのあなた',W/2,330,40,GOT,'#B8921C',700);
         const s1=fit(ty.n,W-240,92,MIN);tx(ty.n,W/2,450,s1,MIN,'#C92A62');
         radar(W/2,860,250);
         tx('あなたなら、4人の誰に指輪を渡す？',W/2,1300,42,MIN,'#3B2430');
