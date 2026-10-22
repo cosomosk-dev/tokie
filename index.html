@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v35";
+  const APP_VER="2026-10-22 v36";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1103,7 +1103,12 @@
     "・ツールを使う時も、ツールの名前や「Tool calls」「skip_turn」みたいな英語・記号は絶対に書かへん・言わへん。黙って使うだけ。\n"+
     "・状況の説明・分析・自分へのメモ（例「お母さんが隣にいて妨害してくる状況。」「今話すとまずい様子。」「静かに待つ。」みたいな標準語の書き言葉）は、全部ママの頭の中だけ。声に出すのは、タケオさんに話しかける関西弁の口語だけ。\n"+
     "・黙って待つと決めた時は、文字を1つも書かずにツールだけ使う。理由・判断・状況は書かへん。\n"+
-    "・タケオさんの近くに家族など他の人がおって話しにくそうな時も、状況を説明せんと「ええよ、落ち着いたらまた声かけて」の一言だけか、黙って待つ。";
+    "・タケオさんの近くに家族など他の人がおって話しにくそうな時も、状況を説明せんと「ええよ、落ち着いたらまた声かけて」の一言だけか、黙って待つ。\n"+
+    "・返事の文に < > / や「invoke」「parameter」「function」みたいなプログラムの記号・英単語を絶対に書かへん。ツールは仕組みで呼ぶだけで、文章には書かへん。英語の文も書かへん。\n\n"+
+    "【聞き間違いの直し方（大事）】\n"+
+    "・タケオさんの言葉は、声を機械で文字にしたもの。聞き間違い・抜け・変な漢字がよう混ざる。書いてある字のまま受け取らんと、前後の話と手帳から「ほんまはこう言うたんやな」と一番ありそうな意味に読み替えて返す。\n"+
+    "・例：「とちじせん」「都知事戦」→都知事選／「コスモス系」「コスモスケー」→コスモスK／「ポジティブ」→アプリのポジティー／「ときえ」「時枝」→トキエ（ママ）／「へいつか」→平塚。\n"+
+    "・読み替えても意味が通らん時だけ、「え、○○って言うた？」と軽く一言で聞き返す。聞き間違いのまま話を進めたり、とんちんかんな返事をしたりせえへん。聞き返しは続けてせん（2回目は分かったとこだけで返す）。";
   // 今夜の濃さ（ママの口調3段階）。性格設定のツッコミ・意見の量より、これが優先
   const STRENGTHS={
     mizu:{name:"水割り",short:"聞いてほしい夜",level:"ツッコミ0・意見0",
@@ -1819,6 +1824,7 @@
   const SPEECH_END_RE=/(わ|な|で|や|へん|ねん|やん|か|よ|ね|ぞ|さ|ん|て|〜|～|ぁ|ぇ|ぃ|ぅ|ぉ|ー|w|笑)[」』）)]*[。！？!?…♪]*$/;
   function isLeak(s){
     const t=String(s||"").trim().replace(/[\s　]+/g,"");if(!t)return false;
+    if(/§LEAK§|[<>]/.test(t)||isEnglishMemo(String(s||"")))return true;
     if(/ユーザー|ツール|tool|skip_?turn|end_?call|システム|プロンプト|ルールに従|指示に従|手帳のルール/i.test(t))return true;
     const body=t.replace(/[。．.…！？!?」』）)]+$/,"");
     if(/(状況|様子|模様|場面|局面|意図|方針|段階|雰囲気|気配)(だ|である|です|と判断|と思われる)?$/.test(body))return true;
@@ -1830,14 +1836,25 @@
     return false;
   }
   // 返事を文に分けて、心の声の文を抜く。lead＝頭から続く心の声の字数（声を消す長さに使う）
+  // v36 ツールの呼び出しを文章で書いてしもうた跡（<invoke> </parameter> など）。記号は消して、その中身は心の声扱い
+  const MARKUP_RE=/<\/?\s*(?:antml:)?(?:invoke|parameter|function_calls?|function_results?|tool_?(?:use|call|result)s?|thinking|result|args?|name)\b[^>]*>|<\/?[A-Za-z_][\w:-]*(?:\s+[\w:-]+="[^"]*")*\s*\/?>/gi;
+  function hasMarkup(s){return /<\/?\s*[A-Za-z_][\w:-]*[^<>]*>|\b(?:invoke|parameter|function_calls)\b/i.test(String(s||""));}
+  function isEnglishMemo(t){const l=(t.match(/[A-Za-z]/g)||[]).length,w=(t.match(/[A-Za-z]{2,}/g)||[]).length;return w>=3&&l>=t.replace(/\s/g,"").length*0.5;}
   function splitLeak(text){
-    const parts=String(text||"").split(/(?<=[。．！？!?\n])/);
-    let lead=0,leading=true,keep="",leak="";
-    for(const p of parts){
-      if(isLeak(p)){leak+=p;if(leading)lead+=p.replace(/\s/g,"").length;}
-      else{if(p.trim())leading=false;keep+=p;}
+    text=String(text||"");
+    if(hasMarkup(text)){ // タグの中身（パラメーターの値＝ママの頭の中）は声に出さへん。タグの外のセリフだけ残す
+      text=text.replace(/<\s*(?:antml:)?parameter\b[^>]*>[\s\S]*?<\/\s*(?:antml:)?parameter\s*>/gi,"\n§LEAK§\n")
+               .replace(MARKUP_RE,"\n§LEAK§\n").replace(/\b(?:invoke|parameter|function_calls)\b/gi,"\n§LEAK§\n");
     }
-    return {keep:keep.trim(),leak:leak.trim(),lead};
+    const parts=text.split(/(?<=[。．！？!?\n])/);
+    let lead=0,leading=true,keep="",leak="",pos=0,any=false;const ranges=[];
+    for(const p of parts){
+      const n=p.replace(/\s|§LEAK§/g,"").length;
+      if(isLeak(p)){any=true;leak+=p;if(leading)lead+=n;else if(n>0||/§LEAK§/.test(p))ranges.push([pos,pos+Math.max(n,8)]);} // 記号だけの所も、読み上げる分（約8字）は消す
+      else{if(p.trim())leading=false;keep+=p;}
+      pos+=n;
+    }
+    return {keep:keep.replace(/§LEAK§/g,"").trim(),leak:leak.replace(/§LEAK§/g,"").trim()||(any?"(記号)":""),lead,ranges};
   }
   const leakMute={pending:null,timer:null,on:false};
   function setMamaVol(v){try{if(conv&&typeof conv.setVolume==="function")conv.setVolume({volume:v});}catch(e){}leakMute.on=v===0;}
@@ -1845,7 +1862,20 @@
     clearTimeout(leakMute.timer);setMamaVol(0);
     if(ms!=null)leakMute.timer=setTimeout(()=>setMamaVol(1),Math.max(0,ms));
   }
+  const rangeTimers=[];
+  function muteRanges(ranges,speaking){
+    const base=speaking?((session&&session.speakAt)||Date.now()):null;
+    const go=(b)=>{for(const [a,z] of ranges){
+      const s0=b+a/LEAK_CPS*1000-300,s1=b+z/LEAK_CPS*1000+400,now=Date.now();
+      if(s1<=now)continue;
+      rangeTimers.push(setTimeout(()=>{clearTimeout(leakMute.timer);setMamaVol(0);},Math.max(0,s0-now)));
+      rangeTimers.push(setTimeout(()=>setMamaVol(1),s1-now));
+    }};
+    if(base)go(base);else leakMute.pendingRanges=ranges;
+  }
   function leakModeChange(mode){
+    if(mode==="speaking"&&leakMute.pendingRanges){const rr=leakMute.pendingRanges;leakMute.pendingRanges=null;setTimeout(()=>muteRanges(rr,true),0);}
+    if(mode!=="speaking"){while(rangeTimers.length)clearTimeout(rangeTimers.pop());leakMute.pendingRanges=null;}
     if(mode==="speaking"){
       if(session)session.speakAt=Date.now();
       if(leakMute.pending){const p=leakMute.pending;leakMute.pending=null;muteMama(p.all?null:p.ms);}
@@ -1863,10 +1893,11 @@
       if(speaking){const left=ms-(Date.now()-((session&&session.speakAt)||Date.now()));if(left>0)muteMama(left);}
       else leakMute.pending={all:false,ms};
     }
+    if(r.keep&&r.ranges&&r.ranges.length)muteRanges(r.ranges,speaking); // v36 途中・最後に混ざった記号や心の声も、その時間だけ消す
     return r.keep;
   }
   function show(text,who){
-    text=String(text).replace(/\[[^\]]*\]/g,"")
+    text=String(text).replace(/\[[^\]]*\]/g,"").replace(/<[^<>]*>/g,"")
       .replace(/Tool\s*calls?\s*[:：]?\s*(?:[-・*]\s*)?[A-Za-z_]*/gi,"") // v33 裏の仕組み（ツール）の名前が字幕に漏れたら消す
       .replace(/(?:^|\s)[-・*]?\s*(?:skip_turn|end_call|language_detection|transfer_to_\w+|update_state|play_keypad_touch_tone|voicemail_detection)\b/gi,"")
       .replace(/\s{2,}/g," ").trim();if(!text)return;
@@ -2126,7 +2157,7 @@
     if(connectedAt&&!session.refreshing){
       const ce=now-connectedAt;
       if(!session.preSumDone&&ce>=(REFRESH_MIN-2)*60000){session.preSumDone=true;updateNightSum();}
-      if(ce>=REFRESH_MIN*60000&&quiet&&now-userLastActive()>=2500&&now-(session.lastAi||0)>=1500&&!session.sumBusy){silentRefresh();return;}
+      if(ce>=REFRESH_MIN*60000&&quiet&&now-session.lastVad>=4000&&now-userLastActive()>=4000&&now-(session.lastAi||0)>=1500&&!session.sumBusy){silentRefresh();return;}
     }
     const el=now-session.start;
     // 営業時間：10分前にラストオーダー、時間が来たら閉店
@@ -2233,7 +2264,7 @@
       session.capture=null;session.mode="listening";
     }
     try{
-      try{await navigator.mediaDevices.getUserMedia({audio:true});}
+      try{const ms=await navigator.mediaDevices.getUserMedia({audio:true});ms.getTracks().forEach(t=>t.stop());} // v36 許可の確認だけ。止めへんと入り直しのたびにマイクが二重三重に開いて、聞き取りが悪なる
       catch(e){errEl.textContent=(e&&e.name==="NotAllowedError")?"マイクを許可してな":"マイクが使えへん："+String(e&&e.message?e.message:e);statusEl.textContent="またおいでな";btn.disabled=false;session=null;current=null;return;}
       const T=session&&session.trial;
       const digest=T?null:await loadDigest(); // 立ち飲み体験には、タケオさんのメモは渡さへん
@@ -3062,7 +3093,7 @@
     };
     vmStop=()=>finish(bodyCount>=1);
     try{
-      try{await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){errEl.textContent="マイクを許可してな（聞くだけやけど、仕組み上いる）";return finish(false);}
+      try{const ms=await navigator.mediaDevices.getUserMedia({audio:true});ms.getTracks().forEach(t=>t.stop());}catch(e){errEl.textContent="マイクを許可してな（聞くだけやけど、仕組み上いる）";return finish(false);}
       const digest=await loadDigest();
       const fullMsg=VM_OPEN_NOTE+vmMsg;
       vmConv=await Conversation.startSession({
