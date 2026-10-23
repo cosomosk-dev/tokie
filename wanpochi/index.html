@@ -1810,11 +1810,11 @@ body.demoing{padding-bottom:260px}
       ending(pet('panda',[newItemId()],true), 'ワンポチ家族プラン', '月200円。親の画面は、そのまま。<br>毎日の生存確認は、ずっと無料。');
   }
   // ---------- 10分の通しデモ：説明は全画面カード、操作は画面をそのまま見せる（重ねない） ----------
-  var SLOW=1.25, SL={n:0, total:18};
+  var SLOW=1.25, SL={n:0, total:19};
   function tp(kind, text){ var p=el('toppill'); if(!text){ p.hidden=true; return; } p.hidden=false; var k=el('tp-k'); k.className=kind||''; k.textContent=kind==='free'?'無料':(kind==='plus'?'家族プラン':'ワンポチ'); el('tp-t').textContent=text; }
   async function slide(kind, title, body, extra){
     fg.hidden=true; tp(); SL.n++;
-    var sl=el('slide'); el('s-chip').className='pill '+(kind||''); el('s-chip').textContent=kind==='free'?'第1部 無料編':(kind==='plus'?'第2部 家族プラン編':'はじめに');
+    var sl=el('slide'); el('s-chip').className='pill '+(kind==='fri'?'free':(kind==='end'?'':(kind||''))); el('s-chip').textContent=kind==='free'?'第1部 無料編':(kind==='plus'?'第2部 家族プラン編':(kind==='fri'?'第3部 友だち同士編':(kind==='end'?'まとめ':'はじめに')));
     el('s-title').innerHTML=title; el('s-body').innerHTML=body||''; el('s-bar').style.width=Math.min(100,SL.n/SL.total*100)+'%'; el('s-pg').textContent=SL.n+' / '+SL.total;
     sl.classList.add('show'); await sleep(500); chk();
     var len=(title+(body||'')).replace(/<[^>]+>/g,'').length;
@@ -1952,7 +1952,7 @@ body.demoing{padding-bottom:260px}
 
       // ===== 第3部 友だち同士編 =====
       fresh(); S.plan='free'; renderAll(); show('choose'); window.scrollTo(0,0); chooseStep='mode'; renderChoose();
-      await slide('free', '第3部<br>友だち同士でも<b>使える</b>',
+      await slide('fri', '第3部<br>友だち同士でも<b>使える</b>',
         '<ul>'+li('👭','最初に「友だち同士」をえらぶだけ')+li('❓','ふたりとも毎日1問。答えたら、相手に「無事」が届く')+li('🔔','答えがない日が続いたら、相手に知らせる')+li('🆓','友だち同士の見守りは、ずっと無料')+'</ul>', -1500);
       await step('free','最初の画面で「友だち同士」をえらびます',2600); await tap(el('mode-friend')); await hold(1200); fg.hidden=true;
       await step('free','自分の相棒を1匹えらぶ。友だちも、自分の相棒をえらびます',2600);
@@ -1986,7 +1986,7 @@ body.demoing{padding-bottom:260px}
       await focus(el('f-send')); await step('free','「友だちに招待を送る」を押すと…',1800); await tap(el('f-send')); await hold(900); fg.hidden=true;
       await focus(el('f-sms')); await step('free','友だちにリンクを1本送るだけ。登録もコード入力もいりません',4500);
 
-      await slide('', 'まとめ', visualHtml()+'<p class="note">毎日の生存確認は、ずっと無料。家族プランは「もう少しだけ安心したい人」に。友だち同士の見守りも、ずっと無料。</p>', 7000);
+      await slide('end', 'まとめ', visualHtml()+'<p class="note">毎日の生存確認は、ずっと無料。家族プランは「もう少しだけ安心したい人」に。友だち同士の見守りも、ずっと無料。</p>', 7000);
       ending(pet('dog',[],true), 'ワンポチ', '毎日の生存確認は、ずっと無料。<br>家族プランは 月200円。友だち同士でも使えます。');
     } finally { document.body.classList.remove('longdemo'); el('slide').classList.remove('show'); tp(); }
   }
