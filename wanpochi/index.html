@@ -1571,21 +1571,21 @@ body.demoing{padding-bottom:260px}
     S=JSON.parse(saved); demo=false; calOff=0; calSel=''; document.body.classList.remove('demoing');
     renderAll(); show(back); window.scrollTo(0,0);
   }
-  function runDemo(){ return runDemoWith(demoMain, 7); }
+  function runDemo(){ return runDemoWith(demoMain, 8); }
   async function demoMain(){
       fresh(); renderAll(); show('choose'); window.scrollTo(0,0);
-      await intro('ひとり暮らしの、<br>生存確認。','毎日1問に、答えるだけ。');
+      await intro('ひとり暮らしの、<br>安否確認・見守り。','毎日1問に、答えるだけ。親とも、友だちとも。');
 
-      await chapter(1,'相棒をえらぶ','いちばん最初の1回だけ');
+      await chapter(1,'だれと使う？','いちばん最初の1回だけ');
       await say('最初に、だれと使うかを えらびます','「親と家族」か「友だち同士」の2つだけ');
       line('親を見守るなら「親と家族」'); await tap(el('mode-family')); await sleep(500); fg.hidden=true;
-      await say('まず、相棒を1匹えらびます','ポチ・タマ・パン・ミミの4匹。あとから家族の画面でも変えられます');
-      line('かわいいと思った子を押すだけ'); await tap(el('pick-cat')); await sleep(600); await tap(el('pick-panda')); await sleep(500);
-      line('決めたら「この子にする」'); await tap(el('pick-ok')); fg.hidden=true;
+      await say('つぎに、相棒を1匹えらびます','ポチ・タマ・パン・ミミの4匹。あとから家族の画面でも変えられます');
+      line('かわいいと思った子を押すだけ'); await tap(el('pick-cat')); await sleep(600); await tap(el('pick-dog')); await sleep(500);
+      line('決めたら「ポチ にする」'); await tap(el('pick-ok')); fg.hidden=true;
       await say('えらんだ子が、毎日あいさつに来ます');
 
       await chapter(2,'親のスマホ','おとうさん・おかあさんが見る画面');
-      el('notif-pet').innerHTML=pet('panda',[]); el('notif-tx').textContent='パンが きょうの1問を 持ってきたよ';
+      el('notif-pet').innerHTML=pet('dog',[]); el('notif-tx').textContent='ポチが きょうの1問を 持ってきたよ';
       el('notif').classList.add('show'); el('dim').classList.add('show');
       await say('毎朝、相棒が通知で「きょうの1問」を持ってきます','届く時間は 朝・昼・夜 からえらべます');
       el('notif').classList.remove('show'); el('dim').classList.remove('show'); await sleep(350);
@@ -1615,7 +1615,7 @@ body.demoing{padding-bottom:260px}
       await chapter(4,'家族のスマホ','離れて暮らす家族が見る画面');
       show('family'); window.scrollTo(0,0); await sleep(400);
       await focus(el('f-status'));
-      await say('親が答えると、家族に「きょうも無事です」と届きます','LINEを使っていない人には、SMSで届きます');
+      await say('親が答えると、家族に「きょうも無事です」と届きます','家族のスマホに通知で届きます。LINEはいりません');
       await focus(el('f-week'));
       await say('1週間ぶんの「無事」が、ひと目でわかります');
       await focus(el('f-gifts'));
@@ -1632,9 +1632,9 @@ body.demoing{padding-bottom:260px}
       await chapter(6,'もしも','答えがない日が続いたら');
       S.dayOffset+=3; renderAll(); show('family'); window.scrollTo(0,0); await sleep(400);
       var st=S.settings;
-      el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>SMS</small>';
+      el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>通知</small>';
       el('phone-msg').textContent='【ワンポチ】'+st.parentName+'さんが2日答えていません。電話してみてください。';
-      el('phone').classList.add('show'); await say('2日続けて答えがないと、家族にSMSが届きます','親の電話番号つき。すぐに電話できます', 600);
+      el('phone').classList.add('show'); await say('2日続けて答えがないと、家族に知らせが届きます','通知・メールで。見てもらえないときはSMSでも。押せばすぐ電話', 600);
       el('phone').classList.remove('show'); await sleep(400);
       await focus(el('f-status'));
       await say('家族の画面も、赤い知らせに変わります');
@@ -1645,17 +1645,28 @@ body.demoing{padding-bottom:260px}
       await focus(el('s-device'));
       await say('親がガラケーなら、ここで「ガラケー（メール）」をえらんで、メールアドレスを入れるだけ','最初に1回、確認のメールが届きます。リンクが開けたら登録完了');
       await focus(el('s-animal'));
-      line('相棒も、ここで変えられます'); await tap(el('s-animal-rabbit')); await sleep(700); await tap(el('s-animal-panda')); await sleep(300); fg.hidden=true;
+      line('相棒も、ここで変えられます'); await tap(el('s-animal-rabbit')); await sleep(700); await tap(el('s-animal-dog')); await sleep(300); fg.hidden=true;
       await focus(el('s-alert'));
       await say('知らせるタイミングは「次の日・2日後・3日後」の3つだけ','むずかしい時間の入力はありません');
       await focus(el('f-send'));
-      line('親のスマホには、リンクを1本送るだけ','登録もコード入力もいりません'); await tap(el('f-send')); await sleep(400); fg.hidden=true;
+      line('「親のスマホに送る」を押すと…'); await tap(el('f-send')); await sleep(400); fg.hidden=true;
       await focus(el('f-sms'));
       await say('親のスマホには、リンクを1本送るだけ','押した瞬間に親の画面になります。登録もコード入力もいりません');
       await focus(el('f-know'));
       await say('できないことも、家族の画面に はっきり書いてあります','急な病気は防げない。防げるのは「何日も気づかれないこと」');
 
-      ending(pet('panda',['straw'],true), 'ワンポチ', '毎日1問の、生存確認。<br>答えなければ、家族に知らせる。');
+      await chapter(8,'友だち同士でも','ひとり暮らしの友だちと');
+      show('choose'); chooseStep='mode'; renderChoose(); window.scrollTo(0,0); await sleep(500);
+      await focus(el('mode-friend'));
+      await say('最初の画面で「友だち同士」をえらべば、友だちとも使えます','あとから設定でも切り替えOK');
+      line('「友だち同士」を押して、相棒をえらぶ'); await tap(el('mode-friend')); await sleep(500);
+      await tap(el('pick-dog')); await sleep(400); await tap(el('pick-ok')); fg.hidden=true; await sleep(600);
+      await focus(el('p-friend'));
+      await say('ふたりとも毎日1問。いちばん上に、友だちの「きょう」が出ます','答えたら、相手に「きょうも無事」が届きます');
+      await say('答えがない日が続いたら、相手に知らせが届きます','押せば、そのまま電話できます');
+      await say('友だち同士の見守りは、ずっと無料','くわしくは「▶ 友だち同士のデモ」で');
+
+      ending(pet('dog',['straw'],true), 'ワンポチ', '毎日1問の、安否確認。<br>親とも、友だちとも。');
   }
 
   // ---------- 友だち同士のデモ（お互いに見守りあう）----------
