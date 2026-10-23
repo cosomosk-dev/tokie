@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-22 v36";
+  const APP_VER="2026-10-23 v37";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -929,6 +929,24 @@
     "自分の好きなとこ、一つ言うてみ","最近誰かに優しくされたこと","お金の使い方で後悔してること","もう一回行きたい旅先","今の体の調子、正直どうなん","最近気になる人、おる？","昔の友達で会いたい人","好きな食べもん三つ","やめたいのにやめられへんこと","10年後どこで何しとると思う？",
     "最近いちばん感動したこと","ママに聞いてほしい愚痴","今日一日でいちばんマシやったこと","小さい頃の夢と今の自分","最近できるようになったこと","今いちばん会いたい人","休みの日の理想の過ごし方","人に言われて嬉しかった言葉","最近のアプリの進み具合","最近の曲作り、どうなん",
     "体のためにやってること一つ","今のお金の心配、正直どれくらい？","ママにツッコんでほしいこと","死ぬまでにやりたいこと三つ","今週がんばった自分を褒めるなら","最近ちょっと笑えた失敗","昔好きやったテレビ番組","今いちばんしんどい人間関係","最近読んだ・見たもんで残ってるやつ","今日ママに言うてない本音"];
+  /* v37 時系列：「月曜」「来週」がいつのことか、ママが取り違えんように前後の暦を渡す */
+  const WD=["日","月","火","水","木","金","土"];
+  function calDay(off){ // 今日（暦の日付・JST）からoff日ずれた日
+    const p=jstParts(new Date());const t=new Date(Date.UTC(p.y,p.m-1,p.d+off));
+    return {y:t.getUTCFullYear(),m:t.getUTCMonth()+1,d:t.getUTCDate(),w:WD[t.getUTCDay()],iso:t.toISOString().slice(0,10)};
+  }
+  const calLabel=(c)=>`${c.m}/${c.d}（${c.w}）`;
+  function calendarLines(){
+    const name={"-2":"おととい","-1":"昨日","0":"今日","1":"明日","2":"あさって"};
+    const back=[],fwd=[];
+    for(let i=-7;i<=-1;i++){const c=calDay(i);back.push(calLabel(c)+(name[i]?"="+name[i]:""));}
+    for(let i=1;i<=10;i++){const c=calDay(i);fwd.push(calLabel(c)+(name[i]?"="+name[i]:""));}
+    return `・済んだ日（過去）：${back.join("、")}\n・これから来る日（まだ先）：${fwd.join("、")}`;
+  }
+  const TIME_RULE="【時系列のルール（大事・取り違えたら信用なくす）】\n"+
+    "・メモや話の続きに出てくる「月曜」「来週」「明日」「今度」は、そのメモを書いた日から数えた日。上の暦で今日と比べて、まだ来てない日なら『先の予定』、過ぎてたら『済んだこと』。\n"+
+    "・先の予定は済んだことにせえへん。結果も聞かへん（「来週の月曜やな、検査」「月曜、気張りや」のように先のこととして言う）。結果を聞くのは、その日が過ぎてから。\n"+
+    "・いつのことか分からん予定は、決めつけずに「あれ、いつやったっけ？」と聞く。";
   function todayBlock(){
     const p=jstParts(new Date());
     const doy=Math.floor((Date.UTC(p.y,p.m-1,p.d)-Date.UTC(p.y,0,1))/86400000);
@@ -937,7 +955,8 @@
       `・${p.y}年${p.m}月${p.d}日（${p.w}）、今は${TOD(p.h)}（${p.h}時台）。季節は${SEASON(p.m,p.d)}。\n`+
       (ev?`・今日は${ev}。話のついでに触れてもええ。\n`:"")+
       `・この時期の話題：${MONTH_TOPICS[p.m]}\n`+
-      `・今日のお題（会話が途切れた時に自然に振ってもええ。無理に振らんでもええ）：「${TOPICS[doy%TOPICS.length]}」`;
+      `・今日のお題（会話が途切れた時に自然に振ってもええ。無理に振らんでもええ）：「${TOPICS[doy%TOPICS.length]}」\n`+
+      calendarLines()+"\n\n"+TIME_RULE;
   }
   function relationBlock(S){
     const n=visitsOnly().filter(v=>!current||v.id!==current.id).length+1; // 今日で何回目（延長中でも数えが増えへんように）
@@ -1248,11 +1267,14 @@
   function threadsBlock(maxBytes){
     const a=threadsOpen().sort((x,y)=>(y.lastTs||0)-(x.lastTs||0));
     if(!a.length)return "";
-    const h="【話の続き（前に聞いた、まだ途中の話。ほんまのスナックのママみたいに「あれどうなったん？」「その後どない進んでるん？」と気にかける。入って最初の方で1つだけ自然に聞いて、返ってきた話をちゃんと拾う。全部いっぺんに聞かへん。聞かれる前に結果を決めつけへん）】\n";
+    const h="【話の続き（前に聞いた、まだ途中の話。ほんまのスナックのママみたいに「あれどうなったん？」「その後どない進んでるん？」と気にかける。入って最初の方で1つだけ自然に聞いて、返ってきた話をちゃんと拾う。全部いっぺんに聞かへん。聞かれる前に結果を決めつけへん。予定の日がまだ先の話は「済んだ？」と聞かへん）】\n";
     let body="";
     for(const x of a){
       const ago=Math.max(0,Math.round((Date.now()-(x.lastTs||Date.now()))/86400000));
-      const line=`・${x.t}（${ago?ago+"日前":"今日"}に聞いた${x.next?"／次に気になること："+x.next:""}）\n`;
+      let wh="";
+      if(x.when){const d=Math.round((Date.parse(x.when+"T00:00:00Z")-Date.parse(calDay(0).iso+"T00:00:00Z"))/86400000);
+        const c=calDay(d);wh=d>0?`／予定は${calLabel(c)}＝あと${d}日。まだ先。結果は聞かへん`:d===0?"／予定は今日":"／予定の日は過ぎた。結果を聞いてええ";}
+      const line=`・${x.t}（${ago?ago+"日前":"今日"}に聞いた${wh}${x.next?"／次に気になること："+x.next:""}）\n`;
       if(jbytes(h+body+line)>maxBytes)break;body+=line;
     }
     return body?(h+body).trim():"";
@@ -1261,9 +1283,10 @@
     "拾うのは「まだ途中で、この先に結果や進展がある話」だけ：進めてる仕事やアプリ（次の段取り）、これからやると言ったこと、結果待ち（審査・返事・数字）、会う予定・LINEしてる相手との進展（夜のお店の女の子・風俗の子の話も含む）、迷ってて決めてない話、体調で様子を見てること。\n"+"女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。\n"+
     "拾わない：もう終わった話、その場の雑談、ずっと変わらない事実（それは基本情報）。\n"+
     "ルール：\n1. 帳にある話で、今夜「片付いた・結果が出た・やめた」と分かったものは status を \"done\" にする。進展があったら t と next を書き直す。今夜出てない話は出さない。\n"+
-    "2. 新しい話は id を \"new\" にして書く。t＝何の話か（40字以内・具体的に。固有名詞を残す）、ask＝ママが聞く時の短い言い方（20字以内・「〜の件」「〜の発注」のような名詞句）、next＝次に気になること（25字以内）。\n"+
+    "2. 新しい話は id を \"new\" にして書く。when＝その話に予定の日があればその日付（YYYY-MM-DD）。「月曜」「来週」「明日」などは下の【今夜の日付と暦】で日付に直す。日が分からんか予定の日が無い話は空文字。t＝何の話か（40字以内・具体的に。固有名詞を残す）、ask＝ママが聞く時の短い言い方（20字以内・「〜の件」「〜の発注」のような名詞句）、next＝次に気になること（25字以内）。\n"+
     "3. 作り話はしない。客が言ってないことは書かない。新しい話は今夜1〜5件まで。\n"+
-    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"status\":\"open\",\"t\":\"…\",\"ask\":\"…\",\"next\":\"…\"}]}";
+    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"status\":\"open\",\"when\":\"\",\"t\":\"…\",\"ask\":\"…\",\"next\":\"…\"}]}";
+  function thCalendar(){const c0=calDay(0);const a=[];for(let i=-3;i<=14;i++){const c=calDay(i);a.push(`${c.iso}(${c.w})`);}return `【今夜の日付と暦】今日は${c0.iso}（${c0.w}）。暦：${a.join(" ")}`;}
   // 話の続き帳が空の時だけ、最近2日の自動メモ（Claudeとのやりとり）から最初の続きを拾う（1回だけ）
   async function seedThreadsFromDigest(d){
     try{
@@ -1279,9 +1302,9 @@
     if(!gKey())return;
     const lines=(msgs||[]).filter(m=>m.who!=="ai").map(m=>String(m.text||"").trim()).filter(t=>t.length>=4);
     if(lines.length<2)return;
-    const open=threadsOpen().map(x=>({id:x.id,t:x.t,next:x.next||""}));
+    const open=threadsOpen().map(x=>({id:x.id,when:x.when||"",t:x.t,next:x.next||""}));
     let said=lines.map(t=>"・"+clip(t,160)).join("\n");if(said.length>24000)said=said.slice(-24000);
-    const out=await geminiText(TH_PROMPT+"\n\n【話の続き帳（今まで・まだ途中の話）】\n"+JSON.stringify({items:open})+"\n\n【今夜の客の言葉（古い→新しい）】\n"+said,{json:true,max:4096});
+    const out=await geminiText(TH_PROMPT+"\n\n"+thCalendar()+"\n\n【話の続き帳（今まで・まだ途中の話）】\n"+JSON.stringify({items:open})+"\n\n【今夜の客の言葉（古い→新しい）】\n"+said,{json:true,max:4096});
     if(!out)return;
     let j=null;try{j=JSON.parse(out.replace(/^[^{]*/,"").replace(/[^}]*$/,""));}catch(e){return;}
     if(!j||!Array.isArray(j.items))return;
@@ -1290,13 +1313,14 @@
     for(const y of j.items){
       if(!y)continue;
       const t=String(y.t||"").trim().slice(0,60),ask=String(y.ask||"").trim().slice(0,30),next=String(y.next||"").trim().slice(0,40);
+      const when=/^\d{4}-\d{2}-\d{2}$/.test(String(y.when||"").trim())?String(y.when).trim():"";
       let x=(y.id&&y.id!=="new")?list.find(z=>z.id===String(y.id)):null;
       if(!x){
         if(!t||y.status==="done"||added>=5)continue;
-        x={id:"T"+now.toString(36)+Math.random().toString(36).slice(2,5),t,ask:ask||clip(t,20),next,first:today,last:today,lastTs:now,done:false};list.unshift(x);added++;continue;
+        x={id:"T"+now.toString(36)+Math.random().toString(36).slice(2,5),t,ask:ask||clip(t,20),next,when,first:today,last:today,lastTs:now,done:false};list.unshift(x);added++;continue;
       }
       if(y.status==="done"){x.done=true;x.doneAt=today;}
-      if(t)x.t=t;if(ask)x.ask=ask;if(next)x.next=next;x.last=today;x.lastTs=now;
+      if(t)x.t=t;if(ask)x.ask=ask;if(next)x.next=next;if(when)x.when=when;x.last=today;x.lastTs=now;
     }
     // 閉じた話は30件まで残して、古い順に消す。開いてる話は TH_MAX 件まで
     const openL=list.filter(x=>!x.done&&(now-(x.lastTs||0))<TH_DAYS*86400000).slice(0,TH_MAX);
@@ -3069,29 +3093,36 @@
     vmCard.innerHTML=th?`📞 ママから留守電 1件（${esc(TIERS[th.t].name)}のお礼）<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small>`:`📞 ママから留守電 1件<small>タップで聞く（聞くだけ・こっちの声は入らへん）</small>`;
     vmCard.className="vm"+(vmAvailable()?" show":"");
   }
-  const MSG_VM="【留守電】いまお客さんは電話に出られへん。ママから留守電を入れる。前回の来店メモの話を一つだけ拾って、気にかけてる一言＋今日の過ごし方に軽く一言、全部で3〜4文・30秒以内。返事は求めへん（問いかけで終わらん）。最後は「ほな、またおいでな」で締める。";
+  const MSG_VM_BASE="【留守電】いまお客さんは電話に出られへん。ママから留守電を入れる。前回の来店メモの話を一つだけ拾って、気にかけてる一言＋今日の過ごし方に軽く一言、全部で3〜4文・30秒以内。返事は求めへん（問いかけで終わらん）。最後は「ほな、またおいでな」で締める。";
+  // v37 留守電でも時系列を取り違えんように、今日の日付と「先の予定は結果を聞かへん」を毎回はっきり添える
+  const vmTimeNote=()=>`（今日は${calLabel(calDay(0))}。拾う話に「月曜」「来週」などの予定が出てきたら、メモを書いた日から数えて今日と比べる。まだ先の予定なら「来週の月曜やな」「気張りや」と先のこととして言う。済んだことにして結果を聞かへん）`;
   let vmConv=null,vmStop=null;
   async function playVm(){
     // 入店中・入店の準備中（ボタンが押せへん間）は留守電を流さへん（ママの声がかぶるため）
     if(vmConv||conv||session||btn.disabled)return;
-    const th=thanksPending();const vmMsg=th?MSG_THANKS(th):MSG_VM;
+    const th=thanksPending();const vmMsg=(th?MSG_THANKS(th):MSG_VM_BASE)+vmTimeNote();
     vmCard.className="vm";hideNotice();errEl.textContent="";statusEl.textContent="ママから電話や…";btn.disabled=true;
     caption.innerHTML="";
     // 流れ：①「もしもし、ママやけど…」を最後まで言わせる → ②言い終わってから本題の指示を送る → ③本題を言い切って黙ったら切る
     // （前は挨拶の途中で指示を送ってたから、挨拶がぶった切られて本題の途中に挨拶が入り直したり、1.5秒の間で切れてた）
-    let aiCount=0,bodyCount=0,sent=false,done=false,hardStop=null,endT=null,sendT=null,lastBody="";
-    const VM_OPEN_NOTE="（挨拶の「もしもし、ママやけど。出られへんみたいやから、留守電入れとくな」はもう言うた。もう一回名乗ったり挨拶し直したりせんと、そのまま本題から入る。途中で切らんと、最後の締めの一言まで全部言い切る）";
+    // v37 字幕は声より先に全文が届くので、「締めの言葉が字幕に出た」＝「言い終わった」ではない。
+    //     本題を声で喋った時間を数えて、字数ぶん（1秒≒7字）喋り終わるまでは切らへん。
+    let aiCount=0,bodyCount=0,sent=false,done=false,hardStop=null,endT=null,sendT=null,lastBody="",bodyChars=0,spokeMs=0,spkAt=0;
+    const needMs=()=>Math.min(60000,Math.max(4000,bodyChars/7*1000*0.8)); // 字数から見た「喋り切るのに要る時間」の8割
+    const spokeEnough=()=>bodyCount>=1&&(spokeMs+(spkAt?Date.now()-spkAt:0))>=needMs();
+    const VM_OPEN_NOTE="（挨拶の「もしもし、ママやけど。出られへんみたいやから、留守電入れとくな」はもう言うた。もう一回名乗ったり挨拶し直したりせんと、そのまま本題から入る。途中で切らんと、最後の締めの一言まで全部言い切る。電話を切る道具（end_call）は使わへん。切るのは店の方でやる）";
     const sendBody=()=>{if(sent||done||!vmConv)return;sent=true;clearTimeout(sendT);try{vmConv.sendUserMessage(VM_OPEN_NOTE+vmMsg);}catch(e){}};
     const finish=async(ok)=>{
       if(done)return;done=true;clearTimeout(hardStop);clearTimeout(endT);clearTimeout(sendT);
       const c=vmConv;vmConv=null;try{if(c)await c.endSession();}catch(e){}
       stage.classList.remove("speaking");
+      const cut=!ok&&bodyCount>=1; // 本題の途中で切れた
       if(ok){if(th)markThanks(th);else{if(!sub().on&&vmCredits()>0)addVmCredit(-1);try{localStorage.setItem(VM_KEY,todayBiz());}catch(e){}}}
       vmStop=null;
       if(conv||session)return; // 入店に切り替わった時は、入店側の表示を触らへん
-      statusEl.textContent=ok?"留守電、聞いた":"留守電が聞けへんかった";btn.disabled=false;renderVm();
+      statusEl.textContent=ok?"留守電、聞いた":cut?"留守電が途中で切れてもうた。もう一回タップで聞ける（回数は減ってへん）":"留守電が聞けへんかった";btn.disabled=false;renderVm();
     };
-    vmStop=()=>finish(bodyCount>=1);
+    vmStop=()=>finish(spokeEnough());
     try{
       try{const ms=await navigator.mediaDevices.getUserMedia({audio:true});ms.getTracks().forEach(t=>t.stop());}catch(e){errEl.textContent="マイクを許可してな（聞くだけやけど、仕組み上いる）";return finish(false);}
       const digest=await loadDigest();
@@ -3101,16 +3132,20 @@
         dynamicVariables:{memory:buildMemory(false,digest,MEMORY_BUDGET_BYTES-jbytes(fullMsg)-8)+"\n\n"+fullMsg, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:"もしもし、ママやけど。出られへんみたいやから、留守電入れとくな。"},
         onConnect:()=>{try{vmConv&&vmConv.setMicMuted&&vmConv.setMicMuted(true);}catch(e){}
           sendT=setTimeout(sendBody,10000); // 挨拶の終わりが拾えん時の保険
-          hardStop=setTimeout(()=>finish(bodyCount>=1),150000);},
-        onDisconnect:()=>finish(bodyCount>=1),
-        onMessage:(m)=>{if(!(m&&m.message)||m.source!=="ai")return;const t=show(String(m.message),"ai");if(!t)return;aiCount++;if(sent){bodyCount++;lastBody=t;}},
+          hardStop=setTimeout(()=>finish(spokeEnough()),150000);},
+        onDisconnect:()=>finish(spokeEnough()),
+        onMessage:(m)=>{if(!(m&&m.message)||m.source!=="ai")return;const t=show(String(m.message),"ai");if(!t)return;aiCount++;if(sent){bodyCount++;lastBody=t;bodyChars+=t.length;}},
         onModeChange:(m)=>{const mode=m&&m.mode;const speaking=mode==="speaking";stage.classList.toggle("speaking",speaking);statusEl.textContent=speaking?"留守電・再生中":"…";
           clearTimeout(endT);
-          if(speaking)return;
+          if(speaking){if(sent&&!spkAt)spkAt=Date.now();return;}
+          if(spkAt){spokeMs+=Date.now()-spkAt;spkAt=0;}
           // 挨拶を言い終わった → 少し間を置いて本題へ
           if(!sent){if(aiCount>=1){clearTimeout(sendT);sendT=setTimeout(sendBody,600);}return;}
-          // 本題を言い終わった → 締めの言葉が出てたら2秒、まだなら4秒待って、続きが無ければ切る
-          if(bodyCount>=1)endT=setTimeout(()=>finish(true),/またおいで|おいでや|おいでな/.test(lastBody)?2000:4000);},
+          if(bodyCount<1)return;
+          // 本題：字数ぶん喋り終わってて、締めの言葉も出てたら2.5秒、締めがまだなら4秒待って切る。
+          //       まだ喋り足りてへん（声の途中の息継ぎ・読み込み待ち）なら12秒まで待つ
+          const wait=!spokeEnough()?12000:/またおいで|おいでや|おいでな/.test(lastBody)?2500:4000;
+          endT=setTimeout(()=>finish(true),wait);},
         onError:(msg)=>{errEl.textContent="エラー："+String(msg&&msg.message?msg.message:msg);}
       });
     }catch(e){errEl.textContent="つながらへん："+String(e&&e.message?e.message:e);finish(false);}
