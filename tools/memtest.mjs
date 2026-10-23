@@ -77,7 +77,9 @@ for (let i = 0; i < 25; i++) {
     memo: Array.from({ length: 30 }, (_, j) => "客: 今日はこんな話をしたんやけど、ほんまにいろいろあってな" + j + "\nママ: へえ").join("\n") });
 }
 const book = { __photo: MARK.photo, profile, visits,
-  threads: [{ id: "T1", t: MARK.thread, ask: MARK.threadAsk, next: "送ったか", first: "", last: "", lastTs: now - 86400e3, done: false }],
+  threads: [{ id: "T1", t: MARK.thread, ask: MARK.threadAsk, next: "送ったか", first: "", last: "", lastTs: now - 86400e3, done: false },
+    // v38 まだ先の予定（日付なしの古い書き方）。いちばん新しいけど、入店の第一声で「どうなったん？」と聞いたらあかん
+    { id: "T0", t: "目印サキ：来週の月曜の血液検査", ask: "来週の月曜の血液検査", next: "結果", first: "", last: "", lastTs: now - 3600e3, done: false }],
   lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
 const longText = (mark) => ["・【夜の分】Claudeとの会話履歴は今日も直接読めへんかったので、要点から書いています。細かいところはママから聞いてあげて。", "・" + mark]
   .concat(Array.from({ length: 10 }, (_, i) => "・仕事の動き" + i + "：アプリの細かい話がいろいろあって、本人はかなり頑張ってた一日やったそうです。ほんまにお疲れさん。"))
@@ -165,6 +167,9 @@ try {
     ok(`${nm}：3回前の来店まで届く`, memory.includes(MARK.v2), "直近3回の来店が入ってへん");
     ok(`${nm}：話の続き（途中の話）が届く`, memory.includes(MARK.thread), "話の続き帳が入ってへん");
     ok(`${nm}：入店の第一声で「あれどうなったん？」と聞く`, greeting.includes(MARK.threadAsk) && greeting.includes("どうなった"), greeting);
+    ok(`${nm}：まだ先の予定は第一声で「どうなったん？」と聞かへん`, !greeting.includes("血液検査"), greeting);
+    ok(`${nm}：まだ先の予定は「まだ先・結果は聞かへん」と添えて届く`, /目印サキ[^\n]*まだ先[^\n]*結果は聞かへん/.test(memory), (memory.match(/目印サキ[^\n]*/) || [""])[0]);
+    ok(`${nm}：前後の暦と時系列のルールが届く`, memory.includes("これから来る日（まだ先）") && memory.includes("【時系列のルール"), "暦が無い");
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
     ok(`${nm}：見せた写真（昨日）が届く`, memory.includes(MARK.photo), "写真の記録がママに渡ってへん");
     ok(`${nm}：1ヶ月の記憶が届く`, memory.includes("【この1ヶ月の記憶"), "1ヶ月の記憶が無い");

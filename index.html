@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-23 v37";
+  const APP_VER="2026-10-24 v38";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -936,6 +936,7 @@
     return {y:t.getUTCFullYear(),m:t.getUTCMonth()+1,d:t.getUTCDate(),w:WD[t.getUTCDay()],iso:t.toISOString().slice(0,10)};
   }
   const calLabel=(c)=>`${c.m}/${c.d}（${c.w}）`;
+  const m2w=(c)=>`${c.w}曜`;
   function calendarLines(){
     const name={"-2":"おととい","-1":"昨日","0":"今日","1":"明日","2":"あさって"};
     const back=[],fwd=[];
@@ -1272,8 +1273,8 @@
     for(const x of a){
       const ago=Math.max(0,Math.round((Date.now()-(x.lastTs||Date.now()))/86400000));
       let wh="";
-      if(x.when){const d=Math.round((Date.parse(x.when+"T00:00:00Z")-Date.parse(calDay(0).iso+"T00:00:00Z"))/86400000);
-        const c=calDay(d);wh=d>0?`／予定は${calLabel(c)}＝あと${d}日。まだ先。結果は聞かへん`:d===0?"／予定は今日":"／予定の日は過ぎた。結果を聞いてええ";}
+      const d=threadDaysLeft(x);
+      if(d!==null){const c=calDay(d);wh=d>0?`／予定は${calLabel(c)}＝あと${d}日。まだ先。結果は聞かへん。聞くなら「${m2w(c)}やな、気張りや」と先のこととして`:d===0?"／予定は今日":"／予定の日は過ぎた。結果を聞いてええ";}
       const line=`・${x.t}（${ago?ago+"日前":"今日"}に聞いた${wh}${x.next?"／次に気になること："+x.next:""}）\n`;
       if(jbytes(h+body+line)>maxBytes)break;body+=line;
     }
@@ -1328,8 +1329,34 @@
     bb.threads=[...openL,...doneL];saveBook(bb);
   }
   // 入店の第一声で聞く「あれどうなったん？」（前回聞いた話は後回しにして、順番に聞く）
+  /* v38 話の続きの「予定の日」。帳に日付が無い古い話も、聞いた日と「月曜」「来週」「明日」「10/26」から割り出す */
+  const isoOf=(ms)=>dkey(jstDate(new Date(ms)));
+  const isoAdd=(iso,n)=>{const t=new Date(Date.parse(iso+"T00:00:00Z")+n*86400000);return t.toISOString().slice(0,10);};
+  const isoDiff=(a,b)=>Math.round((Date.parse(a+"T00:00:00Z")-Date.parse(b+"T00:00:00Z"))/86400000);
+  function threadWhen(x){
+    if(!x)return "";
+    if(x.when&&/^\d{4}-\d{2}-\d{2}$/.test(x.when))return x.when;
+    const heard=isoOf(x.lastTs||Date.now());
+    const txt=[x.t,x.ask,x.next].filter(Boolean).join(" ");
+    let m=txt.match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})\s*日?/);
+    if(m){const y=+heard.slice(0,4);let c=`${y}-${String(+m[1]).padStart(2,"0")}-${String(+m[2]).padStart(2,"0")}`;if(isoDiff(c,heard)<-180)c=`${y+1}`+c.slice(4);if(!isNaN(Date.parse(c)))return c;}
+    if(/明後日|あさって/.test(txt))return isoAdd(heard,2);
+    if(/明日|あした/.test(txt))return isoAdd(heard,1);
+    m=txt.match(/(来週|再来週|今週)?\s*の?\s*([月火水木金土日])曜/);
+    if(m){
+      const idx="日月火水木金土".indexOf(m[2]);const hw=new Date(Date.parse(heard+"T00:00:00Z")).getUTCDay();
+      if(m[1]){ // 週は月曜はじまり
+        const mon=isoAdd(heard,-((hw+6)%7));const add=m[1]==="来週"?7:m[1]==="再来週"?14:0;
+        return isoAdd(mon,add+((idx+6)%7));
+      }
+      return isoAdd(heard,(idx-hw+7)%7); // 次に来るその曜日（同じ曜日なら聞いた日）
+    }
+    return "";
+  }
+  const threadDaysLeft=(x)=>{const w=threadWhen(x);return w?isoDiff(w,calDay(0).iso):null;};
   function threadAsk(){
-    const a=threadsOpen().filter(x=>x.ask).sort((x,y)=>((x.askedTs||0)-(y.askedTs||0))||((y.lastTs||0)-(x.lastTs||0)));
+    // まだ先の予定（日が来てへん話）は「あれどうなったん？」で聞かへん
+    const a=threadsOpen().filter(x=>x.ask&&!(threadDaysLeft(x)>0)).sort((x,y)=>((x.askedTs||0)-(y.askedTs||0))||((y.lastTs||0)-(x.lastTs||0)));
     return a[0]||null;
   }
   function markAsked(id){try{const b=loadBook();const x=(b.threads||[]).find(z=>z.id===id);if(x){x.askedTs=Date.now();saveBook(b);}}catch(e){}}
