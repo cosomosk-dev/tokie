@@ -409,6 +409,7 @@ details.alb summary::-webkit-details-marker{display:none}
     </div>
     <button class="linkbtn" id="reset-all">最初からやり直す(データを消す)</button>
     <p class="foot">本ゲームはフィクションです。登場する人物・団体はすべて架空です(シークレットキャラは作者本人をモデルにしたフィクションです)。<br>企画・開発 加藤貴大</p>
+    <a class="linkbtn" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:block;text-align:center;font-weight:700;color:var(--gold)">✉ 作者に一言(感想・応援) ›</a>
   </section>
 
   <!-- ===== 序章 ===== -->
@@ -547,7 +548,7 @@ details.alb summary::-webkit-details-marker{display:none}
         </dl>
       </div>
       <div class="nako" id="nako-author"></div>
-      <a class="btn-gold btn-block" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:60px;border-radius:999px;font-weight:700">作者のほかの作品を見る(曲・アプリ)</a>
+      <a class="btn-gold btn-block" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:60px;border-radius:999px;font-weight:700">作者に一言・ほかの作品を見る(曲・アプリ)</a>
       <p class="small muted" style="text-align:center">※外部のページ(作者の作品リンク集)に移動します。<br>※大富豪の設定をふくめ、物語はフィクションです。</p>
     </div>
     <div class="card" id="r-vs" hidden></div>
@@ -577,6 +578,12 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="card stack">
       <div class="row"><button class="btn-rose" id="r-save" style="flex:1 1 140px;min-height:60px">画像で保存</button><button class="btn-gold" id="r-copy" style="flex:1 1 140px;min-height:60px">友だちに送る</button></div>
       <div class="sharebox" id="r-share"></div>
+    </div>
+
+    <div class="card stack" id="r-hitokoto" style="border:2px solid var(--gold)">
+      <div><div class="eyebrow">From the author</div><h3>作者に一言</h3><p class="small muted">このゲームは、平塚の加藤貴大がひとりで作っています。感想や「この夫の続きが読みたい」も、ひとことで届きます。</p></div>
+      <a class="btn-gold btn-block" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;text-decoration:none;min-height:56px;border-radius:999px;font-weight:700">作者に一言を送る ›</a>
+      <p class="small muted" style="text-align:center;font-size:.72rem">※外部のページ(作者のリンク集)が開きます</p>
     </div>
 
     <div class="prcard" id="r-pr">
@@ -1599,6 +1606,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const extra=(lstage(st.L)==='一生の人'?' 愛情は「一生の人」。あたしが見てきた300組でも、上から数えた方が早いわ。':'')+(hearts(st.T)<=2?' …ただ、ときめきは冷めかけてる。そこだけは、お金じゃ買えないのよ。':'');
     nako('#nako-result',e.nak+extra,true);
     $('#r-author').hidden=cur.id!=='S';
+    $('#r-hitokoto').hidden=cur.id==='S';
     if(cur.id==='S'){$('#ra-face').src=IMG.S;nako('#nako-author','お見合いの席に作者が座るなんて、300組で初めてよ。曲やアプリが気になったら、下のリンク集をのぞいてみなさい。物語の続きは、作品のほうにあるかもね。');}
     {const flip=replayRows(r.picks.map(p=>1-p));const fs=flip.st;const fe=END[cur.id].find(x=>x.test(fs));const known=pers.coll.includes(fe.id);
      const row=(k,a,b)=>`<div class="vr"><span class="vk">${k}</span><span class="va">${a}</span><span class="vb">${b}</span></div>`;
