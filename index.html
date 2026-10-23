@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-24 v38";
+  const APP_VER="2026-10-24 v39";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1502,23 +1502,55 @@
     const pick=older.map((m,i)=>({t:m.text,i})).sort((a,b)=>b.t.length-a.t.length).slice(0,6).sort((a,b)=>a.i-b.i).map(x=>"客「"+clip(x.t,80)+"」");
     return "【今夜の前半にお客さんが話したこと（古い→新しい）】\n"+pick.join("\n")+"\n";
   }
+  /* v39: Gemini呼び出しの共通部分。前は「混んでる（503）」「回数オーバー（429）」が1回出ただけで即あきらめてた
+     （写真が読まれへん・記憶のまとめが黙って抜ける原因）。今は 別のモデルに回す → 少し待ってもう1周 → それでもあかん時だけ失敗。 */
+  const G_MODELS=["gemini-flash-latest","gemini-2.5-flash","gemini-2.5-flash-lite","gemini-2.0-flash"];
+  const gSleep=ms=>new Promise(r=>setTimeout(r,ms));
+  function gModels(){let s="";try{s=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}return [...new Set([s,...G_MODELS].filter(Boolean))];}
+  async function gFetch(m,key,body,ms){
+    const ac=typeof AbortController!=="undefined"?new AbortController():null;
+    const tm=ac?setTimeout(()=>ac.abort(),ms||20000):null;
+    try{
+      return await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify(body),signal:ac?ac.signal:undefined});
+    }finally{if(tm)clearTimeout(tm);}
+  }
+  async function gRun(key,payload,opt){
+    opt=opt||{};
+    let last=null,n=0;
+    const rounds=opt.rounds||3;
+    for(let round=0;round<rounds;round++){
+      if(round){if(opt.onRetry)opt.onRetry(round);await gSleep(round*2500);}
+      for(const m of gModels()){
+        n++;
+        // 2.5-flash系は「考える時間」を切る（速くなる＋出力枠を考え事で使い切って空返事になるのを防ぐ）
+        const body=/2\.5-flash/.test(m)?Object.assign({},payload,{generationConfig:Object.assign({},payload.generationConfig,{thinkingConfig:{thinkingBudget:0}})}):payload;
+        let r,j=null;
+        try{r=await gFetch(m,key,body,opt.timeout);}
+        catch(e){last={kind:"busy",msg:(e&&e.name==="AbortError")?"時間切れ":String(e&&e.message||e)};continue;}
+        try{j=await r.json();}catch(e){}
+        const em=(j&&j.error&&j.error.message)||"";
+        if(r.status===404){if(!last)last={kind:"model",msg:m};continue;}
+        if(r.status===400&&/API key/i.test(em))throw {kind:"badkey"};
+        if(r.status===401||r.status===403)throw {kind:"badkey"};
+        if(r.status===429){last={kind:"limit",msg:"429"};continue;}
+        if(r.status>=500){last={kind:"busy",msg:String(r.status)};continue;}
+        if(!r.ok){last={kind:"http",msg:`${r.status} ${em}`};continue;}
+        if(!/lite/.test(m)){try{localStorage.setItem(GMODEL_KEY,m);}catch(e){}}
+        return j;
+      }
+    }
+    throw last||{kind:"model",msg:""};
+  }
   async function geminiText(prompt,opt){
     opt=opt||{};
     const key=gKey();if(!key)return "";
-    let saved="";try{saved=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}
-    for(const m of [...new Set([saved,"gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash"].filter(Boolean))]){
-      try{
-        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
-          body:JSON.stringify({contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:Object.assign({temperature:0.2,maxOutputTokens:opt.max||4096},opt.json?{responseMimeType:"application/json"}:{}),
-          // v28: 大人の店の会話（女の子・夜のお店の話）を要約・数えるだけなので、性的な話題が混ざっても止まらんようにする（露骨な生成はプロンプトで禁止）
-          safetySettings:["HARM_CATEGORY_SEXUALLY_EXPLICIT","HARM_CATEGORY_HARASSMENT","HARM_CATEGORY_HATE_SPEECH","HARM_CATEGORY_DANGEROUS_CONTENT"].map(c=>({category:c,threshold:"BLOCK_ONLY_HIGH"}))})});
-        if(r.status===404)continue;
-        if(!r.ok)return "";
-        const j=await r.json();const c=j&&j.candidates&&j.candidates[0];
-        return (((c&&c.content&&c.content.parts)||[]).map(x=>x.text||"").join("").trim());
-      }catch(e){return "";}
-    }
-    return "";
+    try{
+      const j=await gRun(key,{contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:Object.assign({temperature:0.2,maxOutputTokens:opt.max||4096},opt.json?{responseMimeType:"application/json"}:{}),
+        // v28: 大人の店の会話（女の子・夜のお店の話）を要約・数えるだけなので、性的な話題が混ざっても止まらんようにする（露骨な生成はプロンプトで禁止）
+        safetySettings:["HARM_CATEGORY_SEXUALLY_EXPLICIT","HARM_CATEGORY_HARASSMENT","HARM_CATEGORY_HATE_SPEECH","HARM_CATEGORY_DANGEROUS_CONTENT"].map(c=>({category:c,threshold:"BLOCK_ONLY_HIGH"}))},{timeout:45000});
+      const c=j&&j.candidates&&j.candidates[0];
+      return (((c&&c.content&&c.content.parts)||[]).map(x=>x.text||"").join("").trim());
+    }catch(e){return "";}
   }
   async function updateNightSum(){
     if(!current||current.trial||!session||session.sumBusy)return; // v30: 今夜の要点はどの席でも作る（前はボックス席だけで、カウンターは長話の筋を見失ってた）
@@ -2885,32 +2917,19 @@
     "何が写っているか（料理なら品名と見た目、動物なら種類・毛色・表情、景色なら場所の感じ・天気・時間帯、人なら服装・表情・人数・雰囲気）、目立つ細かいところを2つ、写真の中の文字があれば読む、写真全体の雰囲気。"+
     "最後に1文で、写真としての出来（ピント・明るさ・構図・表情・背景の散らかり具合）の良い点と惜しい点を正直に書く。"+
     "写っている人が誰かや名前は推測しない。4〜5文・300字以内。前置きや箇条書きは不要。";
-  async function geminiDescribe(b64){
+  async function geminiDescribe(b64,onRetry){
     const key=gKey();if(!key)throw {kind:"nokey"};
-    let saved="";try{saved=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}
-    const models=[...new Set([saved,"gemini-flash-latest","gemini-2.5-flash","gemini-2.0-flash"].filter(Boolean))];
-    let last=null;
-    for(const m of models){
-      let r;
-      try{
-        r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
-          body:JSON.stringify({contents:[{role:"user",parts:[{text:PHOTO_PROMPT},{inline_data:{mime_type:"image/jpeg",data:b64}}]}],generationConfig:{temperature:0.4,maxOutputTokens:1024}})});
-      }catch(e){throw {kind:"net",msg:String(e&&e.message||e)};}
-      let j=null;try{j=await r.json();}catch(e){}
-      if(r.status===404){last={kind:"model",msg:m};continue;}
-      if(r.status===400&&j&&j.error&&/API key/i.test(j.error.message||""))throw {kind:"badkey"};
-      if(r.status===401||r.status===403)throw {kind:"badkey"};
-      if(r.status===429)throw {kind:"limit"};
-      if(!r.ok)throw {kind:"http",msg:`${r.status} ${(j&&j.error&&j.error.message)||""}`};
+    const payload={contents:[{role:"user",parts:[{text:PHOTO_PROMPT},{inline_data:{mime_type:"image/jpeg",data:b64}}]}],generationConfig:{temperature:0.4,maxOutputTokens:1024}};
+    // v39: 空返事も「混んでる」扱いで1回だけ取り直す
+    for(let k=0;k<2;k++){
+      const j=await gRun(key,payload,{timeout:25000,rounds:3,onRetry});
       if(j&&j.promptFeedback&&j.promptFeedback.blockReason)throw {kind:"blocked"};
       const c=j&&j.candidates&&j.candidates[0];
       if(c&&/SAFETY|PROHIBITED|BLOCKLIST|SPII/.test(c.finishReason||""))throw {kind:"blocked"};
       const t=((c&&c.content&&c.content.parts)||[]).map(x=>x.text||"").join("").trim();
-      if(!t)throw {kind:"empty"};
-      try{localStorage.setItem(GMODEL_KEY,m);}catch(e){}
-      return t.replace(/\s+/g," ");
+      if(t)return t.replace(/\s+/g," ");
     }
-    throw last||{kind:"model",msg:""};
+    throw {kind:"empty"};
   }
   const PHOTO_REACT=(t,nm)=>({
     0:`写真の具体的なところを1つ拾って、感想を1〜2文。そのあと「これ、いつの？」など1つだけ聞く。`,
@@ -2955,14 +2974,17 @@
     const big=shrink(im,768,0.82),thumb=shrink(im,200,0.7);
     showPhoto(big,"ママが見てる…");statusEl.textContent="ママが写真を見てる…";
     let desc;
-    try{desc=await geminiDescribe(big.split(",")[1]);}
+    try{desc=await geminiDescribe(big.split(",")[1],()=>{statusEl.textContent="ママが老眼鏡かけ直してる…（混んでるから見直し中）";});}
     catch(e){
       hidePhoto(600);
       const k=e&&e.kind;
       if(k==="nokey"||k==="badkey"){setGKey("");statusEl.textContent="写真の「目」のキーがあかんかった";alert("GeminiのAPIキーが通らへんかった。もう一回「写真」を押して、キーを貼り直してな。");}
       else if(k==="blocked"){statusEl.textContent="その写真はお店では見せられへん";inject("【店の様子】お客さんが写真を見せようとしたけど、お店では見せられへん写真やった。「ちょっと、それはここではアカンやつやで（笑）」と軽く笑って流す。責めたり説教はせん。");}
-      else if(k==="limit"){statusEl.textContent="写真の「目」が今日はもう疲れてる（Geminiの無料枠の上限）。少し時間おいてな";}
-      else statusEl.textContent="写真が読まれへんかった（"+((e&&e.msg)||k||"不明")+"）";
+      else{
+        // v39: 英語のエラーを出さず、ママが自分のせいにして謝る。写真の枚数は減らさへん（お酒入れたのに損した、にならんように）
+        statusEl.textContent=k==="limit"?"写真の「目」が今日は回数いっぱい。枚数は減ってへんから、少し時間おいてもう一回📷押してな":"混んでて写真が見えへんかった。枚数は減ってへんで、もう一回📷押してな";
+        inject("【店の様子】お客さんが写真を見せてくれたけど、ママの老眼鏡が曇ってて、今は写真がよう見えへんかった。「ごめん、今ちょっと目ぇしょぼしょぼして見えへんかったわ。もう一回見せてくれる？」と軽く自分のせいにして謝る。写真の中身は見えてへんので、何が写ってたかは一切言わへん。言い訳を長々せん。");
+      }
       renderPhotoBtn();return;
     }
     if(!conv||!session){hidePhoto(0);return;}
