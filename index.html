@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-24 v40";
+  const APP_VER="2026-10-24 v41";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1189,12 +1189,14 @@
     "・【今夜の要点】というメモが届いたら、それは今夜の話の筋のまとめ。長く喋って前半を忘れそうになっても、これを見て話をつなげる。\n"+
     "・今夜ここで聞いた話、とくにお客さんの「いまの様子」（どこにおるか・何してるか・横になってる・音楽聴いてる等）は、今夜ずっと覚えとく。手帳の古い話より、今夜の話が優先。\n"+
     "・途中で【今夜の流れ】というメモが届く。それはママの頭の中のメモ。返事はせんでええ。次の返事から、そのメモと食い違うことは言わへん。\n"+
-    "・さっき聞いたことをもう一回聞き直したり、さっきの様子と逆のこと（音楽聴いてる人に『早よ寝』等）を言うのは一番あかん。";
+    "・さっき聞いたことをもう一回聞き直したり、さっきの様子と逆のこと（音楽聴いてる人に『早よ寝』等）を言うのは一番あかん。\n"+
+    "・お客さんに「いや」「ちゃう」「言うてるやん」と訂正されたら、自分の前の意見は引っ込めて、その前提で考え直してから答える。例：「足跡がつかへんアプリや」と言われたら、足跡を前提にしたアドバイス（足跡で見に来てもらう等）は二度と言わへん。【お客さんに訂正されたこと】のメモにある前提は、一般論やママの思い込みより必ず優先。";
   // 話を合わせへんルール（手帳にない話・手帳と食い違う話に「せやったな」と乗らん）
   const TRUTH_BLOCK="【話を合わせへんルール（大事・どの濃さでも守る）】\n"+
     "・ママが知ってるのは、この手帳（基本情報・自動メモ・来店メモ・手書きメモ）に書いてあることと、今夜ここで聞いた話だけ。\n"+
     "・「前に言うたやろ」「話したやん」「聞いてるやろ」と言われても、手帳に書いてなかったら絶対に「せやったな」「言うてたな」と合わせへん。正直に「え、それ聞いてへんで。いつの話？」と返す。知ったかぶりは一番あかん。\n"+
     "・手帳と食い違う話（前は『やめた』と書いてあるのに『やる』と言う、など）は、そのまま受け流さず、手帳の中身を出して聞き返す。例：「え、それ前は『やめとく』言うてへんかった？いつ気ぃ変わったん？」\n"+
+    "・ただし、お客さんがその場で仕組みや事実を説明し直してくれた時（「いや、このアプリは○○やねん」など）は、手帳に無くても正しい前提として受け取る。「聞いてへんで」と突っぱねへん。\n"+
     "・ほんまに気が変わった話やったら、責めんと「ほな、なんで変わったん？」と理由を聞いてから乗る。気持ちが変わるのはええこと。ただ、前から決まってたことにはせえへん。\n"+
     "・覚えてるか自信がない時は、ぼかして話を合わせず「ごめん、ママそれ覚えてへんわ。もう一回教えて」と言う。";
   const TONE_RESERVE=700; // 最後に付ける濃さの念押しの分
@@ -1400,7 +1402,8 @@
     }
     const core=[VOICE_BLOCK,NOW_BLOCK,SLEEP_BLOCK,CHECKOUT_BLOCK,TRUTH_BLOCK,MEMORY_USE_BLOCK,toneBlock(S.strength),todayBlock(),relationBlock(S),PACE_BLOCK,STAY_BLOCK,
       "【店のルール】営業時間が来たら店の時計から「ラストオーダー」「閉店」の合図が入る。合図が来るまでは、ママから時間・帰り・寝る話は出さん。"];
-    const tail=(dayFactsBlock()?dayFactsBlock()+"\n\n":"")+toneReminder(S.strength); // 今夜の決まりごとは末尾（いちばん新しい情報の位置）に必ず入れる
+    const cb=corrBlock(1600); // v41: 訂正された前提も末尾に必ず入れる（入り直し・延長・次の入店でも消えへん）
+    const tail=(dayFactsBlock()?dayFactsBlock()+"\n\n":"")+(cb?cb+"\n\n":"")+toneReminder(S.strength); // 今夜の決まりごとは末尾（いちばん新しい情報の位置）に必ず入れる
     let room=B-[...head,...core,tail].reduce((n,x)=>n+jbytes(x)+SEP,0)-SEP*12;
 
     const visits=b.visits.filter(v=>v.kind!=="note"&&!(extension&&current&&v.id===current.id));
@@ -1492,6 +1495,7 @@
   const SUM_EVERY_USER=10, SUM_MAX_CHARS=700;
   const SUM_PROMPT="以下はスナックのママ（AI）と常連客タケオさんの今夜の会話の記録です。ママが長い会話でも前半の話を忘れず、筋道立てて話せるように、今夜の要点メモを日本語で作ってください。"+
     "形式：話題ごとに1〜3行。各話題に「事実（客が言うたこと）」「決まったこと・結論」「理由・つながり（○○やから△△）」「まだ途中の話」を、あるものだけ短く書く。"+
+    "いちばん最初に【前提・訂正】として、客がママを訂正したこと・客が説明した仕組みやルール（例：「このアプリは足跡がつかない」）を必ず書く。ママの前の発言と食い違う時は客の言うことが正しい。ママが言った間違ったアドバイスは残さない。"+
     "客がやらないと言ったこと・条件・体調・気持ちの変化は必ず残す。女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。ママの発言は、約束したことと客が反応したことだけ残す。推測や作り話は書かない。全体で600字以内。前置き不要。";
   function nightSumText(){
     const t=current&&current.nightSum;
@@ -1594,7 +1598,8 @@
     const topic=lastU?"・いま話してること＝客の直前の言葉「"+clip(lastU.text,90)+"」。次の返事はまずこれに答える。話を変えへん。\n":"";
     const od=tierNowLine();
     const df=dayFactsBlock();
-    return (df?df+"\n":"")+nightSumText()+"【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）");
+    const cb=corrBlock(1200); // v41: 訂正された前提は、途中メモのたびに一番最後（直前の流れのすぐ後）に入れ直す
+    return (df?df+"\n":"")+nightSumText()+"【今夜の流れ（直近）】\n"+topic+now+music+(od?od+"\n":"")+(flow||"（まだこれから）")+(cb?"\n"+cb:"");
   }
   function clipLines(t,n){const a=String(t||"").split("\n");return a.length>n?a.slice(0,n).join("\n")+"\n…":t;}
 
@@ -1791,7 +1796,7 @@
     const d=await loadDigest();const S=settings();const seat=SEATS[S.seat]?S.seat:"counter";
     const mem=buildMemory(false,d,SEATS[seat].memBytes);const b=loadBook();
     const dstat=d.status==="ok"?`届いてる（${d.updated}・${d.days.length}日分・今日の分${d.days.some(x=>dkey(x.date)===dkey(todayBiz()))?"あり":"なし"}）`:d.status==="nokey"?"鍵が入ってへん（この端末では自動メモが読めへん）":"読めへん（"+(d.msg||d.status)+"）";
-    const head=`版：${APP_VER}\n席：${SEATS[seat].name}\n自動メモ：${dstat}\n基本情報：${b.profile.trim().length}文字\n来店の記録：${b.visits.filter(v=>v.kind!=="note").length}回\n絶対忘れへんこと：${ltList().filter(ltHot).length}件\n写真の記録：${photos().length}枚\nママに渡す量：${mem.length}文字（${Math.round(jbytes(mem)/1000)}KB）\n――――――――――\n`;
+    const head=`版：${APP_VER}\n席：${SEATS[seat].name}\n自動メモ：${dstat}\n基本情報：${b.profile.trim().length}文字\n来店の記録：${b.visits.filter(v=>v.kind!=="note").length}回\n絶対忘れへんこと：${ltList().filter(ltHot).length}件\n訂正されたこと：${corrList().length}件\n写真の記録：${photos().length}枚\nママに渡す量：${mem.length}文字（${Math.round(jbytes(mem)/1000)}KB）\n――――――――――\n`;
     box.value=head+mem;
     try{await navigator.clipboard.writeText(box.value);$("saved").textContent="コピーした。Claudeに貼ってな";setTimeout(()=>$("saved").textContent="",3000);}catch(e){box.select();}
   });
@@ -2140,9 +2145,47 @@
     const f=dayFacts();if(!f.length)return "";
     return "【今夜の決まりごと（今夜お客さんが言うた体調・薬・お酒の話。今夜ずっと覚えてて、必ず守る。お酒が飲めへんと言うてたら、お酒を勧めへん・乾杯もお茶やソフトドリンクで。体調が悪いと言うてたら気遣う。何回も確認せえへん）】\n"+f.map(x=>"・客「"+x+"」").join("\n");
   }
+  /* v41「訂正帳」：お客さんに訂正された前提（例：「いや、エンサークルは足跡つかへんて言うてるやん」）を別枠で持つ。
+     前は今夜の要点（600字の要約）の中に埋もれて、長話・静かな入り直しのあとに消えて、ママが同じ間違ったアドバイスに戻ってた（10/24 3時）。
+     ・言うたその場でママの頭に入れる／途中メモ・入り直し・次の入店でも毎回いちばん最後（新しい位置）に入れる
+     ・訂正された直前のママの台詞も一緒に残す（何が間違いやったか分かるように）
+     ・14日・10件まで（新しい順）。同じような訂正は上書き */
+  const CORR_KEY="tokie_corr_v1", CORR_MAX=10, CORR_DAYS=14;
+  const CORR_RE=/^(いや(?![ーぁあ〜だ])|ちゃう|違う|ちがう|そうやな|そうじゃな)|やなくて|じゃなくて|ではなくて|ちゃうねん|ちゃうって|ちゃうやん|違うって|ちがうって|違うねん|違うよ|言うてる(やん|やろ|のに|って|で)|言ってる(じゃん|でしょ|のに|って|よね)|言うた(やん|やろ|のに)|言った(じゃん|でしょ|のに|よね)|何回(も)?言|何度(も)?言|前(に)?も言|さっき(も)?言|聞いてへん(の|やん)|聞いてない(の|じゃん)|忘れてる|忘れとる|覚えてへん(の|やん)|(そういう|その|あの)(仕組み|システム|ルール|仕様)|(仕組み|システム|ルール|仕様)(が|は|上|的に|やから|だから)/;
+  function corrList(){
+    let a=[];try{a=JSON.parse(localStorage.getItem(CORR_KEY)||"[]");}catch(e){}
+    if(!Array.isArray(a))return [];
+    const since=Date.now()-CORR_DAYS*86400000;
+    return a.filter(x=>x&&x.t&&(x.ts||0)>=since);
+  }
+  const corrSig=(s)=>String(s||"").replace(/[\s、。，．,.！!？?〜ー…・「」『』（）()]/g,"").replace(/^(いやいや|いや|ちゃうちゃう|ちゃう|違う|ちがう|だから|せやから)/,"").slice(0,14);
+  function addCorr(t){
+    const x=clip(String(t).replace(/\s+/g," ").trim(),110);if(!x||x.replace(/\s/g,"").length<6)return false;
+    const lastAi=current?[...current.msgs].reverse().find(m=>m.who==="ai"):null;
+    const sig=corrSig(x);
+    const a=corrList().filter(y=>corrSig(y.t)!==sig);
+    a.unshift({t:x,m:lastAi?clip(String(lastAi.text).replace(/\s+/g," ").trim(),60):"",ts:Date.now(),biz:dkey(todayBiz())});
+    try{localStorage.setItem(CORR_KEY,JSON.stringify(a.slice(0,CORR_MAX)));}catch(e){}
+    return true;
+  }
+  function corrBlock(maxBytes){
+    const a=corrList();if(!a.length)return "";
+    const today=dkey(todayBiz());
+    const h="【お客さんに訂正されたこと・教えてもろた前提（ママの思い込みや一般論より、必ずこっちが正しい。新しい順）】\n"+
+      "・ここに書いてある前提と食い違うアドバイスは、話が長うなっても二度と言わへん。考える時はまずこの前提に当てはめてから答える。\n";
+    let body="";
+    for(const x of a){
+      const line="・客「"+x.t+"」"+(x.m?"（ママが「"+x.m+"」と言うたのを訂正）":"")+(x.biz===today?"（今夜）":"")+"\n";
+      if(jbytes(h+body+line)>(maxBytes||1600))break;body+=line;
+    }
+    return body?(h+body).trim():"";
+  }
   function onUserLine(t){
     if(!session||session.trial)return;
     if(DAYFACT_RE.test(t)&&addDayFact(t)){note(dayFactsBlock()+"\n（ママの頭の中のメモ。これには返事せんでええ）");}
+    if(CORR_RE.test(String(t).trim())&&addCorr(t)){
+      note(corrBlock()+"\n（ママの頭の中のメモ。いまお客さんに訂正された。次の返事で「ごめん、そうやったな」と一回だけ認めて、自分の前の意見は引っ込めて、この前提で考え直して答える。言い訳はせん）");
+    }
     if(session.awaitReason&&session.lastOrder&&Date.now()-session.awaitReason<180000){
       session.awaitReason=0;const r=clip(t.trim(),30);session.lastOrder.reason=r;setOrderReason(session.lastOrder.ts,r);
     }

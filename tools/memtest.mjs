@@ -220,6 +220,26 @@ try {
     ok("静かな入り直し：今夜の話（入り直す前の話）を持ったまま", r.m.includes("目印コンヤ") && r.m.includes("つなぎ直した"), "今夜の流れが渡ってへん");
     await ctx.close();
   }
+  { // v41 訂正帳：訂正した前提を、長話・静かな入り直しのあとも忘れへんか（10/24 エンサークルの足跡の件）
+    const { p, ctx } = await page("box", { gemini: true });
+    await p.evaluate(() => localStorage.setItem("tokie_test_hooks", "1"));
+    await p.reload(); await p.waitForTimeout(1200);
+    await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
+    await enter(p);
+    await p.evaluate(() => window.__o.onMessage({ message: "マッチングアプリ始めたんよ", source: "user" })); await p.waitForTimeout(100);
+    await p.evaluate(() => window.__o.onMessage({ message: "ほなプロフィール充実させて足跡で見に来てもらい", source: "ai" })); await p.waitForTimeout(100);
+    await p.evaluate(() => window.__o.onMessage({ message: "いや、目印テイセイ：エンサークルは足跡がつかないって言うてるやん", source: "user" })); await p.waitForTimeout(300);
+    const notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+    ok("訂正された前提が、言うたその場でママに届く", notes.includes("訂正されたこと") && notes.includes("目印テイセイ"), "訂正のメモが届いてへん");
+    for (let i = 0; i < 12; i++) {
+      await p.evaluate((i) => window.__o.onMessage({ message: "関係ない雑談その" + i, source: "user" }), i); await p.waitForTimeout(60);
+      await p.evaluate(() => window.__o.onMessage({ message: "へえ", source: "ai" })); await p.waitForTimeout(40);
+    }
+    await p.evaluate(() => window.__tokieTest.silentRefresh()); await p.waitForTimeout(2500);
+    const m = await p.evaluate(() => { const o = window.__o || {}; const dv = o.dynamicVariables || (o.overrides && o.overrides.dynamicVariables) || {}; return dv.memory || ""; });
+    ok("長話＋静かな入り直しのあとも、訂正された前提を持ってる", m.includes("目印テイセイ") && m.includes("プロフィール充実"), "入り直したら訂正が消えてる");
+    await ctx.close();
+  }
   { // 喋ってる最中に「立ち飲みを試す」
     const { p, ctx } = await page("counter");
     await enter(p);
