@@ -349,6 +349,24 @@ body.demoing .welcome{z-index:52}
 .choose .safe a{color:var(--shu);font-weight:700}
 .choose .later{text-align:center;font-size:13px;color:var(--ink-2);margin-top:-4px}
 body.choosing .brand{display:none}
+.modecard{background:var(--white);border:1.5px solid var(--line);border-radius:26px;padding:16px 18px;display:flex;align-items:center;gap:14px;text-align:left;transition:transform .12s;width:100%}
+.modecard:active{transform:scale(.97)}
+.modecard .em{font-size:40px;line-height:1;flex:0 0 auto}
+.modecard b{display:block;font-family:var(--font-mincho);font-weight:800;font-size:23px;line-height:1.3}
+.modecard span.t{display:block;font-size:15px;font-weight:700;color:var(--ink-2);line-height:1.5;margin-top:2px}
+.ftabs{display:flex;gap:8px;margin-bottom:14px}
+.ftabs button{flex:1 1 0;min-width:0;border-radius:999px;padding:11px 6px;font-weight:800;font-size:16px;background:var(--white);border:1.5px solid var(--line)}
+.ftabs button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.fcard{border-radius:22px;padding:12px 16px;display:flex;align-items:center;gap:12px;border:1.5px solid;text-align:left;width:100%;font:inherit;color:inherit;cursor:pointer}
+.fcard .petimg{width:56px;flex:0 0 auto}
+.fcard .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.fcard .tx b{font-family:var(--font-mincho);font-weight:800;font-size:19px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+.fcard .tx small{font-size:14px;font-weight:700;color:var(--ink-2)}
+.fcard .go{margin-left:auto;font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap}
+.fcard.ok{background:var(--ok-bg);border-color:var(--ok)} .fcard.ok b{color:var(--ok)}
+.fcard.warn{background:var(--warn-bg);border-color:var(--warn)} .fcard.warn b{color:var(--warn)}
+.fcard.bad{background:var(--bad-bg);border-color:var(--bad)} .fcard.bad b{color:var(--bad)}
+body.friendmode .fam-only{display:none !important}
 body.choosing .demo .row+.row{display:none}
 @media (max-height:660px){.choose .lead,.choose .later{display:none}}
 @media (max-height:800px){.choose .later{display:none}}
@@ -489,9 +507,10 @@ body.demoing{padding-bottom:260px}
       <button class="play" id="d-demo">▶ デモを見る</button>
       <button class="play" id="d-demo2">▶ 家族プランのデモ</button>
       <button class="play" id="d-demo3">▶ 10分 通しデモ（無料→家族プラン）</button>
+      <button class="play" id="d-demo4">▶ 友だち同士のデモ</button>
       <span class="lbl">試作メニュー</span>
-      <button id="d-parent" aria-pressed="true">親の画面</button>
-      <button id="d-family" aria-pressed="false">家族の画面</button>
+      <button id="d-parent" aria-pressed="true" data-fri="わたしの画面">親の画面</button>
+      <button id="d-family" aria-pressed="false" data-fri="友だちの画面">家族の画面</button>
       <span class="day" id="d-day"></span>
     </div>
     <div class="row">
@@ -505,20 +524,37 @@ body.demoing{padding-bottom:260px}
       <button id="d-plus" aria-pressed="false">家族プラン</button>
       <span class="lbl">（本番は ?plan=plus で切り替え）</span>
     </div>
+    <div class="row">
+      <span class="lbl">使い方</span>
+      <button id="d-mfam" aria-pressed="true">親と家族</button>
+      <button id="d-mfri" aria-pressed="false">友だち同士</button>
+      <span class="lbl">（本番は ?mode=friend で切り替え）</span>
+    </div>
   </div>
 
   <!-- ===== 相棒えらび（いちばん最初の1回だけ） ===== -->
   <section id="choose" class="choose" hidden>
     <div class="brand"><span class="nm">ワンポチ</span><span class="pill">生存確認</span></div>
+    <div id="mode-step" class="choose">
+      <h1>だれと 使いますか？</h1>
+      <p class="lead">あとから設定で変えられます</p>
+      <button type="button" class="modecard" id="mode-family"><span class="em">👵</span><span><b>親と家族</b><span class="t">離れて暮らす親を、家族が見守る</span></span></button>
+      <button type="button" class="modecard" id="mode-friend"><span class="em">👭</span><span><b>友だち同士</b><span class="t">ひとり暮らしの友だちと、お互いに見守りあう</span></span></button>
+    </div>
+    <div id="pet-step" class="choose" hidden>
     <h1>相棒を、ひとり えらんでね</h1>
     <p class="lead">毎日「きょうの1問」を持ってくる子です</p>
     <div class="pets" id="pets"></div>
     <button class="pick-ok" id="pick-ok" type="button" disabled>この子にする</button>
-    <p class="later">あとから家族の画面でも変えられます</p>
+    <p class="later" data-fri="あとから設定でも変えられます">あとから家族の画面でも変えられます</p>
+    </div>
     <p class="safe">🔒 登録なし。記録はこのスマホの中だけ。<a href="/privacy">くわしく</a></p>
   </section>
 
-  <!-- ===== 親の画面 ===== -->
+  <!-- ===== 友だち同士のときだけ出るタブ ===== -->
+  <div class="ftabs" id="ftabs" hidden><button type="button" id="ft-me" aria-pressed="true">🙋 わたしの1問</button><button type="button" id="ft-friend" aria-pressed="false"></button></div>
+
+  <!-- ===== 親の画面（友だち同士のときは「わたしの画面」） ===== -->
   <section id="parent" class="parent">
     <div class="brand"><span class="nm">ワンポチ</span><span class="pill">生存確認</span></div>
     <div id="p-smart">
@@ -528,6 +564,7 @@ body.demoing{padding-bottom:260px}
       <div class="bubble"><span class="who" id="p-name"></span><span id="p-bubble"></span></div>
       <div class="streak"><b id="p-streak">0</b><span>日つづけて 元気</span></div>
     </div>
+    <button type="button" class="fcard" id="p-friend" hidden></button>
     <div class="qcard" id="p-qcard">
       <div class="eyebrow"><span>きょうの 1もん</span><span class="cat" id="p-cat"></span></div>
       <h1 class="q" id="p-question"></h1>
@@ -558,7 +595,7 @@ body.demoing{padding-bottom:260px}
   <!-- ===== 家族の画面 ===== -->
   <section id="family" class="family" hidden>
     <header class="fhead">
-      <span class="eyebrow2">見守る人の画面</span>
+      <span class="eyebrow2" data-fri="友だちの画面">見守る人の画面</span>
       <h2 id="f-title"></h2>
       <div class="fsun" id="f-pet"></div>
     </header>
@@ -568,7 +605,7 @@ body.demoing{padding-bottom:260px}
     <p class="weeknote" id="f-weeknote" hidden></p>
     <div class="row2">
       <div class="badge" id="f-streak"></div>
-      <button class="btn dark" id="f-share"><svg class="ico"><use href="#i-share"/></svg>家族にシェア</button>
+      <button class="btn dark" id="f-share"><svg class="ico"><use href="#i-share"/></svg><span data-fri="友だちにシェア">家族にシェア</span></button>
     </div>
 
     <!-- 節目のお祝い（7日ごと）。無料のときだけ、ここで初めて家族プランをそっと案内する -->
@@ -616,36 +653,37 @@ body.demoing{padding-bottom:260px}
       <h3><svg class="ico"><use href="#i-check"/></svg>ワンポチで できること・できないこと</h3>
       <div class="can"><h4>できること</h4><ul>
         <li>異変に、早ければ<b>次の日</b>に気づけます。いまは、ひとりで亡くなってから見つかるまで平均18日かかっています</li>
-        <li>寝坊しても大丈夫。メールは消えないので、起きてから開けばOK。昼と夕方にも もう一度届きます</li>
+        <li class="fam-only">寝坊しても大丈夫。メールは消えないので、起きてから開けばOK。昼と夕方にも もう一度届きます</li>
         <li>知らせが来たら、画面の電話番号から すぐ電話できます</li>
       </ul></div>
       <div class="cant"><h4>できないこと（知っておいてほしいこと）</h4><ul>
         <li><b>急な病気そのものは防げません。</b>防げるのは「何日も気づかれないこと」です。知らせが来たら、すぐ電話を</li>
         <li>旅行や入院の日は、まちがって知らせが届きます。下の「しばらくお休み」で止めてください</li>
-        <li>電源切れ・圏外だと、メール版は届きません。迷惑メールの設定で止まることもあるので、最初の確認メールで必ず確かめます</li>
-        <li>家の固定電話しかない親には、自動では届けられません。電話で元気を確かめて「うっかりセーフ」を押す形でお使いください</li>
+        <li class="fam-only">電源切れ・圏外だと、メール版は届きません。迷惑メールの設定で止まることもあるので、最初の確認メールで必ず確かめます</li>
+        <li class="fam-only">家の固定電話しかない親には、自動では届けられません。電話で元気を確かめて「うっかりセーフ」を押す形でお使いください</li>
         <li>通信の遅れで、知らせが遅れることがあります。「知らせが来ない＝無事」と決めつけず、気になる日は電話を</li>
         <li>医療機器や緊急通報ではありません。緊急のときは119番へ</li>
       </ul></div>
       <p class="src">平均18日：日本少額短期保険協会「第9回 孤独死現状レポート」（2024年）</p>
     </section>
     <section class="block">
-      <h3><svg class="ico"><use href="#i-gear"/></svg>設定（家族だけが触る）</h3>
+      <h3><svg class="ico"><use href="#i-gear"/></svg><span data-fri="設定">設定（家族だけが触る）</span></h3>
       <p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料です。</p>
-      <p class="sub">親の画面には設定もメニューも出ません。ここで決めたものがそのまま親の画面になります。</p>
-      <div class="field"><label for="s-parent">親の名前</label><input type="text" id="s-parent"></div>
+      <p class="sub" data-fri="ふたりとも毎日1問に答えて、答えたら相手に「元気」が届きます。">親の画面には設定もメニューも出ません。ここで決めたものがそのまま親の画面になります。</p>
+      <div class="field"><label>だれと使う？</label><div class="seg" id="s-mode"></div></div>
+      <div class="field"><label for="s-parent" data-fri="友だちの名前">親の名前</label><input type="text" id="s-parent"></div>
       <div class="field"><label for="s-family">あなたの名前</label><input type="text" id="s-family"></div>
-      <div class="field"><label>親から見たあなた</label><div class="seg" id="s-relation"></div></div>
-      <div class="field"><label>親のケータイ</label><div class="seg" id="s-device"></div></div>
+      <div class="field fam-only"><label>親から見たあなた</label><div class="seg" id="s-relation"></div></div>
+      <div class="field fam-only"><label>親のケータイ</label><div class="seg" id="s-device"></div></div>
       <div class="field" id="s-mail-field" hidden><label for="s-mail">親のケータイのメールアドレス</label><input type="text" id="s-mail" inputmode="email" placeholder="例：fumiko@docomo.ne.jp"><p class="sub">親のケータイで「受信許可」の設定が要ることがあります。確認メールのリンクが開けたら登録完了（届かない設定をここで見つけます）。家の固定電話しかない親は、電話で元気を確かめて「うっかりセーフ」を押す形でお使いください。</p></div>
-      <div class="field"><label>相棒</label><div class="seg" id="s-animal"></div></div>
+      <div class="field fam-only"><label>相棒</label><div class="seg" id="s-animal"></div></div>
       <div class="field"><label>答えが来ないとき、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
       <div class="field"><label>あなたへの連絡方法</label><div class="seg" id="s-contact"></div></div>
-      <div class="field"><label>ほかに 知らせを受け取る人</label><div class="members" id="s-members"></div></div>
+      <div class="field fam-only"><label>ほかに 知らせを受け取る人</label><div class="members" id="s-members"></div></div>
       <div class="field" id="s-report-field" hidden><label>週1回の元気レポートを届ける日</label><div class="seg" id="s-report"></div></div>
       <div class="field"><label>しばらくお休み</label><div class="seg" id="s-pause"></div><p class="sub" id="s-pause-note"></p></div>
-      <div class="field"><label for="s-phone">親の電話番号（知らせが来たとき、ここに電話します）</label><input type="text" id="s-phone" inputmode="tel"></div>
+      <div class="field"><label for="s-phone" data-fri="友だちの電話番号（知らせが来たとき、ここに電話します）">親の電話番号（知らせが来たとき、ここに電話します）</label><input type="text" id="s-phone" inputmode="tel"></div>
       <button class="btn primary" id="f-send"><svg class="ico"><use href="#i-mail"/></svg>親のスマホに送る</button>
       <div class="smsbox" id="f-sms" hidden></div>
     </section>
@@ -824,6 +862,7 @@ body.demoing{padding-bottom:260px}
     S=s;
     var times=['8:12','7:55','8:40','9:03','8:21','8:08','7:48','8:33','8:15','9:10','8:02'];
     for(var i=1;i<=11;i++){ s.answers[key(daysAgo(i))]={pick:0, correct:i%5!==0, time:times[i-1], label:''}; }
+    s.settings.mode='family'; s.fAnimal='cat'; s.fGifts=[]; s.fMiss={}; s.fFirst=key(daysAgo(11));
     return s;
   }
   function load(){
@@ -836,9 +875,11 @@ body.demoing{padding-bottom:260px}
     if(!S.settings.members) S.settings.members=[];
     if(!S.planTerm) S.planTerm='year'; if(S.planSince===undefined) S.planSince=''; if(S.planHidden===undefined) S.planHidden='';
     if(!S.settings.reportDay) S.settings.reportDay='月';
+    if(!S.settings.mode) S.settings.mode='family';
+    if(!S.fAnimal) S.fAnimal='cat'; if(!S.fGifts) S.fGifts=[]; if(!S.fMiss) S.fMiss={}; if(!S.fFirst) S.fFirst=key(daysAgo(11));
   }
   var demo=false;
-  function save(){ if(demo) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  function save(){ if(demo||swapping) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 
   // ---------- 家族プラン（月200円／年2,000円）----------
   // 本番：購入・解約はアプリ側（Google Play / App Store）。アプリはこのページを ?plan=plus で開くか、
@@ -857,6 +898,48 @@ body.demoing{padding-bottom:260px}
   function isPlus(){ return S.plan==='plus'; }
   function setPlan(p){ if(p!=='plus'&&p!=='free') return; if(p==='plus'&&!isPlus()) S.planSince=key(today()); S.plan=p; save(); renderAll(); }
   function memberCap(){ return isPlus()?5:2; } // あなたを含めた人数
+
+  // ---------- 友だち同士（お互いに見守りあう）----------
+  // 本番：ふたりとも同じアプリ。それぞれ毎日1問に答え、答えたら相手に「きょうも元気」のプッシュ通知、
+  // 答えがない日が続いたら相手に知らせ（いまの家族向けと同じ仕組みを双方向にしたもの）。課金(家族プラン)はなし、無料の範囲で使う。
+  // 画面の言葉：settings.familyName＝わたし、settings.parentName＝友だち。友だちの記録はサーバーから受け取る（試作では自動で作る）。
+  function isFriend(){ return S.settings.mode==='friend'; }
+  var swapping=false;
+  var FT=['8:05','7:52','8:31','8:14','9:02','8:20','7:47','8:38','8:09','8:56','8:11'];
+  function friendAnswers(){ // 試作：友だちは毎日答えている（S.fMiss の日だけ答えなし）
+    var o={};
+    for(var i=0;i<400;i++){ var d=daysAgo(i), k=key(d); if(k<S.fFirst) break; if(S.fMiss[k]) continue; var qa=questionFor(d); o[k]={pick:qa.a, correct:true, time:FT[i%FT.length], label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'}; }
+    return o;
+  }
+  function friendWorn(){ var t=key(today()), w=[]; S.fGifts.forEach(function(g){ var it=ITEMS[g.id]; if(g.day<t && it){ w=w.filter(function(x){ return ITEMS[x]&&ITEMS[x].slot!==it.slot; }); w.push(g.id); } }); return w; }
+  function withFriend(fn){ // 友だちの記録に一時的に入れ替えて描く（保存はしない）
+    var keep={a:S.answers, sh:S.shield, an:S.settings.animal, w:S.worn, g:S.gifts, pl:S.plan};
+    swapping=true; S.answers=friendAnswers(); S.shield={days:{}}; S.settings.animal=S.fAnimal; S.worn=friendWorn(); S.gifts=S.fGifts; S.plan='free';
+    try{ return fn(); } finally { S.answers=keep.a; S.shield=keep.sh; S.settings.animal=keep.an; S.worn=keep.w; S.gifts=keep.g; S.plan=keep.pl; swapping=false; }
+  }
+  function setMode(v){
+    var st=S.settings; if(v!=='friend'&&v!=='family') return; if(v===st.mode) return; st.mode=v;
+    if(v==='friend'){ if(st.parentName==='ふみこ') st.parentName='みさき'; if(st.phone==='090-1234-5678') st.phone='080-2345-6789'; st.device='smart'; if(st.contact==='SMS') st.contact='アプリ通知'; }
+    else { if(st.parentName==='みさき') st.parentName='ふみこ'; if(st.phone==='080-2345-6789') st.phone='090-1234-5678'; if(st.contact==='アプリ通知') st.contact='SMS'; }
+    PH.day=''; save();
+  }
+  function renderFriendCard(){
+    var b=el('p-friend'); b.hidden=!isFriend(); if(!isFriend()) return;
+    var st=S.settings, f=withFriend(function(){ var d=S.answers[key(today())]; return {done:d, missed:missedBeforeToday(), pet:pet(S.settings.animal, S.worn, !!d)}; });
+    var cls, t, sub;
+    if(f.done){ cls='ok'; t=st.parentName+'さん、きょうも元気'; sub=f.done.time+' に答えました'; }
+    else if(f.missed>=st.alertAfter){ cls='bad'; t=st.parentName+'さんが '+f.missed+'日 答えていません'; sub='電話してみてください'; }
+    else { cls='warn'; t=st.parentName+'さんは、きょうは まだ'; sub=f.missed>0?'きのうも答えていません':'相棒が 朝・昼・夕方に 声をかけます'; }
+    b.className='fcard '+cls; b.innerHTML=f.pet+'<span class="tx"><b>'+t+'</b><small>'+sub+'</small></span><span class="go">見る ›</span>';
+  }
+  function applyMode(){
+    var f=isFriend(); document.body.classList.toggle('friendmode', f);
+    Array.prototype.forEach.call(document.querySelectorAll('[data-fri]'), function(n){ if(n.getAttribute('data-fam')===null) n.setAttribute('data-fam', n.innerHTML); n.innerHTML=f?n.getAttribute('data-fri'):n.getAttribute('data-fam'); });
+    el('ft-friend').textContent='👭 '+S.settings.parentName+'さん';
+    el('d-mfam').setAttribute('aria-pressed', f?'false':'true'); el('d-mfri').setAttribute('aria-pressed', f?'true':'false');
+    el('ftabs').hidden=!f || view==='choose';
+    el('ft-me').setAttribute('aria-pressed', view==='parent'?'true':'false'); el('ft-friend').setAttribute('aria-pressed', view==='family'?'true':'false');
+  }
   function monthOf(k){ return k.slice(0,7); }
   function shieldsUsed(mk){ var n=0; Object.keys(S.shield.days).forEach(function(k){ if(monthOf(k)===mk) n++; }); return n; }
   function shieldsLeft(){ return Math.max(0, SHIELDS_PER_MONTH-shieldsUsed(monthOf(key(today())))); }
@@ -901,14 +984,15 @@ body.demoing{padding-bottom:260px}
   });
   function renderParent(){
     var st=S.settings, t=key(today()), done=S.answers[t], d=today();
-    var isPhone=st.device==='phone';
+    var isPhone=st.device==='phone' && !isFriend();
     el('p-smart').hidden=isPhone; el('p-phone').hidden=!isPhone;
     if(isPhone){ el('p-result').hidden=!done; if(done) renderResult(done); renderPhone(); return; }
     el('p-pet').innerHTML=pet(st.animal, S.worn, !!done);
     el('p-name').textContent=ANIMALS[st.animal].name;
-    el('p-greet').textContent=greeting()+'、'+st.parentName+'さん';
+    el('p-greet').textContent=greeting()+'、'+(isFriend()?st.familyName:st.parentName)+'さん';
     el('p-date').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日（'+WDK[d.getDay()]+'）';
     el('p-streak').textContent=streak();
+    renderFriendCard();
     var missed=missedBeforeToday();
     var line=done?'また あした！':(S.hello?'よろしくね！':(missed>0?'まってたよ！':'きょうも いっしょに'));
     clearTimeout(petTimer);
@@ -1022,19 +1106,21 @@ body.demoing{padding-bottom:260px}
   function renderResult(rec){
     var st=S.settings;
     var h='<div class="seal">無事</div>';
-    h+='<div class="big">'+st.parentName+'さん、<br>きょうも 元気。</div>';
+    var who=isFriend()?('友だちの '+st.parentName):(st.relation+'の '+st.familyName);
+    h+='<div class="big">'+(isFriend()?st.familyName:st.parentName)+'さん、<br>きょうも 元気。</div>';
     if(rec.pick>=0){ h+= rec.correct?'<div class="chip">せいかい！</div>':'<div class="note">こたえは「'+rec.ans+'」でした</div>'; }
     else if(rec.ans){ h+='<div class="note">こたえは「'+rec.ans+'」でした</div>'; }
     if(rec.via==='mail') h+='<div class="note">'+(rec.how==='reply'?'メールの返信で 知らせました':'メールのリンクを 開きました')+'</div>';
-    h+='<div class="sent">'+ico('i-check')+st.relation+'の '+st.familyName+'さんに「無事」が とどきました</div>';
+    h+='<div class="sent">'+ico('i-check')+who+'さんに「無事」が とどきました</div>';
     h+='<div class="mini">'+pet(st.animal, S.worn, true)+'<div class="st">つづけて<br><b>'+streak()+'</b> 日</div></div>';
-    if(rec.gift&&ITEMS[rec.gift]){ h+='<div class="gift">'+st.relation+'の '+st.familyName+'さんから<br>「'+ITEMS[rec.gift].name+'」が とどきました！</div>'; }
+    if(rec.gift&&ITEMS[rec.gift]){ h+='<div class="gift">'+who+'さんから<br>「'+ITEMS[rec.gift].name+'」が とどきました！</div>'; }
     h+='<div class="bye">また あした。</div>';
     el('p-result').innerHTML=h;
   }
 
   // ---------- 家族の画面 ----------
-  function renderFamily(){
+  function renderFamily(){ if(!isFriend()) return renderFamily0(); withFriend(renderFamily0); }
+  function renderFamily0(){
     var st=S.settings, t=key(today()), done=S.answers[t], missed=missedBeforeToday(), an=ANIMALS[st.animal];
     el('f-title').textContent=st.parentName+'さんの きょう';
     el('f-os').textContent=IOS_READY?'':'🍎 iPhone版は近日公開'; el('f-os').hidden=IOS_READY;
@@ -1074,13 +1160,13 @@ body.demoing{padding-bottom:260px}
     el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">🙆 うっかりセーフ '+sh+'回</span>':'');
 
     var plus=isPlus();
-    el('f-gift-sub').textContent= plus
+    el('f-gift-sub').textContent= isFriend() ? ('1つ100円。あす、'+st.parentName+'さんの相棒に「あなたからのプレゼント」として届きます。') : plus
       ? '家族プランなので、ぜんぶプラン込み。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。毎月1日に、新作が自動で1つ増えます。'
       : '1つ100円。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。';
     var g=el('f-gifts'); g.innerHTML='';
     var newId=newItemId();
     Object.keys(ITEMS).forEach(function(id){
-      if(!itemAvailable(id)) return;
+      if(!itemAvailable(id) || (isFriend()&&ITEMS[id].plus)) return;
       var it=ITEMS[id], worn=S.worn.indexOf(id)>=0, sent=S.gifts.some(function(x){ return x.id===id && S.worn.indexOf(id)<0; });
       var locked=!!it.plus && !plus;
       var tag= locked?'<span class="tag lock">家族プラン</span>':(id===newId&&plus?'<span class="tag new">今月の新作</span>':(plus?'<span class="tag inc">プラン込み</span>':'<span class="tag">¥100</span>'));
@@ -1098,13 +1184,15 @@ body.demoing{padding-bottom:260px}
     var wn=el('f-weeknote'); wn.hidden=plus; if(!plus){ wn.innerHTML='7日より前の記録は <button type="button" id="wn-go">家族プランの1か月カレンダー</button> で'; el('wn-go').addEventListener('click', openPlan); }
     if(plus){ renderCalendar(); renderReport(); }
     renderMilestone(); renderPlan(); renderMembers();
+    el('f-plan').hidden=isFriend(); if(isFriend()){ el('f-milestone').hidden=true; el('f-weeknote').hidden=true; }
+    seg('s-mode',['family','friend'],st.mode||'family',function(v){ setMode(v); },function(v){ return v==='family'?'👵 親と家族':'👭 友だち同士'; });
     var rf=el('s-report-field'); rf.hidden=!plus; if(plus) seg('s-report',['月','日'],st.reportDay||'月',function(v){ st.reportDay=v; },function(v){ return v+'曜の朝'; });
 
     el('s-parent').value=st.parentName; el('s-family').value=st.familyName; el('s-phone').value=st.phone;
     seg('s-relation',['むすめ','むすこ','まご'],st.relation,function(v){ st.relation=v; });
     seg('s-device',['smart','phone'],st.device||'smart',function(v){ st.device=v; el('f-sms').hidden=true; },function(v){ return v==='smart'?'📱 スマホ':'📧 ガラケー（メール）'; });
     el('s-mail-field').hidden=st.device!=='phone'; el('s-mail').value=st.mail||'';
-    el('f-send').innerHTML=ico('i-mail')+((st.device==='phone')?'確認のメールを送る（試し）':'親のスマホに送る');
+    el('f-send').innerHTML=ico('i-mail')+(isFriend()?'友だちに招待を送る':((st.device==='phone')?'確認のメールを送る（試し）':'親のスマホに送る'));
     seg('s-animal',['dog','cat','panda','rabbit'],st.animal,function(v){ st.animal=v; },function(v){ return pet(v,[])+'<span>'+ANIMALS[v].name+'</span>'; });
     seg('s-alert',[1,2,3],st.alertAfter,function(v){ st.alertAfter=v; },function(v){ return ['次の日','2日後','3日後'][v-1]; });
     seg('s-time',['あさ','ひる','よる'],st.timeOfDay,function(v){ st.timeOfDay=v; });
@@ -1364,6 +1452,10 @@ body.demoing{padding-bottom:260px}
   el('f-send').addEventListener('click', function(){
     var st=S.settings, b=el('f-sms');
     b.hidden=false;
+    if(isFriend()){
+      b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くメッセージ（例）</div><div>'+st.familyName+'です。ワンポチで、お互いの「元気」を毎日たしかめあおう。押すとすぐ始まるよ。<br><b>wanpochi.app/f/8k2m</b></div><div class="from">押すと、'+st.parentName+'さんも相棒を1匹えらんで始まります。登録・コード入力はありません。</div>';
+      toast('送りました（試作のため実際には送られません）'); return;
+    }
     if(st.device==='phone'){
       b.innerHTML='<div class="from">'+st.parentName+'さんのケータイ（'+(st.mail||'メールアドレス未入力')+'）に届くメール（例）</div><div>件名：'+ANIMALS[st.animal].name+'から：はじめまして（確認）<br>'+st.parentName+'さん、はじめまして。'+ANIMALS[st.animal].name+'だよ。あしたから毎'+st.timeOfDay+'、メールを1通送るね。<br><b>▶ ここを押す</b></div><div class="from">リンクを開けたら登録完了。あすから毎'+st.timeOfDay+'「きょうの1問」が届き、<b>開いた時点で「無事」</b>（答えなくてもOK・返信でもOK）。開かれなければ昼と夕方にもう一度。'+st.alertAfter+'日続けて開かれないと あなたに知らせます。SMSも電話番号も使わないので、通信費はかかりません。</div><div class="from">受信許可の設定：docomo「メール設定→受信リスト」／au「迷惑メールフィルター→受信リスト」／SoftBank「迷惑メールブロック設定→受信許可リスト」に wanpochi.app を追加</div>';
       S.phoneIntro=false; PH.day=''; save(); renderParent(); toast('確認メールを送りました（試作のため実際には送られません）'); return;
@@ -1372,14 +1464,16 @@ body.demoing{padding-bottom:260px}
     toast('送りました（試作のため実際には送られません）');
   });
   el('f-share').addEventListener('click', function(){
-    var st=S.settings, text=st.parentName+'、きょうも無事。ワンポチ '+streak()+'日つづいてます #ワンポチ';
+    var st=S.settings, text=isFriend()?(st.familyName+'と'+st.parentName+'、きょうもお互い元気。#ワンポチ'):(st.parentName+'、きょうも無事。ワンポチ '+streak()+'日つづいてます #ワンポチ');
     function fallback(){ var ta=el('clip'); ta.value=text; ta.select(); try{ document.execCommand('copy'); }catch(e){} toast('コピーしました：'+text); }
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(function(){ toast('コピーしました：'+text); }, fallback); } else fallback();
   });
 
   // ---------- 試作メニュー ----------
-  var view='parent', pick=null;
+  var view='parent', pick=null, chooseStep='mode', modeFromUrl=false;
   function renderChoose(){
+    el('mode-step').hidden=chooseStep!=='mode'; el('pet-step').hidden=chooseStep!=='pet';
+    el('mode-family').setAttribute('aria-pressed', !isFriend()?'true':'false'); el('mode-friend').setAttribute('aria-pressed', isFriend()?'true':'false');
     var box=el('pets'); box.innerHTML='';
     ['dog','cat','panda','rabbit'].forEach(function(a){
       var b=document.createElement('button'); b.type='button'; b.className='petcard'; b.id='pick-'+a;
@@ -1398,13 +1492,21 @@ body.demoing{padding-bottom:260px}
   function show(v){
     if(v!=='choose' && !S.chosen) v='choose';
     view=v;
-    if(v==='choose'){ pick=null; renderChoose(); }
+    if(v==='choose'){ pick=null; chooseStep=modeFromUrl?'pet':'mode'; renderChoose(); }
     el('choose').hidden=v!=='choose'; document.body.classList.toggle('choosing', v==='choose');
     el('parent').hidden=v!=='parent'; el('family').hidden=v!=='family';
     el('d-parent').setAttribute('aria-pressed', v==='parent'?'true':'false');
     el('d-family').setAttribute('aria-pressed', v==='family'?'true':'false');
     try{ localStorage.setItem(KEY+'_view', v); }catch(e){}
+    applyMode();
   }
+  el('mode-family').addEventListener('click', function(){ setMode('family'); chooseStep='pet'; applyMode(); renderChoose(); window.scrollTo(0,0); });
+  el('mode-friend').addEventListener('click', function(){ setMode('friend'); chooseStep='pet'; applyMode(); renderChoose(); window.scrollTo(0,0); });
+  el('ft-me').addEventListener('click', function(){ show('parent'); window.scrollTo(0,0); });
+  el('ft-friend').addEventListener('click', function(){ show('family'); window.scrollTo(0,0); });
+  el('p-friend').addEventListener('click', function(){ show('family'); window.scrollTo(0,0); });
+  el('d-mfam').addEventListener('click', function(){ setMode('family'); renderAll(); show(view); toast('親と家族（試作）'); });
+  el('d-mfri').addEventListener('click', function(){ setMode('friend'); renderAll(); show(view); toast('友だち同士（試作）'); });
   el('d-parent').addEventListener('click', function(){ show('parent'); });
   el('d-family').addEventListener('click', function(){ show('family'); });
   el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; PH.day=''; save(); renderAll(); toast('1日すすめました'); });
@@ -1419,7 +1521,7 @@ body.demoing{padding-bottom:260px}
     var d=today();
     el('d-day').textContent=(S.dayOffset===0?'きょう':'+'+S.dayOffset+'日')+'（'+(d.getMonth()+1)+'/'+d.getDate()+' '+WDK[d.getDay()]+'）';
     el('d-free').setAttribute('aria-pressed', isPlus()?'false':'true'); el('d-plus').setAttribute('aria-pressed', isPlus()?'true':'false');
-    renderParent(); renderFamily();
+    applyMode(); renderParent(); renderFamily();
   }
 
   // ---------- デモ再生（保存データは触らない） ----------
@@ -1475,6 +1577,8 @@ body.demoing{padding-bottom:260px}
       await intro('ひとり暮らしの、<br>生存確認。','毎日1問に、答えるだけ。');
 
       await chapter(1,'相棒をえらぶ','いちばん最初の1回だけ');
+      await say('最初に、だれと使うかを えらびます','「親と家族」か「友だち同士」の2つだけ');
+      line('親を見守るなら「親と家族」'); await tap(el('mode-family')); await sleep(500); fg.hidden=true;
       await say('まず、相棒を1匹えらびます','ポチ・タマ・パン・ミミの4匹。あとから家族の画面でも変えられます');
       line('かわいいと思った子を押すだけ'); await tap(el('pick-cat')); await sleep(600); await tap(el('pick-panda')); await sleep(500);
       line('決めたら「この子にする」'); await tap(el('pick-ok')); fg.hidden=true;
@@ -1552,6 +1656,82 @@ body.demoing{padding-bottom:260px}
       await say('できないことも、家族の画面に はっきり書いてあります','急な病気は防げない。防げるのは「何日も気づかれないこと」');
 
       ending(pet('panda',['straw'],true), 'ワンポチ', '毎日1問の、生存確認。<br>答えなければ、家族に知らせる。');
+  }
+
+  // ---------- 友だち同士のデモ（お互いに見守りあう）----------
+  function runFriendDemo(){ return runDemoWith(demoFriend, 6); }
+  async function demoFriend(){
+      fresh(); renderAll(); show('choose'); window.scrollTo(0,0);
+      await intro('ひとり暮らし同士の、<br>安否確認。','友だちと、お互いに見守りあう。');
+
+      await chapter(1,'だれと使う？','いちばん最初の1回だけ');
+      await say('最初に、だれと使うかを えらびます','「親と家族」か「友だち同士」の2つだけ');
+      line('友だちとなら「友だち同士」'); await tap(el('mode-friend')); await sleep(500); fg.hidden=true;
+      await say('つぎに、自分の相棒を1匹えらびます','友だちも、自分の相棒を1匹えらびます');
+      line('かわいいと思った子を押すだけ'); await tap(el('pick-dog')); await sleep(500);
+      line('決めたら「ポチ にする」'); await tap(el('pick-ok')); fg.hidden=true; await sleep(400);
+
+      await chapter(2,'わたしの1問','毎日、自分のスマホで');
+      var st=S.settings;
+      el('notif-pet').innerHTML=pet('dog',[]); el('notif-tx').textContent='ポチが きょうの1問を 持ってきたよ';
+      el('notif').classList.add('show'); el('dim').classList.add('show');
+      await say('毎朝、相棒が「きょうの1問」を持ってきます','届く時間は 朝・昼・夜 からえらべます');
+      el('notif').classList.remove('show'); el('dim').classList.remove('show'); await sleep(350);
+      await focus(el('p-friend'));
+      await say('いちばん上には、友だちの「きょう」が出ます', st.parentName+'さんは もう答えて「元気」');
+      await focus(el('p-qcard'));
+      await say('3つから1つ押すだけ。押した時点で「生きてるよ」の合図','まちがえても「わからない」でもOK');
+      var q=questionFor(today()); await tap(el('choice-'+q.a)); await sleep(800); fg.hidden=true;
+      await focus(el('p-result'));
+      await say('答えると、友だちに「無事」が届きます','ここまで10秒くらい');
+
+      await chapter(3,'友だちの様子','友だちの画面');
+      el('notif-pet').innerHTML=pet('cat',[]); el('notif-tx').textContent=st.parentName+'さんは きょうも元気です（8:05）';
+      el('notif').classList.add('show');
+      await say('友だちが答えると、あなたにも通知が届きます','「きょうも元気です」');
+      el('notif').classList.remove('show'); await sleep(350);
+      window.scrollTo({top:0, behavior:'smooth'}); await sleep(500);
+      line('上の「'+st.parentName+'さん」を押すと、友だちの画面'); await tap(el('ft-friend')); await sleep(400); fg.hidden=true; window.scrollTo(0,0);
+      await focus(el('f-status'));
+      await say('答えた時間と、きょうの答えが見られます');
+      await focus(el('f-week'));
+      await say('1週間ぶんの「元気」が、ひと目でわかります');
+
+      await chapter(4,'もしも','友だちの答えがない日が続いたら');
+      S.fMiss[key(today())]=true; S.fMiss[key(daysAgo(1))]=true; S.fMiss[key(daysAgo(2))]=true;
+      renderAll(); show('parent'); window.scrollTo(0,0); await sleep(400);
+      await focus(el('p-friend'));
+      await say('答えがない日が続くと、自分の画面に 赤い知らせが出ます','「わたしの1問」を開いたときに、すぐ気づけます');
+      el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>通知</small>';
+      el('phone-msg').textContent='【ワンポチ】'+st.parentName+'さんが2日答えていません。電話してみてください。';
+      el('phone').classList.add('show'); await say('2日続けて答えがないと、あなたに知らせが届きます','友だちの電話番号つき。すぐに電話できます', 600);
+      el('phone').classList.remove('show'); await sleep(400);
+      show('family'); window.scrollTo(0,0); await sleep(300);
+      await focus(el('f-status'));
+      await say('「押して発信」で、そのまま電話できます');
+      await say('もちろん逆も同じ。あなたが答えない日が続けば、友だちに知らせが届きます','だから「お互いさま」');
+      delete S.fMiss[key(today())]; delete S.fMiss[key(daysAgo(1))]; delete S.fMiss[key(daysAgo(2))]; renderAll();
+
+      await chapter(5,'プレゼント','友だちの相棒に');
+      show('family'); window.scrollTo(0,0); await sleep(300);
+      await focus(el('f-gifts'));
+      await say('友だちの相棒に、着せ替えを贈れます（1つ100円）','次の日、友だちの相棒が着て来ます');
+      line('リボンを贈ってみます'); await tap(el('gift-ribbon')); await sleep(600); fg.hidden=true;
+      S.dayOffset++; S.hello=false; renderAll(); show('family'); window.scrollTo(0,0); await sleep(500);
+      await focus(el('f-pet').parentNode);
+      await say('次の日。'+st.parentName+'さんの相棒が、リボンをつけて来ました');
+
+      await chapter(6,'はじめかた','友だちにリンクを送るだけ');
+      await focus(el('s-mode'));
+      await say('使い方は、設定でいつでも切り替えられます','親と家族 ／ 友だち同士');
+      await focus(el('f-send'));
+      line('「友だちに招待を送る」を押すと…'); await tap(el('f-send')); await sleep(400); fg.hidden=true;
+      await focus(el('f-sms'));
+      await say('友だちにリンクを1本送るだけ','登録もコード入力もいりません。毎日の1問と知らせは、ずっと無料');
+      await focus(el('f-know'));
+      await say('できないことも、はっきり書いてあります','急な病気は防げない。防げるのは「何日も気づかれないこと」');
+
+      ending(pet('dog',[],true), 'ワンポチ', '友だちと、毎日1問。<br>答えがなければ、お互いに知らせる。');
   }
 
   // ---------- 家族プランのデモ（家族目線：無料のまま使う → 家族プランで増えるもの）----------
@@ -1649,7 +1829,7 @@ body.demoing{padding-bottom:260px}
     document.body.classList.add('longdemo'); SL.n=0;
     try{
       fresh(); S.chosen=false; S.plan='free'; S.planHidden=''; S.planTerm='year'; S.settings.members=[{name:'たかし'}];
-      renderAll(); show('choose'); window.scrollTo(0,0);
+      renderAll(); show('choose'); window.scrollTo(0,0); chooseStep='pet'; renderChoose();
 
       // ===== はじめに =====
       await slide('', 'ワンポチ<br><b>無料</b>と<b>家族プラン</b>',
@@ -1775,13 +1955,16 @@ body.demoing{padding-bottom:260px}
   el('d-demo').addEventListener('click', function(){ if(!demo) runDemo(); });
   el('d-demo2').addEventListener('click', function(){ if(!demo) runPlanDemo(); });
   el('d-demo3').addEventListener('click', function(){ if(!demo) runLongDemo(); });
+  el('d-demo4').addEventListener('click', function(){ if(!demo) runFriendDemo(); });
   el('slide').addEventListener('click', function(){ if(skip) skip(); });
-  el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(function(){ runDemoWith(lastDemo||demoMain, lastDemo===demoPlan?6:(lastDemo===demoLong?1:7)); },300); });
+  el('end-again').addEventListener('click', function(){ el('endcard').classList.remove('show'); setTimeout(function(){ runDemoWith(lastDemo||demoMain, lastDemo===demoPlan?6:(lastDemo===demoLong?1:(lastDemo===demoFriend?6:7))); },300); });
   el('end-close').addEventListener('click', function(){ el('endcard').classList.remove('show'); show(S.chosen?'parent':'choose'); window.scrollTo(0,0); });
   load();
   // 本番アプリからのプラン切り替え：?plan=plus / ?plan=free（URL）、window.wanpochi.setPlan('plus')（WebViewから）、postMessage（iframeから）
   try{ var qp=new URLSearchParams(location.search).get('plan'); if(qp==='plus'||qp==='free'){ S.plan=qp; save(); } }catch(e){}
-  function giftDone(id){ S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+S.settings.parentName+'さんの画面にとどきます'); }
+  // 本番アプリからの使い方の切り替え：?mode=friend / ?mode=family（このときは最初の「だれと使う？」を飛ばす）
+  try{ var qm=new URLSearchParams(location.search).get('mode'); if(qm==='friend'||qm==='family'){ setMode(qm); modeFromUrl=true; } }catch(e){}
+  function giftDone(id){ if(isFriend()){ S.fGifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす、'+S.settings.parentName+'さんの相棒にとどきます'); return; } S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+S.settings.parentName+'さんの画面にとどきます'); }
   window.wanpochi={ products:PRODUCTS,
     purchased:function(pid){ var id=null; Object.keys(PRODUCTS.costume).forEach(function(k){ if(PRODUCTS.costume[k]===pid) id=k; }); if(id){ buyingGift=null; giftDone(id); } },
     setPlan:function(p){ var was=isPlus(); setPlan(p); if(p==='plus'&&!was) renderWelcome(); }, getPlan:function(){ return S.plan; }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
@@ -1793,6 +1976,7 @@ body.demoing{padding-bottom:260px}
   if(location.hash==='#demo') setTimeout(runDemo,500);
   if(location.hash==='#demo2') setTimeout(runPlanDemo,500);
   if(location.hash==='#demo3') setTimeout(runLongDemo,500);
+  if(location.hash==='#demo4') setTimeout(runFriendDemo,500);
 })();
 </script>
 
