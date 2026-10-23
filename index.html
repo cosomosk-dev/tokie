@@ -447,7 +447,7 @@
       <div class="set"><div class="l">無音で自動お会計（分）<small>これだけ黙っとったらママが「寝てもうた？」と一声かけて、返事がなければ静かにお会計する（0＝しない）。つけっぱなし課金の防止。</small></div><input type="number" id="s_idle" min="0" max="60" step="1"></div>
       <div class="set"><div class="l">お会計のとき、ママが今日のまとめと一言を言う<small>「お会計」を押したらママが今日の話を3行でまとめて、次来るまでの一言を添える。それが手帳に残り、次に開いた時に看板の下に出る。</small></div><input type="checkbox" id="s_sum"></div>
       <div class="set"><div class="l">原価の目安（円／分）<small>「ざっくり原価」とボトルの「1本 約○円相当」の計算に使う。ElevenLabs Agentsは1分＝約12円。</small></div><input type="number" id="s_yen" min="0" max="100" step="0.5"></div>
-      <div class="set"><div class="l">写真を見る目（GeminiのAPIキー）<small>ドリンクを頼んだ夜に写真をママに見せる時だけ使う。このスマホ／PCの中にだけ保存。作り方：aistudio.google.com/apikey →「APIキーを作成」→ AIza…で始まるキーをコピーしてここに貼る。</small></div><input type="password" id="s_gkey" placeholder="AIza..." autocomplete="off" style="width:150px"></div>
+      <div class="set"><div class="l">写真を見る目（GeminiのAPIキー）<small>ドリンクを頼んだ夜に写真をママに見せる時だけ使う。このスマホ／PCの中にだけ保存。作り方：aistudio.google.com/apikey →「APIキーを作成」→ AIza…で始まるキーをコピーしてここに貼る。「今日の回数を使い切った」と出る時は、aistudio.google.com/apikey のキーの行の「Set up billing（お支払い設定）」でカードを登録すると上限がほぼ無くなる（写真1枚 約0.1〜0.3円）。</small></div><input type="password" id="s_gkey" placeholder="AIza..." autocomplete="off" style="width:150px"></div>
       <div class="saved" id="setsaved"></div>
     </details>
 
@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-24 v39";
+  const APP_VER="2026-10-24 v40";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1514,12 +1514,27 @@
       return await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify(body),signal:ac?ac.signal:undefined});
     }finally{if(tm)clearTimeout(tm);}
   }
+  /* v40: 無料枠（429）の取り合い対策。裏の記憶まとめが無料枠を食い尽くして、写真の分が残らんかった（10/24 1:54）。
+     ・写真を読んでる間は、裏の記憶まとめは待つ（写真が最優先）
+     ・裏の記憶まとめは429が出たら他のモデルに回さず即やめ、しばらく休む（他のモデルの枠は写真用に残す）
+     ・写真は「1分の上限」なら20秒待ってもう一回。「1日の上限」なら粘らず正直に言う */
+  let gPhotoBusy=false,gBgCoolUntil=0;
+  function gQuotaPer(j){
+    const s=JSON.stringify((j&&j.error)||{});
+    if(/PerDay/i.test(s))return "day";
+    if(/PerMinute/i.test(s))return "minute";
+    return "";
+  }
   async function gRun(key,payload,opt){
     opt=opt||{};
     let last=null,n=0;
     const rounds=opt.rounds||3;
     for(let round=0;round<rounds;round++){
-      if(round){if(opt.onRetry)opt.onRetry(round);await gSleep(round*2500);}
+      if(round){
+        if(last&&last.kind==="limit"&&last.per==="day")break; // 1日の上限は待っても戻らへん
+        if(opt.onRetry)opt.onRetry(round,last);
+        await gSleep(last&&last.kind==="limit"?20000:round*2500);
+      }
       for(const m of gModels()){
         n++;
         // 2.5-flash系は「考える時間」を切る（速くなる＋出力枠を考え事で使い切って空返事になるのを防ぐ）
@@ -1532,7 +1547,12 @@
         if(r.status===404){if(!last)last={kind:"model",msg:m};continue;}
         if(r.status===400&&/API key/i.test(em))throw {kind:"badkey"};
         if(r.status===401||r.status===403)throw {kind:"badkey"};
-        if(r.status===429){last={kind:"limit",msg:"429"};continue;}
+        if(r.status===429){
+          const per=gQuotaPer(j);
+          if(last&&last.kind==="limit"&&last.per==="minute"&&per==="day"){}else last={kind:"limit",msg:"429",per};
+          if(opt.bg){gBgCoolUntil=Date.now()+(per==="day"?60:10)*60000;throw last;}
+          continue;
+        }
         if(r.status>=500){last={kind:"busy",msg:String(r.status)};continue;}
         if(!r.ok){last={kind:"http",msg:`${r.status} ${em}`};continue;}
         if(!/lite/.test(m)){try{localStorage.setItem(GMODEL_KEY,m);}catch(e){}}
@@ -1544,10 +1564,12 @@
   async function geminiText(prompt,opt){
     opt=opt||{};
     const key=gKey();if(!key)return "";
+    // v40: 写真を読んでる最中・無料枠で休み中は、裏の記憶まとめはやらへん（次の回に回る）
+    if(gPhotoBusy||Date.now()<gBgCoolUntil)return "";
     try{
       const j=await gRun(key,{contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:Object.assign({temperature:0.2,maxOutputTokens:opt.max||4096},opt.json?{responseMimeType:"application/json"}:{}),
         // v28: 大人の店の会話（女の子・夜のお店の話）を要約・数えるだけなので、性的な話題が混ざっても止まらんようにする（露骨な生成はプロンプトで禁止）
-        safetySettings:["HARM_CATEGORY_SEXUALLY_EXPLICIT","HARM_CATEGORY_HARASSMENT","HARM_CATEGORY_HATE_SPEECH","HARM_CATEGORY_DANGEROUS_CONTENT"].map(c=>({category:c,threshold:"BLOCK_ONLY_HIGH"}))},{timeout:45000});
+        safetySettings:["HARM_CATEGORY_SEXUALLY_EXPLICIT","HARM_CATEGORY_HARASSMENT","HARM_CATEGORY_HATE_SPEECH","HARM_CATEGORY_DANGEROUS_CONTENT"].map(c=>({category:c,threshold:"BLOCK_ONLY_HIGH"}))},{timeout:45000,rounds:1,bg:true});
       const c=j&&j.candidates&&j.candidates[0];
       return (((c&&c.content&&c.content.parts)||[]).map(x=>x.text||"").join("").trim());
     }catch(e){return "";}
@@ -2974,19 +2996,22 @@
     const big=shrink(im,768,0.82),thumb=shrink(im,200,0.7);
     showPhoto(big,"ママが見てる…");statusEl.textContent="ママが写真を見てる…";
     let desc;
-    try{desc=await geminiDescribe(big.split(",")[1],()=>{statusEl.textContent="ママが老眼鏡かけ直してる…（混んでるから見直し中）";});}
+    gPhotoBusy=true;
+    try{desc=await geminiDescribe(big.split(",")[1],(round,last)=>{statusEl.textContent=last&&last.kind==="limit"?"ママが老眼鏡かけ直してる…（Googleの回数待ち・20秒くらい）":"ママが老眼鏡かけ直してる…（混んでるから見直し中）";});}
     catch(e){
+      gPhotoBusy=false;
       hidePhoto(600);
       const k=e&&e.kind;
       if(k==="nokey"||k==="badkey"){setGKey("");statusEl.textContent="写真の「目」のキーがあかんかった";alert("GeminiのAPIキーが通らへんかった。もう一回「写真」を押して、キーを貼り直してな。");}
       else if(k==="blocked"){statusEl.textContent="その写真はお店では見せられへん";inject("【店の様子】お客さんが写真を見せようとしたけど、お店では見せられへん写真やった。「ちょっと、それはここではアカンやつやで（笑）」と軽く笑って流す。責めたり説教はせん。");}
       else{
         // v39: 英語のエラーを出さず、ママが自分のせいにして謝る。写真の枚数は減らさへん（お酒入れたのに損した、にならんように）
-        statusEl.textContent=k==="limit"?"写真の「目」が今日は回数いっぱい。枚数は減ってへんから、少し時間おいてもう一回📷押してな":"混んでて写真が見えへんかった。枚数は減ってへんで、もう一回📷押してな";
+        statusEl.textContent=k==="limit"?(e.per==="day"?"写真の「目」（Googleの無料枠）が今日の回数を使い切った。枚数は減ってへん。Googleのお支払い設定をオンにすると直る（手帳→営業の設定→写真を見る目に手順あり）":"写真の「目」（Googleの無料枠）が1分の回数いっぱい。枚数は減ってへんから、1分おいてもう一回📷押してな"):"混んでて写真が見えへんかった。枚数は減ってへんで、もう一回📷押してな";
         inject("【店の様子】お客さんが写真を見せてくれたけど、ママの老眼鏡が曇ってて、今は写真がよう見えへんかった。「ごめん、今ちょっと目ぇしょぼしょぼして見えへんかったわ。もう一回見せてくれる？」と軽く自分のせいにして謝る。写真の中身は見えてへんので、何が写ってたかは一切言わへん。言い訳を長々せん。");
       }
       renderPhotoBtn();return;
     }
+    gPhotoBusy=false;
     if(!conv||!session){hidePhoto(0);return;}
     session.photosUsed=(session.photosUsed||0)+1;
     const t=session.tier||0;
