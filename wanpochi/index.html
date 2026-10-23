@@ -506,7 +506,7 @@ body.demoing{padding-bottom:260px}
     <div class="row">
       <button class="play" id="d-demo">▶ デモを見る</button>
       <button class="play" id="d-demo2">▶ 家族プランのデモ</button>
-      <button class="play" id="d-demo3">▶ 10分 通しデモ（無料→家族プラン）</button>
+      <button class="play" id="d-demo3">▶ 12分 通しデモ（無料→家族プラン→友だち同士）</button>
       <button class="play" id="d-demo4">▶ 友だち同士のデモ</button>
       <span class="lbl">試作メニュー</span>
       <button id="d-parent" aria-pressed="true" data-fri="わたしの画面">親の画面</button>
@@ -1829,23 +1829,25 @@ body.demoing{padding-bottom:260px}
     document.body.classList.add('longdemo'); SL.n=0;
     try{
       fresh(); S.chosen=false; S.plan='free'; S.planHidden=''; S.planTerm='year'; S.settings.members=[{name:'たかし'}];
-      renderAll(); show('choose'); window.scrollTo(0,0); chooseStep='pet'; renderChoose();
+      renderAll(); show('choose'); window.scrollTo(0,0); chooseStep='mode'; renderChoose();
 
       // ===== はじめに =====
-      await slide('', 'ワンポチ<br><b>無料</b>と<b>家族プラン</b>',
-        '<ul>'+li('1️⃣','<b>第1部 無料編</b>（3分）：毎日の1問で、家族に「無事」が届く')+li('2️⃣','<b>第2部 家族プラン編</b>（6分）：月200円で、何が増えるか')+'</ul><p class="note">親のスマホは、どちらでも同じ。課金のボタンも広告も出ません。</p>', -2000);
+      await slide('', 'ワンポチの使い方<br><b>親と家族</b>／<b>友だち同士</b>',
+        '<ul>'+li('1️⃣','<b>第1部 無料編</b>（3分）：毎日の1問で、家族に「無事」が届く')+li('2️⃣','<b>第2部 家族プラン編</b>（6分）：月200円で、何が増えるか')+li('3️⃣','<b>第3部 友だち同士編</b>（2分）：ひとり暮らしの友だちと、お互いに見守る')+'</ul><p class="note">親のスマホは、どちらでも同じ。課金のボタンも広告も出ません。</p>', -2000);
       await slide('', '先に、絵で。<br>家族プランだと<b>こうなる</b>', visualHtml(), 9000);
 
       // ===== 第1部 無料編 =====
       await slide('free', '第1部<br>無料で、<b>ここまで</b>できる',
-        '<ul>'+li('🐼','相棒を1匹えらぶ')+li('❓','毎日「きょうの1問」。答える＝「生きてるよ」の合図')+li('✅','家族に「きょうも無事」が届く（2人まで）')+li('🔔','答えがない日は、家族に知らせる')+li('📆','直近7日分の記録と、連続記録')+li('🎁','着せ替えは1つ100円で プレゼント')+'</ul>', -1500);
-      await step('free','まず、相棒を1匹えらびます（最初の1回だけ）',1800);
-      await tap(el('pick-panda')); await hold(900);
+        '<ul>'+li('👵','最初に「親と家族」をえらぶ')+li('🐶','相棒を1匹えらぶ')+li('❓','毎日「きょうの1問」。答える＝「生きてるよ」の合図')+li('✅','家族に「きょうも無事」が届く（2人まで）')+li('🔔','答えがない日は、家族に知らせる')+li('📆','直近7日分の記録と、連続記録')+li('🎁','着せ替えは1つ100円で プレゼント')+'</ul>', -1500);
+      await step('free','最初に、だれと使うかを えらびます（最初の1回だけ）',2600);
+      await step('free','親を見守るなら「親と家族」',1600); await tap(el('mode-family')); await hold(1200); fg.hidden=true;
+      await step('free','つぎに、相棒を1匹えらびます',1800);
+      await tap(el('pick-dog')); await hold(900);
       await step('free','「この子にする」',1000); await tap(el('pick-ok')); fg.hidden=true; await hold(1800);
 
       await slide('free', '親のスマホ<br>毎朝、相棒が<b>1問</b>持ってくる',
         '<ul>'+li('🔔','朝・昼・夜からえらんだ時間に通知')+li('👆','3つから1つ押すだけ。まちがえても「わからない」でもOK')+li('⏱','ここまで10秒。字も ボタンも大きく')+'</ul>', -1500);
-      el('notif-pet').innerHTML=pet('panda',[]); el('notif-tx').textContent='パンが きょうの1問を 持ってきたよ';
+      el('notif-pet').innerHTML=pet('dog',[]); el('notif-tx').textContent='ポチが きょうの1問を 持ってきたよ';
       el('notif').classList.add('show'); el('dim').classList.add('show');
       await step('free','通知が来ます。押すと親の画面',2800);
       el('notif').classList.remove('show'); el('dim').classList.remove('show'); await hold(600);
@@ -1867,7 +1869,7 @@ body.demoing{padding-bottom:260px}
       await focus(el('f-status')); await step('free','家族の画面も赤い知らせに。電話番号を押せば、そのまま発信',4000);
 
       await slide('free', '着せ替え<br>1つ<b>100円</b>で プレゼント',
-        '<ul>'+li('🎁','家族の画面から「贈る」')+li('🌅','あす朝、親の画面に「あなたからのプレゼント」と届く')+li('🐼','相棒がそれを着て来る。親は何も操作しない')+'</ul>', -1500);
+        '<ul>'+li('🎁','家族の画面から「贈る」')+li('🌅','あす朝、親の画面に「あなたからのプレゼント」と届く')+li('🐶','相棒がそれを着て来る。親は何も操作しない')+'</ul>', -1500);
       var qa=questionFor(today()); S.answers[key(today())]={pick:qa.a, correct:true, time:'8:15', label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'}; renderAll(); show('family');
       await focus(el('f-gifts')); await step('free','麦わら帽子を贈ってみます',1600); await tap(el('gift-straw')); await hold(1200); fg.hidden=true;
       S.dayOffset++; S.hello=false; renderAll(); show('parent'); window.scrollTo(0,0); await hold(500);
@@ -1921,7 +1923,7 @@ body.demoing{padding-bottom:260px}
       await focus(el('f-report')); await step('plus','今週の元気レポート。シェアもできます',6000);
 
       await slide('plus', '着せ替え<br><b>ぜんぶ込み</b>＋毎月の新作',
-        '<ul>'+li('🎁','着せ替えは ぜんぶプラン込み。100円は要らない')+li('✨','毎月1日に、新作が自動で1つ増える（12か月ぶん用意済み）')+li('🐼','親の画面は変わらない。相棒が新しい服で来るだけ')+'</ul>');
+        '<ul>'+li('🎁','着せ替えは ぜんぶプラン込み。100円は要らない')+li('✨','毎月1日に、新作が自動で1つ増える（12か月ぶん用意済み）')+li('🐶','親の画面は変わらない。相棒が新しい服で来るだけ')+'</ul>');
       await focus(el('f-gifts')); await step('plus','ぜんぶ「プラン込み」。今月の新作は「'+ITEMS[newItemId()].name+'」',3500);
       await step('plus','新作を贈る',1500); await tap(el('gift-'+newItemId())); await hold(1500); fg.hidden=true;
       var qb=questionFor(today()); S.answers[key(today())]={pick:qb.a, correct:true, time:'8:30', label:qb.c[qb.a][1], ans:qb.c[qb.a][1], via:'app'};
@@ -1948,8 +1950,44 @@ body.demoing{padding-bottom:260px}
       window.scrollTo(0,0); await hold(400); await focus(el('f-plan')); await step('plus','加入中の画面。無料期間の終わりと、解約の案内',5000);
       var fq=el('f-plan').querySelector('.faqs details:nth-child(3) summary'); if(fq){ await step('plus','よくある質問も、ここに',1500); await tap(fq); await hold(2500); fg.hidden=true; }
 
-      await slide('', 'まとめ', visualHtml()+'<p class="note">毎日の生存確認は、ずっと無料。家族プランは「もう少しだけ安心したい人」に。</p>', 7000);
-      ending(pet('panda',[newItemId()],true), 'ワンポチ', '毎日の生存確認は、ずっと無料。<br>家族プランは 月200円。親の画面は、そのまま。');
+      // ===== 第3部 友だち同士編 =====
+      fresh(); S.plan='free'; renderAll(); show('choose'); window.scrollTo(0,0); chooseStep='mode'; renderChoose();
+      await slide('free', '第3部<br>友だち同士でも<b>使える</b>',
+        '<ul>'+li('👭','最初に「友だち同士」をえらぶだけ')+li('❓','ふたりとも毎日1問。答えたら、相手に「無事」が届く')+li('🔔','答えがない日が続いたら、相手に知らせる')+li('🆓','友だち同士の見守りは、ずっと無料')+'</ul>', -1500);
+      await step('free','最初の画面で「友だち同士」をえらびます',2600); await tap(el('mode-friend')); await hold(1200); fg.hidden=true;
+      await step('free','自分の相棒を1匹えらぶ。友だちも、自分の相棒をえらびます',2600);
+      await tap(el('pick-dog')); await hold(700); await tap(el('pick-ok')); fg.hidden=true; await hold(1500);
+      var fs=S.settings;
+      el('notif-pet').innerHTML=pet('dog',[]); el('notif-tx').textContent='ポチが きょうの1問を 持ってきたよ';
+      el('notif').classList.add('show'); el('dim').classList.add('show');
+      await step('free','毎朝、自分のスマホに「きょうの1問」が届きます',2800);
+      el('notif').classList.remove('show'); el('dim').classList.remove('show'); await hold(600);
+      await focus(el('p-friend')); await step('free','いちばん上に、友だちの「きょう」。'+fs.parentName+'さんは もう答えて「元気」',4000);
+      await focus(el('p-qcard')); await step('free','自分も1問。3つから1つ押すだけ',2200);
+      var fq3=questionFor(today()); await tap(el('choice-'+fq3.a)); await hold(1000); fg.hidden=true;
+      await focus(el('p-result')); await step('free','答えると、友だちに「無事」が届きます',3500);
+      el('notif-pet').innerHTML=pet('cat',[]); el('notif-tx').textContent=fs.parentName+'さんは きょうも元気です（8:05）';
+      el('notif').classList.add('show'); await step('free','友だちが答えると、あなたにも通知',3000); el('notif').classList.remove('show'); await hold(500);
+      window.scrollTo({top:0, behavior:'smooth'}); await hold(700);
+      await step('free','上の「'+fs.parentName+'さん」を押すと、友だちの画面',2000); await tap(el('ft-friend')); await hold(800); fg.hidden=true; window.scrollTo(0,0);
+      await focus(el('f-status')); await step('free','答えた時間と、きょうの答えが見られます',3500);
+      await focus(el('f-week')); await step('free','1週間ぶんの「元気」も、ひと目で',3000);
+      S.fMiss[key(today())]=true; S.fMiss[key(daysAgo(1))]=true; S.fMiss[key(daysAgo(2))]=true;
+      renderAll(); show('parent'); window.scrollTo(0,0); await hold(700);
+      await focus(el('p-friend')); await step('free','友だちの答えがない日が続くと、自分の画面に赤い知らせ',4000);
+      el('phone-to').innerHTML=fs.familyName+'さんのスマホ<small>通知</small>';
+      el('phone-msg').textContent='【ワンポチ】'+fs.parentName+'さんが2日答えていません。電話してみてください。';
+      el('phone').classList.add('show'); await step('free','2日続けて答えがないと、あなたに知らせが届きます',3800); el('phone').classList.remove('show'); await hold(500);
+      show('family'); window.scrollTo(0,0); await hold(500);
+      await focus(el('f-status')); await step('free','電話番号を押せば、そのまま発信',3500);
+      await step('free','逆も同じ。あなたが答えない日が続けば、友だちに知らせが届きます',4000);
+      delete S.fMiss[key(today())]; delete S.fMiss[key(daysAgo(1))]; delete S.fMiss[key(daysAgo(2))]; renderAll(); show('family'); window.scrollTo(0,0); await hold(500);
+      await focus(el('s-mode')); await step('free','使い方は、設定でいつでも切り替えられます（親と家族／友だち同士）',4000);
+      await focus(el('f-send')); await step('free','「友だちに招待を送る」を押すと…',1800); await tap(el('f-send')); await hold(900); fg.hidden=true;
+      await focus(el('f-sms')); await step('free','友だちにリンクを1本送るだけ。登録もコード入力もいりません',4500);
+
+      await slide('', 'まとめ', visualHtml()+'<p class="note">毎日の生存確認は、ずっと無料。家族プランは「もう少しだけ安心したい人」に。友だち同士の見守りも、ずっと無料。</p>', 7000);
+      ending(pet('dog',[],true), 'ワンポチ', '毎日の生存確認は、ずっと無料。<br>家族プランは 月200円。友だち同士でも使えます。');
     } finally { document.body.classList.remove('longdemo'); el('slide').classList.remove('show'); tp(); }
   }
   el('d-demo').addEventListener('click', function(){ if(!demo) runDemo(); });
