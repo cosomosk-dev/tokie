@@ -679,7 +679,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-24 v41";
+  const APP_VER="2026-10-24 v42";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1496,6 +1496,7 @@
   const SUM_PROMPT="以下はスナックのママ（AI）と常連客タケオさんの今夜の会話の記録です。ママが長い会話でも前半の話を忘れず、筋道立てて話せるように、今夜の要点メモを日本語で作ってください。"+
     "形式：話題ごとに1〜3行。各話題に「事実（客が言うたこと）」「決まったこと・結論」「理由・つながり（○○やから△△）」「まだ途中の話」を、あるものだけ短く書く。"+
     "いちばん最初に【前提・訂正】として、客がママを訂正したこと・客が説明した仕組みやルール（例：「このアプリは足跡がつかない」）を必ず書く。ママの前の発言と食い違う時は客の言うことが正しい。ママが言った間違ったアドバイスは残さない。"+
+    "その次に【話の続き】として、まだ途中の話・これから起きる予定（日付つき。先の予定を済んだことにしない）・ママが「あれどうなった？」と聞くべきことを書く。"+
     "客がやらないと言ったこと・条件・体調・気持ちの変化は必ず残す。女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。ママの発言は、約束したことと客が反応したことだけ残す。推測や作り話は書かない。全体で600字以内。前置き不要。";
   function nightSumText(){
     const t=current&&current.nightSum;
@@ -1508,9 +1509,11 @@
   }
   /* v39: Gemini呼び出しの共通部分。前は「混んでる（503）」「回数オーバー（429）」が1回出ただけで即あきらめてた
      （写真が読まれへん・記憶のまとめが黙って抜ける原因）。今は 別のモデルに回す → 少し待ってもう1周 → それでもあかん時だけ失敗。 */
-  const G_MODELS=["gemini-flash-latest","gemini-2.5-flash","gemini-2.5-flash-lite","gemini-2.0-flash"];
+  /* v42: 有料（前払い）にしたので、写真・記憶のまとめは最上級の Gemini 4 Argon を最初に使う。
+     混んでる・時間切れの時だけ 3.8 Flash → 旧Flash に逃げる。前に成功したモデルを先頭にする仕組みはやめた（一回逃げたら旧モデルに居座るため）。 */
+  const G_MODELS=["gemini-4-argon","gemini-3.8-flash","gemini-flash-latest","gemini-2.5-flash","gemini-2.5-flash-lite"];
   const gSleep=ms=>new Promise(r=>setTimeout(r,ms));
-  function gModels(){let s="";try{s=localStorage.getItem(GMODEL_KEY)||"";}catch(e){}return [...new Set([s,...G_MODELS].filter(Boolean))];}
+  function gModels(){return G_MODELS.slice();}
   async function gFetch(m,key,body,ms){
     const ac=typeof AbortController!=="undefined"?new AbortController():null;
     const tm=ac?setTimeout(()=>ac.abort(),ms||20000):null;
@@ -1542,9 +1545,14 @@
       for(const m of gModels()){
         n++;
         // 2.5-flash系は「考える時間」を切る（速くなる＋出力枠を考え事で使い切って空返事になるのを防ぐ）
-        const body=/2\.5-flash/.test(m)?Object.assign({},payload,{generationConfig:Object.assign({},payload.generationConfig,{thinkingConfig:{thinkingBudget:0}})}):payload;
+        let body=/2\.5-flash/.test(m)?Object.assign({},payload,{generationConfig:Object.assign({},payload.generationConfig,{thinkingConfig:{thinkingBudget:0}})}):payload;
+        // v42: Argon・3.8は「考える分」も出力枠を使う。枠が小さいと考えただけで返事が空になるので、考える分を上乗せする
+        const deep=/argon|3\.8/.test(m);
+        if(deep){const gc=payload.generationConfig||{};body=Object.assign({},payload,{generationConfig:Object.assign({},gc,{maxOutputTokens:(gc.maxOutputTokens||2048)+12288})});}
+        // Argonは考えるぶん遅い：裏の記憶まとめは90秒まで待つ。写真は指定どおり（時間切れなら3.8 Flashにすぐ回る）
+        const tmo=(/argon/.test(m)&&opt.bg)?Math.max(opt.timeout||0,90000):opt.timeout;
         let r,j=null;
-        try{r=await gFetch(m,key,body,opt.timeout);}
+        try{r=await gFetch(m,key,body,tmo);}
         catch(e){last={kind:"busy",msg:(e&&e.name==="AbortError")?"時間切れ":String(e&&e.message||e)};continue;}
         try{j=await r.json();}catch(e){}
         const em=(j&&j.error&&j.error.message)||"";
