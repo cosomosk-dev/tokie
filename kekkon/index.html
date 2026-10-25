@@ -319,6 +319,11 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .oshi{position:absolute;right:10px;top:12px;z-index:1;font-size:.7rem;font-weight:700;color:#3B2430;background:linear-gradient(135deg,var(--gold-2),#C9A227);border-radius:999px;padding:2px 9px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
 .qcard{background:linear-gradient(150deg,var(--rose-soft),var(--white))}
 .pcard.scard{background:linear-gradient(160deg,var(--gold-3),var(--rose-soft));border:1.5px solid #C9A227}
+.unlockb{display:block;text-align:center;margin:6px 4px 2px;padding:5px 8px;border-radius:12px;line-height:1.4;background:var(--night);color:var(--night-ink);font-size:.74rem;font-weight:800;letter-spacing:.02em}
+.unlockb.on{background:linear-gradient(135deg,#C9A227,#E8C766);color:#3B1F2C}
+.secfree{font-size:.84rem;line-height:1.6;font-weight:700;background:var(--night);color:var(--night-ink);border-radius:12px;padding:10px 12px;margin:-2px 0 10px;white-space:normal;text-align:left}
+.unlock-banner{text-align:center;border-radius:20px;padding:16px 14px;background:linear-gradient(135deg,#6E4FB0,#3B1F2C);color:#fff;font-weight:800;font-size:1.05rem;line-height:1.6;box-shadow:0 8px 24px rgba(59,31,44,.25)}
+.unlock-banner span{display:block;font-size:.8rem;font-weight:700;color:#F3D9A4}
 .pcard .qface{display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:3.4rem;color:var(--gold);background:var(--white);text-shadow:0 2px 12px rgba(201,162,39,.45)}
 .fifth.special{background:linear-gradient(135deg,var(--gold-3),var(--rose-soft));border:1.5px solid #C9A227}
 .fifth.special .sil{display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:1.6rem;color:var(--gold);background:var(--white)}
@@ -463,7 +468,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="quote" id="d-quote"></div>
       <dl class="specs" id="d-specs"></dl>
       <div class="lockline"><b>SECRET</b><span id="d-lock"></span></div>
-      <p class="small muted" id="d-price" hidden style="text-align:center">第1話は無料。第2話からは、ほかの4人と同じ(待てば無料／CMで1話／¥480で全話の買い切り)。<br>彼の名前と肩書きは、第2話が開いた時点で分かります。</p>
+      <p class="small muted" id="d-price" hidden style="text-align:center">第1話は無料。<b>だれか1人の1周目を最後まで読むと、この人はCMなしで全話無料。</b>待てない人は、ほかの4人と同じ(待てば無料／CMで1話／¥480で全話の買い切り)。<br>彼の名前と肩書きは、第2話が開いた時点で分かります。</p>
     </div>
     <div class="nako" id="nako-detail"></div>
     <button class="btn-rose btn-block" id="marry" style="min-height:64px;font-size:1.15rem">💍 この人に指輪を渡す</button>
@@ -507,6 +512,7 @@ details.alb summary::-webkit-details-marker{display:none}
     <div class="hook show"><div class="k">Next episode…</div><p id="gt-tease"></p></div>
     <div class="card gate">
       <div class="howto" id="gt-howto"></div>
+      <div class="secfree" id="gt-secfree" hidden>💌 だれか1人の物語を1周目の最後まで読むと、このルートはCMなしで全話読めます。</div>
       <div class="small muted" id="gt-lead">次の話は、待てば無料で読めます</div>
       <div class="clock" id="gt-time"></div>
       <div class="cd" id="gt-cd"></div>
@@ -526,6 +532,7 @@ details.alb summary::-webkit-details-marker{display:none}
   <!-- ===== 結末 ===== -->
   <section id="s-result" hidden class="stack">
     <div class="top"><div class="brand">ウェディングストーリー</div><span class="eyebrow">20 years later</span></div>
+    <div class="unlock-banner" id="r-unlock" hidden>🎉 1周目クリア！<br>シークレットルートが解放されました<span>(CMなし・全話無料)</span></div>
     <div class="result-card">
       <div class="seal" id="r-seal"></div>
       <div class="face" id="r-face"></div>
@@ -553,7 +560,7 @@ details.alb summary::-webkit-details-marker{display:none}
     </div>
     <div class="card" id="r-vs" hidden></div>
     <div class="card stack" id="r-next">
-      <div><div class="eyebrow">Next</div><h3>この夫の物語は、ここまで。次は？</h3><p class="small muted">夫が変われば、秘密も、資産も、結末も変わる。まずは、ほかの人の1周目へ。</p></div>
+      <div><div class="eyebrow">Next</div><h3>この夫の物語は、ここまで。次は？</h3><p class="small muted">夫が変われば、秘密も、資産も、結末も変わる。まずは、ほかの人の1周目へ。</p><p class="small" id="r-secnote" style="font-weight:700;color:var(--rose)">🔓 5人目(シークレット)は、もうCMなしで全話読めます。</p></div>
       <div class="moshi" id="r-moshi"></div>
       <button class="btn-line btn-block" id="r-again2">同じ夫で、反対を選んでみる(2周目) →</button>
     </div>
@@ -1376,7 +1383,8 @@ details.alb summary::-webkit-details-marker{display:none}
   let me=pers.name||'ミユ',cur=null,st=null,ci=0,pi=0,proX=null,proScore={A:0,B:0,C:0,D:0,S:0};
   const topCand=()=>{const sc=(pers.pro&&pers.pro.sc)||proScore;return ['A','B','C','D'].slice().sort((p,q)=>(sc[q]||0)-(sc[p]||0))[0];};
   IMG.S='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><radialGradient id="g" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#FFF6E3"/><stop offset=".6" stop-color="#F7D9E3"/><stop offset="1" stop-color="#E9C77A"/></radialGradient></defs><rect width="600" height="600" fill="url(#g)"/><circle cx="300" cy="236" r="92" fill="#C9A227" opacity=".16"/><path d="M130 600c10-130 80-205 170-205s160 75 170 205z" fill="#C9A227" opacity=".16"/><text x="300" y="372" text-anchor="middle" font-family="Hiragino Mincho ProN,Yu Mincho,serif" font-weight="800" font-size="300" fill="#C9A227">？</text></svg>');
-  function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocked>=1||(r.done)));}catch(e){return false;}}
+  function secFree(){try{return !!pers.secFree;}catch(e){return false;}}
+function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocked>=1||(r.done)));}catch(e){return false;}}
   const secOshi=()=>{const sc=(pers.pro&&pers.pro.sc)||proScore;return (sc.S||0)>=4;};
   $('#hero-img').src=IMG.hero||'';
   $('#my-name').value=me;
@@ -1445,7 +1453,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const order=P.slice().sort((p,q)=>(sc[q.id]||0)-(sc[p.id]||0));
     nako('#nako-list',`${me}は${HA[top]}。あたしのイチオシは${byId(top).name}。`+(secOshi()?'…それと、あんたの答えを見てたら、リストにない5人目とも相性がよさそうなのよ。':'')+'誰に指輪を渡すかは、あんたが決めなさい。');
     $('#plist').innerHTML=order.map((p,i)=>`<button class="pcard ${READY[p.id]?'':'soon'}" data-id="${p.id}"><span class="no">${i+1}</span>${p.id===top?'<span class="oshi">千代子のイチオシ</span>':'<span class="sec">secret</span>'}${READY[p.id]?'':'<span class="soonb">近日公開</span>'}<img class="pimg" src="${IMG[p.id]||''}" alt="${esc(p.name)}"><div class="nm">${esc(p.name)} <span class="small muted">${p.age}</span></div><div class="job">${esc(p.catch)}</div><div class="inc">${p.income}</div>${stars(p.looks)}</button>`).join('')
-      +`<button class="pcard scard" id="special-btn"><span class="no">5</span>${secOshi()?'<span class="oshi">あなたへの裏イチオシ</span>':'<span class="sec">secret</span>'}<img class="pimg" src="${IMG.S}" alt="シークレットキャラ"><div class="nm">${esc(SEC.name)} <span class="small muted">${SEC.age}</span></div><div class="job">${esc(SEC.catch)}</div><div class="inc">${SEC.income}</div><div class="small muted" style="padding:0 4px">シークレットキャラ ・ 第1話 無料 ・ 続きは待てば無料(全11話)</div></button>`;
+      +`<button class="pcard scard" id="special-btn"><span class="no">5</span>${secOshi()?'<span class="oshi">あなたへの裏イチオシ</span>':'<span class="sec">secret</span>'}<img class="pimg" src="${IMG.S}" alt="シークレットキャラ"><div class="nm">${esc(SEC.name)} <span class="small muted">${SEC.age}</span></div><div class="job">${esc(SEC.catch)}</div><div class="inc">${SEC.income}</div><div class="small muted" style="padding:0 4px">シークレットキャラ ・ 第1話 無料(全11話)</div><span class="unlockb ${secFree()?'on':''}">${secFree()?'🔓 解放済み<br>CMなしで全話無料':'🔒 1人クリアで<br>全話無料'}</span></button>`;
     $$('.pcard[data-id]').forEach(b=>b.addEventListener('click',()=>{if(!READY[b.dataset.id]){toast('この人との結婚生活は、近日公開です');return;}openDetail(b.dataset.id);}));
     $('#special-btn').addEventListener('click',()=>openDetail('S'));
     $('#fifth-slot').innerHTML='';
@@ -1472,7 +1480,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const WAIT=23*3600*1000;
   let gateTimer=null;
   const today=()=>new Date().toDateString();
-  function locked(i){const r=R();return !(r.bought||i<=r.unlocked);}
+  function locked(i){const r=R();if(cur&&cur.id==='S'&&secFree()){if(i>=1&&r.unlocked<i){r.unlocked=i;save();}return false;}return !(r.bought||i<=r.unlocked);}
   function checkFree(){const r=R();if(r.freeAt&&Date.now()>=r.freeAt){r.unlocked=Math.max(r.unlocked,r.ci);r.freeAt=null;save();}}
   function fmtTime(t){if(!t)return '';const d=new Date(t),n=new Date();const same=d.toDateString()===n.toDateString();const hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');return (same?'今日 ':'明日 ')+hm;}
   function resume(){
@@ -1488,14 +1496,14 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#gt-time').textContent=fmtTime(r.freeAt)+' に無料で開きます';
     $('#gt-ad').disabled=r.adDay===today();$('#gt-ad').textContent=r.adDay===today()?'CMの1話は、また明日':'CMを見て、もう1話(15秒・1日1回)';
     const sec=cur.id==='S';
-    $('#gt-howto').innerHTML='<b>第1話は、5人とも無料。</b>第2話からは ①待つ(1日1話・無料) ②CMを見る(1話) ③買う(待ち時間も広告もなし) のどれか。';
-    $('#gt-moshi').innerHTML=P.concat([SEC]).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':'1話 無料'}</span></button>`).join('');
+    $('#gt-howto').innerHTML='<b>第1話は、5人とも無料。</b>第2話からは ①待つ(1日1話・無料) ②CMを見る(1話) ③買う(待ち時間も広告もなし) のどれか。';$('#gt-secfree').hidden=!sec;
+    $('#gt-moshi').innerHTML=P.concat([SEC]).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':(p.id==='S'&&secFree()?'🔓 全話無料':'1話 無料')}</span></button>`).join('');
     $$('#gt-moshi button').forEach(b=>b.addEventListener('click',()=>{clearInterval(gateTimer);openDetail(b.dataset.id);}));
     $('#gt-all').hidden=['A','B','C','D','S'].every(k=>pers.routes[k]&&pers.routes[k].bought);
     $('#gt-buy').textContent='この人の全話を今すぐ ¥480';
     $('#gt-note').textContent='買い切り(月額ではありません)。買った話は、何度でも読み直せます。';
     $('#gt-lead').textContent='次の話は、待てば無料で読めます';
-    nako('#nako-gate',sec?'続きは明日よ。彼の名前も肩書きも、第2話で分かるわ。待てないなら、あたしに¥480ね。':'続きは明日よ。待てないなら、あたしに¥480ね。…待つのも、恋のうちだけど。');
+    nako('#nako-gate',sec?'続きは明日よ。…それか、ほかの誰かの1周目を最後まで読んできなさい。そしたらこの人の続きは、タダで全部見せてあげる。待てないなら、あたしに¥480ね。':'続きは明日よ。待てないなら、あたしに¥480ね。…待つのも、恋のうちだけど。');
     const tick=()=>{const left=Math.max(0,r.freeAt-Date.now());if(!left){clearInterval(gateTimer);checkFree();$('#gt-cd').textContent='開きました！';$('#gt-wait').textContent='第'+(ci+1)+'話を読む';return;}const h=Math.floor(left/3600000),m=Math.floor(left%3600000/60000),s=Math.floor(left%60000/1000);$('#gt-cd').textContent=`あと ${h}時間${String(m).padStart(2,'0')}分${String(s).padStart(2,'0')}秒`;};
     show('s-gate');$('#gt-wait').textContent='明日の無料を待つ(トップへ)';clearInterval(gateTimer);tick();gateTimer=setInterval(tick,1000);
   }
@@ -1545,7 +1553,7 @@ details.alb summary::-webkit-details-marker{display:none}
     $('#g-brand').textContent=cur.name+'と結婚';$('#g-year').textContent=c.year;
     $('#g-prog').style.gridTemplateColumns=`repeat(${list.length},1fr)`;
     $('#g-prog').innerHTML=list.map((x,i)=>`<div class="${i<ci?'on':i===ci?'now':''}"><i></i></div>`).join('');
-    $('#g-pos').textContent=`第${ci+1}話 / 全${list.length}話`+(r.bought?'':(ci+1<list.length?' ・ 次の話は待てば無料':''));
+    $('#g-pos').textContent=`第${ci+1}話 / 全${list.length}話`+((r.bought||(cur.id==='S'&&secFree()))?(cur.id==='S'&&secFree()&&!r.bought?' ・ 🔓 全話無料':''):(ci+1<list.length?' ・ 次の話は待てば無料':''));
     const pre=resolve(c.pre,st);const pv=$('#g-pre');
     if(pre&&!r.preApplied){
       const b=clone(st);applyD(st,pre.d||{});r.st=clone(st);r.preApplied=true;save();
@@ -1595,7 +1603,9 @@ details.alb summary::-webkit-details-marker{display:none}
     const r=R();st=clone(r.st);
     const e=END[cur.id].find(x=>x.test(st));lastEnd=e;
     const sc=scores(st.x),tk=typeKey(sc),ty=TYPES[tk];lastType=ty;lastSc=sc;
-    pers.plays+=1;const isNew=!pers.coll.includes(e.id);if(isNew)pers.coll.push(e.id);save();
+    pers.plays+=1;const isNew=!pers.coll.includes(e.id);if(isNew)pers.coll.push(e.id);
+    const justFree=cur.id!=='S'&&!pers.secFree;if(justFree)pers.secFree=true;save();
+    $('#r-unlock').hidden=!justFree;$('#r-secnote').hidden=!(secFree()&&cur.id!=='S');
     $('#r-face').innerHTML=img(cur.id,cur.name);
     $('#r-with').textContent=me+' × '+cur.name+'('+cur.job+')と結婚して、20年';
     const seal=$('#r-seal');seal.className='seal'+(e.k==='bitter'?' bitter':e.k==='masaka'?' masaka':'');seal.textContent=RANK[e.k];
@@ -1635,14 +1645,15 @@ details.alb summary::-webkit-details-marker{display:none}
     nako('#nako-pr','物語はここまで。これから探すなら、「'+ty.n+'」のあんたには「'+ty.cat+'」が合うわ。もう結婚してる？ なら、夫婦のお金の相談を一度。どっちも、あたしが選んどいたから、のぞくだけのぞいてみなさい。');
     $('#pr-btn').href='osusume.html#'+tk;
     $('#review').hidden=!(!pers.asked&&e.k!=='bitter');
-    $('#r-moshi').innerHTML=P.concat([SEC]).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">秘密 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':'1話 無料'}</span></button>`).join('');
+    $('#r-moshi').innerHTML=(secFree()?[SEC].concat(P):P.concat([SEC])).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">秘密 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':(p.id==='S'&&secFree()?'🔓 全話無料':'1話 無料')}</span></button>`).join('');
     $$('#r-moshi button').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.id;if(READY[id])openDetail(id);else toast(byId(id).name+'との結婚生活は、近日公開です');}));
     const n=pers.coll.length;$('#z-n').textContent=n+'/15';$('#z-sub').textContent=cur.name+'との結末 '+END[cur.id].filter(x=>pers.coll.includes(x.id)).length+'/3 ・ 選び方を変えると、ちがう結末';
     $('#r-slots').style.gridTemplateColumns='repeat(3,1fr)';
     $('#r-slots').innerHTML=END[cur.id].map(x=>{const on=pers.coll.includes(x.id);return `<div class="slot ${on?'':'lock'} ${x.id===e.id?'cur':''}"><span>${RANK[x.k]}</span><b>${on?esc(x.t):'？？？'}</b></div>`;}).join('');
     $('#r-album').innerHTML=EP[cur.id].map((c,i)=>{const h=c.ch[r.picks[i]];return `<li><b>${esc(c.title)}</b>:${esc(h?resolve(h.t,st):'')}</li>`;}).join('');
     show('s-result');
-    if(isNew)setTimeout(()=>toast('図鑑に新しい結末が追加されました'),600);
+    if(justFree)setTimeout(()=>toast('🎉 シークレットルートが解放されました'),400);
+    else if(isNew)setTimeout(()=>toast('図鑑に新しい結末が追加されました'),600);
   }
   function replayRows(picks){const list=EP[cur.id],r=R();picks=picks||r.picks;let s=Object.assign(clone(START),{f:{},x:clone(pers.pro?pers.pro.x:{})});const rows=[];
     list.forEach((c,i)=>{const pre=resolve(c.pre,s);if(pre)applyD(s,pre.d||{});const h=c.ch[picks[i]];if(!h)return;const b=clone(s);applyD(s,adjD(c,picks[i],resolve(h.d,b)));if(h.f)s.f[h.f]=true;rows.push({i,title:c.title,t:resolve(h.t,b),dL:s.L-b.L,dT:s.T-b.T,dS:s.sav-b.sav});});return {rows,st:s};}
@@ -1722,6 +1733,18 @@ details.alb summary::-webkit-details-marker{display:none}
     for(let k=0;k<last;k++){renderEp();choose(0);const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
     renderEp();show('s-game');
   }}catch(e){console.log('test jump failed',e);}
+
+  // 確認用: ?test=sec でシークレット解放の確認。解放前に戻して誠一郎の最終話へ直行(購入済み扱い)。最後まで読むと解放画面が出る
+  try{if(new URLSearchParams(location.search).get('test')==='sec'){
+    if(!pers.name){pers.name='あなた';me='あなた';}
+    if(!pers.pro)pers.pro={x:{},sc:{A:4,B:0,C:0,D:0,S:0}};
+    pers.secFree=false;pers.routes.S={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false};
+    cur=P[0];const r=R();r.bought=true;r.preApplied=false;
+    st=Object.assign(clone(START),{f:{},x:clone(pers.pro.x||{})});ci=0;r.ci=0;r.st=clone(st);r.picks=[];r.done=false;save();
+    const last=EP[cur.id].length-1;
+    for(let k=0;k<last;k++){renderEp();choose(0);const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
+    renderEp();show('s-game');
+  }}catch(e){console.log('test sec failed',e);}
 
   // 確認用: ?test=cm で誠一郎の第2話の前(課金・CMの画面)へ直行。CMの1日1回制限をリセットし、CMは毎回ランダム
   try{if(new URLSearchParams(location.search).get('test')==='cm'){
