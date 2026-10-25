@@ -278,7 +278,14 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .savbox .mul{font-size:.8rem;color:var(--ink-2)}
 .icons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
 .icons span{font-size:.82rem;font-weight:700;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:3px 11px;white-space:nowrap}
-.icons .L{color:var(--m-love)}.icons .T{color:var(--m-toki)}.hearts .off{opacity:.25}.savbox .hw{color:var(--ink-2);opacity:.85;font-size:.76rem}.savpop.hw{color:var(--ink-2)}.savpop.hw small{color:var(--ink-2)}
+.icons .L{color:var(--m-love)}.icons .T{color:var(--m-toki)}.hearts .off{opacity:.25}.savbox .hw{color:var(--ink-2);opacity:.85;font-size:.76rem}
+.hwcard{border-radius:16px;padding:10px;background:#F4EEF1;border:1px solid #E3D3DA;text-align:center;margin-bottom:12px}
+.hwcard .hk{font-size:.72rem;letter-spacing:.1em;color:var(--ink-2);font-weight:700}
+.hwcard .hv{font-family:var(--font-mincho);font-weight:800;font-size:1.55rem;color:#5A3A4A;line-height:1.3}
+.hwcard.sm{padding:7px 10px;margin-bottom:8px}.hwcard.sm .hv{font-size:1.2rem}
+.mainbox{border-radius:18px;padding:14px 10px 12px;background:linear-gradient(160deg,#FFF6E0,#FCE4EC);border:2px solid #C9A227;box-shadow:0 6px 18px rgba(201,162,39,.22)}
+.mainbox .v{font-size:2.5rem}
+.mbadge{display:inline-block;background:#C9A227;color:#fff;font-size:.68rem;font-weight:800;border-radius:999px;padding:2px 10px;margin-bottom:4px;letter-spacing:.1em}.savpop.hw{color:var(--ink-2)}.savpop.hw small{color:var(--ink-2)}
 .savpop{text-align:center;font-family:var(--font-mincho);font-weight:800;font-size:2.4rem;line-height:1.2;overflow-wrap:anywhere;animation:popbig .7s cubic-bezier(.2,1.6,.4,1)}
 .savpop.up{color:#B8921C;text-shadow:0 0 18px rgba(234,213,143,.9)}
 .savpop.dn{color:var(--rose-deep)}
@@ -539,7 +546,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="small muted" id="r-with"></div>
       <div class="ttl" id="r-title"></div>
       <p class="story" id="r-story"></p>
-      <div class="savbox" style="margin-top:14px"><div class="k">20年後に、ふたりで築いた資産</div><div class="v" id="r-sav"></div><div class="mul" id="r-mul"></div></div>
+      <div class="savbox" style="margin-top:14px"><div class="hwcard" id="r-hwcard" hidden><div class="hk">夫の財産(結婚前の財産・相続など／ふたりの資産とは別)</div><div class="hv" id="r-hw"></div></div><div class="mainbox"><div class="mbadge">あなたの結果</div><div class="k">20年後に、ふたりで築いた資産</div><div class="v" id="r-sav"></div><div class="mul" id="r-mul"></div></div></div>
       <div class="report" id="r-report"></div>
     </div>
     <div class="nako" id="nako-result"></div>
@@ -1319,7 +1326,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const meterHTML=s=>`<div class="meter"><div class="fill" style="width:${meterP(s.sav).toFixed(1)}%"></div><i class="st" style="left:${meterP(START.sav).toFixed(1)}%" title="スタート"></i><div class="ticks"><span>100万</span><span>1,000万</span><span>1億</span><span>10億</span></div></div>`;
   function statHTML(s){
     const mul=s.sav/START.sav;
-    return `<div class="savbox"><div class="k">${s.home===START.home?'あなたの貯金':'ふたりで築いた資産'}</div><div class="v" id="sav-v">${yen(s.sav)}</div>${meterHTML(s)}${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}${s.hw?`<div class="mul hw">夫の財産(別枠) 約${yen(s.hw)}</div>`:''}</div>
+    return `${s.hw?`<div class="hwcard sm"><div class="hk">夫の財産(別枠・ふたりの資産には足しません)</div><div class="hv">約${yen(s.hw)}</div></div>`:''}<div class="savbox"><div class="k">${s.home===START.home?'あなたの貯金':'ふたりで築いた資産'}</div><div class="v" id="sav-v">${yen(s.sav)}</div>${meterHTML(s)}${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}</div>
       <div class="icons"><span class="L">愛情 ${lstage(s.L)}</span><span class="T">ときめき ${heartsHTML(s.T)}</span><span>⌂ ${esc(s.home)}</span></div>`;
   }
   function rollSav(from,to){
@@ -1611,7 +1618,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     const seal=$('#r-seal');seal.className='seal'+(e.k==='bitter'?' bitter':e.k==='masaka'?' masaka':'');seal.textContent=RANK[e.k];
     $('#r-title').textContent=e.t;$('#r-story').textContent=resolve(e.s,st);
     $('#r-sav').textContent=yen(st.sav);
-    const mul=st.sav/START.sav;$('#r-mul').innerHTML=`独身時代の貯金${yen(START.sav)}から、ふたりで ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍`+(st.hw?`<br>夫の財産(別枠) 約${yen(st.hw)}`:'');
+    const mul=st.sav/START.sav;$('#r-mul').innerHTML=`独身時代の貯金${yen(START.sav)}から、ふたりで ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍`;$('#r-hwcard').hidden=!st.hw;$('#r-hw').textContent=st.hw?'約'+yen(st.hw):'';
     $('#r-report').innerHTML='<div class="k" style="margin-bottom:6px">20年前のあなた → 今のあなた</div>'+[['住まい',START.home,st.home],['愛情',lstage(START.L),lstage(st.L)],['ときめき','♥'.repeat(hearts(START.T)),'♥'.repeat(hearts(st.T))]].map(([k,a,b])=>`<div class="rrow"><span class="rk">${k}</span><span class="rf">${esc(a)}</span><span class="ra">→</span><span class="rt">${esc(b)}</span></div>`).join('');
     const extra=(lstage(st.L)==='一生の人'?' 愛情は「一生の人」。あたしが見てきた300組でも、上から数えた方が早いわ。':'')+(hearts(st.T)<=2?' …ただ、ときめきは冷めかけてる。そこだけは、お金じゃ買えないのよ。':'');
     nako('#nako-result',e.nak+extra,true);
@@ -1703,10 +1710,12 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
         tx('わたしの婚活タイプ',W/2,480,30,GOT,'#B8921C',700);
         const s1=fit(ty.n,W-240,92,MIN);tx(ty.n,W/2,585,s1,MIN,'#C92A62');
         radar(W/2,930,230);
-        tx('20年後に、ふたりで築いた資産',W/2,1290,32,GOT,'#8E6E7B',700);
-        const mv=yen(START.sav)+' → '+yen(st.sav);const s3=fit(mv,W-220,70,MIN);tx(mv,W/2,1380,s3,MIN,'#B8921C');
-        tx('愛情 '+lstage(st.L)+'   ときめき '+'♥'.repeat(hearts(st.T))+'♡'.repeat(5-hearts(st.T)),W/2,1450,34,GOT,'#C92A62',700);
-        tx('紹介された4人。全員に、秘密がある。',W/2,1530,38,MIN,'#3B2430');
+        const o=st.hw?40:0;
+        if(st.hw)tx('夫の財産(別枠) 約'+yen(st.hw),W/2,1250,40,MIN,'#5A3A4A');
+        tx('20年後に、ふたりで築いた資産',W/2,1290+o,32,GOT,'#8E6E7B',700);
+        const mv=yen(START.sav)+' → '+yen(st.sav);const s3=fit(mv,W-220,70,MIN);tx(mv,W/2,1380+o,s3,MIN,'#B8921C');
+        tx('愛情 '+lstage(st.L)+'   ときめき '+'♥'.repeat(hearts(st.T))+'♡'.repeat(5-hearts(st.T)),W/2,1450+o,34,GOT,'#C92A62',700);
+        tx('紹介された4人。全員に、秘密がある。',W/2,1530+o,38,MIN,'#3B2430');
       }
       tx('あなたは、誰と結婚する？',W/2,1760,52,MIN,'#C92A62');
       tx('#ウェディングストーリー',W/2,1840,32,GOT,'#8E6E7B',700);
