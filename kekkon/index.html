@@ -280,11 +280,12 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .icons span{font-size:.82rem;font-weight:700;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:3px 11px;white-space:nowrap}
 .icons .L{color:var(--m-love)}.icons .T{color:var(--m-toki)}.hearts .off{opacity:.25}.savbox .hw{color:var(--ink-2);opacity:.85;font-size:.76rem}
 .hwcard{border-radius:16px;padding:10px;background:#F4EEF1;border:1px solid #E3D3DA;text-align:center;margin-bottom:12px}
-.hwcard .hk{font-size:.72rem;letter-spacing:.1em;color:var(--ink-2);font-weight:700}
-.hwcard .hv{font-family:var(--font-mincho);font-weight:800;font-size:1.55rem;color:#5A3A4A;line-height:1.3}
-.hwcard.sm{padding:7px 10px;margin-bottom:8px}.hwcard.sm .hv{font-size:1.2rem}
+.hwcard .hk{font-size:.78rem;letter-spacing:.1em;color:var(--ink-2);font-weight:700}
+.hwcard .hv{font-family:var(--font-mincho);font-weight:800;font-size:2.05rem;color:#5A3A4A;line-height:1.3}
+.hwcard.sm{padding:8px 10px;margin-bottom:10px}.hwcard.sm .hv{font-size:1.75rem}
+.savbox #sav-v{font-size:2.3rem}
 .mainbox{border-radius:18px;padding:14px 10px 12px;background:linear-gradient(160deg,#FFF6E0,#FCE4EC);border:2px solid #C9A227;box-shadow:0 6px 18px rgba(201,162,39,.22)}
-.mainbox .v{font-size:2.5rem}
+.mainbox .v{font-size:2.7rem}
 .mbadge{display:inline-block;background:#C9A227;color:#fff;font-size:.68rem;font-weight:800;border-radius:999px;padding:2px 10px;margin-bottom:4px;letter-spacing:.1em}.savpop.hw{color:var(--ink-2)}.savpop.hw small{color:var(--ink-2)}
 .savpop{text-align:center;font-family:var(--font-mincho);font-weight:800;font-size:2.4rem;line-height:1.2;overflow-wrap:anywhere;animation:popbig .7s cubic-bezier(.2,1.6,.4,1)}
 .savpop.up{color:#B8921C;text-shadow:0 0 18px rgba(234,213,143,.9)}
@@ -1711,7 +1712,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
         const s1=fit(ty.n,W-240,92,MIN);tx(ty.n,W/2,585,s1,MIN,'#C92A62');
         radar(W/2,930,230);
         const o=st.hw?40:0;
-        if(st.hw)tx('夫の財産(別枠) 約'+yen(st.hw),W/2,1250,40,MIN,'#5A3A4A');
+        if(st.hw)tx('夫の財産(別枠) 約'+yen(st.hw),W/2,1245,54,MIN,'#5A3A4A');
         tx('20年後に、ふたりで築いた資産',W/2,1290+o,32,GOT,'#8E6E7B',700);
         const mv=yen(START.sav)+' → '+yen(st.sav);const s3=fit(mv,W-220,70,MIN);tx(mv,W/2,1380+o,s3,MIN,'#B8921C');
         tx('愛情 '+lstage(st.L)+'   ときめき '+'♥'.repeat(hearts(st.T))+'♡'.repeat(5-hearts(st.T)),W/2,1450+o,34,GOT,'#C92A62',700);
