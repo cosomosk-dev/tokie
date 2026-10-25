@@ -1294,6 +1294,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const clone=o=>JSON.parse(JSON.stringify(o));
   const yen=m=>{const neg=m<0;m=Math.abs(Math.round(m));let s;if(m>=10000){const o=Math.floor(m/10000),r=m%10000;s=o.toLocaleString()+'億'+(r?r.toLocaleString()+'万':'');}else s=m.toLocaleString()+'万';return (neg?'−':'')+s+'円';};
   const byId=id=>id==='S'?SEC:P.find(p=>p.id===id);
+  const SN=p=>({A:'誠一郎',B:'黒田',C:'悠太',D:'蓮'})[p.id]||p.name;
   const stars=n=>'<span class="stars">'+'★'.repeat(n)+'<span class="off">'+'★'.repeat(5-n)+'</span></span>';
   const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1311,7 +1312,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const addX=(x,add)=>{for(const k in add)x[k]=(x[k]||0)+add[k];return x;};
   function scores(x){const vals=AX.map(([k])=>x[k]||0);const mx=Math.max(1,...vals);const o={};AX.forEach(([k])=>{o[k]=Math.round(35+65*(x[k]||0)/mx);});return o;}
   function typeKey(sc){const v=AX.map(([k])=>sc[k]);if(Math.min(...v)>=82)return 'all';let best='a';AX.forEach(([k])=>{if(sc[k]>sc[best])best=k;});return best;}
-  function compatHTML(tk){const c=COMPAT[tk]||{};return ['C','D','B','A','S'].map(id=>`<div class="${id==='S'?'sec':''}"><b>${c[id]||'○'}</b>${id==='S'?(secBought()?'タカヒロ':'5人目<br>？？？'):esc(byId(id).name.split(' ').pop())}</div>`).join('');}
+  function compatHTML(tk){const c=COMPAT[tk]||{};return ['C','D','B','A','S'].map(id=>`<div class="${id==='S'?'sec':''}"><b>${c[id]||'○'}</b>${id==='S'?(secBought()?'タカヒロ':'5人目<br>？？？'):esc(SN(byId(id)))}</div>`).join('');}
   function radarSVG(sc){
     const W=320,H=300,cx=160,cy=152,R=100;
     const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(a)*R*v/100,cy+Math.sin(a)*R*v/100];};
@@ -1371,7 +1372,7 @@ details.alb summary::-webkit-details-marker{display:none}
     S:{2:'「話さなくていいよ。…少しだけ、弾かせて」',5:'「お金で選ばれるのが、怖かった。…でも君には、全部知ってほしい」',10:'「20年かかったけど、やっと続きが書けた。最初に、君に聴いてほしい」'}};
   const KIME_N=()=>Object.values(KIME).reduce((a,o)=>a+Object.keys(o).length,0);
   function kimeHTML(p,i,line,c){const n=(pers.mem||[]).length;const bg=IMG[c.img]||IMG.hero||'';
-    return `<div class="kime"><div class="kbg" style="background-image:url('${bg}')"></div><div class="kin"><div class="kk">Memory card ・ 思い出カード ${n}/${KIME_N()}</div><div class="kf">${img(p.id,p.name)}</div><p class="kl">${esc(line)}</p><div class="kn">— ${esc(p.id==='S'&&!secBought()?'？？？':p.name.split(' ').pop())} ・ 第${i+1}話「${esc(c.title)}」</div></div></div>`;}
+    return `<div class="kime"><div class="kbg" style="background-image:url('${bg}')"></div><div class="kin"><div class="kk">Memory card ・ 思い出カード ${n}/${KIME_N()}</div><div class="kf">${img(p.id,p.name)}</div><p class="kl">${esc(line)}</p><div class="kn">— ${esc(p.id==='S'&&!secBought()?'？？？':SN(p))} ・ 第${i+1}話「${esc(c.title)}」</div></div></div>`;}
   const whyOf=(rid,i,k)=>(((WHY[rid]||[])[i]||[])[k])||['',''];
   function paramHTML(b,a,w,dd){dd=dd||{};
     const dS=a.sav-b.sav,dH=(a.hw||0)-(b.hw||0),dL=(dd.L!==undefined?dd.L:a.L-b.L)||0,dT=(dd.T!==undefined?dd.T:a.T-b.T)||0,h1=hearts(b.T),h2=hearts(a.T),s1=lstage(b.L),s2=lstage(a.L);
@@ -1424,7 +1425,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     const btn=$('#start'),sub=$('#intro-sub');
     $('#name-wrap').hidden=!!pers.pro;
     if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。3つの質問と、4人との体験お見合い(約5分)';}
-    else if(r){cur=byId(live);checkFree();btn.textContent=`つづきを読む ・ ${cur.name.split(' ').pop()} 第${r.ci+1}話`;sub.textContent=!locked(r.ci)?'今すぐ読めます':`次の話は ${fmtTime(r.freeAt)} に無料で開きます`;}
+    else if(r){cur=byId(live);checkFree();btn.textContent=`つづきを読む ・ ${SN(cur)} 第${r.ci+1}話`;sub.textContent=!locked(r.ci)?'今すぐ読めます':`次の話は ${fmtTime(r.freeAt)} に無料で開きます`;}
     else{btn.textContent='指輪を渡す人を選ぶ';sub.textContent=pers.coll.length?`エンディング図鑑 ${pers.coll.length}/15`:'序章はクリア済み。次は、結婚相手を選びます';}
     show('s-intro');
   }
@@ -1460,7 +1461,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     const h=SEQ()[pi].ch[i];addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
     $$('#p-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
     $('#p-out').textContent=typeof h.o==='function'?h.o():h.o;nako('#nako-pro',h.nak,true);
-    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+byId(seq[pi+1].who).name.split(' ').pop()+'に会う':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ')));
+    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+SN(byId(seq[pi+1].who))+'に会う':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ')));
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
   $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){if(SEQ()[pi].who==='N'&&SEQ()[pi+1].who!=='N')proTop=liveTop();pi++;renderPro();return;}pers.pro={x:proX,sc:proScore};save();renderPmini();});
@@ -1512,7 +1513,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   function checkFree(){const r=R();if(r.freeAt&&Date.now()>=r.freeAt){r.unlocked=Math.max(r.unlocked,r.ci);r.freeAt=null;save();}}
   function fmtTime(t){if(!t)return '';const d=new Date(t),n=new Date();const same=d.toDateString()===n.toDateString();const hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');return (same?'今日 ':'明日 ')+hm;}
   // アプリ版: 次の話が開く時刻に、端末の通知(ローカル通知)で知らせる。Web版では何もしない
-  function notifyAt(t){try{if(window.WeddingNative&&WeddingNative.scheduleNotice)WeddingNative.scheduleNotice(String(t),'千代子','続きが開いたわよ。'+(cur?cur.name.split(' ').pop()+'の':'')+'次の話、読めるわ。');}catch(e){}}
+  function notifyAt(t){try{if(window.WeddingNative&&WeddingNative.scheduleNotice)WeddingNative.scheduleNotice(String(t),'千代子','続きが開いたわよ。'+(cur?SN(cur)+'の':'')+'次の話、読めるわ。');}catch(e){}}
   // アプリ版: Google Play / App Store のレビュー画面(ストアの仕組み)を自動で1回だけ出す。ボタンや事前の質問はつけない
   function nativeReview(){try{if(window.WeddingNative&&WeddingNative.requestReview)WeddingNative.requestReview();}catch(e){}}
   function resume(){
@@ -1522,7 +1523,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   }
   function showGate(){
     const r=R(),list=EP[cur.id];
-    $('#gt-brand').textContent=cur.name.split(' ').pop()+'との物語';$('#gt-pos').textContent=`次は 第${ci+1}話 / 全${list.length}話`;
+    $('#gt-brand').textContent=SN(cur)+'との物語';$('#gt-pos').textContent=`次は 第${ci+1}話 / 全${list.length}話`;
     const prev=list[ci-1],pk=r.picks[ci-1];
     $('#gt-tease').textContent=(prev&&prev.ch[pk]&&prev.ch[pk].hook?resolve(prev.ch[pk].hook,st):'つづきは、次の話で。');$('#gt-next-t').textContent='次回 第'+(ci+1)+'話「'+list[ci].title+'」';
     $('#gt-time').textContent=fmtTime(r.freeAt)+' に無料で開きます';
@@ -1532,7 +1533,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     $('#gt-moshi').innerHTML=(secFree()?[SEC].concat(P):P.concat([SEC])).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':(p.id==='S'&&secFree()?'🔓 全話無料':'3話まで無料')}</span></button>`).join('');
     $$('#gt-moshi button').forEach(b=>b.addEventListener('click',()=>{clearInterval(gateTimer);openDetail(b.dataset.id);}));
     $('#gt-all').hidden=['A','B','C','D'].every(k=>pers.routes[k]&&pers.routes[k].bought);$('#gt-all').textContent='4人全員の全話を今すぐ ¥1,280(1人 ¥320)';$('#gt-test').hidden=!DEV;
-    $('#gt-buy').textContent='この人の全話を今すぐ ¥480';
+    $('#gt-buy').textContent='この人の全話を今すぐ ¥480';$('#gt-buy').hidden=sec;
     $('#gt-note').textContent='買い切り(月額ではありません)。買った話は、何度でも読み直せます。';
     $('#gt-lead').textContent='待っても、無料で読めます';
     nako('#nako-gate',sec?'この人の続きは、ほかの誰かの第3話まで読んだら、タダで全部見せてあげる。':(secFree()?'待ってる間に、5人目に会っておきなさい。あの人の話は、もう全部タダで読めるわよ。':'待つのも、恋のうちよ。…待てないなら、CMを1本見なさい。'));
@@ -1540,9 +1541,20 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     show('s-gate');$('#gt-wait').textContent='8時間待って、無料で読む(開いたら通知でお知らせ)';clearInterval(gateTimer);tick();gateTimer=setInterval(tick,1000);
   }
   $('#gt-wait').addEventListener('click',()=>{checkFree();if(!locked(ci)){renderEp();show('s-game');return;}renderIntro();});
-  $('#gt-buy').addEventListener('click',()=>{const pr=480;if(!confirm(`【試作版】本番ではここでストアの決済(¥${pr})が出ます。購入したことにして続けますか？`))return;const r=R();r.bought=true;save();toast(cur.id==='S'?'名前が解禁されました。彼の名前は、タカヒロ':cur.name+'ルートの全話が開きました');renderEp();show('s-game');});
-  $('#gt-all').addEventListener('click',()=>{if(!confirm('【試作版】本番ではここでストアの決済(¥1,280)が出ます。購入したことにして続けますか？'))return;['A','B','C','D'].forEach(k=>{const r=pers.routes[k]||(pers.routes[k]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});r.bought=true;});save();toast('4人全員の全話が開きました');renderEp();show('s-game');});
-  $('#gt-restore').addEventListener('click',()=>toast('【試作版】本番では、ストアの購入履歴を確認して、買った物語を復元します'));
+  // ===== アプリ内課金(アプリ版はネイティブのストア決済、Web試作は確認ダイアログ) =====
+  const PID={A:'ws_route_a',B:'ws_route_b',C:'ws_route_c',D:'ws_route_d',ALL:'ws_all4'};
+  const NATIVE=()=>!!(window.WeddingNative&&WeddingNative.purchase);
+  function grant(pid){const ids=pid===PID.ALL?['A','B','C','D']:Object.keys(PID).filter(k=>PID[k]===pid);ids.forEach(k=>{const r=pers.routes[k]||(pers.routes[k]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});r.bought=true;});save();}
+  let buyDone=null;
+  // ネイティブから呼ばれる: 購入の結果
+  window.weddingPurchaseResult=(pid,ok)=>{if(ok){grant(pid);toast(pid===PID.ALL?'4人全員の全話が開きました':'この人の全話が開きました');if(buyDone)buyDone();}else toast('購入は完了しませんでした');buyDone=null;};
+  // ネイティブから呼ばれる: 購入の復元(買った商品IDの配列)
+  window.weddingRestored=list=>{(list||[]).forEach(grant);toast((list&&list.length)?'購入を復元しました':'復元できる購入はありませんでした');if(!$('#s-gate').hidden&&!locked(ci)){renderEp();show('s-game');}};
+  function buy(pid,price,done){if(NATIVE()){buyDone=done;try{WeddingNative.purchase(pid);}catch(e){toast('購入画面を開けませんでした');}return;}
+    if(!confirm(`【試作版】本番ではここでストアの決済(¥${price})が出ます。購入したことにして続けますか？`))return;grant(pid);toast(pid===PID.ALL?'4人全員の全話が開きました':'この人の全話が開きました');done();}
+  $('#gt-buy').addEventListener('click',()=>buy(PID[cur.id],480,()=>{renderEp();show('s-game');}));
+  $('#gt-all').addEventListener('click',()=>buy(PID.ALL,1280,()=>{renderEp();show('s-game');}));
+  $('#gt-restore').addEventListener('click',()=>{if(window.WeddingNative&&WeddingNative.restore){try{WeddingNative.restore();}catch(e){}}else toast('【試作版】本番では、ストアの購入履歴を確認して、買った物語を復元します');});
   // CMの中身: A8.netで承認済みの13社(メディア「ウェデイングストーリー」で発行したリンク、2026/10/21、レインボーファクトリーは10/22追加)。
   // 同じジャンルが続かないように並べ、日替わり+遊んだ回数で順番に出す
   const CMS=[
@@ -1584,7 +1596,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   // ================= 本編 =================
   function renderEp(){
     const r=R(),list=EP[cur.id],c=list[ci];
-    $('#g-brand').textContent=cur.name.split(' ').pop()+'との物語';$('#g-year').textContent=c.year;
+    $('#g-brand').textContent=SN(cur)+'との物語';$('#g-year').textContent=c.year;
     $('#g-prog').style.gridTemplateColumns=`repeat(${list.length},1fr)`;
     $('#g-prog').innerHTML=list.map((x,i)=>`<div class="${i<ci?'on':i===ci?'now':''}"><i></i></div>`).join('');
     $('#g-pos').textContent=`第${ci+1}話 / 全${list.length}話`+((r.bought||(cur.id==='S'&&secFree()))?(cur.id==='S'&&secFree()&&!r.bought?' ・ 🔓 全話無料':''):(ci+1<FREE_N?' ・ 第3話まで無料':(ci+1<list.length?' ・ 次の話はCMか待てば無料':'')));
@@ -1685,7 +1697,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     $('#r-slots').innerHTML=END[cur.id].map(x=>{const on=pers.coll.includes(x.id);return `<div class="slot ${on?'':'lock'} ${x.id===e.id?'cur':''}"><span>${RANK[x.k]}</span><b>${on?esc(x.t):'？？？'}</b></div>`;}).join('');
     $('#r-album').innerHTML=EP[cur.id].map((c,i)=>{const h=c.ch[r.picks[i]];return `<li><b>${esc(c.title)}</b>:${esc(h?resolve(h.t,st):'')}</li>`;}).join('');
     {const all=[];['A','B','C','D','S'].forEach(id=>Object.keys(KIME[id]).forEach(k=>all.push([id,+k])));const got=pers.mem||[];
-     $('#m-n').textContent=got.length+'/'+all.length;$('#r-mem').innerHTML=all.map(([id,k])=>{const on=got.includes(id+k);const nm=id==='S'?(secBought()?'タカヒロ':'？？？'):byId(id).name.split(' ').pop();return on?`<div>${esc(KIME[id][k])}</div>`:`<div class="lock">${esc(nm)}<br>？？？</div>`;}).join('');}
+     $('#m-n').textContent=got.length+'/'+all.length;$('#r-mem').innerHTML=all.map(([id,k])=>{const on=got.includes(id+k);const nm=id==='S'?(secBought()?'タカヒロ':'？？？'):SN(byId(id));return on?`<div>${esc(KIME[id][k])}</div>`:`<div class="lock">${esc(nm)}<br>？？？</div>`;}).join('');}
     show('s-result');
     if(!pers.asked&&e.k!=='bitter'){pers.asked=true;save();setTimeout(nativeReview,2500);}
     if(justFree)setTimeout(()=>toast('🎉 シークレットルートが解放されました'),400);
