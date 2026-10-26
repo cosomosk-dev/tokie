@@ -1396,7 +1396,7 @@ details.alb summary::-webkit-details-marker{display:none}
     if(p.split){const w=TH(s.W||0)/12,yo=(s.kids||0)*3,live=16+(s.kids||0)*5,rent=(s.rent||0)/12||8,net=w+yo-live-rent;
       return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入',(w?'あなたの手取り '+mn(w):'収入なし')+(yo?' ・ 養育費 '+mn(yo):''),w+yo)}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${w?'ひとりの家計は「固定費を手取りの半分以下」が目安。養育費は公正証書に。':'まず自分の収入をつくるのが先。養育費は公正証書で確実に。'}</div></div>`;}
     const inc=p.inc/12,live=p.live/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,out=live+rent+kc+ins+ot,net=inc-out;
-    const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+')':''):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):''].filter(Boolean).join(' + ');
+    const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+')':''):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):'',p.lc?'住宅ローン控除 '+mn(p.lc/12):''].filter(Boolean).join(' + ');
     const sub=['生活費 '+mn(live),rent?(s.own?'ローン・住まい ':'家賃 ')+mn(rent):'',kc?'子ども '+mn(kc)+'('+p.kc.l+')':'',ins?'保険 '+mn(ins):'',ot?'ほか '+mn(ot):''].filter(Boolean).join(' ・ ');
     return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div>${row('収入',who||'収入なし',inc)}${row('支出',sub,-out)}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0))}</div></div>`;}
   function statHTML(s){
@@ -1572,13 +1572,13 @@ details.alb summary::-webkit-details-marker{display:none}
   const KR=D=>{const P=[[0,.85],[30,.80],[40,.70],[50,.63],[60,.58],[90,.52],[150,.45],[300,.37],[1e9,.35]];for(let i=1;i<P.length;i++){if(D<=P[i][0]){const [a,ra]=P[i-1],[b,rb]=P[i];return ra+(rb-ra)*(D-a)/(b-a);}}return .35;};
   function pace(s,y){y=y==null?(s.yr||0):y;const split=!!(s.f&&(s.f.divorce||s.f.sign));const sep=!!(s.f&&s.f.separate&&!s.f.reunite&&!s.f.divorce);
     const kc=kidCost(s,y);const wm=(s.kids&&kc.age!=null&&kc.age>=0&&(s.W||0)>0)?(kc.age<1?0.6:kc.age<6?0.8:1):1;const wl=wm===0.6?'育休':wm===0.8?'時短':'';
-    const inH=TH(s.H||0),inW=Math.round(TH(s.W||0)*wm),inR=Math.round(s.f&&s.f.modeB&&!s.f.modeC?(s.live||300):(s.R||0)),inc=inH+inW+inR+kc.ca;
+    const inH=TH(s.H||0),inW=Math.round(TH(s.W||0)*wm),inR=Math.round(s.f&&s.f.modeB&&!s.f.modeC?(s.live||300):(s.R||0));const lc=(s.loanY!=null&&y>=s.loanY&&y<s.loanY+13&&!split)?28:0;const inc=inH+inW+inR+kc.ca+lc;
     const D=(inH+inW+inR)/12;
     const live=s.f&&s.f.modeB&&!s.f.modeC?inR:Math.round(0.9*KR(D)*D*12*(s.abroad?1.3:1)*(sep?1.25:1));
     const ins=s.f&&s.f.modeB&&!s.f.modeC?12:(24+(s.ins?24:0));
     const rent=Math.round((s.rent||0)+(sep?84:0));
     const oth=(s.costs||[]).filter(c=>y>=(c.from==null?-1:c.from)&&y<(c.to==null?99:c.to));const ot=oth.reduce((p,c)=>p+c.a,0);
-    return {inH,inW,inR,inc,live,rent,ins,kc,wl,oth,ot,sep,split,net:split?0:inc-live-rent-kc.a-ins-ot};}
+    return {inH,inW,inR,inc,lc,live,rent,ins,kc,wl,oth,ot,sep,split,net:split?0:inc-live-rent-kc.a-ins-ot};}
   // 思わぬ出費(実際の相場)。1年に1件。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
     {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:45},{l:'友だちの結婚式が1年に4回(ご祝儀・ドレス・交通費)',a:22},{l:'エアコン2台の買い替え',a:30},
@@ -1913,7 +1913,7 @@ details.alb summary::-webkit-details-marker{display:none}
    {const c=G('B','谷中の、小さな花屋');setD(c.ch[0],()=>({cost:cost('房子さんの店の借金(一緒に返す)',100,0.5,6.5)}));}
    {const c=G('B','ドバイ辞令');setD(c.ch[0],()=>({sav:0,H:500,set:{W:0,rent:0,abroad:1,rentL:'ドバイの社宅(会社もち)'}}));setD(c.ch[1],()=>({sav:0,H:500,set:{rent:108,rentL:'家賃 月9万(ひとり暮らし)'},cost:cost('月1回、ドバイへ会いに行く飛行機代',120,1,4)}));}
    B_ie.pre=s=>({after:true,title:s.f.dubai?'帰国':'夫が帰国',text:s.f.dubai?'3年ぶりの東京。夫の駐在手当はなくなり、あなたは前の業界に、派遣で戻った。':'別居婚が終わった。夫の駐在手当はなくなった。',d:{H:-500,home:'都内の2LDK(会社の家賃補助つき)',set:{abroad:0,W:s.f.dubai?Math.round((s.W0||350)*0.8):s.W,rent:132,rentL:'家賃 月11万(半分は会社もち)'}}});
-   setD(B_ie.ch[0],()=>({set:{rent:266,rentL:'ペアローン 月21万+固定資産税',own:1}}));
+   setD(B_ie.ch[0],()=>({set:{rent:266,rentL:'ペアローン 月21万+固定資産税',own:1,loanY:4}}));
    setD(B_ie.ch[1],()=>({set:{rent:240,rentL:'家賃 月20万'}}));
    
    setD(E('B1','B_kaigo').ch[0],()=>({cost:cost('房子さんの介護(デイサービスなど)',40,6)}));
