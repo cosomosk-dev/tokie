@@ -1374,17 +1374,19 @@ details.alb summary::-webkit-details-marker{display:none}
   // ===== 今月の家計簿(毎回表示)。FPのひとことは数字から自動で選ぶ =====
   const mn=v=>{const x=Math.abs(v)>=10?Math.round(v):Math.round(v*10)/10;return (Number.isInteger(x)?x:x.toFixed(1)).toLocaleString()+'万';};
   const pct=(a,b)=>b>0?Math.round(a/b*100):0;
-  function fpLine(s,inc,out,net,rent,kids){
+  function fpLine(s,inc,out,net,rent,kids,p){
     const sr=pct(net,inc),rr=pct(rent,inc);
-    if(net<0)return '赤字。貯金を取り崩してる状態。見直すなら固定費(住まい・保険・通信)から。';
+    if(net<0)return '赤字。貯金を取り崩してる状態。'+(kids?'子どもが小さい間は多くの家がこうなる。':'')+'見直すなら固定費(住まい・保険・通信)から。';
     if(rr>30)return '住まいが手取りの'+rr+'%。目安は25%まで。家計を一番重くしてるのはここ。';
-    if(sr<10)return '貯蓄率'+sr+'%。ボーナス頼みは危ない。先取り貯金で月'+mn(Math.max(1,inc*0.1))+'を自動に。';
+    if(kids&&!s.fpK){s.fpK=1;return '子どもが生まれると、ふつうの家は貯金がほぼ止まる。全国平均の貯蓄率は手取りの12%、4軒に1軒は貯金ゼロ(金融広報中央委員会)。お小遣いは夫3万台が現実。児童手当は全部、教育費の口座へ。';}
+    if(sr<5)return '貯蓄率'+sr+'%。ほぼ貯まらない。日本の平均は12%、4軒に1軒はゼロ。先取り貯金で月'+mn(Math.max(1,inc*0.1))+'を自動に。';
     const em=Math.round(s.sav/Math.max(1,out));if(em<6)return (s.yr<=1||!s.sav?'ふたりの貯金はゼロからスタート。最初の目標は生活費6か月分('+yen(Math.round(out*6))+')。':'貯金は生活費の'+em+'か月分。まず6か月分('+yen(Math.round(out*6))+')を「使わないお金」として確保。');
-    if(kids&&!s.fpK){s.fpK=1;return '子ども1人で家計は月4〜8万増える(0〜2歳は保育料、中高は塾と部活で重い)。親の外食・旅行・服を1割削るのがふつう。児童手当は全部、教育費の口座へ。';}
+    if(p&&p.pkH&&!s.fpP&&p.pkH<3.2){s.fpP=1;return 'お小遣い夫'+mn(p.pkH)+'。会社員の平均は男性3.9万・女性3.5万(SBI新生銀行2024)。ここを削る前に、保険と通信を見直して。';}
+    if(sr<10)return '貯蓄率'+sr+'%。日本の平均(12%)より下。ボーナス頼みは危ない。先取り貯金で月'+mn(Math.max(1,inc*0.1))+'を自動に。';
     if(inc>=200)return '収入が大きいほど、生活費の「上限」を先に決めるのがコツ。使い道はあとから増える。';
-    if(sr>=30)return '手取りの'+sr+'%を貯金に回せてる。共働きの目安(20〜30%)を超えてる。かなり優秀。';
-    if(sr>=20)return '貯蓄率'+sr+'%。共働きの目安(20〜30%)の中。このまま淡々と。';
-    return '貯蓄率'+sr+'%。固定費をあと1割削れると、目安の20%に乗る。';}
+    if(sr>=25)return '手取りの'+sr+'%を貯金に回せてる。日本の平均は12%。かなり優秀。';
+    if(sr>=15)return '貯蓄率'+sr+'%。日本の平均(12%)より上。このまま淡々と。';
+    return '貯蓄率'+sr+'%。日本の平均(12%)と同じくらい。固定費をあと1割削れると、15%に乗る。';}
   function budgetHTML(s){
     const row=(k,sub,v,cls)=>`<div class="bk-r"><span>${k}</span><small>${esc(sub)}</small><b class="${cls||(v>=0?'pos':'neg')}">${v>=0?'+':'−'}${mn(Math.abs(v))}</b></div>`;
     if(s.yr==null){const w=WINC[pers.job]||350,inc=TH(w)/12,live=13,rent=8,net=inc-live-rent;
@@ -1393,10 +1395,16 @@ details.alb summary::-webkit-details-marker{display:none}
     const p=pace(s);
     if(p.split){const w=TH(s.W||0)/12,yo=(s.kids||0)*3,live=16+(s.kids||0)*5,rent=(s.rent||0)/12||8,net=w+yo-live-rent;
       return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入',(w?'あなたの手取り '+mn(w):'収入なし')+(yo?' ・ 養育費 '+mn(yo):''),w+yo)}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${w?'ひとりの家計は「固定費を手取りの半分以下」が目安。養育費は公正証書に。':'まず自分の収入をつくるのが先。養育費は公正証書で確実に。'}</div></div>`;}
-    const inc=p.inc/12,live=p.live/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,out=live+rent+kc+ins+ot,net=inc-out;
+    const inc=p.inc/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,sp=p.sp/12,ot=p.ot/12,out=live+pk+rent+kc+ins+sp+ot,net=inc-out;
     const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+')':''):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):'',p.lc?'住宅ローン控除 '+mn(p.lc/12):''].filter(Boolean).join(' + ');
-    const sub=['生活費 '+mn(live)+(p.kcut<1?'(親の分は切り詰め)':''),rent?(s.own?'ローン・住まい ':'家賃 ')+mn(rent):'',kc?'子ども '+mn(kc)+'('+p.kc.l+')':'',ins?'保険 '+mn(ins):'',ot?'ほか '+mn(ot):''].filter(Boolean).join(' ・ ');
-    return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div>${row('収入',who||'収入なし',inc)}${row('支出',sub,-out)}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0))}</div></div>`;}
+    const kids=s.kids||0;
+    const lines=[row('暮らし',p.mB?'夫からの生活費でまかなう':'食費 '+mn(p.food)+' ・ 光熱・通信 '+mn(p.util)+' ・ 日用品・服・医療・交通 '+mn(p.daily)+' ・ 交際・娯楽 '+mn(p.fun),-live)];
+    if(pk)lines.push(row('お小遣い',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW):''].filter(Boolean).join(' ・ ')+(kids&&kc?'(子どもがいる間は25%減)':''),-pk));
+    if(rent)lines.push(row(s.own?'住まい':'家賃',s.rentL||'',-rent));
+    if(kc)lines.push(row('子ども',p.kc.l+(p.kc.age<6?'(食費・服・保育料)':p.kc.age<18?'(食費・服・学校・塾)':'(食費・服・学費)'),-kc));
+    if(ins+sp)lines.push(row('保険・特別費','保険 '+mn(ins)+(sp?' ・ 帰省・旅行・冠婚葬祭・家電 '+mn(sp):''),-(ins+sp)));
+    if(ot)lines.push(row('ほか',p.oth.map(c=>c.l).join('・'),-ot));
+    return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div>${row('収入',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0,p))}</div></div>`;}
   function statHTML(s){
     const mul=s.yr==null?s.sav/START.sav:0;
     const sep=[s.hw?'夫のもの <b>約'+yen(s.hw)+'</b>':'',s.yr!=null&&s.mine?'あなたのもの <b>'+yen(s.mine)+'</b>':''].filter(Boolean).join(' ／ ');
@@ -1583,25 +1591,41 @@ details.alb summary::-webkit-details-marker{display:none}
     else{a=0;ca=0;l='';}
     let tot=a*k;if(age<3&&k>1)tot-=hoiku*0.5*(k-1);
     return {a:Math.round(tot),ca:ca*k,age,l:(k>1?k+'人・':'')+l};}
-  // 生活費(住まい・子ども・保険を除く)は手取りに応じて決まる(家計調査の年収階級別の消費性向: 低い層ほど高く、高い層ほど低い)
-  const KR=D=>{const P=[[0,.85],[30,.80],[40,.70],[50,.63],[60,.58],[90,.52],[150,.45],[300,.37],[1e9,.35]];for(let i=1;i<P.length;i++){if(D<=P[i][0]){const [a,ra]=P[i-1],[b,rb]=P[i];return ra+(rb-ra)*(D-a)/(b-a);}}return .35;};
+  // ===== 夫婦の支出(2026/10/26 作り直し): 「平均的な家は、手取りの1割しか貯まらない」に合わせる =====
+  //  根拠: 金融広報中央委員会「家計の金融行動に関する世論調査」令和5年 二人以上世帯 — 手取りからの貯蓄割合 平均12%、貯蓄ゼロの世帯 24.8%
+  //        SBI新生銀行「2024年会社員のお小遣い調査」— 男性 月39,081円・女性 34,921円
+  //        総務省「家計調査」2024 二人以上世帯 — 食料9.0万・光熱水道2.3万・交通通信4.2万・教養娯楽3.0万・その他4.7万/月
+  //        生命保険文化センター — 世帯の年間払込保険料 約37万
+  //  手取りD(万/月)に応じて各費目が増える(収入が増えれば外食・旅行・服も増える= 実態)。D=55(世帯830万)で: 暮らし24.5・お小遣い6.9・特別費5.0・保険2.3 → 家賃10万なら残り6.3万(11%)
+  //  子どもがいる間: お小遣い25%減・外出10%減・特別費+0.3/人・保険+0.8。住まいは物語の家賃、車は物語の「ほか」に入る
+  const B2=(D,k,mB)=>{
+    const x=Math.min(100,Math.max(0,D-50)); // 手取り50万を超えた分は、外食・旅行・服のグレードが上がる(高収入ほど貯蓄率は上がるが2割台まで。150万超は頭打ち)
+    const food=0.12*D+2.5+0.0003*x*x, util=(0.015*D+1.5)+1.5, daily=(0.012*D+0.8)+0.045*D+(0.01*D+0.5)+(0.01*D+0.5), fun=(0.10*D+0.0006*x*x)*(k?0.9:1);
+    const pk=Math.min(6,Math.max(2,0.065*D))*(k?0.75:1);
+    const sp=Math.max(2,0.09*D)+0.0004*x*x+0.3*k, ins=0.012*D+1.6+(k?0.8:0);
+    return {food,util,daily,fun,pk,sp,ins};};
   function pace(s,y){y=y==null?(s.yr||0):y;const split=!!(s.f&&(s.f.divorce||s.f.sign));const sep=!!(s.f&&s.f.separate&&!s.f.reunite&&!s.f.divorce);
     // 育休: 給付は額面の67%(180日まで)→50%、非課税+社会保険料免除なので手取りの7割ほど(2025年4月〜の出生後休業支援給付13%は28日だけ)。時短(〜小学校入学): 手取り8割(2歳までは時短給付10%つき)
     const kc=kidCost(s,y);const wm=(s.kids&&kc.age!=null&&kc.age>=0&&(s.W||0)>0)?(kc.age<1?0.7:kc.age<6?0.8:1):1;const wl=wm===0.7?'育休':wm===0.8?'時短':'';
-    const inH=TH(s.H||0),inW=Math.round(TH(s.W||0)*wm),inR=Math.round(s.f&&s.f.modeB&&!s.f.modeC?(s.live||300):(s.R||0));const lc=(s.loanY!=null&&y>=s.loanY&&y<s.loanY+13&&!split)?28:0;const inc=inH+inW+inR+kc.ca+lc;
+    const mB=!!(s.f&&s.f.modeB&&!s.f.modeC);
+    const inH=TH(s.H||0),inW=Math.round(TH(s.W||0)*wm),inR=Math.round(mB?(s.live||300):(s.R||0));const lc=(s.loanY!=null&&y>=s.loanY&&y<s.loanY+13&&!split)?28:0;const inc=inH+inW+inR+kc.ca+lc;
     const D=(inH+inW+inR)/12;
-    // 子どもがいる間、親の外食・旅行・服は少し減る(子ども1人で5%、上限15%)。家計調査の「世帯人員が1人増えると月+4万」に合うように、切り詰めは控えめ
-    const kcut=(s.kids&&kc.age!=null&&kc.age>=0&&kc.age<22)?Math.max(0.85,1-0.05*(s.kids||0)):1;
-    const live=s.f&&s.f.modeB&&!s.f.modeC?inR:Math.round(0.9*KR(D)*D*12*(s.abroad?1.3:1)*(sep?1.25:1)*kcut);
-    const ins=s.f&&s.f.modeB&&!s.f.modeC?12:(24+(s.ins?24:0));
+    const k=(s.kids&&kc.age!=null&&kc.age>=0&&kc.age<22)?(s.kids||0):0;
+    const b=B2(D,k,mB);const mul=(s.abroad?1.3:1)*(sep?1.25:1);
+    const liveM=mB?inR/12:(b.food+b.util+b.daily+b.fun)*mul;
+    // お小遣い: 働いている人は手取りに応じて(2〜6万)、専業なら1.5万。誠一郎(生活費は夫もち)の時は生活費に含む
+    const pkH=(s.H||0)>0?b.pk:((s.W||0)>0||inR>0?1.5:0);const pkW=mB?0:((s.W||0)>0?b.pk*0.85:((s.H||0)>0?1.5:0));
+    const spM=mB?0:b.sp, insM=mB?1:(b.ins+(s.ins?2:0));
+    const live=Math.round(liveM*12),pk=Math.round((pkH+pkW)*12),sp=Math.round(spM*12),ins=Math.round(insM*12);
     const rent=Math.round((s.rent||0)+(sep?84:0));
     const oth=(s.costs||[]).filter(c=>y>=(c.from==null?-1:c.from)&&y<(c.to==null?99:c.to));const ot=oth.reduce((p,c)=>p+c.a,0);
-    return {inH,inW,inR,inc,lc,live,rent,ins,kc,kcut,wl,oth,ot,sep,split,net:split?0:inc-live-rent-kc.a-ins-ot};}
-  // 思わぬ出費(実際の相場)。1年に1件。何回遊んでも同じ年には同じことが起きる
+    return {inH,inW,inR,inc,lc,live,pk,pkH,pkW,sp,rent,ins,kc,wl,oth,ot,sep,split,mB,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:split?0:inc-live-pk-rent-kc.a-ins-sp-ot};}
+  // 思わぬ出費(実際の相場)。1年に2件(平均で年50〜60万)。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
     {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:45},{l:'友だちの結婚式が1年に4回(ご祝儀・ドレス・交通費)',a:22},{l:'エアコン2台の買い替え',a:30},
     {l:'親の入院の付き添いと、新幹線代',a:25},{l:'歯のインプラント1本',a:40},{l:'親戚のお葬式(香典・交通費・喪服)',a:15},{l:'スマホ2台の買い替え',a:30},
     {l:'家族の入院(差額ベッド代)',a:20},{l:'実家への仕送り(親の家電と通院)',a:30},{l:'ノートパソコンが壊れた',a:20},
+    {l:'歯の治療(保険のきかない詰め物とクリーニング)',a:18},{l:'メガネとコンタクト、夫婦2人分',a:8},{l:'急な帰省が2回(新幹線と香典)',a:16},{l:'夫のスーツ・靴・コートをまとめて買い替え',a:12},{l:'給湯器の水漏れと、床の張り替え',a:25,w:s=>!!s.own},{l:'引っ越し(敷金・礼金・運送)',a:45,w:s=>!s.own},
     {l:'ボーナスが出なかった',a:s=>Math.round(TH(s.H||0)*0.15),w:s=>(s.H||0)>0&&(s.rid==='B'||s.rid==='C'||s.rid==='S')},
     {l:'ランドセルと入学準備',a:15,w:s=>s.kids>0},{l:'子どもの骨折と通院',a:10,w:s=>s.kids>0},{l:'七五三とお祝いの写真',a:15,w:s=>s.kids>0},
     {l:'車検とタイヤ交換',a:15,w:s=>!!s.car},{l:'車をぶつけて修理',a:30,w:s=>!!s.car},
@@ -1621,7 +1645,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const y=yrOf(c.year);
     if(s.yr!=null&&y>s.yr){const y0=s.yr,dy=y-y0;const p0=pace(s,y0);const h0=Math.round(s.H||0),w0=Math.round(s.W||0);
       let g=0,t=y0;const ev=[];
-      while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1)ev.push(pickOops(s,t));if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
+      while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1){ev.push(pickOops(s,t));const o2=pickOops(s,t+0.37);if(o2.l!==ev[ev.length-1].l)ev.push(o2);if(s.car&&(Math.floor(t)+2)%9===0)ev.push({l:'車の買い替え(頭金と諸費用)',a:120});}if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
         s.H=(s.H||0)*(1+((s.Hstop!=null&&t>=s.Hstop)?0:(s.Hg||0))*d);s.W=(s.W||0)*(1+0.01*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
       g=Math.round(g);const E=ev.reduce((p,e)=>p+e.a,0);const it=s.nisa&&s.sav>0?Math.round(s.sav*0.5*(Math.pow(1.03,dy)-1)):0;
       const b0=s.sav;s.sav=Math.max(0,s.sav+g-E+it);s.yr=y;const real=s.sav-b0;
@@ -1942,12 +1966,12 @@ details.alb summary::-webkit-details-marker{display:none}
    {const c=G('B','女部長と、エプロンの夫');setD(c.ch[0],s=>({sav:0,set:{H:0,W:1100}}));setD(c.ch[1],()=>({sav:0,W:80,set:{H:1800}}));}
    // 悠太
    G('C','若奥様').pre.d.set=Object.assign(G('C','若奥様').pre.d.set,{rid:'C',H:450,Hg:.015,Hstop:20,W:W0(),W0:W0(),live:300,rent:120,rentL:'家賃 月10万'});
-   {const c=G('C','蔵を、継ぐか');setD(c.ch[0],s=>({W:m(s,'W',0.8),set:{H:600,rent:0,rentL:'蔵の母屋(家賃なし)',car:1},cost:cost('車2台の維持費(雪国では必需品)',50,3)}));}
+   {const c=G('C','蔵を、継ぐか');setD(c.ch[0],s=>({W:m(s,'W',0.8),set:{H:600,rent:0,rentL:'蔵の母屋(家賃なし)',car:1},cost:cost('車2台の維持費(ガソリン・保険・車検・積立)',84,3)}));}
    {const c=G('C','わたしの仕事');setD(c.ch[0],s=>({sav:0,W:m(s,'W',1.15)}));setD(c.ch[1],s=>({sav:0,W:m(s,'W',1.15),cost:cost('夜間学校の学費(2年)',50,2,4)}));}
-   {const c=G('C','海を渡る酒');setD(c.ch[0],s=>({sav:0,W:250,H:s.f.kura?600:250}));setD(c.ch[1],()=>({sav:0,H:30}));}
+   {const c=G('C','海を渡る酒');setD(c.ch[0],s=>({sav:0,W:250,H:s.f.kura?450:200}));setD(c.ch[1],()=>({sav:0,H:30}));}
    setD(E('C2','C_kaigo').ch[0],()=>({cost:cost('お義父さんの介護サービス(自己負担)',40,13)}));
    setD(E('C2','C_kaigo').ch[1],()=>({set:{W:0}}));
-   setD(E('C2','C_kibou').ch[0],()=>({sav:800,set:{H:450,rent:60,rentL:'新潟の借家 月5万',car:1},cost:cost('車の維持費',30,13)}));
+   setD(E('C2','C_kibou').ch[0],()=>({sav:800,set:{H:450,rent:60,rentL:'新潟の借家 月5万',car:1},cost:cost('車の維持費(ガソリン・保険・車検・積立)',42,13)}));
    setD(E('C2','C_kibou').ch[1],s=>({H:m(s,'H',0.9)}));
    // 蓮
    G('D','段ボールの底').pre.d.set=Object.assign(G('D','段ボールの底').pre.d.set,{rid:'D',H:300,Hg:.01,W:W0(),W0:W0(),live:280,rent:132,rentL:'家賃 月11万'});
