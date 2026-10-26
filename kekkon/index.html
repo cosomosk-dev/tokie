@@ -1382,7 +1382,7 @@ details.alb summary::-webkit-details-marker{display:none}
     if(rr>30)return '住まいが手取りの'+rr+'%。目安は25%まで。家計を一番重くしてるのはここ。';
     if(sr<10)return '貯蓄率'+sr+'%。ボーナス頼みは危ない。先取り貯金で月'+mn(Math.max(1,inc*0.1))+'を自動に。';
     const em=Math.round(s.sav/Math.max(1,out));if(em<6)return (s.yr<=1||!s.sav?'ふたりの貯金はゼロからスタート。最初の目標は生活費6か月分('+yen(Math.round(out*6))+')。':'貯金は生活費の'+em+'か月分。まず6か月分('+yen(Math.round(out*6))+')を「使わないお金」として確保。');
-    if(kids&&!s.fpK){s.fpK=1;return '子ども1人、大学までに1,000万〜2,000万が目安。児童手当は全部、教育費の口座へ。';}
+    if(kids&&!s.fpK){s.fpK=1;return '子ども1人にかかるお金は、0〜2歳で年100万、中学生で年140万、大学まで全部で約2,000万(内閣府・文科省の調査から)。児童手当は全部、教育費の口座へ。';}
     if(inc>=200)return '収入が大きいほど、生活費の「上限」を先に決めるのがコツ。使い道はあとから増える。';
     if(sr>=30)return '手取りの'+sr+'%を貯金に回せてる。共働きの目安(20〜30%)を超えてる。かなり優秀。';
     if(sr>=20)return '貯蓄率'+sr+'%。共働きの目安(20〜30%)の中。このまま淡々と。';
@@ -1395,10 +1395,10 @@ details.alb summary::-webkit-details-marker{display:none}
     const p=pace(s);
     if(p.split){const w=TH(s.W||0)/12,yo=(s.kids||0)*3,live=16+(s.kids||0)*5,rent=(s.rent||0)/12||8,net=w+yo-live-rent;
       return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入',(w?'あなたの手取り '+mn(w):'収入なし')+(yo?' ・ 養育費 '+mn(yo):''),w+yo)}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${w?'ひとりの家計は「固定費を手取りの半分以下」が目安。養育費は公正証書に。':'まず自分の収入をつくるのが先。養育費は公正証書で確実に。'}</div></div>`;}
-    const inc=p.inc/12,live=p.live/12,rent=p.rent/12,kc=p.kc.a/12,ot=p.ot/12,out=live+rent+kc+ot,net=inc-out;
-    const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):''].filter(Boolean).join(' + ');
-    const sub=['生活費 '+mn(live),rent?(s.own?'ローン・住まい ':'家賃 ')+mn(rent):'',kc?'子ども '+mn(kc):'',ot?'ほか '+mn(ot):''].filter(Boolean).join(' ・ ');
-    return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>結婚${s.yr%1?s.yr.toFixed(1):s.yr}年目</i></div>${row('収入',who||'収入なし',inc)}${row('支出',sub,-out)}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0))}</div></div>`;}
+    const inc=p.inc/12,live=p.live/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,out=live+rent+kc+ins+ot,net=inc-out;
+    const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+')':''):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):''].filter(Boolean).join(' + ');
+    const sub=['生活費 '+mn(live),rent?(s.own?'ローン・住まい ':'家賃 ')+mn(rent):'',kc?'子ども '+mn(kc)+'('+p.kc.l+')':'',ins?'保険 '+mn(ins):'',ot?'ほか '+mn(ot):''].filter(Boolean).join(' ・ ');
+    return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div>${row('収入',who||'収入なし',inc)}${row('支出',sub,-out)}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0))}</div></div>`;}
   function statHTML(s){
     const mul=s.yr==null?s.sav/START.sav:0;
     const sep=[s.hw?'夫のもの <b>約'+yen(s.hw)+'</b>':'',s.yr!=null&&s.mine?'あなたのもの <b>'+yen(s.mine)+'</b>':''].filter(Boolean).join(' ／ ');
@@ -1563,14 +1563,22 @@ details.alb summary::-webkit-details-marker{display:none}
   const WINC={office:380,nurse:480,civil:450,teacher:380,beauty:300,it:480,other:350};
   const TH=g=>{if(!(g>0))return 0;const P=[[0,.82],[300,.8],[500,.77],[800,.73],[1200,.7],[2000,.63],[4000,.55],[1e9,.5]];for(let i=1;i<P.length;i++){if(g<=P[i][0]){const [a,ra]=P[i-1],[b,rb]=P[i];return Math.round(g*(ra+(rb-ra)*(g-a)/(b-a)));}}return Math.round(g*.5);};
   const man=v=>Math.round(v).toLocaleString()+'万';
-  function kidCost(s,y){const k=s.kids||0;if(!k||s.kidY==null)return {a:0,l:''};const age=y-s.kidY;if(age<0)return {a:0,l:''};let a,l;
-    if(age<3){a=60;l='0〜2歳(保育料・おむつ・ミルク)';}else if(age<18){a=40+(s.eduP?131:41);l=(age<6?'幼稚園':age<12?'小学生':age<15?'中学生':'高校生')+(s.eduP?'・私立':'・公立');}else{a=s.eduP?170:120;l='大学生';}
-    return {a:a*k,l:(k>1?k+'人・':'')+l};}
+  // 子ども1人の年間費用(内閣府「子育て費用に関する調査」+文科省「子供の学習費調査」令和5年度を今の物価・保育料に合わせたもの)と児童手当(2024年10月〜、高校生まで)
+  function kidCost(s,y){const k=s.kids||0;if(!k||s.kidY==null)return {a:0,ca:0,l:''};const age=y-s.kidY;if(age<0)return {a:0,ca:0,l:''};let a,l,ca=12;
+    const hi=((s.H||0)+(s.W||0))>=900;
+    if(age<3){a=hi?125:105;l='0〜2歳・保育園';ca=18;}else if(age<6){a=80;l='3〜5歳';}else if(age<12){a=s.eduP?250:100;l=s.eduP?'私立小':'小学生';}else if(age<15){a=s.eduP?240:140;l=s.eduP?'私立中':'中学生';}else if(age<18){a=s.eduP?175:150;l=s.eduP?'私立高':'高校生';}else if(age<22){a=s.eduP?195:130;l='大学生';ca=0;}else{a=0;ca=0;l='';}
+    return {a:a*k,ca:ca*k,age,l:(k>1?k+'人・':'')+l};}
+  // 生活費(住まい・子ども・保険を除く)は手取りに応じて決まる(家計調査の年収階級別の消費性向: 低い層ほど高く、高い層ほど低い)
+  const KR=D=>{const P=[[0,.85],[30,.80],[40,.70],[50,.63],[60,.58],[90,.52],[150,.45],[300,.37],[1e9,.35]];for(let i=1;i<P.length;i++){if(D<=P[i][0]){const [a,ra]=P[i-1],[b,rb]=P[i];return ra+(rb-ra)*(D-a)/(b-a);}}return .35;};
   function pace(s,y){y=y==null?(s.yr||0):y;const split=!!(s.f&&(s.f.divorce||s.f.sign));const sep=!!(s.f&&s.f.separate&&!s.f.reunite&&!s.f.divorce);
-    const inH=TH(s.H||0),inW=TH(s.W||0),inR=Math.round(s.f&&s.f.modeB&&!s.f.modeC?(s.live||300):(s.R||0)),inc=inH+inW+inR;
-    const live=Math.round((s.live||300)*(sep?1.35:1)+(s.rid==='A'?0:0.25*Math.max(0,inc-900))),rent=Math.round((s.rent||0)+(sep?84:0));const kc=kidCost(s,y);
+    const kc=kidCost(s,y);const wm=(s.kids&&kc.age!=null&&kc.age>=0&&(s.W||0)>0)?(kc.age<1?0.6:kc.age<6?0.8:1):1;const wl=wm===0.6?'育休':wm===0.8?'時短':'';
+    const inH=TH(s.H||0),inW=Math.round(TH(s.W||0)*wm),inR=Math.round(s.f&&s.f.modeB&&!s.f.modeC?(s.live||300):(s.R||0)),inc=inH+inW+inR+kc.ca;
+    const D=(inH+inW+inR)/12;
+    const live=s.f&&s.f.modeB&&!s.f.modeC?inR:Math.round(0.9*KR(D)*D*12*(s.abroad?1.3:1)*(sep?1.25:1));
+    const ins=s.f&&s.f.modeB&&!s.f.modeC?12:(24+(s.ins?24:0));
+    const rent=Math.round((s.rent||0)+(sep?84:0));
     const oth=(s.costs||[]).filter(c=>y>=(c.from==null?-1:c.from)&&y<(c.to==null?99:c.to));const ot=oth.reduce((p,c)=>p+c.a,0);
-    return {inH,inW,inR,inc,live,rent,kc,oth,ot,sep,split,net:split?0:inc-live-rent-kc.a-ot};}
+    return {inH,inW,inR,inc,live,rent,ins,kc,wl,oth,ot,sep,split,net:split?0:inc-live-rent-kc.a-ins-ot};}
   // 思わぬ出費(実際の相場)。1年に1件。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
     {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:45},{l:'友だちの結婚式が1年に4回(ご祝儀・ドレス・交通費)',a:22},{l:'エアコン2台の買い替え',a:30},
@@ -1595,8 +1603,8 @@ details.alb summary::-webkit-details-marker{display:none}
     const y=yrOf(c.year);
     if(s.yr!=null&&y>s.yr){const y0=s.yr,dy=y-y0;const p0=pace(s,y0);const h0=Math.round(s.H||0),w0=Math.round(s.W||0);
       let g=0,t=y0;const ev=[];
-      while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1)ev.push(pickOops(s,t));
-        s.H=(s.H||0)*(1+(s.Hg||0)*d);s.W=(s.W||0)*(1+0.015*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
+      while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1)ev.push(pickOops(s,t));if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
+        s.H=(s.H||0)*(1+((s.Hstop!=null&&t>=s.Hstop)?0:(s.Hg||0))*d);s.W=(s.W||0)*(1+0.01*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
       g=Math.round(g);const E=ev.reduce((p,e)=>p+e.a,0);const it=s.nisa&&s.sav>0?Math.round(s.sav*0.5*(Math.pow(1.03,dy)-1)):0;
       const b0=s.sav;s.sav=Math.max(0,s.sav+g-E+it);s.yr=y;const real=s.sav-b0;
       if(!p0.split){
@@ -1682,7 +1690,7 @@ details.alb summary::-webkit-details-marker{display:none}
     G('A','1,095日の日記')];
 
   // ---------- 黒田 ----------
-  G('B','谷中の、小さな花屋').pre={title:'結婚しました',text:'都内の2LDKへ(家賃の半分は会社もち)。夫の年収1,200万とあなたの給料で、年に約300万は貯められそう。結婚前の貯金は、それぞれのもの。ここからが「ふたりの貯金」。',d:{marry:1,home:'都内の2LDK(会社の家賃補助つき)',set:{yr:0.5,ann:300}}};
+  G('B','谷中の、小さな花屋').pre={title:'結婚しました',text:'都内の2LDKへ(家賃の半分は会社もち)。結婚前の貯金は、それぞれのもの。ここからが「ふたりの貯金」。毎月、ふたりの手取りから生活費と家賃を引いた残りが、貯まっていく。',d:{marry:1,home:'都内の2LDK(会社の家賃補助つき)',set:{yr:0.5,ann:300}}};
   {const c=G('B','谷中の、小さな花屋');c.ch[0].d={L:14,ann:-100};c.ch[1].d={L:8,T:4};}
   {const c=G('B','ドバイ辞令');c.ch[0].d={sav:600,home:'ドバイの高層マンション(会社負担)',T:10};c.ch[1].d={ann:20,L:4,T:-4};
     c.talk=[['m','来月、帰国です！！'],['y','おかえり、の準備しとく'],['m','住む家、一緒に探したいです'],['m','…声は、小さくします']];}
@@ -1739,7 +1747,7 @@ details.alb summary::-webkit-details-marker{display:none}
     G('B','もう一度、白いバラ')];
 
   // ---------- 悠太 ----------
-  G('C','若奥様').pre={title:'結婚しました',text:'2DKの賃貸へ。家事は本当に半分こ。家計簿は1円単位。夫の年収は450万。年に約115万を貯める計画。結婚前の貯金は、それぞれのもの。ここからが「ふたりの貯金」。',d:{marry:1,home:'2DKの賃貸',set:{yr:1,ann:115}}};
+  G('C','若奥様').pre={title:'結婚しました',text:'2DKの賃貸へ。家事は本当に半分こ。家計簿は1円単位。夫の年収は450万。結婚前の貯金は、それぞれのもの。ここからが「ふたりの貯金」。毎月、手取りから生活費と家賃を引いた残りが、貯まっていく。',d:{marry:1,home:'2DKの賃貸',set:{yr:1,ann:115}}};
   {const c=G('C','若奥様');c.talk=[['m','新潟から、無事に帰りました'],['y','お父さん、どうだった？'],['m','「帰ってきたか」って。…それから、蔵の話をされた'],['m','僕ひとりでは、決められません']];}
   {const c=G('C','蔵を、継ぐか');c.tease='夫の父が、引退を決めた。「蔵を、継ぐか継がないか。年内に決めてくれ」';c.ch[0].d={hw:6000,home:'新潟・酒蔵の母屋',T:8,sav:-200,ann:20};wrapO(c.ch[0],[['3年後、会社の株','雪国では、車がないと暮らせない。中古の四駆を200万円で買った。3年後、会社の株']]);}
   {const c=G('C','保証人');c.talk=[['m','保証人の件、ありがとう'],['y','ちゃんと話せてよかった'],['m','…あのさ、子どものこと、考えてる？'],['m','焦らなくていいから']];}
@@ -1777,7 +1785,7 @@ details.alb summary::-webkit-details-marker{display:none}
     G('C','最後の一本')];
 
   // ---------- 蓮 ----------
-  G('D','段ボールの底').pre={title:'結婚しました',text:'高円寺の1LDKへ(家賃11万)。夫の年収は300万。ふたり合わせても、貯められるのは年に約75万。結婚前の貯金は、それぞれのもの。ここからが「ふたりの貯金」。',d:{marry:1,home:'高円寺の1LDK(家賃11万)',set:{yr:1,ann:75}}};
+  G('D','段ボールの底').pre={title:'結婚しました',text:'高円寺の1LDKへ(家賃11万)。夫の年収は300万。結婚前の貯金は、それぞれのもの。ここからが「ふたりの貯金」。毎月、手取りから生活費と家賃を引いた残り…が、ほとんど残らない。',d:{marry:1,home:'高円寺の1LDK(家賃11万)',set:{yr:1,ann:75}}};
   {const c=G('D','段ボールの底');c.ch[1].d={L:10,hw:620};}
   {const c=G('D','表参道の、空き物件');wrapT(c,[['夫の620万と、ふたりの貯金400万を入れても、900万足りない。','夫の620万と、ふたりの貯金を入れても、まだ足りない。']]);
     c.ch[0].d=s=>{const a=Math.min(400,s.sav);return {sav:-a,set:{paid:a},hw:-620,ann:-60,T:10};};c.ch[0].o=s=>'620万を全部入れ、ふたりの貯金から'+yen(s.paid||0)+'、残りは公庫から10年で借りた。返済は月8万ちょっと。夫の店「ren」が開いた。初月の予約は、3か月先まで埋まった。';
@@ -1837,7 +1845,7 @@ details.alb summary::-webkit-details-marker{display:none}
     G('D','白髪と、ハサミ')];
 
   // ---------- タカヒロ ----------
-  G('S','会長の試験').pre={title:'入籍の準備',text:'彼が独身時代に貯めた1,500万は、彼のもの。あなたの貯金も、あなたのもの。結婚したら、年に約210万は貯められそう。ここからが「ふたりの貯金」。',d:{marry:1,hw:1500,home:'彼の2DKで、ふたり暮らし',set:{yr:0,ann:210}}};
+  G('S','会長の試験').pre={title:'入籍の準備',text:'彼が独身時代に貯めた1,500万は、彼のもの。あなたの貯金も、あなたのもの。ここからが「ふたりの貯金」。毎月、手取りから生活費と家賃を引いた残りが、貯まっていく。',d:{marry:1,hw:1500,home:'彼の2DKで、ふたり暮らし',set:{yr:0,ann:210}}};
   {const c=G('S','会長の試験');c.ch[0].d={home:'湘南の一戸建て(会長の援助)',T:-4,ann:100};wrapO(c.ch[0],[['結婚中に親からもらった財産は、もらった本人のものよ。','結婚中に親からもらった財産は、もらった本人のもの(夫の財産・別枠)よ。']]);
     c.talk=[['m','父のこと、ありがとう'],['y','緊張した'],['m','…結婚してくれて、ありがとう'],['m','今度、ふたりで家計会議しませんか']];}
   const S_kakei={year:'結婚2年目',title:'はじめての、家計会議',img:'budget',tease:'結婚2年目。ふたりで、初めての家計会議。',
@@ -1901,20 +1909,20 @@ details.alb summary::-webkit-details-marker{display:none}
    setD(E('A1','A_futoko').ch[1],()=>({cost:cost('湊の全寮制の学費と寮費',300,12,18)}));
    setD(E('A2','A_tsucho').ch[0],()=>({set:{R:2370,Rl:'夫からの生活費+物件管理の報酬'}}));
    // 黒田
-   G('B','谷中の、小さな花屋').pre.d.set=Object.assign(G('B','谷中の、小さな花屋').pre.d.set,{rid:'B',H:1200,Hg:.03,W:W0(),W0:W0(),live:330,rent:132,rentL:'家賃 月11万(半分は会社もち)'});
+   G('B','谷中の、小さな花屋').pre.d.set=Object.assign(G('B','谷中の、小さな花屋').pre.d.set,{rid:'B',H:1200,Hg:.02,Hstop:17,W:W0(),W0:W0(),live:330,rent:132,rentL:'家賃 月11万(半分は会社もち)'});
    {const c=G('B','谷中の、小さな花屋');setD(c.ch[0],()=>({cost:cost('房子さんの店の借金(一緒に返す)',100,0.5,6.5)}));}
-   {const c=G('B','ドバイ辞令');setD(c.ch[0],()=>({sav:0,H:600,set:{W:0,rent:0,rentL:'ドバイの社宅(会社もち)'}}));setD(c.ch[1],()=>({sav:0,H:600,set:{rent:108,rentL:'家賃 月9万(ひとり暮らし)'},cost:cost('月1回、ドバイへ会いに行く飛行機代',120,1,4)}));}
-   B_ie.pre=s=>({after:true,title:s.f.dubai?'帰国':'夫が帰国',text:s.f.dubai?'3年ぶりの東京。夫の駐在手当はなくなり、あなたは前の業界に、派遣で戻った。':'別居婚が終わった。夫の駐在手当はなくなった。',d:{H:-600,home:'都内の2LDK(会社の家賃補助つき)',set:{W:s.f.dubai?Math.round((s.W0||350)*0.8):s.W,rent:132,rentL:'家賃 月11万(半分は会社もち)'}}});
-   setD(B_ie.ch[0],()=>({set:{rent:252,rentL:'ペアローン 月21万(管理費こみ)',own:1}}));
+   {const c=G('B','ドバイ辞令');setD(c.ch[0],()=>({sav:0,H:500,set:{W:0,rent:0,abroad:1,rentL:'ドバイの社宅(会社もち)'}}));setD(c.ch[1],()=>({sav:0,H:500,set:{rent:108,rentL:'家賃 月9万(ひとり暮らし)'},cost:cost('月1回、ドバイへ会いに行く飛行機代',120,1,4)}));}
+   B_ie.pre=s=>({after:true,title:s.f.dubai?'帰国':'夫が帰国',text:s.f.dubai?'3年ぶりの東京。夫の駐在手当はなくなり、あなたは前の業界に、派遣で戻った。':'別居婚が終わった。夫の駐在手当はなくなった。',d:{H:-500,home:'都内の2LDK(会社の家賃補助つき)',set:{abroad:0,W:s.f.dubai?Math.round((s.W0||350)*0.8):s.W,rent:132,rentL:'家賃 月11万(半分は会社もち)'}}});
+   setD(B_ie.ch[0],()=>({set:{rent:266,rentL:'ペアローン 月21万+固定資産税',own:1}}));
    setD(B_ie.ch[1],()=>({set:{rent:240,rentL:'家賃 月20万'}}));
-   {const c=G('B','大きなパパの、育休');[0,1].forEach(i=>setD(c.ch[i],s=>({cost:[cost('育休中、あなたの給料が減る(育休手当は約3分の2)',TH(s.W)*0.33,5,6),cost('時短勤務で、あなたの給料が2割減',TH(s.W)*0.2,6,8)]})));}
+   
    setD(E('B1','B_kaigo').ch[0],()=>({cost:cost('房子さんの介護(デイサービスなど)',40,6)}));
    setD(E('B1','B_kaigo').ch[1],()=>({cost:cost('房子さんのグループホーム代(年金で足りない分)',90,6)}));
-   {const c=G('B','ロンドン、5年');setD(c.ch[0],s=>({sav:0,H:500,set:{W:0,rent:0,rentL:s.own?'ローンは、留守中に家を貸した家賃で払う':'ロンドンの社宅(会社もち)'}}));setD(c.ch[1],()=>({sav:0,H:500,cost:cost('夫のロンドンとの二重生活',120,10,15)}));
-    G('B','女部長と、エプロンの夫').pre=s=>s.f.london?{after:true,title:'帰国',text:'5年ぶりの日本。あなたは休業から職場に戻り、夫の駐在手当はなくなった。',d:{H:-500,home:s.own?'新築マンション(3LDK・ペアローン)':'都内の賃貸マンション(家賃20万)',set:{W:Math.round((s.W0||350)*1.1),rent:s.own?252:240,rentL:s.own?'ペアローン 月21万(管理費こみ)':'家賃 月20万'}}}:{after:true,title:'夫が帰国',text:'二重生活が終わった。夫の駐在手当はなくなった。',d:{H:-500}};}
+   {const c=G('B','ロンドン、5年');setD(c.ch[0],s=>({sav:0,H:500,set:{W:0,rent:0,abroad:1,rentL:s.own?'ローンは、留守中に家を貸した家賃で払う':'ロンドンの社宅(会社もち)'}}));setD(c.ch[1],()=>({sav:0,H:500,cost:cost('夫のロンドンとの二重生活',120,10,15)}));
+    G('B','女部長と、エプロンの夫').pre=s=>s.f.london?{after:true,title:'帰国',text:'5年ぶりの日本。あなたは休業から職場に戻り、夫の駐在手当はなくなった。',d:{H:-500,home:s.own?'新築マンション(3LDK・ペアローン)':'都内の賃貸マンション(家賃20万)',set:{abroad:0,W:Math.round((s.W0||350)*1.1),rent:s.own?266:240,rentL:s.own?'ペアローン 月21万+固定資産税':'家賃 月20万'}}}:{after:true,title:'夫が帰国',text:'二重生活が終わった。夫の駐在手当はなくなった。',d:{H:-500}};}
    {const c=G('B','女部長と、エプロンの夫');setD(c.ch[0],s=>({set:{H:0,W:1100}}));setD(c.ch[1],()=>({W:80}));}
    // 悠太
-   G('C','若奥様').pre.d.set=Object.assign(G('C','若奥様').pre.d.set,{rid:'C',H:450,Hg:.02,W:W0(),W0:W0(),live:300,rent:120,rentL:'家賃 月10万'});
+   G('C','若奥様').pre.d.set=Object.assign(G('C','若奥様').pre.d.set,{rid:'C',H:450,Hg:.015,Hstop:20,W:W0(),W0:W0(),live:300,rent:120,rentL:'家賃 月10万'});
    {const c=G('C','蔵を、継ぐか');setD(c.ch[0],s=>({W:m(s,'W',0.8),set:{H:600,rent:0,rentL:'蔵の母屋(家賃なし)',car:1},cost:cost('車2台の維持費(雪国では必需品)',50,3)}));}
    {const c=G('C','海を渡る酒');setD(c.ch[0],()=>({W:250}));setD(c.ch[1],()=>({H:30}));}
    setD(E('C2','C_kaigo').ch[0],()=>({cost:cost('お義父さんの介護サービス(自己負担)',40,13)}));
@@ -1922,10 +1930,10 @@ details.alb summary::-webkit-details-marker{display:none}
    setD(E('C2','C_kibou').ch[0],()=>({sav:800,set:{H:450,rent:60,rentL:'新潟の借家 月5万',car:1},cost:cost('車の維持費',30,13)}));
    setD(E('C2','C_kibou').ch[1],s=>({H:m(s,'H',0.9)}));
    // 蓮
-   G('D','段ボールの底').pre.d.set=Object.assign(G('D','段ボールの底').pre.d.set,{rid:'D',H:300,Hg:.02,W:W0(),W0:W0(),live:280,rent:132,rentL:'家賃 月11万'});
+   G('D','段ボールの底').pre.d.set=Object.assign(G('D','段ボールの底').pre.d.set,{rid:'D',H:300,Hg:.01,W:W0(),W0:W0(),live:280,rent:132,rentL:'家賃 月11万'});
    {const c=G('D','表参道の、空き物件');setD(c.ch[0],()=>({set:{H:550,Hg:.05},cost:cost('お店のローンの返済',100,3,13)}));setD(c.ch[1],()=>({set:{H:450}}));}
    {const c=G('D','100万回再生');setD(c.ch[0],()=>({set:{W:0},H:400}));setD(c.ch[1],()=>({H:150}));}
-   {const c=G('D','ふたりめの、通帳');[0,1].forEach(i=>setD(c.ch[i],s=>s.W>0?{cost:cost('育休中、あなたの給料が減る(育休手当は約3分の2)',TH(s.W)*0.33,6,7)}:{}));}
+   
    {const c=G('D','週刊誌');setD(c.ch[0],()=>({H:200}));}
    setD(E('D1','D_furin').ch[0],()=>({cost:cost('夫婦カウンセリング',12,8,10)}));
    setD(E('D1','D_furin').ch[1],()=>({}));
@@ -1936,9 +1944,9 @@ details.alb summary::-webkit-details-marker{display:none}
    {const c=G('D','動かない、右手');c.pre=s=>s.f.tv&&s.f.open?{after:true,title:'結婚13年目',text:'テレビで顔が売れ、店は3店舗になった。表参道に近い3LDKへ引っ越した。家賃は月38万。',d:{home:'表参道に近い3LDK(家賃38万)',H:800,live:150,set:{rent:456,rentL:'家賃 月38万'}}}:(s.f.tv?{after:true,title:'結婚13年目',text:'テレビのおかげで、店は2店舗になった。',d:{H:400}}:null);
     setD(c.ch[0],s=>({set:{H:Math.max(450,Math.round((s.H||0)*0.4))}}));setD(c.ch[1],s=>({sav:-Math.round(TH(s.H||0)*0.5)}));}
    // タカヒロ
-   G('S','会長の試験').pre.d.set=Object.assign(G('S','会長の試験').pre.d.set,{rid:'S',H:800,Hg:.015,W:W0(),W0:W0(),live:320,rent:144,rentL:'家賃 月12万'});
+   G('S','会長の試験').pre.d.set=Object.assign(G('S','会長の試験').pre.d.set,{rid:'S',H:800,Hg:.015,Hstop:16,W:W0(),W0:W0(),live:320,rent:144,rentL:'家賃 月12万'});
    {const c=G('S','会長の試験');setD(c.ch[0],()=>({set:{rent:30,rentL:'固定資産税と修繕 年30万',own:1}}));setD(c.ch[1],()=>({set:{rent:168,rentL:'家賃 月14万'}}));}
-   setD(S_kakei.ch[0],()=>({cost:cost('保険料(病気・働けなくなった時のため)',24,2)}));
+   
    {const c=G('S','上司のひとこと');setD(c.ch[0],s=>({W:m(s,'W',1.15)}));setD(c.ch[1],s=>({W:m(s,'W',1.1)}));}
    {const c=G('S','会長の遺産');setD(c.ch[0],()=>({R:600,set:{Rl:'相続したビルの家賃(一部を生活費に)'}}));}
    {const e=E('S1','S_byouki');setD(e.ch[0],s=>({sav:(s.ins?300:0)-Math.round(TH(s.H||0)/3)}));setD(e.ch[1],s=>({sav:(s.ins?100:0)-Math.round(TH(s.H||0)*0.6),set:{H:500}}));}
