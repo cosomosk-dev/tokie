@@ -2453,7 +2453,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     const list=EP[cur.id];window.__WS=[];
     for(let k=0;k<list.length;k++){renderEp();const c=EPAT(ci);const pre={t:$('#g-pre-t').textContent,x:$('#g-pre-x').textContent,rows:$('#g-pre-rows').textContent};const bk=$('#g-stat .bk');const book=bk?bk.textContent:'';
       const i=pk[k]==='B'?1:0;choose(i);
-      window.__WS.push({ep:k+1,year:c.year,title:c.title,pick:i?'B':'A',pre,book,sav:st.sav,H:Math.round(st.H||0),W:Math.round(st.W||0),R:st.R||0,kids:st.kids||0,kidY:st.kidY,rent:st.rent,eduP:!!st.eduP,f:Object.keys(st.f||{}).join(',')});
+      window.__WS.push({ep:k+1,year:c.year,title:c.title,pick:i?'B':'A',pre,book,sav:st.sav,H:Math.round(st.H||0),W:Math.round(st.W||0),R:st.R||0,kids:st.kids||0,kidY:st.kidY,rent:st.rent,eduP:!!st.eduP,f:Object.keys(st.f||{}).join(','),scene:$('#g-scene').textContent,tease:c.tease?resolve(c.tease,st):'',choices:[...$$('#g-choices button')].map(b=>b.textContent),out:$('#g-out').textContent,why:$('#g-why').textContent,vs:$('#g-vs').textContent,nak:$('#nako-game').textContent,hook:$('#g-hook').hidden?'':$('#g-hook-t').textContent,twist:!$('#g-twist').hidden,pop:$('#g-pop').textContent});
       if(k<list.length-1){const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}}
     const r3=R();r3.st=clone(st);r3.done=true;save();renderResult();window.__WS_END=['#r-title','#r-story','#r-report','#r-vs'].map(k=>{const e=$(k);return e?e.textContent:'';}).join(' / ').slice(0,6000);window.__WS_DONE=true;
   }}catch(e){console.log('test auto failed',e);window.__WS_ERR=String(e&&e.stack||e);window.__WS_DONE=true;}
