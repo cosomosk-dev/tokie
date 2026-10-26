@@ -2407,6 +2407,17 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     renderEp();show('s-game');
   }}catch(e){console.log('test sec failed',e);}
 
+  // 確認用: ?test=play&r=C&job=office で、そのルートの第1話から手動で通せる状態にする(購入済み扱い・CMなし。確認動画の録画用)
+  try{const q=new URLSearchParams(location.search);if(q.get('test')==='play'){
+    const rid=q.get('r')||'C';
+    if(!pers.name){pers.name='あなた';me='あなた';}
+    if(!pers.pro)pers.pro={x:{},sc:{A:0,B:0,C:0,D:0,S:0}};
+    if(q.get('job'))pers.job=q.get('job');
+    cur=rid==='S'?SEC:P.find(x=>x.id===rid);const r=R();r.bought=true;r.preApplied=false;
+    st=Object.assign(clone(START),{f:{},x:clone(pers.pro.x||{})});ci=0;r.ci=0;r.st=clone(st);r.picks=[];r.done=false;save();
+    renderEp();show('s-game');
+  }}catch(e){console.log('test play failed',e);}
+
   // 確認用: ?test=auto&r=C&p=AABAB...&job=office で1ルートを自動で通し、各話の家計簿と結末を window.__WS に記録(家計の検算用)
   try{const q=new URLSearchParams(location.search);if(q.get('test')==='auto'){
     const rid=q.get('r')||'C',pk=q.get('p')||'';
