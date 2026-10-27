@@ -1351,7 +1351,7 @@ details.alb summary::-webkit-details-marker{display:none}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(pers));}catch(e){}};
 
   const plain=t=>String(t||'').replace(/[(（][^()（）]*(民法|\d+条|令和|文科省|厚労省|高判|算定表)[^()（）]*[)）]/g,'');
-  function nako(sel,text,pop){text=plain(text);const el=$(sel);el.className='nako'+(pop?' pop':'');el.innerHTML=`<div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(text)}</div>`;}
+  function nako(sel,text,pop){text=plain(text);const el=$(sel);el.className='nako'+(pop?' pop':'');el.innerHTML=`<div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(text).replace(/\n/g,'<br>')}</div>`;}
   const SCR=['s-intro','s-pro','s-pmini','s-list','s-detail','s-game','s-gate','s-result'];
   const show=id=>{SCR.forEach(s=>$('#'+s).hidden=(s!==id));window.scrollTo(0,0);if(id!=='s-gate')clearInterval(gateTimer);};
 
@@ -1382,14 +1382,16 @@ details.alb summary::-webkit-details-marker{display:none}
   const meterP=v=>Math.max(0,Math.min(100,(Math.log10(Math.max(v,10))-2)/3*100));
   const meterHTML=s=>`<div class="meter"><div class="fill" style="width:${meterP(s.sav).toFixed(1)}%"></div><i class="st" style="left:${meterP(START.sav).toFixed(1)}%" title="スタート"></i><div class="ticks"><span>100万</span><span>1,000万</span><span>1億</span><span>10億</span></div></div>`;
   // ===== 今月の家計簿(毎回表示)。FPのひとことは数字から自動で選ぶ =====
-  const mn=v=>{const x=Math.abs(v)>=10?Math.round(v):Math.round(v*10)/10;return (Number.isInteger(x)?x:x.toFixed(1)).toLocaleString()+'万';};
+  const mn=v=>{let x=Math.abs(v)>=10?Math.round(v):Math.round(v*10)/10;if(Math.abs(x)<0.05)x=0;return (Number.isInteger(x)?x:x.toFixed(1)).toLocaleString()+'万';};
   const pct=(a,b)=>b>0?Math.round(a/b*100):0;
   function fpLine(s,inc,out,net,rent,kids,p){
-    const sr=pct(net,inc),rr=pct(rent,inc);const C=[];
-    if(net<0)C.push('赤字。本来なら借金になる額。'+(kids?'子どもが小さい間は多くの家がこうなる。':'')+'見直す順は、特別費(旅行・家電)→お小遣い→住まい・保険。');
+    const sr=pct(net,inc),rr=pct(rent,inc);const C=[];const age=(p&&p.kc&&p.kc.age!=null)?p.kc.age:-1;const small=kids&&age>=0&&age<6,sch=kids&&age>=6&&age<13,mid=kids&&age>=13&&age<16,hi=kids&&age>=16&&age<19;
+    if(p&&p.sep)C.push('赤字の原因は家賃2軒分。別居中は、生活費(婚姻費用)を夫に請求できる。裁判所の算定表で決まるから、まず額を知っておいて。');
+    if(net<0)C.push('赤字。本来なら借金になる額。'+(small?'子どもが小さい間は多くの家がこうなる。':hi?'大学の初年度は国公立で約80万、私立文系で約120万が一度に出る。':'')+'見直す順は、特別費(旅行・家電)→お小遣い→住まい・保険。');
     else if(p&&p.cut)C.push('今月は特別費とお小遣いを切り詰めて、なんとかプラス。ふつうの家が毎月やってることよ。');
     if(rr>30)C.push('住まいが手取りの'+rr+'%。目安は25%まで。家計を一番重くしてるのはここ。');
-    if(kids&&net>=0){if(sr<10)C.push('子どもが小さい間は多くの家がここ(貯蓄率'+sr+'%)。児童手当の1.5万だけは手をつけず教育費の口座へ。それだけで18年で約230万。');else C.push('貯蓄率'+sr+'%。子どもがいて全国平均(1割ほど)を超えてる。小学生のうちに大学費用(国公立250万・私立450万〜)を先取りしておくと、中高の塾代で慌てない。');}
+    if(kids&&net>=0){if(sr<10)C.push(small?'子どもが小さい間は多くの家がここ(貯蓄率'+sr+'%)。児童手当(3歳まで1.5万・その後1万)だけは手をつけず教育費の口座へ。高校卒業まで続ければ約250万。':'貯蓄率'+sr+'%。'+(hi||mid?'大学の初年度(国公立約80万・私立文系約120万)は一度に出る。4年分を別口座に分けておいて。':'塾代が増える前に、固定費をあと1割。児童手当は全部、教育費の口座へ。'));
+      else C.push('貯蓄率'+sr+'%。子どもがいて全国平均(1割ほど)を超えてる。'+(small?'保育園の間に、小学校からの塾代を先取りしておくと楽。':sch?'小学生のうちに大学費用(国公立250万・私立450万〜)を先取りしておくと、中高の塾代で慌てない。':mid?'高校は授業料が国から出ても、塾と受験で年50万は見ておいて。':'大学の初年度は国公立約80万・私立文系約120万。入学金は合格の翌週に要る。'));}
     if(kids&&!s.fpK){s.fpK=1;C.unshift('子どもが生まれると、ふつうの家は貯金がほぼ止まる。ふつうの家は手取りの1割ほどしか貯められない。6軒に1軒は、生活費以外の貯えがない(J-FLEC「家計の金融行動に関する世論調査」2025年)。お小遣いは夫3万台が現実。児童手当は全部、教育費の口座へ。');}
     if(sr>=0&&sr<5)C.push('貯蓄率'+sr+'%。ほぼ貯まらない。日本の平均は1割ほど、6軒に1軒は貯えゼロ。先取り貯金で月'+mn(Math.max(1,inc*0.1))+'を自動に。');
     const em=Math.round(s.sav/Math.max(1,out));if(em<6&&net>=0)C.push(s.yr<=1||!s.sav?'ふたりの貯金はゼロからスタート。最初の目標は生活費6か月分('+yen(Math.round(out*6))+')。':'貯金は生活費の'+em+'か月分。まず6か月分('+yen(Math.round(out*6))+')を「使わないお金」として確保。');
@@ -1401,15 +1403,23 @@ details.alb summary::-webkit-details-marker{display:none}
     else if(sr>=15)C.push('貯蓄率'+sr+'%。日本の平均(1割ほど)より上。このまま淡々と。');
     else if(sr>=10)C.push('貯蓄率'+sr+'%。日本の平均(1割ほど)と同じくらい。固定費をあと1割削れると、15%に乗る。');
     C.push('固定費(住まい・保険・通信)を年に1回見直すだけで、ふつうの家は月1〜2万変わる。');
-    const pick=C.find(x=>x!==s.fpLast)||C[0];s.fpLast=pick;return pick;}
+    const hist=s.fpHist||[];const pick=C.find(x=>!hist.includes(x))||C.find(x=>x!==hist[hist.length-1])||C[0];s.fpHist=hist.concat(pick).slice(-3);s.fpLast=pick;return pick;}
   function budgetHTML(s){
     const row=(k,sub,v,cls)=>`<div class="bk-r"><span>${k}</span><small>${esc(sub)}</small><b class="${cls||(v>=0?'pos':'neg')}">${v>=0?'+':'−'}${mn(Math.abs(v))}</b></div>`;
     if(s.yr==null){const w=WINC[pers.job]||350,inc=TH(w)/12,live=13,rent=8,net=inc-live-rent;
       return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り',inc)}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>ひとり暮らしの貯金は月${mn(Math.max(0,net))}。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div></div>`;}
     if(!s.rid)return '';
     const p=pace(s);
-    if(p.split){const w=TH(s.W||0)/12,yo=(s.kids||0)*3,live=16+(s.kids||0)*5,rent=(s.rent||0)/12||8,net=w+yo-live-rent;
-      return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入',(w?'あなたの手取り '+mn(w):'収入なし')+(yo?' ・ 養育費 '+mn(yo):''),w+yo)}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${w?'ひとりの家計は「固定費を手取りの半分以下」が目安。養育費は公正証書に。':'まず自分の収入をつくるのが先。養育費は公正証書で確実に。'}</div></div>`;}
+    if(p.split){const w=p.inW/12,yo=p.yo||0,ca=p.kc.ca/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,inc=p.inc/12,out=live+pk+rent+kc+ins+ot+(p.custH?yo:0),net=inc-out;const k=s.kids||0;
+      const who=[w?'あなたの手取り '+mn(w):'',(!p.custH&&yo)?'養育費(元夫から) '+mn(yo):'',ca?'児童手当 '+mn(ca):''].filter(Boolean).join(' + ');
+      const lines=[row('暮らし','食費 '+mn(p.food*0.72)+' ・ 光熱・通信 '+mn(p.util*0.72)+' ・ 日用品・服・医療・交通 '+mn(p.daily*0.72)+' ・ 交際・娯楽 '+mn(p.fun*0.72),-live)];
+      if(pk)lines.push(row('お小遣い','あなた '+mn(pk),-pk));
+      lines.push(row('家賃',s.divRentL||(s.divRent!=null?'':'ひとり(+子ども)の部屋'),-rent));
+      if(kc)lines.push(row('子ども',p.kc.l+(p.kc.age<3?'(食費・服・保育料)':p.kc.age<6?'(食費・服・給食費・教材費)':p.kc.age<18?'(食費・服・学校・塾)':'(食費・服・学費)'),-kc));
+      if(p.custH&&yo)lines.push(row('養育費','元夫へ(子どもは元夫と暮らす)',-yo));
+      if(ins)lines.push(row('保険','ひとり分',-ins));if(ot)lines.push(row('ほか',p.oth.map(c=>c.l).join('・'),-ot));
+      const fp=!w?'まず自分の収入をつくるのが先。養育費は公正証書(強制執行認諾文言つき)で確実に。':p.custH?'養育費を払う側でも、面会と学費の分担は公正証書に。自分の年金記録(厚生年金)は20年分が分け方の対象。':(yo?'養育費は裁判所の算定表のとおり月'+mn(yo)+'。必ず公正証書に。元夫の収入が落ちたら減額を求められるのはこちら側。':'')+(k&&(s.W||0)<=400?'児童扶養手当は年収'+Math.round(s.W||0)+'万なら月数千円〜。':'ひとりの家計は「固定費を手取りの半分以下」が目安。');
+      return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fp)}</div></div>`;}
     const inc=p.inc/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,sp=p.sp/12,ot=p.ot/12,out=live+pk+rent+kc+ins+sp+ot,net=inc-out;
     const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+')':''):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):'',p.lc?'住宅ローン控除 '+mn(p.lc/12):''].filter(Boolean).join(' + ');
     const kids=s.kids||0;
@@ -1424,8 +1434,9 @@ details.alb summary::-webkit-details-marker{display:none}
     return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div>${row('収入',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0,p))}</div></div>`;}
   function statHTML(s){
     const mul=s.yr==null?s.sav/START.sav:0;
-    const sep=[s.hw?'夫のもの <b>約'+yen(s.hw)+'</b>':'',s.yr!=null&&s.mine?'あなたのもの <b>'+yen(s.mine)+'</b>':''].filter(Boolean).join(' ／ ');
-    return `<div class="savbox"><div class="k">${s.yr==null?'あなたの貯金':(s.sav<0?'ふたりの借金(カードローン)':'ふたりの貯金')}</div><div class="v" id="sav-v"${s.sav<0?' style="color:#B4373E"':''}>${yen(s.sav)}</div>${meterHTML(s)}${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}${sep?`<div class="sepl">これとは別に… ${sep}</div>`:''}</div>
+    const dv=!!(s.f&&(s.f.divorce||s.f.sign));
+    const sep=[s.hw?(dv?'元夫のもの <b>約':'夫のもの <b>約')+yen(s.hw)+'</b>':'',s.yr!=null&&s.mine?'あなたのもの <b>'+yen(s.mine)+'</b>':''].filter(Boolean).join(' ／ ');
+    return `<div class="savbox"><div class="k">${s.yr==null?'あなたの貯金':dv?(s.sav<0?'あなたの借金':'あなたの貯金(離婚後)'):(s.sav<0?'ふたりの借金(カードローン)':'ふたりの貯金')}</div><div class="v" id="sav-v"${s.sav<0?' style="color:#B4373E"':''}>${yen(s.sav)}</div>${meterHTML(s)}${mul>=2?`<div class="mul">スタートの ${mul>=100?Math.round(mul).toLocaleString():mul.toFixed(1)} 倍</div>`:''}${sep?`<div class="sepl">これとは別に… ${sep}</div>`:''}</div>
       <div class="icons"><span class="L">愛情 ${lstage(s.L)}</span><span class="T">ときめき ${heartsHTML(s.T)}</span><span>⌂ ${esc(s.home)}</span></div>`;
   }
   function rollSav(from,to){
@@ -1549,12 +1560,21 @@ details.alb summary::-webkit-details-marker{display:none}
   function whyHTML(rid,i,k,d){const w=whyOf(rid,i,k);const row=(lab,v,txt)=>`<div><b class="${v>0?'up':v<0?'dn':''}">${lab} ${arrow(v)}</b><span>${esc(txt||(v?'':'この場面では、動かない'))}</span></div>`;return row('愛情',d.L||0,w[0])+row('ときめき',d.T||0,w[1]);}
   function applyD(s,d){if(d.marry){s.mine=(s.mine||0)+s.sav;s.sav=0;}for(const k in d){if(k==='marry'||k==='ann')continue;if(k==='cost'){s.costs=(s.costs||[]).concat(d.cost);continue;}if(k==='home')s.home=d.home;else if(k==='set')Object.assign(s,d.set);else if(k==='sav')s.sav=s.sav+d.sav;else if(k==='L'||k==='T')s[k]=clamp(s[k]+d[k]);else if(k==='crack')s.crack=Math.max(0,(s.crack||0)+d.crack);else if(typeof d[k]==='number')s[k]=(s[k]||0)+d[k];}if((s.kids||0)>0&&s.kidY==null)s.kidY=s.yr||0;return s;}
   const resolve=(v,s)=>typeof v==='function'?v(s):v;
+  // 選んだ直後(d と f を当てた後)の共通処理: 別居した日の貯金を控え、離婚したらその半分が「あなたの貯金」になる(財産分与の基準は別居時)。この選択で動いた分(慰謝料など)はそのまま足す
+  function afterPick(s,b){if(!s.f)return s;
+    if(s.f.separate&&!s.f.divorce&&!s.f.sign&&s.sepSav==null)s.sepSav=s.sav;
+    if((s.f.divorce||s.f.sign)&&s.divSav==null){const base=s.sepSav!=null?s.sepSav:(b?b.sav:s.sav);const delta=b?s.sav-b.sav:0;s.divSav=base;s.divYr=s.yr||0;s.sav=(base>0?Math.round(base/2):0)+delta;}
+    return s;}
+  // 養育費(裁判所の標準算定方式の近似): 基礎収入 × 子の生活費指数(0〜14歳62・15歳〜85) ÷ (100+指数) × 義務者の負担割合。上限は1人20万(表の外は上限で合意する扱い)。custH なら子は元夫と暮らし、あなたが払う側
+  function yoiku(s){const k=s.kids||0;if(!k||!(s.f&&(s.f.divorce||s.f.sign)))return 0;const self=!!(s.selfH||(s.rid==='D'&&s.f&&(s.f.open||s.f.tv)));
+    const H=s.H||0,W=s.W||0,kh=H*(self?0.52:(H<=500?0.44:H<=1000?0.40:0.37)),kw=W*(W<=500?0.44:0.40);const pay=s.custH?kw:kh,rec=s.custH?kh:kw;if(pay<=0)return 0;
+    const age=s.kidY!=null?(s.yr||0)-s.kidY:5;const idx=(age>=15?85:62)*k;const cost=pay*idx/(100+idx);let m=cost*(pay/((pay+rec)||1))/12;m=Math.min(m,20+8*(k-1));return Math.max(k*2,Math.round(m));}
   // ときめきの振れ幅を大きく: ときめき軸の選択は最低+14、反対側(ときめきが無い選択)は−6
   const topAx=x=>{if(!x)return null;let b=null;for(const k in x)if(b===null||x[k]>x[b])b=k;return b;};
   function adjD(c,i,d){d=Object.assign({},d||{});const h=c.ch[i],o=c.ch[1-i];if(topAx(h.x)==='t'){if((d.T||0)<14)d.T=14;}else if(o&&topAx(o.x)==='t'&&!(d.T>0))d.T=(d.T||0)-6;return d;}
   const arrow=v=>v>=10?'↑↑':v>0?'↑':v<=-10?'↓↓':v<0?'↓':'→';
   function deltaHTML(a,b){const p=[];const d=a.sav-b.sav;if(d)p.push(`<b class="${d>0?'up':'dn'}">${d>0?'+':'−'}${yen(Math.abs(d))}</b>`);const dh=(a.hw||0)-(b.hw||0);if(dh)p.push(`<span class="hw">夫 ${dh>0?'+':'−'}${yen(Math.abs(dh))}</span>`);p.push(`<span>愛情 ${arrow(a.L-b.L)}</span>`);p.push(`<span>ときめき ${arrow(a.T-b.T)}</span>`);if(a.home!==b.home)p.push(`<span>⌂ ${esc(a.home)}</span>`);return p.join('');}
-  function vsHTML(c,i,b,a){const j=c.ch[1-i]?1-i:0;const alt=c.ch[j];if(!alt||alt===c.ch[i])return '';const ad=adjD(c,j,resolve(alt.d,b));const as=clone(b);applyD(as,ad);
+  function vsHTML(c,i,b,a){const j=c.ch[1-i]?1-i:0;const alt=c.ch[j];if(!alt||alt===c.ch[i])return '';const ad=adjD(c,j,resolve(alt.d,b));const as=clone(b);applyD(as,ad);if(alt.f)as.f[alt.f]=true;afterPick(as,b);
     const dS=as.sav-a.sav,dHw=(as.hw||0)-(a.hw||0),dM=Math.abs(dS)+Math.abs(dHw),dL=as.L-a.L,dH=hearts(as.T)-hearts(a.T);
     const sc={m:dM?1+Math.log10(dM):0,l:Math.abs(dL)/6,t:Math.abs(dH)*1.5};let best=['m','l','t'].reduce((p,k)=>sc[k]>sc[p]?k:p,'m');
     if(!sc[best])best=['m','l','t'][Math.floor(Math.random()*3)];
@@ -1641,7 +1661,11 @@ details.alb summary::-webkit-details-marker{display:none}
     let spm=spM,ph=pkH,pw=pkW,cut=0;const need=()=>(inc/12)-(liveM+ph+pw+rent/12+kc.a/12+insM+spm+ot/12);
     if(!split&&need()<0){const c1=Math.min(-need(),spm*0.5);spm-=c1;cut+=c1;if(need()<0){const r=Math.min(1,-need()/((ph+pw)*0.3||1))*0.3;ph*=1-r;pw*=1-r;cut+=1e-9;}}
     const live=Math.round(liveM*12),pk=Math.round((ph+pw)*12),sp=Math.round(spm*12),ins=Math.round(insM*12);
-    return {inH,inW,inR,inc,lc,live,pk,pkH:ph,pkW:pw,sp,rent,ins,kc,wl,oth,ot,sep,split,mB,cut:cut>0,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:split?0:inc-live-pk-rent-kc.a-ins-sp-ot};}
+    if(split){ // 離婚後は「あなたの家計簿」: 手取り+養育費+児童手当 − ひとりの生活費 − 家賃 − 子ども − 保険。custH なら子は元夫と暮らし、養育費はあなたが払う
+      const yo=yoiku(s),cH=!!s.custH,k2=cH?0:k,wW=TH(s.W||0),inc2=wW+(cH?0:yo*12)+(cH?0:kc.ca);const D2=(wW+(cH?0:yo*12))/12;const b2=B2(D2,k2,false);
+      const live2=Math.round((b2.food+b2.util+b2.daily+b2.fun)*0.72*12),pk2=Math.round(((s.W||0)>0?b2.pk*0.85:1)*12),ins2=Math.round((b2.ins*0.6+(s.ins?2:0))*12),rent2=Math.round((s.divRent!=null?s.divRent:8)*12),kc2=cH?0:kc.a,ot2=ot;
+      return {inH:0,inW:wW,inR:0,yo,custH:cH,inc:inc2,lc:0,live:live2,pk:pk2,pkH:0,pkW:pk2/12,sp:0,rent:rent2,ins:ins2,kc:cH?{a:0,ca:0,l:'',age:kc.age}:kc,wl:'',oth,ot:ot2,sep:false,split,mB:false,cut:false,food:b2.food,util:b2.util,daily:b2.daily,fun:b2.fun,net:inc2-live2-pk2-rent2-kc2-ins2-ot2-(cH?yo*12:0)};}
+    return {inH,inW,inR,inc,lc,live,pk,pkH:ph,pkW:pw,sp,rent,ins,kc,wl,oth,ot,sep,split,mB,cut:cut>0,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
   // 思わぬ出費(実際の相場)。年1件・上限60万、特別費(帰省・旅行・冠婚葬祭・家電の買い替え)と重なるものは入れない。1周で同じ事は1回。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
     {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:35},{l:'親の入院の付き添いと、新幹線代',a:25},{l:'歯のインプラント1本',a:40},{l:'親戚のお葬式(香典・交通費・喪服)',a:15},
@@ -1669,8 +1693,8 @@ details.alb summary::-webkit-details-marker{display:none}
         s.H=(s.H||0)*(1+((s.Hstop!=null&&t>=s.Hstop)?0:(s.Hg||0))*d);s.W=(s.W||0)*(1+0.01*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
       g=Math.round(g);const E=ev.reduce((p,e)=>p+e.a,0);const it=s.nisa&&s.sav>0?Math.round(s.sav*0.5*(Math.pow(1.03,dy)-1)):0;
       const b0=s.sav;s.sav=s.sav+g-E+it;s.yr=y;const real=s.sav-b0;
-      if(!p0.split){
-        rows+=mrow('💰','家計簿どおりなら',g,ylab(dy)+'で ・ 月平均 '+mn(g/12/Math.max(dy,0.5)));
+      {
+        rows+=mrow('💰',p0.split?'離婚後の家計簿どおりなら':'家計簿どおりなら',g,ylab(dy)+'で ・ 月平均 '+mn(g/12/Math.max(dy,0.5)));
         if(E)rows+=mrow('💸','思わぬ出費',-E,ev[0].l+(ev.length>1?' ほか'+(ev.length-1)+'件':''));
         if(it)rows+=mrow('📈','NISAで増えた',it);
         rows+=`<div class="mr tot"><span>${real>0?'この'+ylab(dy)+'で、実際に増えたのは':real<0?'この'+ylab(dy)+'で、貯金は':'この'+ylab(dy)+'、貯金は'}</span><b>${real>0?'+'+yen(real):real<0?'−'+yen(-real)+' 減った':'ほとんど残らなかった'}</b></div>`;
@@ -2024,8 +2048,9 @@ details.alb summary::-webkit-details-marker{display:none}
 
   // 5) 結末(各4つ・全20)。離婚は「再出発」として描く
   RANK.rikon='再出発';
-  const half=s=>yen(Math.round(s.sav/2));
-  const split=s=>s.sav>0?'ふたりの貯金'+yen(s.sav)+'は、離婚したら原則は半分こ。あなたの取り分は、約'+half(s)+'。':'ふたりの貯金は、ほとんど残っていなかった。それでも、厚生年金の分け方(年金分割)と'+(s.kids?'養育費':'これからの暮らし')+'だけは、紙に残した。';
+  const dsv=s=>s.divSav!=null?s.divSav:s.sav;
+  const half=s=>yen(Math.round(dsv(s)/2));
+  const split=s=>dsv(s)>0?(s.sepSav!=null?'別居した日のふたりの貯金':'ふたりの貯金')+yen(dsv(s))+'は、離婚したら原則は半分こ'+(s.sepSav!=null?'(分けるのは別居した日までの分。そのあとに増えた分は分けない)':'')+'。あなたの取り分は、約'+half(s)+'。':'ふたりの貯金は、ほとんど残っていなかった。それでも、厚生年金の分け方(年金分割)と'+(s.kids?'養育費':'これからの暮らし')+'だけは、紙に残した。';
   {const o=END.A;END.A=[
     {id:'A4',k:'rikon',t:'40億の家を、出る日',test:s=>!!(s.f.sign||s.f.divorce),nak:'別れるのも、ひとつのハッピーエンドよ。自分の名前で、もう一度始められる女は強いの。…次の縁は、あたしが紹介するわ。',
       s:s=>'離婚届を出した日、あなたは都内の一軒家を出た。夫の40億は、結婚前からの夫の財産。でも、'+split(s)+''+(s.f.modeA?'(結婚前からの資産と夫の手腕が大きい場合、裁判では6：4などに修正されることもある。)':'')+(s.mine?' 祖母から受け継いだ別荘や、独身時代の貯金は、あなたの財産のまま。':'')+(s.kids?' 双子の親権は、2026年4月からの新しいルールで、ふたりで持つ「共同親権」を選んだ。':'')+' 新しい部屋の窓から見える夕日は小さいけど、自分で選んだ夕日だった。'},
@@ -2276,7 +2301,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   function choose(i){
     if(!$('#g-after').hidden)return;
     const r=R(),c=EPAT(ci),h=c.ch[i];
-    const b=clone(st),dd=adjD(c,i,resolve(h.d,b));applyD(st,dd);if(h.f)st.f[h.f]=true;addX(st.x,h.x||{});r.picks[ci]=i;setEv(ci+1,st);
+    const b=clone(st),dd=adjD(c,i,resolve(h.d,b));applyD(st,dd);if(h.f)st.f[h.f]=true;afterPick(st,b);addX(st.x,h.x||{});r.picks[ci]=i;setEv(ci+1,st);
     $$('#g-choices button').forEach((x,j)=>{x.disabled=true;x.classList.add(j===i?'picked':'dim');});
     $('#g-stat').innerHTML=statHTML(b);setTimeout(()=>rollSav(b.sav,st.sav),300);
     setTimeout(()=>{const f=$('#g-stat .meter .fill');if(f)f.style.width=meterP(st.sav).toFixed(1)+'%';},350);
@@ -2285,7 +2310,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     $('#g-out').textContent=resolve(h.o,st);
     $('#g-pop').innerHTML=popHTML(b,st,true)+(st.T-b.T>=10?'<div class="hb"><i>♥</i><i>♥</i><i>♥</i></div>':'');$('#g-chg').innerHTML='';$('#g-why').innerHTML=paramHTML(b,st,resolve(h.w,st)||['',''],dd);animParam();
     $('#g-vs').innerHTML=vsHTML(c,i,b,st);$('#g-vs').hidden=false;
-    nako('#nako-game',resolve(h.nak,st)+(hearts(st.T)===5&&hearts(b.T)<5?'　ときめき、満タンよ。':''),true);
+    nako('#nako-game',resolve(h.nak,st)+(hearts(st.T)===5&&hearts(b.T)<5?'\n…ときめき、満タンね。':''),true);
     const justS=cur.id!=='S'&&ci===FREE_N-1&&!pers.secFree;if(justS){pers.secFree=true;save();}$('#g-unlock').hidden=!justS;
     const km=c.kime;const kb=$('#g-kime');if(km){pers.mem=pers.mem||[];const key=c.kimeK;if(!pers.mem.includes(key)){pers.mem.push(key);save();}kb.hidden=false;kb.innerHTML=kimeHTML(cur,ci,km,c);}else kb.hidden=true;
     const last=ci===EP[cur.id].length-1;
@@ -2327,10 +2352,10 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     if(cur.id==='S'){nako('#nako-author','あんた、作者の分身だったのね。…ずいぶん盛ったじゃない。大富豪？ 肩書き7つ？ でもね、英語とピアノと始球式は本当なんですって。曲もアプリも、ほんとに自分で作ってるらしいわよ。気になったら、のぞいてあげなさい。');pers.mem=pers.mem||[];if(!pers.mem.includes('Sletter')){pers.mem.push('Sletter');save();}$('#ra-letter').innerHTML=`<div class="kime"><div class="kbg" style="background-image:url('${IMG.hero||''}')"></div><div class="kin"><div class="kk">Memory card ・ 思い出カード 16枚目(特別)</div><p class="kl" style="margin-top:10px">「作者からの手紙」<br><span style="font-size:.95rem">選んでくれて、ありがとう。<br>現実でも、あなたが好きな人を選べますように。</span></p><div class="kn">— 加藤 貴大</div></div></div>`;}
     {const flip=replayRows(r.picks.map(p=>p===2?0:1-p));const fs=flip.st;const fe=END[cur.id].find(x=>x.test(fs));const known=pers.coll.includes(fe.id);
      const row=(k,a,b)=>`<div class="vr"><span class="vk">${k}</span><span class="va">${a}</span><span class="vb">${b}</span></div>`;
-     const ratio=Math.max(st.sav,fs.sav)/Math.max(1,Math.min(st.sav,fs.sav));
+     const ratio=Math.max(st.sav,fs.sav)/Math.max(1,Math.min(st.sav,fs.sav));const dvA=!!(st.f&&(st.f.divorce||st.f.sign)),dvB=!!(fs.f&&(fs.f.divorce||fs.f.sign));
      $('#r-vs').hidden=false;$('#r-vs').innerHTML=`<div class="eyebrow">What if</div><h3>もしも、全部反対を選んでいたら</h3><div class="vtab"><div class="vr vhead"><span class="vk"></span><span class="va">あなたの20年</span><span class="vb">全部反対の20年</span></div>`
-       +row('ふたりの貯金',yen(st.sav),yen(fs.sav))+((st.hw||fs.hw)?row('夫のもの',st.hw?yen(st.hw):'—',fs.hw?yen(fs.hw):'—'):'')+row('愛情',lstage(st.L),lstage(fs.L))+row('ときめき','♥'.repeat(hearts(st.T)),'♥'.repeat(hearts(fs.T)))+row('住まい',esc(st.home),esc(fs.home))+row('結末',esc(e.t),known?esc(fe.t):'？？？('+RANK[fe.k]+')')
-       +`</div><p class="small muted" style="margin:8px 0 0">${st.sav!==fs.sav?((st.sav<=0||fs.sav<=0)?'選び方ひとつで、ふたりの貯金は '+yen(Math.abs(st.sav-fs.sav))+' ちがう。':'選び方ひとつで、ふたりの貯金は '+(ratio>=100?Math.round(ratio).toLocaleString():ratio.toFixed(1))+' 倍ちがう。'):''}${known?'':'反対の結末は、2周目で読んでからのお楽しみ。'}</p>`;}
+       +row((dvA||dvB)?'手元のお金':'ふたりの貯金',yen(st.sav)+(dvA?'<small>(離婚後・あなたの分)</small>':''),yen(fs.sav)+(dvB?'<small>(離婚後・あなたの分)</small>':''))+((st.hw||fs.hw)?row('夫のもの',st.hw?yen(st.hw):'—',fs.hw?yen(fs.hw):'—'):'')+row('愛情',lstage(st.L),lstage(fs.L))+row('ときめき','♥'.repeat(hearts(st.T)),'♥'.repeat(hearts(fs.T)))+row('住まい',esc(st.home),esc(fs.home))+row('結末',esc(e.t),known?esc(fe.t):'？？？('+RANK[fe.k]+')')
+       +`</div><p class="small muted" style="margin:8px 0 0">${st.sav!==fs.sav?((st.sav<=0||fs.sav<=0||dvA||dvB)?'選び方ひとつで、手元に残るお金は '+yen(Math.abs(st.sav-fs.sav))+' ちがう。'+((dvA||dvB)?'(離婚した方は、分けたあとのあなたの分)':''):'選び方ひとつで、ふたりの貯金は '+(ratio>=100?Math.round(ratio).toLocaleString():ratio.toFixed(1))+' 倍ちがう。'):''}${known?'':'反対の結末は、2周目で読んでからのお楽しみ。'}</p>`;}
     {const rows=replayRows().rows;const n=rows.length;
      const name={a:'価値観',c:'家庭',s:'自立',m:'経済力',t:'ときめき'};
      const hit=rows.reduce((acc,x)=>{const h=x.c.ch[r.picks[x.i]];return acc+((h&&h.x&&h.x[tk])?1:0);},0);
@@ -2365,7 +2390,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     else if(isNew)setTimeout(()=>toast('図鑑に新しい結末が追加されました'),600);
   }
   function replayRows(picks){const list=EP[cur.id],r=R();picks=picks||r.picks;let s=Object.assign(clone(START),{f:{},x:clone(pers.pro?pers.pro.x:{})});const rows=[];
-    list.forEach((raw,i)=>{const c=raw.slot?pickEv(raw,s):raw;prep(s,c);const h=c.ch[picks[i]];if(!h)return;const b=clone(s);applyD(s,adjD(c,picks[i],resolve(h.d,b)));if(h.f)s.f[h.f]=true;rows.push({i,c,title:c.title,t:resolve(h.t,b),dL:s.L-b.L,dT:s.T-b.T,dS:s.sav-b.sav,dC:(s.crack||0)-(b.crack||0)});});return {rows,st:s};}
+    list.forEach((raw,i)=>{const c=raw.slot?pickEv(raw,s):raw;prep(s,c);const h=c.ch[picks[i]];if(!h)return;const b=clone(s);applyD(s,adjD(c,picks[i],resolve(h.d,b)));if(h.f)s.f[h.f]=true;afterPick(s,b);rows.push({i,c,title:c.title,t:resolve(h.t,b),dL:s.L-b.L,dT:s.T-b.T,dS:s.sav-b.sav,dC:(s.crack||0)-(b.crack||0)});});return {rows,st:s};}
   function shareText(){return `💍 #ウェディングストーリー\n${cur.name}(${cur.job})と結婚して、20年。\n結末は『${lastEnd.t}』\nふたりの貯金 ${yen(st.sav)} ✨\n愛情 ${lstage(st.L)} ／ ときめき ${'♥'.repeat(hearts(st.T))}\nわたしの婚活タイプは「${lastType.n}」\n紹介された4人、全員に秘密がある。\nあなたなら、誰を選ぶ？`;}
   $('#r-sgo').addEventListener('click',()=>openDetail('S'));
   $('#r-again2').addEventListener('click',()=>$('#r-again').click());
