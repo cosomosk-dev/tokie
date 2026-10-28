@@ -324,7 +324,7 @@ R2('const enterOrTrial=()=>{if(!visitCount()&&!trialUsed())openTrial(false);',
   $("c_ok").addEventListener("click",()=>{try{localStorage.setItem("tokienew_consent_v1","1");}catch(e){}$("consentsheet").classList.remove("open");enterOrTrial();});
   const enterOrTrial=()=>{if(NEWCOMER&&!consented()){askConsent();return;}if(!visitCount()&&!trialUsed())openTrial(false);''')
 # 16-3 ママの返事を通報（Google PlayのAIポリシーで必須）。デモは手元に記録するだけ
-R2('<button class="guidebtn" id="guidebtn">','<button class="photobtn" id="reportbtn" title="ママの返事を報告">⚑ 報告</button><button class="guidebtn" id="guidebtn">')
+R2('    <div class="ver" id="ver"></div>','    <button class="ncreset" id="reportbtn" style="color:rgba(255,200,200,.75)">⚑ ママの返事を報告する</button>\n    <div class="ver" id="ver"></div>')
 R2('  $("ncreset").addEventListener("click",()=>{','''  $("reportbtn").addEventListener("click",()=>{
     const lastAi=(()=>{try{const m=(current&&current.msgs)||[];for(let i=m.length-1;i>=0;i--)if(m[i].who==="ai")return m[i].text;}catch(e){}return "";})();
     const why=prompt("ママの返事で、嫌やったこと・おかしかったことを教えてな（不快・間違い・危ない等）"+(lastAi?"\\n\\n直前のママ：「"+clip(lastAi,60)+"」":""));
@@ -375,7 +375,7 @@ print("step17 ok")
 # 18) 見た目の手直し：同意のチェック欄・報告ボタンをいつも出す
 s=open(os.path.join(ROOT,"newcomer","index.html"),encoding="utf-8").read()
 R2('.cchk{display:flex;gap:10px;align-items:flex-start;','.cchk{display:flex!important;justify-content:flex-start!important;text-align:left!important;gap:10px;align-items:flex-start;')
-R2('<button class="photobtn" id="reportbtn" title="ママの返事を報告">⚑ 報告</button>','<button class="photobtn show" id="reportbtn" title="ママの返事を報告" style="opacity:.8">⚑ 報告</button>')
+
 open(os.path.join(ROOT,"newcomer","index.html"),"w",encoding="utf-8").write(s)
 print("step18 ok")
 
