@@ -98,6 +98,8 @@
   .musicbtn{display:none;width:100%;max-width:340px;padding:10px;border-radius:999px;border:1px dashed rgba(255,241,226,.45);background:rgba(11,5,7,.45);color:var(--cream);font:600 13px "Zen Kaku Gothic New",sans-serif;cursor:pointer;backdrop-filter:blur(6px)}
   .musicbtn.show{display:block}
   .musicbtn.on{border-style:solid;background:rgba(255,184,92,.22)}
+  .bargebtn{display:none;width:100%;max-width:340px;padding:9px;border-radius:999px;border:1px solid rgba(255,184,92,.7);background:rgba(255,184,92,.18);color:var(--cream);font:700 13px "Zen Kaku Gothic New",sans-serif;cursor:pointer;backdrop-filter:blur(6px)}
+  .bargebtn.show{display:block}
   .err{font-size:12px;color:#ff9a9a;text-align:center;min-height:14px}
   /* 入れへんかった時のお知らせ（クレジット切れ・上限時間・回線切れ・閉店） */
   .notice{display:none;width:100%;max-width:340px;padding:14px 16px;border-radius:16px;text-align:center;animation:fade .4s ease;
@@ -393,6 +395,7 @@
     </div>
     </div>
     <button class="musicbtn" id="musicbtn">🎵 音楽タイム（マイク休み・ママは静かに隣におる）</button>
+    <button class="bargebtn" id="bargebtn">✋ 割り込んで喋る（ママが話してる間は耳を休めてる）</button>
     <button class="btn" id="btn">入店する</button>
     <div class="menurow"><button class="menubtn" id="menubtn">お品書き</button><button class="photobtn" id="photobtn">📷 写真</button><input type="file" id="photofile" accept="image/*" hidden><button class="guidebtn" id="guidebtn">はじめての方へ・お店の案内</button></div>
     <div class="err" id="err"></div>
@@ -445,6 +448,7 @@
       <div class="set"><div class="l">1回の営業時間（分）<small>この時間で看板。10分前にママから「ラストオーダーやで」の声がかかり、最後に今日のまとめと一言を言うて閉店する。</small></div><input type="number" id="s_open" min="15" max="720" step="5"></div>
       <div class="set"><div class="l">1日の上限（分）<small>今日しゃべった合計がこれを超えたら、その日はもう入店できへん（0＝上限なし）。体と財布のため。</small></div><input type="number" id="s_cap" min="0" max="1440" step="10"></div>
       <div class="set"><div class="l">無音で自動お会計（分）<small>これだけ黙っとったらママが「寝てもうた？」と一声かけて、返事がなければ静かにお会計する（0＝しない）。つけっぱなし課金の防止。</small></div><input type="number" id="s_idle" min="0" max="60" step="1"></div>
+      <div class="set"><div class="l">ママが喋ってる間はマイクを休ませる（おすすめ）<small>長話の時、スマホのスピーカーから出たママ自身の声をマイクが拾うて「お客さんの発言」と勘違いし、話がとんちんかんになるのを防ぐ。割り込みたい時は「✋ 割り込んで喋る」。イヤホンで喋る時は外してもええ。</small></div><input type="checkbox" id="s_hold"></div>
       <div class="set"><div class="l">お会計のとき、ママが今日のまとめと一言を言う<small>「お会計」を押したらママが今日の話を3行でまとめて、次来るまでの一言を添える。それが手帳に残り、次に開いた時に看板の下に出る。</small></div><input type="checkbox" id="s_sum"></div>
       <div class="set"><div class="l">原価の目安（円／分）<small>「ざっくり原価」とボトルの「1本 約○円相当」の計算に使う。ElevenLabs Agentsは1分＝約12円。</small></div><input type="number" id="s_yen" min="0" max="100" step="0.5"></div>
       <div class="set"><div class="l">写真を見る目（GeminiのAPIキー）<small>ドリンクを頼んだ夜に写真をママに見せる時だけ使う。このスマホ／PCの中にだけ保存。作り方：aistudio.google.com/apikey →「APIキーを作成」→ AIza…で始まるキーをコピーしてここに貼る。「今日の回数を使い切った」と出る時は、aistudio.google.com/apikey のキーの行の「Set up billing（お支払い設定）」でカードを登録すると上限がほぼ無くなる（写真1枚 約0.1〜0.3円）。</small></div><input type="password" id="s_gkey" placeholder="AIza..." autocomplete="off" style="width:150px"></div>
@@ -679,7 +683,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-26 v43";
+  const APP_VER="2026-10-29 v44";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -699,7 +703,7 @@
 
   /* ───────── 営業の設定（ブラウザ内保存。手帳を白紙にしても消えへん） ───────── */
   const SKEY="tokie_settings_v1";
-  const DEFAULTS={strength:"rock", openMin:180, dailyCap:180, idleMin:5, summary:true, brand:"ao", tagName:"タケオ", yenPerMin:14.5, nightDrinkCap:3000, monthCap:10000, seat:"box"};
+  const DEFAULTS={strength:"rock", openMin:180, dailyCap:180, idleMin:5, summary:true, holdMic:true, brand:"ao", tagName:"タケオ", yenPerMin:14.5, nightDrinkCap:3000, monthCap:10000, seat:"box"};
   function settings(){try{const s=JSON.parse(localStorage.getItem(SKEY)||"null");return Object.assign({},DEFAULTS,(s&&typeof s==="object")?s:{});}catch(e){return Object.assign({},DEFAULTS);}}
   function saveSettings(patch){const s=Object.assign(settings(),patch);try{localStorage.setItem(SKEY,JSON.stringify(s));}catch(e){}return s;}
 
@@ -1114,7 +1118,8 @@
     "・まだ黙ってたら：ママから軽い話題をひとつだけ振る（さっきの話の続きか、今日のお題）。質問攻めにはせん。1回に問いかけは1つまで。\n"+
     "・それでも黙ってたら：黙って待つツールが使えるなら使って、声は何も出さへん。使えへんなら「ここにおるからな」の一言だけ。\n"+
     "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ（黙って待つツールが使えるなら使う）。\n"+
-    "・ママの一回の返事は短め（だいたい2〜3文）。お客さんが喋る隙間を残す。独演会はせん。";
+    "・ママの一回の返事は短め（だいたい2〜3文・100字くらいまで）。言いたいことが多い時も3文で一回止めて、続きはお客さんの反応を聞いてから。独演会はせん。\n"+
+    "・お客さんの言葉が途中で切れてたり、ママがさっき言うた言葉とそっくりやったりしたら、それはマイクの拾い間違い。それに乗っかって話を変えへん。直前のお客さんの話の続きをする。";
   // v32 心の声を言わへんルール（「沈黙してる相手を急かさず待つ」等、ルールや自分の動きを実況してしもうてた）
   const VOICE_BLOCK="【心の声は言わへん（大事・どのルールより先）】\n"+
     "・ママが声に出すのは、お客さんへのセリフだけ。この手帳のルール・【】のメモ・自分がこれからどうするか（「急かさず待つ」「黙って待つ」「話を聞く」「隣におる」「様子を見る」等）は、頭の中で守るだけで絶対に口に出さへん。\n"+
@@ -1766,7 +1771,7 @@
   }
   function renderSettings(){
     const S=settings();
-    $("s_open").value=S.openMin;$("s_cap").value=S.dailyCap;$("s_idle").value=S.idleMin;$("s_sum").checked=!!S.summary;$("s_yen").value=S.yenPerMin;
+    $("s_open").value=S.openMin;$("s_cap").value=S.dailyCap;$("s_idle").value=S.idleMin;$("s_sum").checked=!!S.summary;$("s_hold").checked=S.holdMic!==false;$("s_yen").value=S.yenPerMin;
   }
   function renderBook(){
     const b=loadBook();profileEl.value=b.profile;profileLen.textContent=`${b.profile.length}文字`;
@@ -1849,10 +1854,10 @@
   let setTimer=null;
   function onSet(){
     saveSettings({openMin:num("s_open",15,720,DEFAULTS.openMin),dailyCap:num("s_cap",0,1440,DEFAULTS.dailyCap),idleMin:num("s_idle",0,60,DEFAULTS.idleMin),
-      summary:$("s_sum").checked,yenPerMin:num("s_yen",0,100,DEFAULTS.yenPerMin)});
+      summary:$("s_sum").checked,holdMic:$("s_hold").checked,yenPerMin:num("s_yen",0,100,DEFAULTS.yenPerMin)});
     $("setsaved").textContent="保存した（次の入店から効く）";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);renderStats();
   }
-  for(const id of ["s_open","s_cap","s_idle","s_sum","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
+  for(const id of ["s_open","s_cap","s_idle","s_sum","s_hold","s_yen"]){$(id).addEventListener("change",onSet);$(id).addEventListener("input",onSet);}
   try{$("s_gkey").value=gKey();}catch(e){}
   $("s_gkey").addEventListener("change",()=>{setGKey($("s_gkey").value);$("setsaved").textContent=gKey()?"写真の「目」のキーを保存した":"キーを消した";clearTimeout(setTimer);setTimer=setTimeout(()=>$("setsaved").textContent="",2000);});
   // 今夜の濃さ（入店前でも、喋ってる途中でも切り替えられる）
@@ -2247,10 +2252,47 @@
     session.music=!!on;
     try{if(typeof conv.setMicMuted==="function")conv.setMicMuted(session.music);}catch(e){}
     if(session.music){session.musicAt=Date.now();inject(MSG_MUSIC_ON);statusEl.textContent="音楽タイム。ママは静かに隣におる";}
-    else{session.lastUser=Date.now();inject(MSG_MUSIC_OFF);statusEl.textContent="聞いてくれてる";}
-    renderMusic();
+    else{session.lastUser=Date.now();session.held=false;inject(MSG_MUSIC_OFF);statusEl.textContent="聞いてくれてる";}
+    renderMusic();renderBarge();
   }
   musicBtn.addEventListener("click",()=>setMusic(!(session&&session.music)));
+  /* v44 ママが喋ってる間はマイクを休ませる（半分こ通話）
+     長話の時、スピーカーから出たママ自身の声をマイクが拾うて「お客さんの発言」になり、ママが途中で止まって
+     その拾い間違いに返事する→話がとんちんかん・聞き取りがおバカ、になってた（10/29 タケオさん指摘）。
+     ・喋り始めたらマイクを休ませ、喋り終わって0.6秒静かやったら戻す（文の切れ目の一瞬の「聞く」では戻さへん）
+     ・お会計のまとめ中は休ませへん（「もうちょっと」で取り消せるように）
+     ・「✋ 割り込んで喋る」でその場だけマイクを戻す */
+  const HOLD_UNMUTE_MS=600;
+  const bargeBtn=$("bargebtn");
+  function renderBarge(){bargeBtn.className="bargebtn"+(session&&session.held&&conv&&!ending&&!session.music?" show":"");}
+  function holdMicModeChange(mode){
+    if(!conv||!session)return;
+    clearTimeout(session.holdT);
+    const want=settings().holdMic!==false&&!session.closing&&!session.bargeIn&&!session.music;
+    if(mode==="speaking"){
+      if(want&&!session.held){session.held=true;try{conv.setMicMuted(true);}catch(e){}}
+      else if(!want&&session.held){session.held=false;if(!session.music){try{conv.setMicMuted(false);}catch(e){}}}
+      renderBarge();
+    }else{
+      session.aiQuietAt=Date.now();
+      const mine=session;
+      session.holdT=setTimeout(()=>{if(session!==mine)return;mine.bargeIn=false;if(mine.held){mine.held=false;if(!mine.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();},HOLD_UNMUTE_MS);
+    }
+  }
+  function releaseHold(){if(!session)return;clearTimeout(session.holdT);if(session.held){session.held=false;if(!session.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();}
+  bargeBtn.addEventListener("click",()=>{if(!session)return;session.bargeIn=true;releaseHold();session.lastUser=Date.now();});
+  /* v44 聞こえ返しの見張り：ママの声を拾うた「客の発言」（ママの直前の台詞とほぼ同じ）は、客の発言として扱わへん */
+  const bigr=(s)=>{s=String(s||"").replace(/[\s、。，．,.！!？?〜ー…・「」『』（）()]/g,"");const a=new Set();for(let i=0;i<s.length-1;i++)a.add(s.slice(i,i+2));return a;};
+  function isEcho(t){
+    if(!session||!current)return false;
+    const now=Date.now();
+    if(!(session.mode==="speaking"||now-(session.aiQuietAt||0)<4000))return false;
+    const b=bigr(t);if(b.size<4)return false;
+    const A=bigr(current.msgs.filter(m=>m.who==="ai").slice(-2).map(m=>m.text).join(""));
+    let hit=0;for(const x of b)if(A.has(x))hit++;
+    return hit/b.size>=0.6;
+  }
+  try{if(localStorage.getItem("tokie_test_hooks")==="1"){window.__tokieTest=Object.assign(window.__tokieTest||{},{bigr,isEchoWith:(ai,t,speaking)=>{const ss=session,cc=current;session={mode:speaking?"speaking":"listening",aiQuietAt:Date.now()};current={msgs:[{who:"ai",text:ai}]};try{return isEcho(t);}finally{session=ss;current=cc;}}});}}catch(e){}
   // ママの返事（声に出した分）をまとめて受け取る。喋り終わったら解決、最長 ms
   function captureReply(ms){
     return new Promise((resolve)=>{
@@ -2291,7 +2333,7 @@
     if(!conv||!session||session.trial||session.closing||session.refreshing||session.moving)return;
     session.refreshing=true;try{conv.endSession();}catch(e){session.refreshing=false;}
   }
-  try{if(localStorage.getItem("tokie_test_hooks")==="1")window.__tokieTest={silentRefresh:()=>silentRefresh()};}catch(e){}
+  try{if(localStorage.getItem("tokie_test_hooks")==="1")window.__tokieTest=Object.assign(window.__tokieTest||{},{silentRefresh:()=>silentRefresh()});}catch(e){}
   function tick(){
     if(!conv||!session||ending)return;
     const now=Date.now();const S=settings();
@@ -2338,7 +2380,7 @@
     if(!conv||!session||session.closing)return;
     const mine=session;
     if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
-    session.closing=true;armQuickExit(mine);statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
+    session.closing=true;releaseHold();armQuickExit(mine);statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
     const p=captureReply(60000);
     if(!inject(MSG_CLOSE+billLine())){if(current)current.endKind="closed";end({reason:"closed"});return;}
     const text=await p;
@@ -2370,7 +2412,7 @@
     const wantSummary=S.summary&&userMsgs>=1; // 1回でも喋ってたら、短い来店でも必ず振り返りを言う（前は2分未満・2発言未満やと黙って閉店してた）
     if(!byVoice&&!wantSummary){end({reason:"user"});return;}
     const mine=session;
-    session.closing=true;session.voiceCheckout=Date.now();armQuickExit(mine);
+    session.closing=true;session.voiceCheckout=Date.now();releaseHold();armQuickExit(mine);
     statusEl.textContent=wantSummary?"ママが今日のまとめを言うてる…（「もうちょっと」で取り消し）":"ママが見送ってくれてる…";
     let text="";
     if(byVoice){
@@ -2417,7 +2459,7 @@
       if(!trial){const ni=rankIdx(visitCount()+1);if(ni>rankSeen())session.rankUp=ni;} // この来店でランクが上がる
       if(!trial){const g=giftReason(session);if(g){session.gift={until:Date.now()+GIFT_MIN*60000,reason:g,chosen:session.seat,endSent:false};session.seat="box";useGift(g);}}
     }else if(session){
-      session.capture=null;session.mode="listening";
+      session.capture=null;session.mode="listening";clearTimeout(session.holdT);session.held=false;session.bargeIn=false;
     }
     try{
       try{const ms=await navigator.mediaDevices.getUserMedia({audio:true});ms.getTracks().forEach(t=>t.stop());} // v36 許可の確認だけ。止めへんと入り直しのたびにマイクが二重三重に開いて、聞き取りが悪なる
@@ -2444,15 +2486,22 @@
           let raw=String(m.message);
           if(m.source!=="ai"&&session&&(session.injected.has(norm(raw))||/^【/.test(raw.trim())))return; // 店の時計の合図は客の発言やない
           if(m.source==="ai"){raw=guardLeak(raw);if(!raw.trim())return;} // v34 心の声は声も字幕も消す
+          if(m.source!=="ai"&&isEcho(raw)){ // v44 ママ自身の声の聞こえ返し
+            if(session){session.echoes=(session.echoes||0)+1;}
+            note("（ママの頭の中のメモ）いま客の言葉として届いた「"+clip(raw.trim(),40)+"」は、ママ自身の声をマイクが拾うただけ。お客さんは言うてへん。これには返事せんで、お客さんの直前の話の続きに戻る。");
+            return;
+          }
           const t=show(raw,m.source);
           if(!t||!current)return;
-          if(m.source==="ai"){if(session&&session.ovTried&&!session.ovOk){session.ovOk=true;setOvState("ok");}current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);if(session&&ASK_LEAVE_RE.test(t))session.askLeaveAt=Date.now();}
+          if(m.source==="ai"){if(session&&session.ovTried&&!session.ovOk){session.ovOk=true;setOvState("ok");}current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);if(session&&ASK_LEAVE_RE.test(t))session.askLeaveAt=Date.now();
+            if(session&&t.length>150&&Date.now()-(session.longWarnAt||0)>180000){session.longWarnAt=Date.now();note("（ママの頭の中のメモ。返事せんでええ）さっきの返事は長すぎた。次からは2〜3文・100字くらいで止めて、お客さんに返す。");}}
           else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();if(STAY_RE.test(t))stayLonger();else voiceCheckout(t);onUserLine(t);}
           writeCurrent();
         },
         onModeChange:(m)=>{if(gen!==convGen)return;
           const mode=m&&m.mode;if(session){session.mode=mode;session.lastAi=Date.now();}
           leakModeChange(mode); // v34 心の声の消音の開始・解除
+          holdMicModeChange(mode); // v44 ママが喋ってる間はマイクを休ませる
           stage.classList.toggle("speaking",mode==="speaking");
           if(mode!=="speaking"&&capAnim&&capAnim.startAt)capToBottom(true);
           if(!(session&&session.closing))statusEl.textContent=mode==="speaking"?"ママが話してる":"聞いてくれてる";
@@ -2476,6 +2525,7 @@
     stopTick();
     try{if(c)await c.endSession();}catch(e){}
     stage.classList.remove("speaking","on");
+    try{renderBarge();}catch(e){}
     const r=diagnose(d);
     const S=settings();
     // 頭脳の上書き（席）がElevenLabs側で許可されてへん → 上書きなしで入り直す
