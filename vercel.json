@@ -1,5 +1,5 @@
 {
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- index.html mama.jpg digest.enc vercel.json",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- index.html mama.jpg digest.enc vercel.json newcomer",
   "headers": [
     { "source": "/(.*)", "headers": [ { "key": "Cache-Control", "value": "no-cache, must-revalidate" } ] }
   ]

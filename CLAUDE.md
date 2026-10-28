@@ -26,3 +26,9 @@ node tools/memtest.mjs
 ## その他
 - digest.enc は暗号化したダイジェスト。平文や鍵は絶対にコミットしない。
 - 画面の版の表示（APP_VER）は、変更のたびに上げる。
+
+## 新規客版（newcomer/）— 2026/10/28
+- 商用化の検討用に、タケオさんの情報を抜いた「新規客版」を newcomer/ に置いてある（https://tokie-teal.vercel.app/newcomer/）。
+- newcomer/index.html は手で直さへん。`python3 tools/mk_newcomer.py` で、俺専用版（index.html）から作り直す（俺専用版は読むだけ）。そのあと `node tools/nctest.mjs` で検査（全部✓で反映）。
+- 保存場所は tokienew_ で始まる名前に分けてある。俺専用版の手帳（tokie_〜）には絶対に書き込まへん（Geminiのキーだけ読むのはOK）。
+- ママの土台（ElevenLabsのエージェント）はまだ俺専用と同じ。商用版では別のエージェントを作る。
