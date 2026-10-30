@@ -333,6 +333,7 @@ details.plus ul{margin:6px 0 0;padding-left:18px}
 .moshi .q{color:var(--gold);font-weight:700}
 .adov{position:fixed;inset:0;background:rgba(20,10,15,.86);z-index:50;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;text-align:center;padding:24px}.adov.cm{align-items:center;padding:16px}.cmcard{background:var(--bg);color:var(--ink);border-radius:22px;padding:18px 16px;width:100%;max-width:420px;text-align:left;box-shadow:var(--shadow)}.cmtop{display:flex;align-items:center;gap:8px;margin-bottom:10px}.cmtag{font-size:.78rem;color:var(--ink-2);font-weight:700;flex:1}.cmcd{font-family:var(--font-mincho);font-weight:800;color:var(--rose-deep);font-size:1.1rem;min-width:2em;text-align:right}.cmt{font-family:var(--font-mincho);font-weight:800;font-size:1.25rem;line-height:1.4}.cms{font-size:.92rem;color:var(--ink-2);margin-top:6px}
 .jobs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.jobs button{min-height:40px;padding:6px 12px;font-size:.86rem;border-radius:999px;border-color:var(--line);background:var(--white)}.jobs button.on{background:var(--rose);color:#fff;border-color:var(--rose);font-weight:700}
+.hojo{display:flex;align-items:center;gap:8px;min-height:44px;font-size:.9rem;font-weight:700}.hojo input{width:22px;height:22px;accent-color:var(--rose)}
 .oshi{position:absolute;right:10px;top:12px;z-index:1;font-size:.7rem;font-weight:700;color:#3B2430;background:linear-gradient(135deg,var(--gold-2),#C9A227);border-radius:999px;padding:2px 9px;box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
 .qcard{background:linear-gradient(150deg,var(--rose-soft),var(--white))}
 .pcard.scard{background:linear-gradient(160deg,var(--gold-3),var(--rose-soft));border:1.5px solid #C9A227}
@@ -446,7 +447,7 @@ details.alb summary::-webkit-details-marker{display:none}
     </div>
     <div class="nako" id="nako-intro"></div>
     <div class="card stack">
-      <div id="name-wrap" class="stack" style="gap:12px"><label class="f" for="my-name">あなたの名前<input id="my-name" value="ミユ" maxlength="10" autocomplete="off"></label><div class="f">あなたの職業<div class="jobs" id="jobs"></div><span class="small muted" style="font-size:.72rem">結婚相談所で成婚した人に多い職業から選べます(IBJ成婚白書2025)</span></div></div>
+      <div id="name-wrap" class="stack" style="gap:12px"><label class="f" for="my-name">あなたの名前<input id="my-name" value="ミユ" maxlength="10" autocomplete="off"></label><div class="f">あなたの職業<div class="jobs" id="jobs"></div><span class="small muted" style="font-size:.72rem">結婚相談所で成婚した人に多い職業から選べます(IBJ成婚白書2025)</span></div><div class="f">住んでいる所<div class="jobs" id="areas"></div><label class="hojo"><input type="checkbox" id="hojo"> 家賃補助・寮・社宅がある</label><span class="small muted" style="font-size:.72rem">お給料と家賃の計算に使います(賃金構造基本統計調査・就労条件総合調査)</span></div></div>
       <div class="privnote">🔒 <b>本名・メールアドレスは不要。アカウント登録なし。</b><br>入れた名前や遊んだ記録は<b>このスマホの中だけ</b>に保存され、開発者のサーバーには送られません。名前はニックネームでOK。<br>物語の購入はストアの決済なので、カード情報はこのアプリに届きません。</div>
       <button class="btn-rose btn-block" id="start" style="min-height:62px;font-size:1.14rem">千代子に紹介してもらう</button>
       <p class="small muted" id="intro-sub" style="text-align:center"></p>
@@ -458,7 +459,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <button class="btn-line btn-block" id="bk-load">このコードで引き継ぐ</button>
     </div></details>
     <button class="linkbtn" id="reset-all">最初からやり直す(データを消す)</button>
-    <p class="foot">本ゲームはフィクションです。登場する人物・団体はすべて架空です。<br><span style="font-size:11px;opacity:.6">ver 2026.10.30e</span><br>企画・開発 加藤貴大</p>
+    <p class="foot">本ゲームはフィクションです。登場する人物・団体はすべて架空です。<br><span style="font-size:11px;opacity:.6">ver 2026.10.30f</span><br>企画・開発 加藤貴大</p>
     <a class="linkbtn" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:block;text-align:center;font-weight:700;color:var(--gold)">作者のほかの作品 ›</a>
   </section>
 
@@ -1416,8 +1417,8 @@ details.alb summary::-webkit-details-marker{display:none}
     const hist=s.fpHist||[];const pick=C.find(x=>!hist.includes(x))||C.find(x=>x!==hist[hist.length-1])||C[0];s.fpHist=hist.concat(pick).slice(-3);s.fpLast=pick;return pick;}
   function budgetHTML(s){
     const row=(k,sub,v,cls)=>`<div class="bk-r"><span>${k}</span><small>${esc(sub)}</small><b class="${cls||(v>=0?'pos':'neg')}">${v>=0?'+':'−'}${mn(Math.abs(v))}</b></div>`;
-    if(s.yr==null){const w=WINC[pers.job]||415,r=TH(w)/w,bon=Math.round(w*(WBON[pers.job]||.15)),inc=Math.round((w-bon)/12*r*10)/10,bonN=Math.round(bon*r),rent=Math.round(inc*0.3),live=Math.round(inc*0.5),net=Math.round((inc-live-rent)*10)/10,yr=Math.round(net*12+bonN*0.5);
-      return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り(毎月の給料)',inc)}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>ボーナス(手取り${mn(bonN)})の半分を貯金に回すと、1年で ${yr>=0?'+':'−'}${yen(Math.abs(yr))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(J().n)}・30代前半の女性の平均は、年収およそ${w}万円(ボーナス込み)。毎月の手取りは${mn(inc)}ほど。家賃は手取りの3割までが目安。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div></div>`;}
+    if(s.yr==null){const w=WY(),r=TH(w)/w,bon=Math.round(w*(WBON[pers.job]||.15)),inc=Math.round((w-bon)/12*r*10)/10,bonN=Math.round(bon*r),rent=Math.round(inc*0.3),live=Math.round(inc*0.5),net=Math.round((inc+(pers.hojo?HOJO:0)-live-rent)*10)/10,yr=Math.round(net*12+bonN*0.5);
+      return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り(毎月の給料)',inc)}${pers.hojo?row('補助','家賃補助・寮・社宅(平均)',HOJO):''}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>ボーナス(手取り${mn(bonN)})の半分を貯金に回すと、1年で ${yr>=0?'+':'−'}${yen(Math.abs(yr))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(J().n)}・30代前半の女性の平均は、${pers.area==='rural'?'地方で':'都市部で'}年収およそ${w}万円(ボーナス込み)。毎月の手取りは${mn(inc)}ほど。家賃は手取りの3割までが目安。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div></div>`;}
     if(!s.rid)return '';
     const p=pace(s);
     if(p.split){const w=p.inW/12,yo=p.yo||0,ca=p.kc.ca/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,inc=p.inc/12,out=live+pk+rent+kc+ins+ot+(p.custH?yo:0),net=inc-out;const k=s.kids||0;
@@ -1629,6 +1630,11 @@ details.alb summary::-webkit-details-marker{display:none}
   //  その他: 賃金構造 女性・学歴計30〜34歳 月29.2万+賞与64.2万=414.9万(令和6年)
   const WINC={office:376,nurse:487,civil:420,teacher:450,hoiku:390,beauty:315,it:476,other:415};
   // 賞与(ボーナス)が年収に占める割合。月給 = (年収 − 賞与) ÷ 12
+  // 都市部/地方の差: 賃金構造基本統計調査 都道府県別(令和4年) 全国311.8千円・東京375.5・神奈川335.6・大阪330.9 → 都市部×1.13、地方×0.94
+  const AREAS={city:{n:'都市部(東京・神奈川・大阪など)',k:1.13},rural:{n:'それ以外の地方',k:0.94}};
+  const WY=()=>Math.round((WINC[pers.job]||415)*(AREAS[pers.area]?AREAS[pers.area].k:1));
+  // 家賃補助: 令和7年就労条件総合調査 住宅手当など 平均1.87万円/月(支給企業45.7%)
+  const HOJO=1.87;
   const WBON={office:.15,nurse:.17,civil:.28,teacher:.28,hoiku:.17,beauty:.06,it:.15,other:.155};
   const TH=g=>{if(!(g>0))return 0;const P=[[0,.82],[300,.8],[500,.77],[800,.73],[1200,.7],[2000,.63],[4000,.55],[1e9,.5]];for(let i=1;i<P.length;i++){if(g<=P[i][0]){const [a,ra]=P[i-1],[b,rb]=P[i];return Math.round(g*(ra+(rb-ra)*(g-a)/(b-a)));}}return Math.round(g*.5);};
   const man=v=>Math.round(v).toLocaleString()+'万';
@@ -2041,7 +2047,7 @@ details.alb summary::-webkit-details-marker{display:none}
   ['A','B','C','D','S'].forEach(r=>{const L=EP[r];for(let i=0;i<L.length-1;i++){const nx=L[i+1];let hk=null;if(nx.slot)hk=s=>pickEv(nx,s).tease;else if(nx.tease)hk=s=>resolve(nx.tease,s);if(hk)cands(L[i]).forEach(c=>c.ch.forEach(h=>{h.hook=hk;}));}});
 
   // ---------- 家計簿 v5: 選択ごとのお金(年収・住まい・子ども・ほかの支出) ----------
-  {const W0=()=>WINC[pers.job]||350;
+  {const W0=()=>WY()+(pers.hojo?Math.round(HOJO*12):0);
    const setD=(h,f)=>{const old=h.d;h.d=s=>{const o=Object.assign({},resolve(old,s)||{});delete o.ann;return Object.assign(o,f(s));};};
    const E=(slot,k)=>EV[slot].find(x=>x.k===k);
    const cost=(l,a,from,to)=>({l,a:Math.round(a),from,to});
@@ -2172,6 +2178,10 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   if(!pers.job)pers.job='office';
   function renderJobs(){$('#jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<button type="button" data-k="${k}" class="${pers.job===k?'on':''}">${esc(j.n)}</button>`).join('')+(pers.job==='other'?`<input id="job-other" type="text" maxlength="14" placeholder="職業を入力(例: 薬剤師)" value="${esc(pers.jobName||'')}" style="flex:1 1 100%;min-height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit">`:'');$$('#jobs button').forEach(b=>b.addEventListener('click',()=>{pers.job=b.dataset.k;renderJobs();if(b.dataset.k==='other'){const i=$('#job-other');if(i)i.focus();}}));const inp=$('#job-other');if(inp)inp.addEventListener('input',()=>{pers.jobName=inp.value.trim();});}
   renderJobs();
+  // 住んでいる所: 都市部(東京・神奈川・大阪)/地方。家賃補助は1チェックだけ
+  if(!pers.area)pers.area='city';
+  function renderAreas(){$('#areas').innerHTML=Object.entries(AREAS).map(([k,a])=>`<button type="button" data-k="${k}" class="${pers.area===k?'on':''}">${esc(a.n)}</button>`).join('');$$('#areas button').forEach(b=>b.addEventListener('click',()=>{pers.area=b.dataset.k;save();renderAreas();}));$('#hojo').checked=!!pers.hojo;}
+  renderAreas();$('#hojo').addEventListener('change',e=>{pers.hojo=e.target.checked;save();});
   function R(id){id=id||cur.id;return pers.routes[id]||(pers.routes[id]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});}
   // 続きから読む人: 最後に開いていた人を優先(なければ途中の人)
   function liveId(){const ok=k=>READY[k]&&pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done;if(pers.last&&ok(pers.last))return pers.last;return Object.keys(READY).find(ok)||null;}
