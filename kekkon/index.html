@@ -1357,7 +1357,9 @@ details.alb summary::-webkit-details-marker{display:none}
   const plain=t=>String(t||'').replace(/[(（][^()（）]*(民法|\d+条|令和|文科省|厚労省|高判|算定表)[^()（）]*[)）]/g,'');
   function nako(sel,text,pop){text=plain(text);const el=$(sel);el.className='nako'+(pop?' pop':'');el.innerHTML=`<div class="face">${img('N','仲人の千代子')}</div><div class="bub"><b>仲人・千代子</b>${esc(text).replace(/\n/g,'<br>')}</div>`;}
   const SCR=['s-intro','s-pro','s-pmini','s-list','s-detail','s-game','s-gate','s-result'];
-  const show=id=>{SCR.forEach(s=>$('#'+s).hidden=(s!==id));window.scrollTo(0,0);if(id!=='s-gate')clearInterval(gateTimer);};
+  const show=id=>{SCR.forEach(s=>$('#'+s).hidden=(s!==id));window.scrollTo(0,0);if(id!=='s-gate')clearInterval(gateTimer);
+    // 端末の「戻る」でアプリが閉じないよう、トップ以外の画面では履歴を1つ積んでおく(戻る＝トップへ。進み具合は保存済み)
+    try{if(id!=='s-intro'){if(!(history.state&&history.state.ws))history.pushState({ws:1},'');}}catch(e){}};
 
   // ---------- 診断 ----------
   const addX=(x,add)=>{for(const k in add)x[k]=(x[k]||0)+add[k];return x;};
@@ -2160,19 +2162,23 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   function renderJobs(){$('#jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<button type="button" data-k="${k}" class="${pers.job===k?'on':''}">${esc(j.n)}</button>`).join('')+(pers.job==='other'?`<input id="job-other" type="text" maxlength="14" placeholder="職業を入力(例: 薬剤師)" value="${esc(pers.jobName||'')}" style="flex:1 1 100%;min-height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit">`:'');$$('#jobs button').forEach(b=>b.addEventListener('click',()=>{pers.job=b.dataset.k;renderJobs();if(b.dataset.k==='other'){const i=$('#job-other');if(i)i.focus();}}));const inp=$('#job-other');if(inp)inp.addEventListener('input',()=>{pers.jobName=inp.value.trim();});}
   renderJobs();
   function R(id){id=id||cur.id;return pers.routes[id]||(pers.routes[id]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});}
+  // 続きから読む人: 最後に開いていた人を優先(なければ途中の人)
+  function liveId(){const ok=k=>READY[k]&&pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done;if(pers.last&&ok(pers.last))return pers.last;return Object.keys(READY).find(ok)||null;}
   function renderIntro(){
     nako('#nako-intro','成婚300組の仲人、千代子よ。あんたに4人紹介するわ。全員いい男。そして全員、何か隠してる。');
-    const live=Object.keys(READY).find(k=>pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done);const r=live?pers.routes[live]:null;
+    const live=liveId();const r=live?pers.routes[live]:null;const pp=!pers.pro&&pers.proPart&&pers.proPart.pi>0?pers.proPart:null;
     const btn=$('#start'),sub=$('#intro-sub');
     $('#name-wrap').hidden=!!pers.pro;
-    if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。3つの質問と、4人との体験お見合い(約5分)';}
+    if(pp){$('#name-wrap').hidden=true;btn.textContent=`つづきから ・ 序章 ${pp.pi+1}/${SEQ().length}`;sub.textContent='前回やめたところから始まります';}
+    else if(!pers.pro){btn.textContent='千代子に紹介してもらう';sub.textContent='まずは無料の序章。3つの質問と、4人との体験お見合い(約5分)';}
     else if(r){cur=byId(live);checkFree();btn.textContent=`つづきを読む ・ ${SN(cur)} 第${r.ci+1}話`;sub.textContent=!locked(r.ci)?'今すぐ読めます':`次の話は ${fmtTime(r.freeAt)} に無料で開きます`;}
     else{btn.textContent='指輪を渡す人を選ぶ';sub.textContent=pers.coll.length?`エンディング図鑑 ${pers.coll.length}/${ENDN()}`:'序章はクリア済み。次は、結婚相手を選びます';}
     show('s-intro');
   }
   $('#start').addEventListener('click',()=>{
-    if(!pers.pro){me=$('#my-name').value.trim()||'あなた';pers.name=me;save();pi=0;proTop=null;proX={};proScore={A:0,B:0,C:0,D:0,S:0};renderPro();show('s-pro');return;}
-    const live=Object.keys(READY).find(k=>pers.routes[k]&&pers.routes[k].st&&!pers.routes[k].done);
+    if(!pers.pro){const pp=pers.proPart;if(pp&&pp.pi>0){pi=pp.pi;proTop=pp.top||null;proX=pp.x||{};proScore=Object.assign({A:0,B:0,C:0,D:0,S:0},pp.sc||{});proInc=pp.inc==null?null:pp.inc;renderPro();show('s-pro');return;}
+      me=$('#my-name').value.trim()||'あなた';pers.name=me;save();pi=0;proTop=null;proX={};proScore={A:0,B:0,C:0,D:0,S:0};renderPro();show('s-pro');return;}
+    const live=liveId();
     if(live){cur=byId(live);resume();return;}
     renderList();show('s-list');
   });
@@ -2180,6 +2186,8 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   $('#bk-load').addEventListener('click',()=>{const v=$('#bk-code').value.trim();if(!v.startsWith('WS1.')){toast('コードが正しくありません');return;}try{const o=JSON.parse(decodeURIComponent(escape(atob(v.slice(4)))));if(!o||typeof o!=='object'||!o.routes)throw 0;if(!confirm('このコードの記録で上書きしますか？'))return;Object.keys(o.routes).forEach(k=>{if(o.routes[k])o.routes[k].bought=!!(pers.routes[k]&&pers.routes[k].bought);});localStorage.setItem(KEY,JSON.stringify(o));location.reload();}catch(e){toast('コードを読み込めませんでした');}});
   $('#reset-all').addEventListener('click',()=>{if(!confirm('遊んだ記録をすべて消して、最初からやり直しますか？'))return;try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
 
+  // 端末の「戻る」: トップ以外にいたらトップへ(つづきを読むボタンが出る)。トップで押したら普通に閉じる
+  window.addEventListener('popstate',()=>{try{const q=document.querySelector('.adov.cm #cm-quit');if(q)q.click();}catch(e){}if($('#s-intro').hidden){renderIntro();}});
   // 外部リンク: アプリ(WebView)で新しいウィンドウが開けない時は、同じ画面で開く(戻るで帰れる)
   document.addEventListener('click',e=>{const a=e.target&&e.target.closest?e.target.closest('a[target=_blank]'):null;if(!a||!a.href)return;e.preventDefault();let w=null;try{w=window.open(a.href,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else{location.href=a.href}});
   // ================= 序章 =================
@@ -2207,7 +2215,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+SN(byId(seq[pi+1].who))+'に会う':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ')));
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
-  $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){if(SEQ()[pi].who==='N'&&SEQ()[pi+1].who!=='N')proTop=liveTop();pi++;renderPro();return;}pers.pro={x:proX,sc:proScore,inc:proInc};save();renderPmini();});
+  $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){if(SEQ()[pi].who==='N'&&SEQ()[pi+1].who!=='N')proTop=liveTop();pi++;pers.proPart={pi,x:proX,sc:proScore,top:proTop,inc:proInc};save();renderPro();return;}pers.pro={x:proX,sc:proScore,inc:proInc};delete pers.proPart;save();renderPmini();});
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
@@ -2260,7 +2268,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   // アプリ版: Google Play / App Store のレビュー画面(ストアの仕組み)を自動で1回だけ出す。ボタンや事前の質問はつけない
   function nativeReview(){try{if(window.WeddingNative&&WeddingNative.requestReview)WeddingNative.requestReview();}catch(e){}}
   function resume(){
-    const r=R();st=clone(r.st);ci=r.ci;checkFree();
+    const r=R();st=clone(r.st);ci=r.ci;pers.last=cur.id;save();checkFree();
     if(locked(ci)){if(!r.freeAt){r.freeAt=Date.now()+WAIT;save();notifyAt(r.freeAt);}showGate();}
     else{renderEp();show('s-game');}
   }
