@@ -34,7 +34,7 @@ body{margin:0;color:var(--ink);background:var(--paper);
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:1.5px solid var(--line);-webkit-tap-highlight-color:transparent}
 button:focus-visible,input:focus-visible{outline:3px solid var(--shu);outline-offset:3px}
 h1,h2,h3,p{margin:0}
-.mincho{font-family:var(--font-mincho);font-weight:800}
+.mincho{font-family:var(--font-head);font-weight:800}
 .ico{width:1.1em;height:1.1em;vertical-align:-.18em;fill:currentColor;flex:0 0 auto}
 
 /* 相棒の絵（イラスト＋着せ替えを重ねる） */
@@ -53,11 +53,11 @@ h1,h2,h3,p{margin:0}
 /* ===== 親の画面 ===== */
 .parent{display:flex;flex-direction:column;gap:18px}
 .brand{display:flex;align-items:center;gap:8px;font-size:15px}
-.brand .nm{font-family:var(--font-mincho);font-weight:800;letter-spacing:.2em;font-size:17px}
+.brand .nm{font-family:var(--font-head);font-weight:800;letter-spacing:.2em;font-size:17px}
 .brand .pill{background:var(--shu);color:#fff;font-size:12px;font-weight:700;padding:1px 10px;border-radius:999px;letter-spacing:.05em}
 .hero{display:flex;flex-direction:column;align-items:center;gap:6px}
 .greet{align-self:stretch}
-.greet .g{font-family:var(--font-mincho);font-weight:800;font-size:28px;line-height:1.3}
+.greet .g{font-family:var(--font-head);font-weight:800;font-size:28px;line-height:1.3}
 .greet .d{font-size:15px;color:var(--ink-2);margin-top:2px;letter-spacing:.06em}
 .stage{position:relative;width:min(260px,72vw);aspect-ratio:1;margin:18px 0 6px}
 .sun{position:absolute;inset:0;border-radius:50%;
@@ -72,19 +72,19 @@ h1,h2,h3,p{margin:0}
 .bubble{position:relative;z-index:3;margin-top:-26px;max-width:100%;background:var(--white);border:1.5px solid var(--line);border-radius:999px;padding:6px 18px 6px 8px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px;line-height:1.35;box-shadow:0 8px 20px -12px rgba(60,30,20,.35)}
 .bubble .who{background:var(--shu);color:#fff;font-size:14px;padding:2px 10px;border-radius:999px;white-space:nowrap}
 .streak{display:flex;align-items:baseline;gap:10px;margin-top:4px}
-.streak b{font-family:var(--font-mincho);font-weight:800;font-size:60px;line-height:1;color:var(--shu);font-variant-numeric:tabular-nums}
+.streak b{font-family:var(--font-head);font-weight:800;font-size:60px;line-height:1;color:var(--shu);font-variant-numeric:tabular-nums}
 .streak span{font-size:17px;color:var(--ink-2);line-height:1.3;font-weight:700}
 
 .qcard{position:relative;background:var(--glass);backdrop-filter:blur(10px);border:1.5px solid var(--line);border-radius:30px;padding:22px 16px 18px;box-shadow:0 20px 50px -26px rgba(60,30,20,.4)}
 .eyebrow{display:flex;flex-wrap:wrap;gap:6px 10px;justify-content:space-between;align-items:center;font-size:14px;color:var(--ink-2);letter-spacing:.08em}
 .eyebrow span{white-space:nowrap}
 .eyebrow .cat{background:var(--shu-soft);color:var(--shu);font-weight:700;padding:2px 12px;border-radius:999px;letter-spacing:.04em}
-.q{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.35;margin:12px 0 18px;text-align:center;text-wrap:balance}
+.q{font-family:var(--font-head);font-weight:800;font-size:30px;line-height:1.35;margin:12px 0 18px;text-align:center;text-wrap:balance}
 .answers{display:flex;flex-direction:column;gap:12px}
 .ans{display:flex;align-items:center;gap:16px;text-align:left;padding:8px 14px 8px 10px;min-height:86px;width:100%;border-radius:26px;background:var(--white);transition:transform .08s}
 .ans:active{transform:scale(.98)}
 .ans .pic{width:64px;height:64px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:38px;line-height:1;flex-shrink:0;font-family:var(--font-gothic);font-weight:700}
-.ans .tx{font-family:var(--font-mincho);font-weight:800;font-size:28px;letter-spacing:.04em}
+.ans .tx{font-family:var(--font-head);font-weight:800;font-size:28px;letter-spacing:.04em}
 .ans.correct{background:var(--shu);border-color:var(--shu);color:#fff}
 .ans.correct .pic{background:#fff;border-color:#fff}
 .ans.wrong{background:var(--paper-2);color:var(--ink-2)}
@@ -93,15 +93,15 @@ h1,h2,h3,p{margin:0}
 .hint{font-size:15px;color:var(--ink-2);margin-top:14px;text-align:center;line-height:1.6}
 
 .done{position:relative;text-align:center;background:var(--glass);border:1.5px solid var(--line);border-radius:30px;padding:28px 18px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 20px 50px -26px rgba(60,30,20,.4)}
-.seal{width:136px;height:136px;border-radius:50%;background:var(--shu);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:40px;letter-spacing:.12em;box-shadow:0 0 0 6px var(--white),0 0 0 8px var(--shu);transform:rotate(-8deg);animation:stamp .5s cubic-bezier(.2,1.6,.4,1)}
+.seal{width:136px;height:136px;border-radius:50%;background:var(--shu);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:40px;letter-spacing:.12em;box-shadow:0 0 0 6px var(--white),0 0 0 8px var(--shu);transform:rotate(-8deg);animation:stamp .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes stamp{0%{transform:scale(2.2) rotate(-20deg);opacity:0}100%{transform:scale(1) rotate(-8deg);opacity:1}}
-.done .big{font-family:var(--font-mincho);font-weight:800;font-size:28px;line-height:1.35;margin-top:10px}
+.done .big{font-family:var(--font-head);font-weight:800;font-size:28px;line-height:1.35;margin-top:10px}
 .done .sent{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700;color:var(--ok)}
 .done .chip{background:var(--shu-soft);color:var(--shu);font-weight:700;font-size:20px;padding:4px 18px;border-radius:999px}
 .done .note{font-size:18px;color:var(--ink-2)}
 .done .mini{display:flex;align-items:center;gap:14px;margin-top:4px}
 .done .mini .petimg{width:92px;box-shadow:0 0 0 4px var(--white),0 0 0 6px var(--shu-soft)}
-.done .mini .st{font-family:var(--font-mincho);font-weight:800;font-size:20px;text-align:left;line-height:1.3}
+.done .mini .st{font-family:var(--font-head);font-weight:800;font-size:20px;text-align:left;line-height:1.3}
 .done .mini .st b{font-size:44px;color:var(--shu)}
 .done .gift{width:100%;background:var(--warn-bg);color:var(--warn);border:1.5px dashed var(--warn);border-radius:20px;padding:10px 14px;font-weight:700;font-size:19px}
 .done .bye{font-size:19px;color:var(--ink-2)}
@@ -110,14 +110,14 @@ h1,h2,h3,p{margin:0}
 .family{display:flex;flex-direction:column;gap:16px}
 .fhead{position:relative;min-height:130px;border-radius:30px;background:var(--glass);border:1.5px solid var(--line);padding:18px 140px 18px 20px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden}
 .fhead .eyebrow2{align-self:flex-start;font-size:12px;font-weight:700;color:#fff;background:var(--ink);padding:1px 10px;border-radius:999px}
-.fhead h2{font-family:var(--font-mincho);font-weight:800;font-size:24px;line-height:1.3}
+.fhead h2{font-family:var(--font-head);font-weight:800;font-size:24px;line-height:1.3}
 .fhead .fsun{position:absolute;right:-26px;top:50%;width:160px;height:160px;margin-top:-80px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--shu-2),var(--shu) 72%)}
 .fhead .fsun .petimg{position:absolute;left:24px;top:22px;width:110px;box-shadow:0 0 0 4px #FFFDF9}
 .status{border-radius:24px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;border:1.5px solid}
 .status.ok{background:var(--ok-bg);border-color:var(--ok)} .status.ok .st{color:var(--ok)}
 .status.warn{background:var(--warn-bg);border-color:var(--warn)} .status.warn .st{color:var(--warn)}
 .status.bad{background:var(--bad-bg);border-color:var(--bad)} .status.bad .st{color:var(--bad)}
-.status .st{display:flex;align-items:center;gap:8px;font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.35}
+.status .st{display:flex;align-items:center;gap:8px;font-family:var(--font-head);font-weight:800;font-size:22px;line-height:1.35}
 .status .sub{font-size:16px}
 .status .sms{margin-top:6px;background:var(--white);border-radius:14px;padding:10px 12px;font-size:14px;color:var(--ink-2)}
 .status .sms b{color:var(--ink)}
@@ -132,13 +132,13 @@ h1,h2,h3,p{margin:0}
 .week i.miss{background:transparent;border:1.5px dashed var(--bad)}
 .week i.today{background:transparent;border:1.5px dashed var(--shu)}
 .row2{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.badge{display:flex;align-items:baseline;gap:6px;font-family:var(--font-mincho);font-weight:800;font-size:18px}
+.badge{display:flex;align-items:baseline;gap:6px;font-family:var(--font-head);font-weight:800;font-size:18px}
 .badge b{font-size:38px;color:var(--shu);line-height:1}
 .btn{border-radius:999px;padding:11px 20px;font-weight:700;font-size:16px;display:inline-flex;align-items:center;gap:8px;background:var(--white)}
 .btn.primary{background:var(--shu);border-color:var(--shu);color:#fff}
 .btn.dark{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .block{background:var(--glass);border:1.5px solid var(--line);border-radius:28px;padding:20px 18px 18px;display:flex;flex-direction:column;gap:14px}
-.block h3{font-family:var(--font-mincho);font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
+.block h3{font-family:var(--font-head);font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
 .block h3 .ico{color:var(--shu)}
 .block .sub{color:var(--ink-2);font-size:14px}
 .gifts{display:flex;gap:12px;overflow-x:auto;padding:12px 2px 6px;margin:0 -2px;scrollbar-width:none}
@@ -162,7 +162,7 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 /* ===== 家族プラン（有料）の部品。親の画面には一切出ない ===== */
 .badge .sh{font-size:12px;color:var(--gold);font-family:var(--font-gothic);font-weight:700;margin-left:4px;white-space:nowrap}
 .cal .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.cal .hd b{font-family:var(--font-mincho);font-size:18px}
+.cal .hd b{font-family:var(--font-head);font-size:18px}
 .cal .hd button{border-radius:999px;padding:4px 14px;font-weight:700;background:var(--white);font-size:15px}
 .cal .hd button:disabled{opacity:.35;cursor:default}
 .cal .wd{display:grid;grid-template-columns:repeat(7,1fr);font-size:12px;color:var(--ink-2);text-align:center;font-weight:700;margin-top:4px}
@@ -182,13 +182,13 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .legend i.on{background:var(--shu)} .legend i.miss{border:1.5px dashed var(--bad)} .legend i.shield{border-color:var(--gold);background:rgba(185,146,74,.14)}
 .report .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .report .tile{background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:10px 4px;text-align:center;min-width:0}
-.report .tile b{display:block;font-family:var(--font-mincho);font-size:26px;color:var(--shu);line-height:1.15;font-variant-numeric:tabular-nums}
+.report .tile b{display:block;font-family:var(--font-head);font-size:26px;color:var(--shu);line-height:1.15;font-variant-numeric:tabular-nums}
 .report .tile b small{font-size:13px;color:var(--ink-2);font-family:var(--font-gothic)}
 .report .tile span{font-size:12px;color:var(--ink-2);font-weight:700}
 .report .txt{font-size:15px;line-height:1.7}
 .report .txt b{color:var(--shu)}
 .plan .price{font-size:16px;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
-.plan .price b{font-family:var(--font-mincho);font-size:30px;color:var(--shu);line-height:1}
+.plan .price b{font-family:var(--font-head);font-size:30px;color:var(--shu);line-height:1}
 .plan ul.feat{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}
 .plan ul.feat li{display:flex;gap:8px;align-items:flex-start}
 .plan ul.feat .em{flex:0 0 auto;font-size:18px;line-height:1.3}
@@ -211,12 +211,12 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .weeknote{font-size:13px;color:var(--ink-2);margin:-8px 4px 0;text-align:right}
 .weeknote button{border:none;padding:0;font-size:13px;font-weight:700;color:var(--shu);text-decoration:underline;text-underline-offset:3px}
 .milestone{background:linear-gradient(135deg,var(--shu-soft),var(--white));border-color:var(--shu)}
-.milestone .big{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.35}
+.milestone .big{font-family:var(--font-head);font-weight:800;font-size:22px;line-height:1.35}
 .milestone .big b{color:var(--shu);font-size:34px}
 .milestone .row2 .btn{font-size:15px;padding:9px 16px}
 .milestone .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink-2)}
 .trust{background:var(--ok-bg);border:1.5px solid var(--ok);color:var(--ok);border-radius:14px;padding:8px 12px;font-size:14px;font-weight:700;display:flex;gap:8px;align-items:center}
-.plan .lead{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.4}
+.plan .lead{font-family:var(--font-head);font-weight:800;font-size:22px;line-height:1.4}
 .plan .scenes{display:flex;flex-direction:column;gap:10px}
 .plan .scene{display:grid;grid-template-columns:40px 1fr;gap:10px;background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px}
 .plan .scene .em{font-size:26px;line-height:1.1;text-align:center}
@@ -227,7 +227,7 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .plan .opt{position:relative;border-radius:18px;padding:12px 10px 10px;text-align:left;display:flex;flex-direction:column;gap:2px;background:var(--white)}
 .plan .opt[aria-pressed="true"]{border-color:var(--shu);border-width:2px;background:var(--shu-soft)}
 .plan .opt .nm{font-size:13px;font-weight:700;color:var(--ink-2)}
-.plan .opt .pr{font-family:var(--font-mincho);font-weight:800;font-size:24px;line-height:1.1}
+.plan .opt .pr{font-family:var(--font-head);font-weight:800;font-size:24px;line-height:1.1}
 .plan .opt .pr small{font-size:13px;color:var(--ink-2);font-family:var(--font-gothic)}
 .plan .opt .no{font-size:12px;color:var(--ink-2);line-height:1.4}
 .plan .opt .best{position:absolute;top:-10px;right:10px;background:var(--shu);color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:999px}
@@ -255,7 +255,7 @@ input[type=text]{font:inherit;font-size:17px;font-weight:700;padding:10px 14px;b
 .welcome .card{width:min(480px,100%);background:var(--paper);border-radius:28px;padding:22px 20px 18px;display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 50px -20px rgba(0,0,0,.5)}
 .welcome .hd{display:flex;align-items:center;gap:12px}
 .welcome .hd .petimg{width:64px;flex:0 0 auto}
-.welcome h3{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.3}
+.welcome h3{font-family:var(--font-head);font-weight:800;font-size:22px;line-height:1.3}
 .welcome .l{font-size:15px;line-height:1.6}
 .welcome .step{background:var(--white);border:1.5px solid var(--line);border-radius:18px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .welcome .step .n{font-size:13px;font-weight:700;color:var(--shu)}
@@ -307,7 +307,7 @@ body.demoing .welcome{z-index:52}
 .g-screen .web .ch{display:flex;gap:4px;width:100%}
 .g-screen .web .ch button{flex:1;border-radius:8px;border:1.5px solid #1E2A24;background:#fff;font-size:13px;font-weight:800;padding:6px 2px}
 .g-screen .web .ch button.on{background:#1E2A24;color:#E7F2EC}
-.g-screen .seal2{background:#D9442B;color:#fff;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mincho);font-weight:800;font-size:17px;transform:rotate(-8deg)}
+.g-screen .seal2{background:#D9442B;color:#fff;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:17px;transform:rotate(-8deg)}
 .g-keys .call{font-size:14px}
 .know{display:flex;flex-direction:column;gap:10px}
 .know h4{font-size:15px;font-weight:800;margin:4px 0 0}
@@ -325,25 +325,25 @@ body.demoing .welcome{z-index:52}
 .g-keys .mid{background:linear-gradient(#8B909B,#5E636E);color:#fff;font-size:14px;box-shadow:0 3px 0 #3B3F47}
 .g-keys button.hot{outline:3px solid #F0634A;outline-offset:2px}
 .g-keys button.off{opacity:.4}
-.voice{margin-top:14px;background:var(--white);border:1.5px solid var(--line);border-radius:22px;padding:12px 16px 14px;font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+.voice{margin-top:14px;background:var(--white);border:1.5px solid var(--line);border-radius:22px;padding:12px 16px 14px;font-family:var(--font-head);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
 .voice::before{content:attr(data-l);display:block;font-family:var(--font-gothic);font-size:12px;font-weight:700;color:var(--shu);margin-bottom:4px}
 .ph-hint{margin-top:12px;font-size:16px;color:var(--ink-2);text-align:center;line-height:1.6;word-break:keep-all}
 .ph-again{display:block;margin:12px auto 0;border-radius:999px;padding:10px 20px;font-weight:700;font-size:16px;background:var(--white)}
 
 /* ===== 相棒えらび（スマホ1画面に収める） ===== */
 .choose{display:flex;flex-direction:column;gap:clamp(8px,1.6vh,14px)}
-.choose h1{font-family:var(--font-mincho);font-weight:800;font-size:clamp(22px,3.4vh,28px);line-height:1.3;word-break:keep-all}
+.choose h1{font-family:var(--font-head);font-weight:800;font-size:clamp(22px,3.4vh,28px);line-height:1.3;word-break:keep-all}
 .choose .lead{color:var(--ink-2);font-size:15px;margin-top:-4px}
 .pets{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .petcard{background:var(--white);border:1.5px solid var(--line);border-radius:24px;padding:clamp(6px,1.2vh,12px) 6px;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .12s}
 .petcard:active{transform:scale(.97)}
 .petcard .petimg{width:clamp(64px,12.5vh,112px)}
-.petcard .nm{font-family:var(--font-mincho);font-weight:800;font-size:21px;line-height:1.3;margin-top:2px}
+.petcard .nm{font-family:var(--font-head);font-weight:800;font-size:21px;line-height:1.3;margin-top:2px}
 .petcard .kind{font-size:13px;font-weight:700;color:var(--ink-2)}
 .petcard[aria-pressed="true"]{border-color:var(--shu);border-width:3px;background:var(--shu-soft)}
 .petcard[aria-pressed="true"] .petimg{box-shadow:0 0 0 4px var(--shu)}
 .petcard[aria-pressed="true"] .kind{color:var(--shu)}
-.pick-ok{border-radius:999px;padding:clamp(10px,1.8vh,15px) 20px;font-family:var(--font-mincho);font-weight:800;font-size:21px;background:var(--shu);border-color:var(--shu);color:#fff;box-shadow:0 14px 30px -14px rgba(217,68,43,.8)}
+.pick-ok{border-radius:999px;padding:clamp(10px,1.8vh,15px) 20px;font-family:var(--font-head);font-weight:800;font-size:21px;background:var(--shu);border-color:var(--shu);color:#fff;box-shadow:0 14px 30px -14px rgba(217,68,43,.8)}
 .pick-ok:disabled{background:var(--paper-2);border-color:var(--line);color:var(--ink-2);box-shadow:none;cursor:default}
 .choose .safe{text-align:center;font-size:13px;color:var(--ink-2);line-height:1.6;background:var(--white);border:1px solid var(--line);border-radius:16px;padding:6px 10px;margin:0}
 .choose .safe a{color:var(--shu);font-weight:700}
@@ -352,7 +352,7 @@ body.choosing .brand{display:none}
 .modecard{background:var(--white);border:1.5px solid var(--line);border-radius:26px;padding:16px 18px;display:flex;align-items:center;gap:14px;text-align:left;transition:transform .12s;width:100%}
 .modecard:active{transform:scale(.97)}
 .modecard .em{font-size:40px;line-height:1;flex:0 0 auto}
-.modecard b{display:block;font-family:var(--font-mincho);font-weight:800;font-size:23px;line-height:1.3}
+.modecard b{display:block;font-family:var(--font-head);font-weight:800;font-size:23px;line-height:1.3}
 .modecard span.t{display:block;font-size:15px;font-weight:700;color:var(--ink-2);line-height:1.5;margin-top:2px}
 .ftabs{display:flex;gap:8px;margin-bottom:14px}
 .ftabs button{flex:1 1 0;min-width:0;border-radius:999px;padding:11px 6px;font-weight:800;font-size:16px;background:var(--white);border:1.5px solid var(--line)}
@@ -360,7 +360,7 @@ body.choosing .brand{display:none}
 .fcard{border-radius:22px;padding:12px 16px;display:flex;align-items:center;gap:12px;border:1.5px solid;text-align:left;width:100%;font:inherit;color:inherit;cursor:pointer}
 .fcard .petimg{width:56px;flex:0 0 auto}
 .fcard .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
-.fcard .tx b{font-family:var(--font-mincho);font-weight:800;font-size:19px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+.fcard .tx b{font-family:var(--font-head);font-weight:800;font-size:19px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
 .fcard .tx small{font-size:14px;font-weight:700;color:var(--ink-2)}
 .fcard .go{margin-left:auto;font-size:13px;font-weight:700;color:var(--ink-2);white-space:nowrap}
 .fcard.ok{background:var(--ok-bg);border-color:var(--ok)} .fcard.ok b{color:var(--ok)}
@@ -382,7 +382,7 @@ body.demoing .dbar,body.demoing .dsheet,body.demoing .dsheet-bg{display:none!imp
 .dsheet{position:fixed;z-index:45;left:50%;bottom:0;transform:translateX(-50%);width:min(480px,100%);max-height:calc(100% - 40px);overflow:auto;background:var(--paper);color:var(--ink);border-radius:26px 26px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;box-shadow:0 -18px 40px -16px rgba(0,0,0,.5);font-size:13px}
 .ds-hd{display:flex;align-items:flex-start;gap:10px}
 .ds-hd div{flex:1;display:flex;flex-direction:column;gap:2px}
-.ds-hd b{font-family:var(--font-mincho);font-weight:800;font-size:20px}
+.ds-hd b{font-family:var(--font-head);font-weight:800;font-size:20px}
 .ds-hd span{font-size:13px;color:var(--ink-2)}
 .ds-x{border:0;width:36px;height:36px;border-radius:50%;font-size:16px;color:var(--ink-2);background:var(--demo-bg)}
 .dsheet .play{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border-radius:18px;font-weight:700}
@@ -412,18 +412,18 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 .slide.show{opacity:1;pointer-events:auto}
 .slide .s-in{max-width:480px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:18px}
 .slide .s-brand{display:flex;align-items:center;gap:10px}
-.slide .s-brand .nm{font-family:var(--font-mincho);font-weight:800;font-size:18px;letter-spacing:.14em}
+.slide .s-brand .nm{font-family:var(--font-head);font-weight:800;font-size:18px;letter-spacing:.14em}
 .slide .s-brand .pill{background:var(--shu);color:#fff;font-size:13px;font-weight:700;padding:2px 12px;border-radius:999px}
 .slide .s-brand .pill.free{background:var(--ok)} .slide .s-brand .pill.plus{background:var(--gold)}
-.slide h2{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
+.slide h2{font-family:var(--font-head);font-weight:800;font-size:30px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance}
 .slide h2 b{color:var(--shu)}
 .slide .s-body{font-size:18px;line-height:1.7}
 .slide .s-body ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
 .slide .s-body li{display:flex;gap:10px;align-items:flex-start;background:var(--white);border:1.5px solid var(--line);border-radius:16px;padding:10px 14px;font-weight:700;font-size:17px;line-height:1.5}
 .slide .s-body li .em{flex:0 0 auto;font-size:22px;line-height:1.2}
 .slide .s-body li b{color:var(--shu)}
-.slide .s-body .big{font-family:var(--font-mincho);font-weight:800;font-size:40px;color:var(--shu);line-height:1.1}
-.slide .s-body .quote{font-family:var(--font-mincho);font-weight:800;font-size:24px;line-height:1.5;background:var(--white);border-left:6px solid var(--shu);padding:12px 16px;border-radius:0 18px 18px 0}
+.slide .s-body .big{font-family:var(--font-head);font-weight:800;font-size:40px;color:var(--shu);line-height:1.1}
+.slide .s-body .quote{font-family:var(--font-head);font-weight:800;font-size:24px;line-height:1.5;background:var(--white);border-left:6px solid var(--shu);padding:12px 16px;border-radius:0 18px 18px 0}
 .slide .s-body .note{font-size:15px;color:var(--ink-2)}
 .slide .s-foot{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2)}
 .slide .s-foot .bar{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
@@ -442,7 +442,7 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 .vc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .vc-col{border-radius:22px;padding:12px 10px 10px;display:flex;flex-direction:column;gap:8px;border:1.5px solid var(--line);background:var(--white)}
 .vc-col.plus{border-color:var(--shu);background:var(--shu-soft)}
-.vc-h{text-align:center;font-family:var(--font-mincho);font-weight:800;font-size:18px;padding-bottom:6px;border-bottom:1.5px solid var(--line)}
+.vc-h{text-align:center;font-family:var(--font-head);font-weight:800;font-size:18px;padding-bottom:6px;border-bottom:1.5px solid var(--line)}
 .vc-col.plus .vc-h{color:var(--shu);border-color:var(--shu)}
 .vc-row{display:grid;grid-template-columns:46px 1fr;gap:6px;align-items:center;min-height:44px}
 .vc-row.off{opacity:.35}
@@ -458,7 +458,7 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 .vc-dots i{display:block;width:8px;height:8px;border-radius:50%;background:var(--paper-2);border:1px solid var(--line)}
 .vc-dots i.lit{background:var(--shu);border-color:var(--shu)}
 .vc-dots.d30 i{width:6px;height:6px}
-.vc-price{margin-top:auto;text-align:center;font-family:var(--font-mincho);font-weight:800;font-size:24px;padding-top:8px;border-top:1.5px solid var(--line)}
+.vc-price{margin-top:auto;text-align:center;font-family:var(--font-head);font-weight:800;font-size:24px;padding-top:8px;border-top:1.5px solid var(--line)}
 .vc-col.plus .vc-price{color:var(--shu);border-color:var(--shu)}
 .vc-price small{display:block;font-size:11px;color:var(--ink-2);font-family:var(--font-gothic);font-weight:700}
 .slide .vc-t{font-size:14px} .slide .vc-t b{font-size:18px}
@@ -490,8 +490,8 @@ body.demoing .demo{display:none}
 body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
 .chap{position:fixed;inset:0;z-index:66;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .35s}
 .chap.show{opacity:1;pointer-events:auto}
-.chap .n{font-family:var(--font-mincho);font-weight:800;font-size:64px;line-height:1;color:var(--shu)}
-.chap .ti{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.35;word-break:keep-all}
+.chap .n{font-family:var(--font-head);font-weight:800;font-size:64px;line-height:1;color:var(--shu)}
+.chap .ti{font-family:var(--font-head);font-weight:800;font-size:30px;line-height:1.35;word-break:keep-all}
 .chap .wh{font-size:17px;color:var(--ink-2);word-break:keep-all}
 
 .notif{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:58;width:min(420px,calc(100% - 24px));background:#FFFDF9;color:#1E1B22;border-radius:20px;padding:10px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 14px 34px -10px rgba(0,0,0,.4);transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
@@ -510,18 +510,81 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
 .endcard{position:fixed;inset:0;z-index:70;background:#D9442B;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;opacity:0;pointer-events:none;transition:opacity .5s;padding:24px}
 .endcard.show{opacity:1;pointer-events:auto}
 .endcard .petimg{width:150px;box-shadow:0 0 0 6px #fff}
-.endcard .t{font-family:var(--font-mincho);font-weight:800;font-size:30px;letter-spacing:.2em}
-.endcard .cp{font-family:var(--font-mincho);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all}
+.endcard .t{font-family:var(--font-head);font-weight:800;font-size:30px;letter-spacing:.2em}
+.endcard .cp{font-family:var(--font-head);font-weight:800;font-size:22px;line-height:1.5;word-break:keep-all}
 .endcard .row{display:flex;gap:10px;margin-top:8px}
 .endcard button{border:2px solid #fff;border-radius:999px;padding:10px 20px;font-weight:700;font-size:16px;color:#fff}
 .endcard button.w{background:#fff;color:#D9442B}
 .intro{position:fixed;inset:0;z-index:70;background:#1E1B22;color:#FFFDF9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;opacity:0;pointer-events:none;transition:opacity .5s;padding:24px}
 .intro.show{opacity:1}
 .intro .dot{width:14px;height:14px;border-radius:50%;background:#F0634A}
-.intro .l1{font-family:var(--font-mincho);font-weight:800;font-size:30px;line-height:1.45;word-break:keep-all}
+.intro .l1{font-family:var(--font-head);font-weight:800;font-size:30px;line-height:1.45;word-break:keep-all}
 .intro .l2{font-size:18px;opacity:0;transition:opacity .6s}
 .intro.two .l2{opacity:.85}
 @media (prefers-reduced-motion: reduce){.sun::before,.pet-btn .petimg,.pet-btn.jump .petimg,.seal{animation:none !important}.ans:active{transform:none}}
+/* 無料と家族プランの比較：1つの表 */
+.vt{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--white);font-size:14px}
+.vt-r{display:grid;grid-template-columns:1fr 58px 70px;align-items:center;border-top:1px solid var(--line);min-height:46px}
+.vt-r:first-child{border-top:0}
+.vt-r>span{padding:8px 2px;text-align:center;font-weight:700;font-size:13.5px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+.vt-r>span.p{background:var(--shu-soft);align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.vt-r>span b{color:var(--ink);font-weight:800}
+.vt-r small{display:block;font-size:11px;font-weight:500;color:var(--ink-2);line-height:1.3}
+.vt-hd>span{font-size:12px;color:var(--ink-2);padding:8px 2px;white-space:nowrap}
+.vt-hd>span.p{color:var(--shu);font-weight:800}
+.vt-l{display:flex!important;align-items:center;gap:8px;text-align:left!important;padding-left:10px!important}
+.vt-l i{font-style:normal;flex:0 0 28px;width:28px;font-size:20px;line-height:1;text-align:center}
+.vt-l i .petimg{width:28px}
+.vt-y{color:var(--ok);font-size:17px;font-weight:800}
+.vt-n{color:var(--ink-2);opacity:.6}
+.vt-pr span{font-size:15px}
+@media (max-width:360px){.vt-l i{display:none}.vt-l{padding-left:8px!important}}
+.plan .opt .pr{font-size:20px}
+.plan .scene{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 2px 4px}
+.vt-pr span.p{color:var(--shu)}
+.plan .scene .a b{color:var(--ink);font-weight:800;text-decoration:underline;text-decoration-color:var(--shu);text-decoration-thickness:2px;text-underline-offset:3px}
+/* ===== 見た目の統一ルール（2026/10/30）=====
+   文字：ゴシック1種類。明朝はロゴと「無事」のハンコだけ。大きさは 30（きょうの1問）/22（画面の見出し）/18（カードの見出し）/15（本文） の4段階
+   色：オレンジ＝押すもの、緑＝無事、赤＝異常。選んでいるものは濃い色で塗る
+   箱：カードは1種類。箱の中に箱は作らない */
+:root{--font-head:var(--font-gothic)}
+.brand .nm,.seal,.g-screen .seal2,.slide .s-brand .nm,.mincho{font-family:var(--font-mincho)!important}
+.greet .g,.fhead h2,.choose h1,.slide h2{font-size:22px;line-height:1.4;letter-spacing:.02em;font-weight:700}
+.status .st{font-size:20px;font-weight:700;letter-spacing:0}
+.block h3{font-size:18px;font-weight:700;line-height:1.4;letter-spacing:0}
+.fcard .tx b{font-size:17px;font-weight:700}
+.q,.badge,.done .big,.ans .tx,.modecard b,.petcard .nm{font-weight:700}
+.block{border-radius:20px;padding:18px 16px;gap:12px;background:var(--white);border:1px solid var(--line)}
+.status{border-radius:20px;border-width:1.5px}
+.status .sms{background:none;border-top:1px solid var(--line);border-radius:0;padding:10px 0 0;margin-top:6px}
+.trust{background:var(--paper-2);border:0;color:var(--ink-2);font-weight:700}
+.know .can h4,.know .cant h4{color:var(--ink)}
+.gift .tag{background:var(--ink);color:var(--paper);transform:none;top:-8px;right:6px}
+.fos{font-size:13px;color:var(--ink-2);margin:0}
+/* 見出し：アイコン＋1行の名前 */
+.fhead{min-height:0;border:0;background:none;padding:0 2px;flex-direction:row;align-items:center;gap:12px;overflow:visible;border-radius:0}
+.fhead .eyebrow2{display:none}
+.fhead .fsun{position:relative;right:auto;top:auto;margin:0;width:56px;height:56px;order:-1;flex:0 0 56px;background:none}
+.fhead .fsun .petimg{position:static;width:56px;box-shadow:0 0 0 3px var(--shu)}
+/* 切り替えタブ（親の画面の上・家族の画面の上で同じ形） */
+.ftabs,.fnav{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2px;padding:3px;background:var(--paper-2);border-radius:999px;border:1px solid var(--line)}
+.fnav{position:sticky;top:calc(8px + env(safe-area-inset-top,0px));z-index:5;box-shadow:0 8px 18px -12px rgba(0,0,0,.45)}
+.ftabs button,.fnav button{border:0;border-radius:999px;padding:9px 0;font-size:14px;font-weight:700;background:none;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ftabs button[aria-pressed="true"],.fnav button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.fnav button[hidden]{display:none}
+#family[data-tab="today"] [data-ft]:not([data-ft="today"]),
+#family[data-tab="gift"] [data-ft]:not([data-ft="gift"]),
+#family[data-tab="plan"] [data-ft]:not([data-ft="plan"]),
+#family[data-tab="set"] [data-ft]:not([data-ft="set"]){display:none!important}
+/* えらぶボタン：1行、選んだら濃く塗る */
+.seg button{white-space:nowrap;font-size:15px;padding:10px 4px;border-radius:14px;border-width:1px}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper);border-width:1px}
+/* 使い方デモの帯：画面にかぶらない、不透明の帯 */
+.dbar{background:var(--paper);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.dfab{padding:8px 20px 8px 8px;font-size:15px;box-shadow:none}
+.dfab .pl{width:26px;height:26px}
+body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -556,7 +619,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
   </section>
 
   <!-- ===== 友だち同士のときだけ出るタブ ===== -->
-  <div class="ftabs" id="ftabs" hidden><button type="button" id="ft-me" aria-pressed="true">🙋 わたしの1問</button><button type="button" id="ft-friend" aria-pressed="false"></button></div>
+  <div class="ftabs" id="ftabs" hidden><button type="button" id="ft-me" aria-pressed="true">わたし</button><button type="button" id="ft-friend" aria-pressed="false"></button></div>
 
   <!-- ===== 親の画面（友だち同士のときは「わたしの画面」） ===== -->
   <section id="parent" class="parent">
@@ -603,20 +666,25 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       <h2 id="f-title"></h2>
       <div class="fsun" id="f-pet"></div>
     </header>
-    <p class="fos" id="f-os"></p>
-    <div class="status" id="f-status"></div>
-    <div class="week" id="f-week"></div>
-    <p class="weeknote" id="f-weeknote" hidden></p>
-    <div class="row2">
+    <nav class="fnav" id="fnav" aria-label="画面の切り替え">
+      <button type="button" data-go="today" aria-pressed="true">きょう</button>
+      <button type="button" data-go="gift" aria-pressed="false">着せ替え</button>
+      <button type="button" data-go="plan" id="fn-plan" aria-pressed="false">プラン</button>
+      <button type="button" data-go="set" aria-pressed="false">設定</button>
+    </nav>
+    <div class="status" id="f-status" data-ft="today"></div>
+    <div class="week" id="f-week" data-ft="today"></div>
+    <p class="weeknote" id="f-weeknote" data-ft="today" hidden></p>
+    <div class="row2" data-ft="today">
       <div class="badge" id="f-streak"></div>
       <button class="btn dark" id="f-share"><svg class="ico"><use href="#i-share"/></svg><span data-fri="友だちにシェア">家族にシェア</span></button>
     </div>
 
     <!-- 節目のお祝い（7日ごと）。無料のときだけ、ここで初めて家族プランをそっと案内する -->
-    <section class="block milestone" id="f-milestone" hidden></section>
+    <section class="block milestone" id="f-milestone" data-ft="today" hidden></section>
 
     <!-- 家族プラン：1か月のカレンダー -->
-    <section class="block cal" id="f-cal" hidden>
+    <section class="block cal" id="f-cal" data-ft="today" hidden>
       <h3><svg class="ico"><use href="#i-clock"/></svg>1か月のカレンダー</h3>
       <div class="hd"><button type="button" id="cal-prev">‹ 前の月</button><b id="cal-title"></b><button type="button" id="cal-next">次の月 ›</button></div>
       <div class="wd"><span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span></div>
@@ -627,7 +695,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
     </section>
 
     <!-- 家族プラン：週1回の元気レポート -->
-    <section class="block report" id="f-report" hidden>
+    <section class="block report" id="f-report" data-ft="today" hidden>
       <h3><svg class="ico"><use href="#i-check"/></svg>今週の元気レポート</h3>
       <div class="tiles" id="rep-tiles"></div>
       <p class="txt" id="rep-text"></p>
@@ -635,43 +703,19 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       <p class="sub" id="rep-note">本番では、毎週月曜の朝にこの内容が通知でも届きます。</p>
     </section>
 
-    <!-- 作者に一言（家族の画面だけ。親の画面には出さない） -->
-    <section class="block author" id="f-author">
-      <h3><svg class="ico"><use href="#i-mail"/></svg>作者に一言</h3>
-      <p class="sub">ワンポチは、平塚の加藤貴大がひとりで作っています。感想・応援・「ここが分かりにくい」も、ひとことで届きます。</p>
-      <a class="btn primary" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="justify-content:center;text-decoration:none">作者に一言を送る ›</a>
-      <p class="sub" style="font-size:12px">※外部のページ(作者のリンク集)が開きます。緊急の連絡には使えません</p>
-    </section>
 
-    <section class="block">
-      <h3><svg class="ico"><use href="#i-gift"/></svg>着せ替えをプレゼント</h3>
+    <section class="block" data-ft="gift">
+      <h3><svg class="ico"><use href="#i-gift"/></svg>着せ替えを贈る</h3>
       <p class="sub" id="f-gift-sub">1つ100円。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。</p>
       <div class="gifts" id="f-gifts"></div>
     </section>
 
     <!-- 家族プラン（月200円／年2,000円）。課金はこの画面だけ。親の画面には出ない -->
-    <section class="block plan" id="f-plan"></section>
+    <section class="block plan" id="f-plan" data-ft="plan"></section>
 
 
-    <section class="block know" id="f-know">
-      <h3><svg class="ico"><use href="#i-check"/></svg>ワンポチで できること・できないこと</h3>
-      <div class="can"><h4>できること</h4><ul>
-        <li>異変に、早ければ<b>次の日</b>に気づけます。いまは、ひとりで亡くなってから見つかるまで平均18日かかっています</li>
-        <li class="fam-only">寝坊しても大丈夫。メールは消えないので、起きてから開けばOK。昼と夕方にも もう一度届きます</li>
-        <li>知らせが来たら、画面の電話番号から すぐ電話できます</li>
-      </ul></div>
-      <div class="cant"><h4>できないこと（知っておいてほしいこと）</h4><ul>
-        <li><b>急な病気そのものは防げません。</b>防げるのは「何日も気づかれないこと」です。知らせが来たら、すぐ電話を</li>
-        <li>旅行や入院の日は、まちがって知らせが届きます。下の「しばらくお休み」で止めてください</li>
-        <li class="fam-only">電源切れ・圏外だと、メール版は届きません。迷惑メールの設定で止まることもあるので、最初の確認メールで必ず確かめます</li>
-        <li class="fam-only">家の固定電話しかない親には、自動では届けられません。電話で元気を確かめて「うっかりセーフ」を押す形でお使いください</li>
-        <li>通信の遅れで、知らせが遅れることがあります。「知らせが来ない＝無事」と決めつけず、気になる日は電話を</li>
-        <li>医療機器や緊急通報ではありません。緊急のときは119番へ</li>
-      </ul></div>
-      <p class="src">平均18日：日本少額短期保険協会「第9回 孤独死現状レポート」（2024年）</p>
-    </section>
-    <section class="block">
-      <h3><svg class="ico"><use href="#i-gear"/></svg><span data-fri="設定">設定（家族だけが触る）</span></h3>
+    <section class="block" data-ft="set">
+      <h3><svg class="ico"><use href="#i-gear"/></svg><span>設定</span></h3>
       <p class="trust">🔓 毎日の1問と「無事」の知らせは、ずっと無料です。</p>
       <p class="sub" data-fri="ふたりとも毎日1問に答えて、答えたら相手に「元気」が届きます。">親の画面には設定もメニューも出ません。ここで決めたものがそのまま親の画面になります。</p>
       <div class="field"><label>だれと使う？</label><div class="seg" id="s-mode"></div></div>
@@ -681,7 +725,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       <div class="field fam-only"><label>親のケータイ</label><div class="seg" id="s-device"></div></div>
       <div class="field" id="s-mail-field" hidden><label for="s-mail">親のケータイのメールアドレス</label><input type="text" id="s-mail" inputmode="email" placeholder="例：fumiko@docomo.ne.jp"><p class="sub">親のケータイで「受信許可」の設定が要ることがあります。確認メールのリンクが開けたら登録完了（届かない設定をここで見つけます）。家の固定電話しかない親は、電話で元気を確かめて「うっかりセーフ」を押す形でお使いください。</p></div>
       <div class="field fam-only"><label>相棒</label><div class="seg" id="s-animal"></div></div>
-      <div class="field"><label>答えが来ないとき、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
+      <div class="field"><label>答えがない時、いつ知らせる？</label><div class="seg" id="s-alert"></div></div>
       <div class="field"><label>きょうの1問を出す時間</label><div class="seg" id="s-time"></div></div>
       <div class="field"><label>あなたへの連絡方法</label><div class="seg" id="s-contact"></div></div>
       <div class="field fam-only"><label>ほかに 知らせを受け取る人</label><div class="members" id="s-members"></div></div>
@@ -691,6 +735,31 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       <button class="btn primary" id="f-send"><svg class="ico"><use href="#i-mail"/></svg>親のスマホに送る</button>
       <div class="smsbox" id="f-sms" hidden></div>
     </section>
+    <section class="block know" id="f-know" data-ft="set">
+      <h3><svg class="ico"><use href="#i-check"/></svg>できる・できないこと</h3>
+      <div class="can"><h4>できること</h4><ul>
+        <li>異変に、早ければ<b>次の日</b>に気づけます。いまは、ひとりで亡くなってから見つかるまで平均18日かかっています</li>
+        <li class="fam-only">寝坊しても大丈夫。メールは消えないので、起きてから開けばOK。昼と夕方にも もう一度届きます</li>
+        <li>知らせが来たら、画面の電話番号から すぐ電話できます</li>
+      </ul></div>
+      <div class="cant"><h4>できないこと（知っておいてほしいこと）</h4><ul>
+        <li><b>急な病気そのものは防げません。</b>防げるのは「何日も気づかれないこと」です。知らせが来たら、すぐ電話を</li>
+        <li>旅行や入院の日は、まちがって知らせが届きます。設定の「しばらくお休み」で止めてください</li>
+        <li class="fam-only">電源切れ・圏外だと、メール版は届きません。迷惑メールの設定で止まることもあるので、最初の確認メールで必ず確かめます</li>
+        <li class="fam-only">家の固定電話しかない親には、自動では届けられません。電話で元気を確かめて「うっかりセーフ」を押す形でお使いください</li>
+        <li>通信の遅れで、知らせが遅れることがあります。「知らせが来ない＝無事」と決めつけず、気になる日は電話を</li>
+        <li>医療機器や緊急通報ではありません。緊急のときは119番へ</li>
+      </ul></div>
+      <p class="src">平均18日：日本少額短期保険協会「第9回 孤独死現状レポート」（2024年）</p>
+    </section>
+    <!-- 作者に一言（家族の画面だけ。親の画面には出さない） -->
+    <section class="block author" id="f-author" data-ft="set">
+      <h3><svg class="ico"><use href="#i-mail"/></svg>作者に一言</h3>
+      <p class="sub">ワンポチは、平塚の加藤貴大がひとりで作っています。感想・応援・「ここが分かりにくい」も、ひとことで届きます。</p>
+      <a class="btn primary" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="justify-content:center;text-decoration:none">作者に一言を送る ›</a>
+      <p class="sub" style="font-size:12px">※外部のページ(作者のリンク集)が開きます。緊急の連絡には使えません</p>
+    </section>
+    <p class="fos" id="f-os" data-ft="set"></p>
     
   </section>
 </div>
@@ -977,7 +1046,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
   function applyMode(){
     var f=isFriend(); document.body.classList.toggle('friendmode', f);
     Array.prototype.forEach.call(document.querySelectorAll('[data-fri]'), function(n){ if(n.getAttribute('data-fam')===null) n.setAttribute('data-fam', n.innerHTML); n.innerHTML=f?n.getAttribute('data-fri'):n.getAttribute('data-fam'); });
-    el('ft-friend').textContent='👭 '+S.settings.parentName+'さん';
+    el('ft-friend').textContent=S.settings.parentName+'さん';
     el('d-mfam').setAttribute('aria-pressed', f?'false':'true'); el('d-mfri').setAttribute('aria-pressed', f?'true':'false');
     el('ftabs').hidden=!f || view==='choose';
     el('ft-me').setAttribute('aria-pressed', view==='parent'?'true':'false'); el('ft-friend').setAttribute('aria-pressed', view==='family'?'true':'false');
@@ -1217,7 +1286,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       var b=document.createElement('button'); b.type='button'; b.id='gift-'+id;
       if(worn){ b.className='worn'; b.textContent='着ています'; b.disabled=true; }
       else if(sent){ b.className='sent'; b.textContent='あす朝とどく'; b.disabled=true; }
-      else if(locked){ b.className='lock'; b.textContent='プランで解放'; b.addEventListener('click', function(){ el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }); }
+      else if(locked){ b.className='lock'; b.textContent='プランで解放'; b.addEventListener('click', function(){ ftGo('plan'); el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }); }
       else { b.textContent='贈る'; b.addEventListener('click', function(){ if(hasNative()&&PRODUCTS.costume[id]){ buyingGift=id; askNative({type:'wanpochi:buy', productId:PRODUCTS.costume[id]}); return; } giftDone(id); }); }
       card.appendChild(b); g.appendChild(card);
     });
@@ -1226,21 +1295,21 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
     var wn=el('f-weeknote'); wn.hidden=plus; if(!plus){ wn.innerHTML='7日より前の記録は <button type="button" id="wn-go">家族プランの1か月カレンダー</button> で'; el('wn-go').addEventListener('click', openPlan); }
     if(plus){ renderCalendar(); renderReport(); }
     renderMilestone(); renderPlan(); renderMembers();
-    el('f-plan').hidden=isFriend(); if(isFriend()){ el('f-milestone').hidden=true; el('f-weeknote').hidden=true; }
-    seg('s-mode',['family','friend'],st.mode||'family',function(v){ setMode(v); },function(v){ return v==='family'?'👵 親と家族':'👭 友だち同士'; });
+    el('f-plan').hidden=isFriend(); el('fn-plan').hidden=isFriend(); if(isFriend() && el('family').getAttribute('data-tab')==='plan') ftGo('today'); if(isFriend()){ el('f-milestone').hidden=true; el('f-weeknote').hidden=true; }
+    seg('s-mode',['family','friend'],st.mode||'family',function(v){ setMode(v); },function(v){ return v==='family'?'親と家族':'友だち同士'; });
     var rf=el('s-report-field'); rf.hidden=!plus; if(plus) seg('s-report',['月','日'],st.reportDay||'月',function(v){ st.reportDay=v; },function(v){ return v+'曜の朝'; });
 
     el('s-parent').value=st.parentName; el('s-family').value=st.familyName; el('s-phone').value=st.phone;
     seg('s-relation',['むすめ','むすこ','まご'],st.relation,function(v){ st.relation=v; });
-    seg('s-device',['smart','phone'],st.device||'smart',function(v){ st.device=v; el('f-sms').hidden=true; },function(v){ return v==='smart'?'📱 スマホ':'📧 ガラケー（メール）'; });
+    seg('s-device',['smart','phone'],st.device||'smart',function(v){ st.device=v; el('f-sms').hidden=true; },function(v){ return v==='smart'?'スマホ':'ガラケー'; });
     el('s-mail-field').hidden=st.device!=='phone'; el('s-mail').value=st.mail||'';
     el('f-send').innerHTML=ico('i-mail')+(isFriend()?'友だちに招待を送る':((st.device==='phone')?'確認のメールを送る（試し）':'親のスマホに送る'));
     seg('s-animal',['dog','cat','panda','rabbit'],st.animal,function(v){ st.animal=v; },function(v){ return pet(v,[])+'<span>'+ANIMALS[v].name+'</span>'; });
     seg('s-alert',[1,2,3],st.alertAfter,function(v){ st.alertAfter=v; },function(v){ return ['次の日','2日後','3日後'][v-1]; });
     seg('s-time',['あさ','ひる','よる'],st.timeOfDay,function(v){ st.timeOfDay=v; });
-    seg('s-contact',['SMS','LINE','アプリ通知'],st.contact,function(v){ st.contact=v; });
-    seg('s-pause',['なし',3,7],paused()?(st.pauseDays||7):'なし',function(v){ st.pauseDays = v==='なし' ? 0 : v; st.pauseUntil = v==='なし' ? '' : key(new Date(today().getTime()+(v-1)*DAY)); },function(v){ return v==='なし'?'お休みしない':(v+'日 お休み'); });
-    if(paused()) el('s-pause-note').textContent='いまは '+pauseLabel()+' まで お休み中。「お休みしない」で すぐ再開します。'; else el('s-pause-note').textContent='旅行や入院で 答えられない日に。知らせを止めます。';
+    seg('s-contact',['SMS','LINE','アプリ通知'],st.contact,function(v){ st.contact=v; },function(v){ return v==='アプリ通知'?'アプリ':v; });
+    seg('s-pause',['なし',3,7],paused()?(st.pauseDays||7):'なし',function(v){ st.pauseDays = v==='なし' ? 0 : v; st.pauseUntil = v==='なし' ? '' : key(new Date(today().getTime()+(v-1)*DAY)); },function(v){ return v==='なし'?'しない':(v+'日間'); });
+    if(paused()) el('s-pause-note').textContent='いまは '+pauseLabel()+' まで お休み中。「しない」を押すと すぐ再開します。'; else el('s-pause-note').textContent='旅行や入院で 答えられない日に。知らせを止めます。';
   }
   function seg(id, vals, cur, set, label){
     var box=el(id); box.innerHTML='';
@@ -1370,29 +1439,25 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
     var an=S.settings.animal, newId=newItemId();
     function dots(n, on){ var h=''; for(var i=0;i<n;i++) h+='<i class="'+(i<on?'lit':'')+'"></i>'; return h; }
     function people(n){ var e=['👩','👨','👧','👦','👵']; return e.slice(0,n).join(''); }
-    var free='<div class="vc-col free"><div class="vc-h">無料</div>'
-      +'<div class="vc-row"><div class="vc-ic">'+pet(an,[])+'</div><div class="vc-t">毎日の1問<br><small>「無事」が届く</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic ppl">'+people(2)+'</div><div class="vc-t">届く人<br><b>2人</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic"><div class="vc-dots d7">'+dots(7,7)+'</div></div><div class="vc-t">記録<br><b>7日分</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">😢</div><div class="vc-t">押し忘れたら<br><b>記録 0</b></div></div>'
-      +'<div class="vc-row off"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>−</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">'+pet(an,['straw'])+'</div><div class="vc-t">着せ替え<br><b>1つ100円</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールで</small></div></div>'
-      +'<div class="vc-price">0円</div></div>';
-    var plus='<div class="vc-col plus"><div class="vc-h">家族プラン</div>'
-      +'<div class="vc-row"><div class="vc-ic">'+pet(an,[],true)+'</div><div class="vc-t">毎日の1問<br><small>「無事」が届く</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic ppl">'+people(5)+'</div><div class="vc-t">届く人<br><b>5人</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic"><div class="vc-dots d30">'+dots(30,28)+'</div></div><div class="vc-t">記録<br><b>1か月</b></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">🙆</div><div class="vc-t">押し忘れても<br><b>セーフ</b><br><small>記録が 0 にならない</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">📝</div><div class="vc-t">週1レポート<br><small>届く</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">'+pet(an,[newId||'beret'])+'</div><div class="vc-t">着せ替え<br><b>ぜんぶ込み</b><br><small>毎月 新作</small></div></div>'
-      +'<div class="vc-row"><div class="vc-ic">✉️</div><div class="vc-t">ガラケーも<br><b>OK</b><br><small>メールで</small></div></div>'
-      +'<div class="vc-price">月200円<small>年2,000円・30日無料</small></div></div>';
-    return '<div class="vc">'+free+plus+'</div>';
+    // 1つの表にまとめる：左に「なにが」、右に「無料｜家族プラン」。狭い画面でも文字が割れない
+    var Y='<span class="vt-y">✓</span>', N='<span class="vt-n">−</span>';
+    var rows=[
+      [pet(an,[]),'毎日の1問',Y,Y],
+      ['👪','届く人','2人','<b>5人</b>'],
+      ['📅','記録','7日分','<b>1か月</b>'],
+      ['🙆','押し忘れOK',N,Y],
+      ['📝','週1レポート',N,Y],
+      [pet(an,[newId||'beret']),'着せ替え','1つ<br>100円','<b>ぜんぶ<br>込み</b>'],
+      ['✉️','ガラケー',Y,Y]
+    ];
+    var h='<div class="vt"><div class="vt-r vt-hd"><span></span><span>無料</span><span class="p">家族プラン</span></div>';
+    rows.forEach(function(r){ h+='<div class="vt-r"><span class="vt-l"><i>'+r[0]+'</i>'+r[1]+'</span><span>'+r[2]+'</span><span class="p">'+r[3]+'</span></div>'; });
+    h+='<div class="vt-r vt-pr"><span class="vt-l">料金</span><span>0円</span><span class="p">月200円<small>年2,000円<br>30日無料</small></span></div></div>';
+    return h;
   }
   function faqHtml(){ return '<div class="faqs">'+FAQ.map(function(q){ return '<details><summary>'+q[0]+'</summary><p>'+(typeof q[1]==='function'?q[1]():q[1])+'</p></details>'; }).join('')+'</div>'; }
   function plusEnd(){ if(!S.planSince) return ''; var p=S.planSince.split('-'); var d=new Date(+p[0],+p[1]-1,+p[2],12); d=new Date(d.getTime()+30*DAY); return (d.getMonth()+1)+'/'+d.getDate(); }
-  function openPlan(){ S.planHidden=''; save(); renderPlan(); el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }
+  function openPlan(){ S.planHidden=''; save(); renderPlan(); ftGo('plan'); el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }
   function renderPlan(){
     var box=el('f-plan'), st=S.settings, plus=isPlus(), h='';
     box.className='block plan';
@@ -1547,12 +1612,17 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
   el('mode-family').addEventListener('click', function(){ setMode('family'); chooseStep='pet'; applyMode(); renderChoose(); window.scrollTo(0,0); });
   el('mode-friend').addEventListener('click', function(){ setMode('friend'); chooseStep='pet'; applyMode(); renderChoose(); window.scrollTo(0,0); });
   el('ft-me').addEventListener('click', function(){ show('parent'); window.scrollTo(0,0); });
-  el('ft-friend').addEventListener('click', function(){ show('family'); window.scrollTo(0,0); });
+  el('ft-friend').addEventListener('click', function(){ show('family'); ftGo('today'); window.scrollTo(0,0); });
+  // 家族（友だち）の画面のタブ：きょう／着せ替え／プラン／設定
+  function ftGo(t){ el('family').setAttribute('data-tab',t); [].forEach.call(el('fnav').querySelectorAll('button'),function(b){ b.setAttribute('aria-pressed', b.getAttribute('data-go')===t?'true':'false'); }); }
+  function ftShow(node){ var p=node && node.closest && node.closest('#family [data-ft]'); if(p) ftGo(p.getAttribute('data-ft')); }
+  [].forEach.call(el('fnav').querySelectorAll('button'),function(b){ b.addEventListener('click', function(){ ftGo(b.getAttribute('data-go')); var y=el('fnav').getBoundingClientRect().top+window.scrollY-12; if(window.scrollY>y) window.scrollTo(0,y); }); });
+  ftGo('today');
   el('p-friend').addEventListener('click', function(){ show('family'); window.scrollTo(0,0); });
   el('d-mfam').addEventListener('click', function(){ setMode('family'); renderAll(); show(view); toast('親と家族（試作）'); });
   el('d-mfri').addEventListener('click', function(){ setMode('friend'); renderAll(); show(view); toast('友だち同士（試作）'); });
   el('d-parent').addEventListener('click', function(){ show('parent'); });
-  el('d-family').addEventListener('click', function(){ show('family'); });
+  el('d-family').addEventListener('click', function(){ show('family'); ftGo('today'); });
   el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; PH.day=''; save(); renderAll(); toast('1日すすめました'); });
   el('d-reset').addEventListener('click', function(){ var p=S.plan; PH.day=''; phClear(); fresh(); S.plan=p; if(p==='plus') S.planSince=key(today()); S.phoneIntro=false; calOff=0; calSel=''; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
   el('d-free').addEventListener('click', function(){ setPlan('free'); toast('無料プラン（試作）'); });
@@ -1605,12 +1675,12 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
   function spotOn(node){ if(!spotEl){ spotEl=document.createElement('div'); spotEl.className='spot'; document.body.appendChild(spotEl); } cancelAnimationFrame(spotRaf); spotNode=node; spotTrack(); }
   function spotOff(){ spotNode=null; cancelAnimationFrame(spotRaf); if(spotEl) spotEl.classList.remove('on'); }
   async function focus(node){ // 説明の帯より上の、見える場所に収める
-    spotOn(node);
+    ftShow(node); spotOn(node);
     var avail=window.innerHeight-cap.offsetHeight-16, r=node.getBoundingClientRect();
     var top=r.height<avail-32 ? Math.max(16,(avail-r.height)/2) : 16;
     window.scrollTo({top:Math.max(0, r.top+window.scrollY-top), behavior:'smooth'}); await sleep(900); chk();
   }
-  async function point(node){ if(spotNode && !spotNode.contains(node)) spotOff(); var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(950); chk(); }
+  async function point(node){ ftShow(node); if(spotNode && !spotNode.contains(node)) spotOff(); var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(950); chk(); }
   async function tap(node){ await point(node); await sleep(350); fg.classList.add('press'); await sleep(180); fg.classList.remove('press'); node.click(); await sleep(650); chk(); }
   var lastDemo=null;
   async function intro(l1, l2){
@@ -1700,7 +1770,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       await focus(el('s-animal'));
       await say('設定は家族の画面にだけあります','親の画面には、メニューも設定も出ません');
       await focus(el('s-device'));
-      await say('親がガラケーなら、ここで「ガラケー（メール）」をえらんで、メールアドレスを入れるだけ','最初に1回、確認のメールが届きます。リンクが開けたら登録完了');
+      await say('親がガラケーなら、ここで「ガラケー」をえらんで、メールアドレスを入れるだけ','最初に1回、確認のメールが届きます。リンクが開けたら登録完了');
       await focus(el('s-animal'));
       line('相棒も、ここで変えられます'); await tap(el('s-animal-rabbit')); await sleep(700); await tap(el('s-animal-dog')); await sleep(300); fg.hidden=true;
       await focus(el('s-alert'));
@@ -1769,7 +1839,7 @@ body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
       S.fMiss[key(today())]=true; S.fMiss[key(daysAgo(1))]=true; S.fMiss[key(daysAgo(2))]=true;
       renderAll(); show('parent'); window.scrollTo(0,0); await sleep(400);
       await focus(el('p-friend'));
-      await say('答えがない日が続くと、自分の画面に 赤い知らせが出ます','「わたしの1問」を開いたときに、すぐ気づけます');
+      await say('答えがない日が続くと、自分の画面に 赤い知らせが出ます','「わたし」の画面を開いたときに、すぐ気づけます');
       el('phone-to').innerHTML=st.familyName+'さんのスマホ<small>通知</small>';
       el('phone-msg').textContent='【ワンポチ】'+st.parentName+'さんが2日答えていません。電話してみてください。';
       el('phone').classList.add('show'); await say('2日続けて答えがないと、あなたに知らせが届きます','友だちの電話番号つき。すぐに電話できます', 600);
