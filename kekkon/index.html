@@ -2187,7 +2187,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   $('#reset-all').addEventListener('click',()=>{if(!confirm('遊んだ記録をすべて消して、最初からやり直しますか？'))return;try{localStorage.removeItem(KEY);}catch(e){}location.reload();});
 
   // 端末の「戻る」: トップ以外にいたらトップへ(つづきを読むボタンが出る)。トップで押したら普通に閉じる
-  window.addEventListener('popstate',()=>{try{const q=document.querySelector('.adov.cm #cm-quit');if(q)q.click();}catch(e){}if($('#s-intro').hidden){renderIntro();}});
+  window.addEventListener('popstate',()=>{const sh=document.querySelector('.imgsheet');if(sh){sh.remove();try{history.pushState({ws:1},'');}catch(e){}return;}try{const q=document.querySelector('.adov.cm #cm-quit');if(q)q.click();}catch(e){}if($('#s-intro').hidden){renderIntro();}});
   // 外部リンク: アプリ(WebView)で新しいウィンドウが開けない時は、同じ画面で開く(戻るで帰れる)
   document.addEventListener('click',e=>{const a=e.target&&e.target.closest?e.target.closest('a[target=_blank]'):null;if(!a||!a.href)return;e.preventDefault();let w=null;try{w=window.open(a.href,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else{location.href=a.href}});
   // ================= 序章 =================
@@ -2472,7 +2472,11 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   $('#r-save').addEventListener('click',()=>drawCard('result'));
 
   // ================= シェア画像 1080x1920 =================
-  function drawCard(kind){
+  const IN_APP=()=>{try{if(window.WeddingNative)return true;const u=navigator.userAgent||'';return /; wv\)/.test(u)||/(iPhone|iPad).*AppleWebKit(?!.*Safari)/.test(u);}catch(e){return false;}};
+function showImgSheet(du){const o=document.createElement('div');o.className='imgsheet';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(30,15,22,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px';
+  o.innerHTML='<div style="color:#fff;font-weight:800;font-size:18px;text-align:center;line-height:1.6">画像を<b style="color:#FFD2E1">長押し</b>して保存してね<br><span style="font-weight:500;font-size:14px">(保存できない時は、この画面をスクショ)</span></div><img alt="ウェディングストーリーの画像" style="max-width:100%;max-height:68vh;border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.4)"><button type="button" style="min-height:48px;padding:0 34px;border-radius:999px;border:0;background:#fff;color:#C92A62;font-weight:800;font-size:16px">閉じる</button>';
+  o.querySelector('img').src=du;o.querySelector('button').addEventListener('click',()=>o.remove());document.body.appendChild(o);}
+function drawCard(kind){
     const c=$('#cardcv'),g=c.getContext('2d'),W=1080,Hh=1920;
     const MIN="'Shippori Mincho B1','Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif",GOT="'Zen Kaku Gothic New','Hiragino Sans','Noto Sans CJK JP',sans-serif";
     const rr=(x,y,w,h,r)=>{g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();};
@@ -2518,6 +2522,11 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
       c.toBlob(async blob=>{
         if(!blob){toast('画像を作れませんでした');return;}
         const fn=kind==='mini'?'wedding-story-omiai.png':'wedding-story.png';
+        // アプリ(WebView)の中では、ダウンロード用のリンクを押すと画面ごと別ページに飛んでアプリが最初からになる。
+        // → アプリにWeddingNative.saveImageがあればそれで保存、なければ画面の上に画像を出して長押し/スクショで保存してもらう
+        if(IN_APP()){const rd=new FileReader();rd.onload=()=>{const du=rd.result;
+          try{if(window.WeddingNative&&WeddingNative.saveImage){WeddingNative.saveImage(du.split(',')[1],fn);toast('画像を保存しました');return;}}catch(e){}
+          showImgSheet(du);};rd.readAsDataURL(blob);return;}
         let dl=null;try{if(window.claude&&window.claude.use)dl=await window.claude.use('downloads');}catch(e){dl=null;}
         if(dl){try{await dl.save({filename:fn,data:blob});toast('画像を保存しました(1080×1920)');}catch(err){toast(err&&err.code==='declined'?'保存をやめました':'この画面では保存できませんでした');}return;}
         try{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('画像を保存しました');}catch(e){toast('この画面では保存できません');}
