@@ -367,11 +367,44 @@ body.choosing .brand{display:none}
 .fcard.warn{background:var(--warn-bg);border-color:var(--warn)} .fcard.warn b{color:var(--warn)}
 .fcard.bad{background:var(--bad-bg);border-color:var(--bad)} .fcard.bad b{color:var(--bad)}
 body.friendmode .fam-only{display:none !important}
-body.choosing .demo .row+.row{display:none}
 @media (max-height:660px){.choose .lead,.choose .later{display:none}}
 @media (max-height:800px){.choose .later{display:none}}
 
+/* ===== 使い方デモ（下のボタン＋シート。試作だけ） ===== */
+body:not(.demoing){padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+.dbar{position:fixed;z-index:40;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:34px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--paper) 52%);pointer-events:none}
+.dbar[hidden]{display:none}
+.dfab{pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--shu);color:#fff;border:0;border-radius:999px;padding:12px 24px 12px 14px;font-weight:800;font-size:16px;letter-spacing:.04em;white-space:nowrap;box-shadow:0 12px 28px -8px rgba(217,68,43,.6),0 0 0 4px rgba(255,255,255,.08)}
+.dfab .pl,.dsheet .pl{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.22);font-size:12px;flex:0 0 auto;padding-left:2px}
+body.demoing .dbar,body.demoing .dsheet,body.demoing .dsheet-bg{display:none!important}
+.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.dsheet-bg{position:fixed;inset:0;z-index:44;background:rgba(20,18,24,.55)}
+.dsheet{position:fixed;z-index:45;left:50%;bottom:0;transform:translateX(-50%);width:min(480px,100%);max-height:calc(100% - 40px);overflow:auto;background:var(--paper);color:var(--ink);border-radius:26px 26px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;box-shadow:0 -18px 40px -16px rgba(0,0,0,.5);font-size:13px}
+.ds-hd{display:flex;align-items:flex-start;gap:10px}
+.ds-hd div{flex:1;display:flex;flex-direction:column;gap:2px}
+.ds-hd b{font-family:var(--font-mincho);font-weight:800;font-size:20px}
+.ds-hd span{font-size:13px;color:var(--ink-2)}
+.ds-x{border:0;width:36px;height:36px;border-radius:50%;font-size:16px;color:var(--ink-2);background:var(--demo-bg)}
+.dsheet .play{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border-radius:18px;font-weight:700}
+.dsheet .play b{display:block;font-size:16px;line-height:1.35}
+.dsheet .play small{display:block;font-size:13px;font-weight:500;line-height:1.4;opacity:.85}
+.dsheet .ds-main{background:var(--shu);border:0;color:#fff;padding:14px 16px}
+.dsheet .ds-main b{font-size:18px}
+.ds-list{display:flex;flex-direction:column;gap:8px}
+.dsheet .ds-sub{background:var(--white);border:1.5px solid var(--line);color:var(--ink);padding:10px 14px}
+.dsheet .ds-sub .pl{background:var(--shu);color:#fff}
+.ds-dev{margin-top:4px;border-top:1px dashed var(--line);padding-top:10px;color:var(--ink-2)}
+.ds-dev summary{cursor:pointer;font-size:13px;list-style:none;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.ds-dev summary::-webkit-details-marker{display:none}
+.ds-dev summary::before{content:"＋";font-weight:700}
+.ds-dev[open] summary::before{content:"－"}
+.ds-dev .day{margin-left:auto;font-variant-numeric:tabular-nums}
+.ds-dev .demo{margin-top:8px}
+
 /* ===== デモ再生 ===== */
+/* いま説明している所だけ明るく、まわりは少し暗く（スポットライト） */
+.spot{position:fixed;z-index:54;border-radius:22px;box-shadow:0 0 0 200vmax rgba(14,12,18,.5);pointer-events:none;opacity:0;transition:opacity .35s}
+.spot.on{opacity:1}
 .demo .play{background:var(--shu);color:#fff;border-color:var(--shu)}
 body.demoing .demo button{pointer-events:none;opacity:.6}
 body.demoing .demo .stop{pointer-events:auto;opacity:1}
@@ -439,21 +472,22 @@ body.demoing .demo .stop{pointer-events:auto;opacity:1}
 body.longdemo{padding-top:64px;padding-bottom:48px}
 .finger{position:fixed;left:70%;top:80%;width:48px;height:48px;border-radius:50%;background:rgba(30,27,34,.28);border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:60;pointer-events:none;transform:translate(-50%,-50%);transition:left .7s cubic-bezier(.4,0,.2,1),top .7s cubic-bezier(.4,0,.2,1),transform .15s}
 .finger.press{transform:translate(-50%,-50%) scale(.72)}
-.caption{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:55;width:min(480px,100%);background:#1E1B22;color:#FFFDF9;border-radius:24px 24px 0 0;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px -12px rgba(0,0,0,.45);font-family:var(--font-gothic)}
-.cap-top{display:flex;align-items:center;gap:10px;font-size:13px;color:#C9C2D2}
-.cap-top .chip{background:#D9442B;color:#fff;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
-.cap-top .bar{flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.15);overflow:hidden}
-.cap-top .bar i{display:block;height:100%;background:#F0634A;transition:width .4s}
-.cap-top button{border:0;color:#C9C2D2;font-size:13px;padding:4px 2px;white-space:nowrap}
-.cap-t{margin-top:10px;font-weight:700;font-size:19px;line-height:1.55;word-break:keep-all;overflow-wrap:anywhere}
-.cap-s{margin-top:4px;font-size:15px;line-height:1.55;color:#D7D0DF;word-break:keep-all;overflow-wrap:anywhere}
+.caption{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:59;width:min(480px,100%);background:#1E1B22;color:#FFFDF9;border-radius:22px 22px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 0 rgba(255,255,255,.06),0 -14px 30px -10px rgba(0,0,0,.55);font-family:var(--font-gothic)}
+.caption::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:44px;background:linear-gradient(to bottom,rgba(30,27,34,0),rgba(30,27,34,.85));pointer-events:none}
+.caption>.bar{position:absolute;left:22px;right:22px;top:0;height:3px;border-radius:0 0 3px 3px;background:rgba(255,255,255,.12);overflow:hidden}
+.caption>.bar i{display:block;height:100%;background:#F0634A;transition:width .4s}
+.cap-top{display:flex;align-items:center;gap:8px;font-size:13px;color:#C9C2D2}
+.cap-top .chip{background:#D9442B;color:#fff;font-weight:700;font-size:12.5px;padding:3px 10px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;margin-right:auto}
+.cap-x{border:0;color:#C9C2D2;font-size:16px;line-height:1;width:32px;height:32px;border-radius:50%;flex:0 0 auto}
+.cap-t{margin-top:8px;font-weight:700;font-size:17px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+.cap-s{margin-top:2px;font-size:14px;line-height:1.5;color:#D7D0DF;word-break:keep-all;overflow-wrap:anywhere}
 .cap-s:empty{display:none}
-.cap-next{display:block;margin:10px 0 0 auto;border:1.5px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 16px;font-weight:700;font-size:14px;color:#FFFDF9;position:relative;overflow:hidden}
+.cap-next{flex:0 0 auto;border:1.5px solid rgba(255,255,255,.35);border-radius:999px;padding:4px 14px;font-weight:700;font-size:14px;color:#FFFDF9;position:relative;overflow:hidden;white-space:nowrap}
 .cap-next i{position:absolute;left:0;bottom:0;height:3px;background:#F0634A;width:0}
 .cap-next.run i{animation:fill var(--dur,3s) linear forwards}
 @keyframes fill{to{width:100%}}
 body.demoing .demo{display:none}
-body.demoing{padding-bottom:260px}
+body.demoing{padding-bottom:calc(var(--caph,260px) + 24px)}
 .chap{position:fixed;inset:0;z-index:66;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .35s}
 .chap.show{opacity:1;pointer-events:auto}
 .chap .n{font-family:var(--font-mincho);font-weight:800;font-size:64px;line-height:1;color:var(--shu)}
@@ -502,36 +536,6 @@ body.demoing{padding-bottom:260px}
 </svg>
 
 <div class="wrap">
-  <div class="demo">
-    <div class="row">
-      <button class="play" id="d-demo">▶ デモを見る</button>
-      <button class="play" id="d-demo2">▶ 家族プランのデモ</button>
-      <button class="play" id="d-demo3">▶ 12分 通しデモ（無料→家族プラン→友だち同士）</button>
-      <button class="play" id="d-demo4">▶ 友だち同士のデモ</button>
-      <span class="lbl">試作メニュー</span>
-      <button id="d-parent" aria-pressed="true" data-fri="わたしの画面">親の画面</button>
-      <button id="d-family" aria-pressed="false" data-fri="友だちの画面">家族の画面</button>
-      <span class="day" id="d-day"></span>
-    </div>
-    <div class="row">
-      <span class="lbl">時間を動かす</span>
-      <button id="d-next">1日すすめる</button>
-      <button id="d-reset">はじめから</button>
-    </div>
-    <div class="row">
-      <span class="lbl">プラン</span>
-      <button id="d-free" aria-pressed="true">無料</button>
-      <button id="d-plus" aria-pressed="false">家族プラン</button>
-      <span class="lbl">（本番は ?plan=plus で切り替え）</span>
-    </div>
-    <div class="row">
-      <span class="lbl">使い方</span>
-      <button id="d-mfam" aria-pressed="true">親と家族</button>
-      <button id="d-mfri" aria-pressed="false">友だち同士</button>
-      <span class="lbl">（本番は ?mode=friend で切り替え）</span>
-    </div>
-  </div>
-
   <!-- ===== 相棒えらび（いちばん最初の1回だけ） ===== -->
   <section id="choose" class="choose" hidden>
     <div class="brand"><span class="nm">ワンポチ</span><span class="pill">生存確認</span></div>
@@ -695,11 +699,49 @@ body.demoing{padding-bottom:260px}
 <div class="toppill" id="toppill" hidden><b id="tp-k"></b><span id="tp-t"></span></div>
 <div class="slide" id="slide"><div class="s-in"><div class="s-brand"><span class="nm">ワンポチ</span><span class="pill" id="s-chip"></span></div><h2 id="s-title"></h2><div class="s-body" id="s-body"></div><div class="s-foot"><span class="bar"><i id="s-bar"></i></span><span id="s-pg"></span></div></div></div>
 <div class="welcome" id="welcome" hidden></div>
+<!-- 使い方デモ（試作だけ。本番には無い）: 画面の下にボタン → 押すとシートで選ぶ -->
+<div class="dbar" id="dbar"><button type="button" class="dfab" id="dfab" aria-haspopup="dialog"><span class="pl">▶</span>使い方デモを見る</button></div>
+<div class="dsheet-bg" id="dsheet-bg" hidden></div>
+<div class="dsheet" id="dsheet" role="dialog" aria-label="使い方デモ" hidden>
+  <div class="ds-hd"><div><b>使い方デモ</b><span>押すと画面が自動で動いて、説明が出ます</span></div><button type="button" class="ds-x" id="ds-x" aria-label="とじる">✕</button></div>
+  <button type="button" class="play ds-main" id="d-demo"><span class="pl">▶</span><span><b>はじめての方へ</b><small>約4分・まずはこれ</small></span></button>
+  <div class="ds-list">
+    <button type="button" class="play ds-sub" id="d-demo2"><span class="pl">▶</span><span><b>家族プランのデモ</b><small>有料にすると何が増える？</small></span></button>
+    <button type="button" class="play ds-sub" id="d-demo4"><span class="pl">▶</span><span><b>友だち同士のデモ</b><small>ひとり暮らしの友だちと</small></span></button>
+    <button type="button" class="play ds-sub" id="d-demo3"><span class="pl">▶</span><span><b>12分 通しデモ</b><small>無料→家族プラン→友だち</small></span></button>
+  </div>
+  <details class="ds-dev"><summary><span>試作メニュー</span><span class="day" id="d-day"></span></summary>
+    <div class="demo">
+      <div class="row">
+        <span class="lbl">画面</span>
+        <button id="d-parent" aria-pressed="true" data-fri="わたしの画面">親の画面</button>
+        <button id="d-family" aria-pressed="false" data-fri="友だちの画面">家族の画面</button>
+      </div>
+      <div class="row">
+        <span class="lbl">時間を動かす</span>
+        <button id="d-next">1日すすめる</button>
+        <button id="d-reset">はじめから</button>
+      </div>
+      <div class="row">
+        <span class="lbl">プラン</span>
+        <button id="d-free" aria-pressed="true">無料</button>
+        <button id="d-plus" aria-pressed="false">家族プラン</button>
+        <span class="lbl">（本番は ?plan=plus）</span>
+      </div>
+      <div class="row">
+        <span class="lbl">使い方</span>
+        <button id="d-mfam" aria-pressed="true">親と家族</button>
+        <button id="d-mfri" aria-pressed="false">友だち同士</button>
+        <span class="lbl">（本番は ?mode=friend）</span>
+      </div>
+    </div>
+  </details>
+</div>
 <div class="finger" id="finger" hidden></div>
 <div class="caption" id="caption" hidden>
-  <div class="cap-top"><span class="chip" id="cap-chip"></span><span class="bar"><i id="cap-bar"></i></span><button type="button" id="cap-stop">✕ やめる</button></div>
+  <span class="bar"><i id="cap-bar"></i></span>
+  <div class="cap-top"><span class="chip" id="cap-chip"></span><button type="button" class="cap-next" id="cap-next">次へ ›<i></i></button><button type="button" class="cap-x" id="cap-stop" aria-label="デモをやめる">✕</button></div>
   <div class="cap-t" id="cap-t"></div><div class="cap-s" id="cap-s"></div>
-  <button type="button" class="cap-next" id="cap-next">次へ ›<i></i></button>
 </div>
 <div class="chap" id="chap"><div class="n" id="chap-n"></div><div class="ti" id="chap-t"></div><div class="wh" id="chap-w"></div></div>
 <div class="dim" id="dim"></div>
@@ -1248,6 +1290,8 @@ body.demoing{padding-bottom:260px}
     else if(isPlus()) det.textContent=lab+'：答えなし（うっかりセーフは月2回まで。今月はもう使いました）';
     else det.textContent=lab+'：答えなし';
   }
+  // デモ用：その日がある月のカレンダーを開く（月末にデモを見ると「きのう」が先月になるため）
+  function calShow(k){ var t=today(), p=k.split('-'); calOff=(+p[0]-t.getFullYear())*12+(+p[1]-1-t.getMonth()); calSel=''; renderCalendar(); return el('cal-grid').querySelector('[data-k="'+k+'"]'); }
   el('cal-prev').addEventListener('click', function(){ calOff--; calSel=''; renderCalendar(); });
   el('cal-next').addEventListener('click', function(){ if(calOff<0){ calOff++; calSel=''; renderCalendar(); } });
 
@@ -1543,31 +1587,44 @@ body.demoing{padding-bottom:260px}
   }
   function line(t, sub){ cap.hidden=false; el('cap-t').innerHTML=t; el('cap-s').innerHTML=sub||''; el('cap-next').classList.remove('run'); setCaph(); }
   async function chapter(n, title, who){
+    spotOff();
     fg.hidden=true; cap.hidden=true;
     el('cap-chip').textContent=n+'/'+CH+'　'+title; el('cap-bar').style.width=(n/CH*100)+'%';
     el('chap-n').textContent=n; el('chap-t').textContent=title; el('chap-w').textContent=who;
     el('chap').classList.add('show'); await wait(2300); el('chap').classList.remove('show'); await sleep(350); chk();
   }
+  // スポットライト：focusした所を明るく残し、まわりを暗くする（説明の帯の下に隠れる文字に目が行かないように）
+  var spotEl=null, spotNode=null, spotRaf=0;
+  function spotTrack(){
+    if(!spotNode) return;
+    var r=spotNode.getBoundingClientRect();
+    if(!demo || r.height<2){ spotOff(); return; }
+    var pd=6; spotEl.style.left=(r.left-pd)+'px'; spotEl.style.top=(r.top-pd)+'px'; spotEl.style.width=(r.width+pd*2)+'px'; spotEl.style.height=(r.height+pd*2)+'px';
+    spotEl.classList.add('on'); spotRaf=requestAnimationFrame(spotTrack);
+  }
+  function spotOn(node){ if(!spotEl){ spotEl=document.createElement('div'); spotEl.className='spot'; document.body.appendChild(spotEl); } cancelAnimationFrame(spotRaf); spotNode=node; spotTrack(); }
+  function spotOff(){ spotNode=null; cancelAnimationFrame(spotRaf); if(spotEl) spotEl.classList.remove('on'); }
   async function focus(node){ // 説明の帯より上の、見える場所に収める
+    spotOn(node);
     var avail=window.innerHeight-cap.offsetHeight-16, r=node.getBoundingClientRect();
     var top=r.height<avail-32 ? Math.max(16,(avail-r.height)/2) : 16;
     window.scrollTo({top:Math.max(0, r.top+window.scrollY-top), behavior:'smooth'}); await sleep(900); chk();
   }
-  async function point(node){ var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(950); chk(); }
+  async function point(node){ if(spotNode && !spotNode.contains(node)) spotOff(); var r=node.getBoundingClientRect(); fg.hidden=false; fg.style.left=(r.left+r.width/2)+'px'; fg.style.top=(r.top+r.height/2)+'px'; await sleep(950); chk(); }
   async function tap(node){ await point(node); await sleep(350); fg.classList.add('press'); await sleep(180); fg.classList.remove('press'); node.click(); await sleep(650); chk(); }
   var lastDemo=null;
   async function intro(l1, l2){
     el('intro-1').innerHTML=l1; el('intro-2').innerHTML=l2;
     var it=el('intro'); it.classList.add('show'); await sleep(1800); it.classList.add('two'); await wait(2600); it.classList.remove('show','two'); await sleep(450); chk();
   }
-  function ending(petHtml, t, cp){ cap.hidden=true; el('end-pet').innerHTML=petHtml; el('end-t').textContent=t; el('end-cp').innerHTML=cp; el('endcard').classList.add('show'); }
+  function ending(petHtml, t, cp){ spotOff(); cap.hidden=true; el('end-pet').innerHTML=petHtml; el('end-t').textContent=t; el('end-cp').innerHTML=cp; el('endcard').classList.add('show'); }
   async function runDemoWith(script, chapters){
     if(demo) return;
     var saved=JSON.stringify(S), back=view;
     demo=true; stopReq=false; CH=chapters; lastDemo=script; document.body.classList.add('demoing');
     try{ await script(); }
     catch(e){ el('endcard').classList.remove('show'); }
-    skip=null; phClear(); PH.day=''; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
+    skip=null; spotOff(); phClear(); PH.day=''; fg.hidden=true; cap.hidden=true; el('notif').classList.remove('show'); el('dim').classList.remove('show'); el('phone').classList.remove('show'); el('chap').classList.remove('show'); el('intro').classList.remove('show','two');
     S=JSON.parse(saved); demo=false; calOff=0; calSel=''; document.body.classList.remove('demoing');
     renderAll(); show(back); window.scrollTo(0,0);
   }
@@ -1785,7 +1842,7 @@ body.demoing{padding-bottom:260px}
       await chapter(4,'増えるもの','家族プランで できること');
       await focus(el('f-cal'));
       await say('1か月のカレンダー。どの日に答えたか、ひと目で','点線は答えがなかった日');
-      var yk=key(daysAgo(1)), yc=el('cal-grid').querySelector('[data-k="'+yk+'"]');
+      var yk=key(daysAgo(1)), yc=calShow(yk);
       line('きのうの日を押す'); if(yc){ await tap(yc); } await sleep(500); fg.hidden=true;
       await focus(el('cal-detail'));
       await say('押し忘れても「うっかりセーフ」','電話して元気だったら、ボタンを押すだけ。記録が 0 にならない（月2回）');
@@ -1919,7 +1976,7 @@ body.demoing{padding-bottom:260px}
       S.dayOffset+=2; renderAll(); show('family'); window.scrollTo(0,0); await hold(800);
       await focus(el('f-status')); await step('plus','きのう押し忘れ。電話したら元気だった',4000);
       await focus(el('f-streak')); await step('plus','このままだと「つづけて」が 0 に…',3000);
-      var yk=key(daysAgo(1)), yc=el('cal-grid').querySelector('[data-k="'+yk+'"]');
+      var yk=key(daysAgo(1)), yc=calShow(yk);
       await focus(el('f-cal')); await step('plus','カレンダーで「きのう」を押す',1800); if(yc){ await tap(yc); } await hold(800); fg.hidden=true;
       await focus(el('cal-detail')); await step('plus','「元気だった（うっかりセーフ）」を押す',3000); await tap(el('cal-ok')); await hold(1200); fg.hidden=true;
       window.scrollTo(0,0); await hold(500); await focus(el('f-streak')); await step('plus','14日の記録が、もどってきました',4000);
@@ -2001,6 +2058,12 @@ body.demoing{padding-bottom:260px}
       ending(pet('dog',[],true), 'ワンポチ', '毎日の生存確認は、ずっと無料。<br>家族プランは 月200円。友だち同士でも使えます。');
     } finally { document.body.classList.remove('longdemo'); el('slide').classList.remove('show'); tp(); }
   }
+  function dsheet(open){ el('dsheet').hidden=!open; el('dsheet-bg').hidden=!open; el('dbar').hidden=open; }
+  el('dfab').addEventListener('click', function(){ dsheet(true); });
+  el('ds-x').addEventListener('click', function(){ dsheet(false); });
+  el('dsheet-bg').addEventListener('click', function(){ dsheet(false); });
+  // 何か押したら、シートを閉じて画面を見せる
+  el('dsheet').addEventListener('click', function(e){ var b=e.target.closest('button'); if(b && b.id!=='ds-x' && !b.closest('summary')) dsheet(false); });
   el('d-demo').addEventListener('click', function(){ if(!demo) runDemo(); });
   el('d-demo2').addEventListener('click', function(){ if(!demo) runPlanDemo(); });
   el('d-demo3').addEventListener('click', function(){ if(!demo) runLongDemo(); });
