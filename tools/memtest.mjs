@@ -13,6 +13,7 @@
     6. ママに渡すデータが64KBの上限を超えてへんか（超えると入店できへん）
     7. 会話の途中で、何回も言うた大事な話がその場で昇格するか
     8. 喋ってる最中に「立ち飲みを試す」を押しても、黙って無視せえへんか
+    9. 前から続いてる話（入院など）を「今日起きた」と取り違えへんように、起きた日が届いてるか（2026/10/31）
 
   使い方（初回だけ）:
     npm i --prefix tools playwright@1.47.2
@@ -51,7 +52,9 @@ const KEY = crypto.randomBytes(32);
 const b64u = (b) => Buffer.from(b).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const jstYmd = (ms) => new Date(ms + 9 * 3600e3).toISOString().slice(0, 10);
 const now = Date.now();
-const TODAY = jstYmd(now), YDAY = jstYmd(now - 86400e3), DBY = jstYmd(now - 2 * 86400e3);
+const TODAY = jstYmd(now), YDAY = jstYmd(now - 86400e3), DBY = jstYmd(now - 2 * 86400e3), DBY3 = jstYmd(now - 3 * 86400e3);
+const LATE = new Date(now + 9 * 3600e3).getUTCHours() < 5; // 深夜0〜5時は昨日の分がまだ「今日」扱いなので、この検査は省く
+const mdOf = (ymd) => { const [, m, d] = ymd.split("-"); return `${+m}/${+d}`; };
 
 // 本番に近い長さのダミー（タケオさん本人の情報は使わへん。目印の言葉だけ入れる）
 const MARK = {
@@ -79,14 +82,17 @@ for (let i = 0; i < 25; i++) {
 const book = { __photo: MARK.photo, profile, visits,
   threads: [{ id: "T1", t: MARK.thread, ask: MARK.threadAsk, next: "送ったか", first: "", last: "", lastTs: now - 86400e3, done: false },
     // v38 まだ先の予定（日付なしの古い書き方）。いちばん新しいけど、入店の第一声で「どうなったん？」と聞いたらあかん
-    { id: "T0", t: "目印サキ：来週の月曜の血液検査", ask: "来週の月曜の血液検査", next: "結果", first: "", last: "", lastTs: now - 3600e3, done: false }],
+    { id: "T0", t: "目印サキ：来週の月曜の血液検査", ask: "来週の月曜の血液検査", next: "結果", first: "", last: "", lastTs: now - 3600e3, done: false },
+    // v45 前から続いてる話：起きた日（since）は聞いた日と分けて渡す／起きた日が無い話は「今日とは限らへん」と添える
+    { id: "T2", t: "目印オキタ：母が肺炎で入院中", ask: "お母さんの具合", next: "退院", since: DBY3, first: "", last: "", lastTs: now - 5 * 86400e3, done: false },
+    { id: "T3", t: "目印フメイ：会長と揉めてる件", ask: "会長との件", next: "仲直り", first: "", last: "", lastTs: now - 6 * 86400e3, done: false }],
   lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
 const longText = (mark) => ["・【夜の分】Claudeとの会話履歴は今日も直接読めへんかったので、要点から書いています。細かいところはママから聞いてあげて。", "・" + mark]
   .concat(Array.from({ length: 10 }, (_, i) => "・仕事の動き" + i + "：アプリの細かい話がいろいろあって、本人はかなり頑張ってた一日やったそうです。ほんまにお疲れさん。"))
   .concat(["・明日（木）：昼に用事、午後に確認", "・" + MARK.ask + "：ねぎらってあげて"]).join("\n");
 const digest = { updated: TODAY + " 23:00", days: [
   { date: TODAY, text: longText(MARK.todayDig) },
-  { date: YDAY, text: longText(MARK.ydayDig) },
+  { date: YDAY, text: longText(MARK.ydayDig).replace("・" + MARK.ydayDig, "・" + MARK.ydayDig + "\n・今日、目印カコ：母が入院した") },
   { date: DBY, text: longText("おととい") },
 ] };
 // 深夜（営業日がまだ昨日扱い）の時は、昨日の分が「今日」として渡る
@@ -169,6 +175,10 @@ try {
     ok(`${nm}：入店の第一声で「あれどうなったん？」と聞く`, greeting.includes(MARK.threadAsk) && greeting.includes("どうなった"), greeting);
     ok(`${nm}：まだ先の予定は第一声で「どうなったん？」と聞かへん`, !greeting.includes("血液検査"), greeting);
     ok(`${nm}：まだ先の予定は「まだ先・結果は聞かへん」と添えて届く`, /目印サキ[^\n]*まだ先[^\n]*結果は聞かへん/.test(memory), (memory.match(/目印サキ[^\n]*/) || [""])[0]);
+    ok(`${nm}：前の日の自動メモの「今日」は、その日の日付に直して届く`, LATE ? true : (memory.includes(mdOf(YDAY) + "、目印カコ") && !memory.includes("今日、目印カコ")), (memory.match(/[^\n]{0,30}目印カコ[^\n]{0,10}/) || ["（届いてへん）"])[0]);
+    ok(`${nm}：話の続きに「起きた日」が聞いた日と分けて届く`, new RegExp("目印オキタ[^\\n]*起きたのは" + mdOf(DBY3) + "（3日前）").test(memory), (memory.match(/目印オキタ[^\n]*/) || ["（届いてへん）"])[0]);
+    ok(`${nm}：起きた日が分からん話は「今日とは限らへん」と添えて届く`, /目印フメイ[^\n]*起きた日は未確認/.test(memory), (memory.match(/目印フメイ[^\n]*/) || ["（届いてへん）"])[0]);
+    ok(`${nm}：「話に出た日と起きた日は別」のルールが届く`, memory.includes("『話に出た日』と『起きた日』は別"), "時系列のルールに無い");
     ok(`${nm}：前後の暦と時系列のルールが届く`, memory.includes("これから来る日（まだ先）") && memory.includes("【時系列のルール"), "暦が無い");
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
     ok(`${nm}：見せた写真（昨日）が届く`, memory.includes(MARK.photo), "写真の記録がママに渡ってへん");

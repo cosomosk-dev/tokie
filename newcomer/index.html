@@ -985,7 +985,10 @@
   const TIME_RULE="【時系列のルール（大事・取り違えたら信用なくす）】\n"+
     "・メモや話の続きに出てくる「月曜」「来週」「明日」「今度」は、そのメモを書いた日から数えた日。上の暦で今日と比べて、まだ来てない日なら『先の予定』、過ぎてたら『済んだこと』。\n"+
     "・先の予定は済んだことにせえへん。結果も聞かへん（「来週の月曜やな、検査」「月曜、気張りや」のように先のこととして言う）。結果を聞くのは、その日が過ぎてから。\n"+
-    "・いつのことか分からん予定は、決めつけずに「あれ、いつやったっけ？」と聞く。";
+    "・いつのことか分からん予定は、決めつけずに「あれ、いつやったっけ？」と聞く。\n"+
+    "・『話に出た日』と『起きた日』は別。前から続いてる話（入院・病気・ケンカ・手続きなど）を今夜もう一回聞いても、今日起きたことにはせえへん。起きた日は、メモの日付（■10/28、「起きたのは10/28」など）で判断する。\n"+
+    "・起きた日が書いてない出来事は「今日」「さっき」と決めつけへん。日にちに触れずに話すか、要る時は「それ、いつのことやったっけ？」と聞く。\n"+
+    "・自動メモや来店メモの中の「今日」「昨日」は、そのメモを書いた日から見た言い方。必ず■の日付で読み直す。";
   function todayBlock(){
     const p=jstParts(new Date());
     const doy=Math.floor((Date.UTC(p.y,p.m-1,p.d)-Date.UTC(p.y,0,1))/86400000);
@@ -1287,6 +1290,15 @@
     if(v.mamaNote)return clip(v.mamaNote.replace(/\s+/g," "),len);
     return clip(keyLines(v.memo,3,36).join("／"),len);
   }
+  /* v45 前の日の自動メモにある「今日」「昨日」「明日」を、その日から見た日付に直す（10/31：10/28の「今日、母が入院」をママが今日のことと取り違えた） */
+  function relDays(text,key){
+    if(!key||key===dkey(todayBiz()))return String(text||"");
+    const md=(n)=>{const t=new Date(Date.parse(key+"T00:00:00Z")+n*86400000);return `${t.getUTCMonth()+1}/${t.getUTCDate()}`;};
+    return String(text||"")
+      .replace(/今朝/g,md(0)+"の朝").replace(/今夜|今晩/g,md(0)+"の夜").replace(/昨夜|昨晩|ゆうべ/g,md(-1)+"の夜")
+      .replace(/一昨日|おととい/g,md(-2)).replace(/明後日|あさって/g,md(2))
+      .replace(/今日/g,md(0)).replace(/昨日/g,md(-1)).replace(/明日/g,md(1));
+  }
   function digestGist(text,len){
     const ls=String(text||"").split("\n").map(l=>l.replace(/^[・\-\*\s#■]+/,"").trim()).filter(Boolean);
     return clip(ls.slice(0,3).join("／"),len);
@@ -1336,14 +1348,17 @@
   function threadsBlock(maxBytes){
     const a=threadsOpen().sort((x,y)=>(y.lastTs||0)-(x.lastTs||0));
     if(!a.length)return "";
-    const h="【話の続き（前に聞いた、まだ途中の話。ほんまのスナックのママみたいに「あれどうなったん？」「その後どない進んでるん？」と気にかける。入って最初の方で1つだけ自然に聞いて、返ってきた話をちゃんと拾う。全部いっぺんに聞かへん。聞かれる前に結果を決めつけへん。予定の日がまだ先の話は「済んだ？」と聞かへん）】\n";
+    const h="【話の続き（前に聞いた、まだ途中の話。「最後に聞いた日」は話に出た日で、起きた日とは別。起きた日は「起きたのは」で判断し、書いてない話を今日起きたことにせえへん。ほんまのスナックのママみたいに「あれどうなったん？」「その後どない進んでるん？」と気にかける。入って最初の方で1つだけ自然に聞いて、返ってきた話をちゃんと拾う。全部いっぺんに聞かへん。聞かれる前に結果を決めつけへん。予定の日がまだ先の話は「済んだ？」と聞かへん）】\n";
     let body="";
     for(const x of a){
       const ago=Math.max(0,Math.round((Date.now()-(x.lastTs||Date.now()))/86400000));
       let wh="";
       const d=threadDaysLeft(x);
       if(d!==null){const c=calDay(d);wh=d>0?`／予定は${calLabel(c)}＝あと${d}日。まだ先。結果は聞かへん。聞くなら「${m2w(c)}やな、気張りや」と先のこととして`:d===0?"／予定は今日":"／予定の日は過ぎた。結果を聞いてええ";}
-      const line=`・${x.t}（${ago?ago+"日前":"今日"}に聞いた${wh}${x.next?"／次に気になること："+x.next:""}）\n`;
+      let sc="";
+      if(x.since&&/^\d{4}-\d{2}-\d{2}$/.test(x.since)){const n=isoDiff(calDay(0).iso,x.since);const [,mm,dd]=x.since.split("-");sc=`起きたのは${+mm}/${+dd}`+(n>0?`（${n}日前）`:"（今日）")+"／";}
+      else if(!x.when)sc="起きた日は未確認（今日とは限らへん）／";
+      const line=`・${x.t}（${sc}最後に聞いたのは${ago?ago+"日前":"今日"}${wh}${x.next?"／次に気になること："+x.next:""}）\n`;
       if(jbytes(h+body+line)>maxBytes)break;body+=line;
     }
     return body?(h+body).trim():"";
@@ -1352,16 +1367,17 @@
     "拾うのは「まだ途中で、この先に結果や進展がある話」だけ：進めてる仕事やアプリ（次の段取り）、これからやると言ったこと、結果待ち（審査・返事・数字）、会う予定・LINEしてる相手との進展（夜のお店の女の子・風俗の子の話も含む）、迷ってて決めてない話、体調で様子を見てること。\n"+"女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。\n"+
     "拾わない：もう終わった話、その場の雑談、ずっと変わらない事実（それは基本情報）。\n"+
     "ルール：\n1. 帳にある話で、今夜「片付いた・結果が出た・やめた」と分かったものは status を \"done\" にする。進展があったら t と next を書き直す。今夜出てない話は出さない。\n"+
-    "2. 新しい話は id を \"new\" にして書く。when＝その話に予定の日があればその日付（YYYY-MM-DD）。「月曜」「来週」「明日」などは下の【今夜の日付と暦】で日付に直す。日が分からんか予定の日が無い話は空文字。t＝何の話か（40字以内・具体的に。固有名詞を残す）、ask＝ママが聞く時の短い言い方（20字以内・「〜の件」「〜の発注」のような名詞句）、next＝次に気になること（25字以内）。\n"+
-    "3. 作り話はしない。客が言ってないことは書かない。新しい話は今夜1〜5件まで。\n"+
-    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"status\":\"open\",\"when\":\"\",\"t\":\"…\",\"ask\":\"…\",\"next\":\"…\"}]}";
+    "2. since＝その出来事がほんまに起きた日・始まった日（過去。例：入院した日・揉めた日）。客の言葉や下の暦で分かれば YYYY-MM-DD、分からんかったら空文字。今夜聞いたからといって今日の日付にしない（聞いた日と起きた日は別）。帳にもう since がある話は変えない。\n"+
+    "3. 新しい話は id を \"new\" にして書く。when＝その話に予定の日があればその日付（YYYY-MM-DD）。「月曜」「来週」「明日」などは下の【今夜の日付と暦】で日付に直す。日が分からんか予定の日が無い話は空文字。t＝何の話か（40字以内・具体的に。固有名詞を残す）、ask＝ママが聞く時の短い言い方（20字以内・「〜の件」「〜の発注」のような名詞句）、next＝次に気になること（25字以内）。\n"+
+    "4. 作り話はしない。客が言ってないことは書かない。新しい話は今夜1〜5件まで。\n"+
+    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"status\":\"open\",\"since\":\"\",\"when\":\"\",\"t\":\"…\",\"ask\":\"…\",\"next\":\"…\"}]}";
   function thCalendar(){const c0=calDay(0);const a=[];for(let i=-3;i<=14;i++){const c=calDay(i);a.push(`${c.iso}(${c.w})`);}return `【今夜の日付と暦】今日は${c0.iso}（${c0.w}）。暦：${a.join(" ")}`;}
   // 話の続き帳が空の時だけ、最近2日の自動メモ（Claudeとのやりとり）から最初の続きを拾う（1回だけ）
   async function seedThreadsFromDigest(d){
     try{
       if(!gKey()||localStorage.getItem("tokienew_threads_seeded_v1")||threadsOpen().length)return;
       if(!d||d.status!=="ok"||!d.days.length)return;
-      const lines=d.days.slice(0,2).flatMap(x=>digestClean(x.text).split("\n")).map(l=>l.replace(/^・/,"").trim()).filter(l=>l.length>=6&&!/頼みたい/.test(l));
+      const lines=d.days.slice(0,2).flatMap(x=>relDays(digestClean(x.text),dkey(x.date)).split("\n")).map(l=>l.replace(/^・/,"").trim()).filter(l=>l.length>=6&&!/頼みたい/.test(l));
       if(!lines.length)return;
       localStorage.setItem("tokienew_threads_seeded_v1","1");
       await updateThreads(lines.map(t=>({who:"user",text:t})));
@@ -1371,7 +1387,7 @@
     if(!gKey())return;
     const lines=(msgs||[]).filter(m=>m.who!=="ai").map(m=>String(m.text||"").trim()).filter(t=>t.length>=4);
     if(lines.length<2)return;
-    const open=threadsOpen().map(x=>({id:x.id,when:x.when||"",t:x.t,next:x.next||""}));
+    const open=threadsOpen().map(x=>({id:x.id,since:x.since||"",when:x.when||"",t:x.t,next:x.next||""}));
     let said=lines.map(t=>"・"+clip(t,160)).join("\n");if(said.length>24000)said=said.slice(-24000);
     const out=await geminiText(TH_PROMPT+"\n\n"+thCalendar()+"\n\n【話の続き帳（今まで・まだ途中の話）】\n"+JSON.stringify({items:open})+"\n\n【今夜の客の言葉（古い→新しい）】\n"+said,{json:true,max:4096});
     if(!out)return;
@@ -1383,13 +1399,15 @@
       if(!y)continue;
       const t=String(y.t||"").trim().slice(0,60),ask=String(y.ask||"").trim().slice(0,30),next=String(y.next||"").trim().slice(0,40);
       const when=/^\d{4}-\d{2}-\d{2}$/.test(String(y.when||"").trim())?String(y.when).trim():"";
+      let since=/^\d{4}-\d{2}-\d{2}$/.test(String(y.since||"").trim())?String(y.since).trim():"";
+      if(since&&isoDiff(since,dkey(today))>0)since=""; // 起きた日が未来は捨てる
       let x=(y.id&&y.id!=="new")?list.find(z=>z.id===String(y.id)):null;
       if(!x){
         if(!t||y.status==="done"||added>=5)continue;
-        x={id:"T"+now.toString(36)+Math.random().toString(36).slice(2,5),t,ask:ask||clip(t,20),next,when,first:today,last:today,lastTs:now,done:false};list.unshift(x);added++;continue;
+        x={id:"T"+now.toString(36)+Math.random().toString(36).slice(2,5),t,ask:ask||clip(t,20),next,when,since,first:today,last:today,lastTs:now,done:false};list.unshift(x);added++;continue;
       }
       if(y.status==="done"){x.done=true;x.doneAt=today;}
-      if(t)x.t=t;if(ask)x.ask=ask;if(next)x.next=next;if(when)x.when=when;x.last=today;x.lastTs=now;
+      if(t)x.t=t;if(ask)x.ask=ask;if(next)x.next=next;if(when)x.when=when;if(since&&!x.since)x.since=since;x.last=today;x.lastTs=now;
     }
     // 閉じた話は30件まで残して、古い順に消す。開いてる話は TH_MAX 件まで
     const openL=list.filter(x=>!x.done&&(now-(x.lastTs||0))<TH_DAYS*86400000).slice(0,TH_MAX);
@@ -1493,7 +1511,7 @@
       v2:(c)=>picks[2]?visitDetail(picks[2],c,VLABEL[2],VLINES[2]):"",
       today:(c)=>todayDigestBlock(days,c),
       lt:(c)=>ltBlockCap(c),
-      yday:(c)=>{if(!olderDays.length)return "";const h="【昨日（前の日）お客さんの身に起きたこと（毎日の自動メモ）】\n";return clipBytes(h+`■${olderDays[0].date}\n${digestClean(olderDays[0].text)}`,c);},
+      yday:(c)=>{if(!olderDays.length)return "";const h="【昨日（前の日）お客さんの身に起きたこと（毎日の自動メモ。日付はその日から見た日）】\n";return clipBytes(h+`■${olderDays[0].date}\n${relDays(digestClean(olderDays[0].text),dkey(olderDays[0].date))}`,c);},
       photo:(c)=>recentPhotosBlock(c),
       profile:(c)=>{const t=profileCore(c-400);return t?"【お客さんの基本情報（核だけの要約。仕事・実績・夢・将来の構想。知ってる前提で話す）】\n"+t:"";},
       notes:(c)=>{if(!notes.length)return "";const h="【お客さんについてママが書き留めたこと（新しい順）】\n";let body="";
@@ -1538,7 +1556,7 @@
       const e=byDay.get(key);
       const mins=e.v.reduce((n,v)=>n+(v.mins||0),0);
       const shop=e.v.length?`店${e.v.length}回${mins}分: `+e.v.slice(0,2).map(v=>visitGist(v,e.v.length>1?45:80)).join("／"):"";
-      const life=e.d?"その日: "+digestGist(e.d,e.v.length?50:90):"";
+      const life=e.d?"その日: "+digestGist(relDays(e.d,key),e.v.length?50:90):"";
       const tag=key===today?"（今日）":"";
       const line=clipBytes(`■${shortDate(key)}${tag} `+[shop,life].filter(Boolean).join(" ｜ "),MEM_CAPS.monthDay);
       if(jbytes(h+body+line+"\n")>c)break;
@@ -1563,6 +1581,7 @@
     "形式：話題ごとに1〜3行。各話題に「事実（客が言うたこと）」「決まったこと・結論」「理由・つながり（○○やから△△）」「まだ途中の話」を、あるものだけ短く書く。"+
     "いちばん最初に【前提・訂正】として、客がママを訂正したこと・客が説明した仕組みやルール（例：「このアプリは足跡がつかない」）を必ず書く。ママの前の発言と食い違う時は客の言うことが正しい。ママが言った間違ったアドバイスは残さない。"+
     "その次に【話の続き】として、まだ途中の話・これから起きる予定（日付つき。先の予定を済んだことにしない）・ママが「あれどうなった？」と聞くべきことを書く。"+
+    "前から続いてる出来事（入院・病気・ケンカ・手続きなど）は、起きた日を必ず添える（例：「母が肺炎で入院中（入院は10/28）」）。今夜その話が出ても、起きたのが今日とは限らない。起きた日が分からん時は「起きた日は未確認」と書き、「今日」「今夜」とは書かない。日付は下の暦で直す。"+
     "客がやらないと言ったこと・条件・体調・気持ちの変化は必ず残す。女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。ママの発言は、約束したことと客が反応したことだけ残す。推測や作り話は書かない。全体で600字以内。前置き不要。";
   function nightSumText(){
     const t=current&&current.nightSum;
@@ -1658,7 +1677,7 @@
     try{
       const log=current.msgs.slice(-160).map(m=>(m.who==="ai"?"ママ「":"客「")+clip(m.text,120)+"」").join("\n");
       const prev=current.nightSum?"\n\n【前回までの要点メモ（これも引き継いで更新する）】\n"+current.nightSum:"";
-      const t=await geminiText(SUM_PROMPT+prev+"\n\n【今夜の会話】\n"+log);
+      const t=await geminiText(SUM_PROMPT+"\n\n"+thCalendar()+prev+"\n\n【今夜の会話】\n"+log);
       if(t&&current){current.nightSum=clip(t.replace(/\n{3,}/g,"\n\n"),SUM_MAX_CHARS);pinTonight();}
     }finally{if(session)session.sumBusy=false;}
   }
