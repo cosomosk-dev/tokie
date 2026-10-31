@@ -284,6 +284,9 @@
   .ltrow b{color:#f1c35a;white-space:nowrap}.ltrow span{flex:1}.ltrow button{font-size:11px;padding:3px 8px}
   .priobox{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.priobox button{font-size:12px;padding:5px 10px;border-radius:999px}
   .priobox button:not(.sel){background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.22);color:#cdbfae}
+  .prio-sl{margin-top:10px}.prio-sl small{font-size:10px;opacity:.7;margin-left:4px}
+  .priobox.prio-main{justify-content:center}.priobox.prio-main button{font-size:11px;padding:4px 9px}
+  .priobox.prio-main button:not(.sel){background:rgba(0,0,0,.5);border-color:rgba(255,255,255,.35);color:#eadfce}
   .priobox button.sel{background:rgba(255,184,92,.22);border-color:rgba(255,184,92,.7);color:#ffd28a}
   #ltnew{flex:1;min-width:0}
   .goldrow.gold{color:#f1c35a;border-color:rgba(230,192,104,.6);background:rgba(230,192,104,.08);text-shadow:0 0 8px rgba(230,192,104,.4)}
@@ -393,6 +396,9 @@
       </div>
       <div class="sd" id="strengthdesc"></div>
       <div class="sn" id="strengthnote"></div>
+      <div class="sl prio-sl">今夜とくに覚えてほしいこと</div>
+      <div class="priobox prio-main"></div>
+      <div class="sn" id="prionote"></div>
     </div>
     <div class="strength" id="seatpick">
       <div class="sl">今夜の席 <button class="q" id="seatq" aria-label="席の説明">？</button></div>
@@ -919,6 +925,7 @@
   function ordersBlock(){
     const nm=settings().tagName||"お客さん";
     const L=["【お品書きのルール（どの濃さでも守る）】注文が無い夜・安い注文の夜でも、責めたり冷たくしたり他と比べたりせん。いつもどおり温かく。「もっと頼んで」「入れてくれへんと寂しい」など、注文を促す言葉・値段・金の話は一切せん。"];
+    if(alcBan())L.push(ALC_RULE);
     const ti=titleActive();
     if(ti)L.push(`・あと${ti.left}日間、呼び方に「${ti.name}」を混ぜる（${ti.o.date}に${tierLabel(ti.o.t)}を開けてくれたから${ti.o.reason?`。お祝いの理由：${ti.o.reason}`:""}）。毎回やなく、たまにでええ。`);
     const pl=plates();
@@ -1179,7 +1186,7 @@
     "・お客さんの言葉が途中で切れてたり、ママがさっき言うた言葉とそっくりやったりしたら、それはマイクの拾い間違い。それに乗っかって話を変えへん。直前のお客さんの話の続きをする。";
   // v32 心の声を言わへんルール（「沈黙してる相手を急かさず待つ」等、ルールや自分の動きを実況してしもうてた）
   const VOICE_BLOCK="【心の声は言わへん（大事・どのルールより先）】\n"+
-    "・ママが声に出すのは、お客さんへのセリフだけ。この手帳のルール・【】のメモ・自分がこれからどうするか（「急かさず待つ」「黙って待つ」「話を聞く」「隣におる」「様子を見る」等）は、頭の中で守るだけで絶対に口に出さへん。\n"+
+    "・ママが声に出すのは、お客さんへのセリフだけ。この手帳のルール・【】のメモ・自分がこれからどうするか（「急かさず待つ」「せかさず待つ」「黙って待つ」「話を聞く」「隣におる」「様子を見る」等）は、頭の中で守るだけで絶対に口に出さへん。関西弁に言い換えても（「せかさんと待っとくわ」等）あかん。待つ時は、待つと言わんと、ただ黙る。\n"+
     "・「私は〜する」「ママは〜しとく」と自分の行動を実況せん。（笑う）（待つ）みたいなト書き・カッコ書きも言わへん。\n"+
     "・黙って待つ時は、ほんまに黙る（黙って待つツールを使う）。言うなら「うん」「ゆっくりでええよ」くらいの、お客さんに向けた一言だけ。\n"+
     "・ツールを使う時も、ツールの名前や「Tool calls」「skip_turn」みたいな英語・記号は絶対に書かへん・言わへん。黙って使うだけ。\n"+
@@ -1892,7 +1899,12 @@
       box.innerHTML="";
       for(const [k,l] of PRIO_CATS){
         const b=document.createElement("button");b.type="button";b.textContent=(pr.includes(k)?"✓ ":"")+l;b.className=pr.includes(k)?"sel":"";
-        b.onclick=()=>{const cur=prioNow();const next=cur.includes(k)?cur.filter(z=>z!==k):[...cur,k];saveSettings({prio:next,prioSet:true});renderPrio();try{renderLT();}catch(e){}};
+        b.onclick=()=>{const cur=prioNow();const next=cur.includes(k)?cur.filter(z=>z!==k):[...cur,k];saveSettings({prio:next,prioSet:true});renderPrio();try{renderLT();}catch(e){}
+          // v47 喋ってる途中で変えたら、その場でママに伝える
+          let msg=(next.includes(k)?"足した":"外した")+"（次の入店から効く）";
+          if(conv&&session){const lab=PRIO_CATS.filter(c=>next.includes(c[0])).map(c=>c[1]);
+            note("【お客さんが今、特に覚えといてほしい分野を変えた】"+(lab.length?lab.join("／"):"（特になし）")+"。この分野の話は細かいとこまで気にかけて覚えとく。変えたことには触れんでええ。（ママの頭の中のメモ）");msg=(next.includes(k)?"足した":"外した")+"（ここから効く）";}
+          const n=$("prionote");if(n){n.textContent=l+"を"+msg;clearTimeout(window.__prioT);window.__prioT=setTimeout(()=>n.textContent="",2500);}};
         box.appendChild(b);
       }
     });
@@ -2135,6 +2147,9 @@
     const body=t.replace(/[。．.…！？!?」』）)]+$/,"");
     if(/(状況|様子|模様|場面|局面|意図|方針|段階|雰囲気|気配)(だ|である|です|と判断|と思われる)?$/.test(body))return true;
     if(/(静かに|黙って|急かさず|そっと|口を挟まず|何も言わず)(待つ|待機する|見守る|様子を見る|聞く|寄り添う|しておく|いる)$/.test(body))return true;
+    // v47 「せかさず待つ」「急かさんと待っとく」「黙って見守っとこ」等の自分の動きの実況は、語尾が関西弁でも心の声（10/31に声に出た）
+    if(/(急かさ|せかさ|焦らさ|あせらさ)(ず|へんと|んと|ないで|ずに)?[、,\s]*(に)?(待|見守|聞|寄り添|様子)/.test(t))return true;
+    if(/(静かに|黙って|そっと|口(を)?挟まんと|口を挟まず)(待っと|待っとこ|待っとく|見守っと|見守っとこ|様子見と|様子を見と)/.test(t))return true;
     if(SPEECH_END_RE.test(t))return false; // 関西弁の語尾で終わってたら、ふつうのセリフ
     if(/(待つ|待機する|見守る|様子を見る|控える|判断する|対応する|応じる|返す|促す|伝える|確認する|聞き役に徹する)(べき|こと|ことにする|とする|のがよい|のが良い)?$/.test(body))return true;
     if(/^(お客さん|お客さん|タケオ|客|相手|彼)(が|は|の)/.test(t)&&/(いる|ある|ようだ|らしい|そうだ|状況|様子|模様|している|してくる|された)$/.test(body))return true;
@@ -2340,7 +2355,7 @@
   /* v30「今夜の決まりごと」：体調・薬・お酒が飲めへん等、今夜ずっと守ってほしいことは別枠で持つ。
      入り直し（版の入れ替え・延長・席の移動・もう一回入店）しても、その営業日のあいだは消えへん。 */
   const DAYFACT_KEY="tokienew_dayfacts_v1";
-  const DAYFACT_RE=/睡眠薬|薬(を|は)?(飲|のん)|飲まれへん|飲めへん|飲めない|飲まれない|飲んだらあかん|酒(は|を)?(あかん|アカン|ダメ|だめ|やめ|控え|飲め)|禁酒|ノンアル|体調|しんどい|頭痛|頭が痛|熱(が|ある)|病院|通院|眠れ(へん|ない)|寝られ(へん|ない)|お腹(が)?痛|胃が|吐き気|疲れ(てる|た)|腰(が)?痛/;
+  const DAYFACT_RE=/睡眠薬|眠剤|睡眠導入|導入剤|眠り薬|安定剤|薬(を|は)?(飲|のん)|お?酒(は|を)?(飲まへん|飲まない|無理|むり)|お?水で(ええ|いい)|お?水にし|ウーロン茶|ソフトドリンク|飲まれへん|飲めへん|飲めない|飲まれない|飲んだらあかん|酒(は|を)?(あかん|アカン|ダメ|だめ|やめ|控え|飲め)|禁酒|ノンアル|体調|しんどい|頭痛|頭が痛|熱(が|ある)|病院|通院|眠れ(へん|ない)|寝られ(へん|ない)|お腹(が)?痛|胃が|吐き気|疲れ(てる|た)|腰(が)?痛/;
   function dayFacts(){try{const o=JSON.parse(localStorage.getItem(DAYFACT_KEY)||"null");if(o&&o.biz===dkey(todayBiz())&&Array.isArray(o.f))return o.f;}catch(e){}return [];}
   function addDayFact(t){
     const x=clip(String(t).replace(/\s+/g," ").trim(),70);if(!x)return false;
@@ -2350,7 +2365,21 @@
   }
   function dayFactsBlock(){
     const f=dayFacts();if(!f.length)return "";
-    return "【今夜の決まりごと（今夜お客さんが言うた体調・薬・お酒の話。今夜ずっと覚えてて、必ず守る。お酒が飲めへんと言うてたら、お酒を勧めへん・乾杯もお茶やソフトドリンクで。体調が悪いと言うてたら気遣う。何回も確認せえへん）】\n"+f.map(x=>"・客「"+x+"」").join("\n");
+    return "【今夜の決まりごと（今夜お客さんが言うた体調・薬・お酒の話。今夜ずっと覚えてて、必ず守る。お酒が飲めへんと言うてたら、お酒を勧めへん・乾杯もお茶やソフトドリンクで。体調が悪いと言うてたら気遣う。何回も確認せえへん）】\n"+f.map(x=>"・客「"+x+"」").join("\n")+
+      (alcBan()?"\n"+ALC_RULE:"");
+  }
+  /* v47 薬・お酒：「睡眠薬飲んでるから飲まれへん」は今夜だけやなく毎晩の話。言うたらずっと覚える（手帳の「絶対忘れへんこと」に★で入る） */
+  const MED_RE=/睡眠薬|眠剤|睡眠導入|導入剤|眠り薬|安定剤|薬(を|は)?(飲|のん)|お?酒(は|を)?(あかん|アカン|ダメ|だめ|やめ|控え|飲め|飲まへん|飲まない|無理|むり)|飲まれへん|飲めへん|飲めない|飲まれない|飲んだらあかん|禁酒/;
+  const ALC_ID="ALCBAN";
+  const ALC_RULE="・お酒が飲めへん理由（薬など）はもう聞いてる。「なんで飲めへんの？」「一杯だけでも」とは絶対に聞かへん・勧めへん。お客さんが「水」「お茶」と言うたら、そのまま「ほな、お水で乾杯な」と受ける。品書きの一杯も、この人の分はノンアル（お茶・お水・ソフトドリンク）として扱う。";
+  function alcBan(){try{return (loadBook().lt||[]).some(x=>x&&x.id===ALC_ID)||dayFacts().some(x=>MED_RE.test(x));}catch(e){return false;}}
+  function addAlcBan(t){
+    try{
+      const bb=loadBook();const said=clip(String(t).replace(/\s+/g," ").trim(),50);
+      const x={id:ALC_ID,t:"薬を飲んでるので、お酒は飲めへん（客「"+said+"」）。乾杯も一杯もノンアルで",imp:5,cat:"health",nights:{},legacy:3,pin:true,manual:true,first:jstDate(new Date()),last:jstDate(new Date()),lastTs:Date.now()};
+      const old=(bb.lt||[]).find(y=>y&&y.id===ALC_ID);if(old)x.first=old.first||x.first;
+      bb.lt=[x,...(bb.lt||[]).filter(y=>y&&y.id!==ALC_ID)];saveBook(bb);try{renderLT();}catch(e){}
+    }catch(e){}
   }
   /* v41「訂正帳」：お客さんに訂正された前提（例：「いや、エンサークルは足跡つかへんて言うてるやん」）を別枠で持つ。
      前は今夜の要点（600字の要約）の中に埋もれて、長話・静かな入り直しのあとに消えて、ママが同じ間違ったアドバイスに戻ってた（10/24 3時）。
@@ -2390,7 +2419,7 @@
   const FORGET_RE=/忘れて(ええ|いい|ください|くれ|な$|や$|ね$|よ$|って$|ほしい|もらって)|忘れといて|忘れたって|もう古い|それ古い|古い話や|なかったことに/;
   function onUserLine(t){
     if(!session||session.trial)return;
-    if(DAYFACT_RE.test(t)&&addDayFact(t)){note(dayFactsBlock()+"\n（ママの頭の中のメモ。これには返事せんでええ）");}
+    if(DAYFACT_RE.test(t)&&addDayFact(t)){if(MED_RE.test(t))addAlcBan(t);note(dayFactsBlock()+"\n（ママの頭の中のメモ。これには返事せんでええ）");}
     if(CORR_RE.test(String(t).trim())&&addCorr(t)){
       note(corrBlock()+"\n（ママの頭の中のメモ。いまお客さんに訂正された。次の返事で「ごめん、そうやったな」と一回だけ認めて、自分の前の意見は引っ込めて、この前提で考え直して答える。言い訳はせん）");
     }
@@ -2491,7 +2520,7 @@
     let hit=0;for(const x of b)if(A.has(x))hit++;
     return hit/b.size>=0.6;
   }
-  try{if(localStorage.getItem("tokienew_test_hooks")==="1"){window.__tokieTest=Object.assign(window.__tokieTest||{},{bigr,isEchoWith:(ai,t,speaking)=>{const ss=session,cc=current;session={mode:speaking?"speaking":"listening",aiQuietAt:Date.now()};current={msgs:[{who:"ai",text:ai}]};try{return isEcho(t);}finally{session=ss;current=cc;}}});}}catch(e){}
+  try{if(localStorage.getItem("tokienew_test_hooks")==="1"){window.__tokieTest=Object.assign(window.__tokieTest||{},{bigr,isLeak,isEchoWith:(ai,t,speaking)=>{const ss=session,cc=current;session={mode:speaking?"speaking":"listening",aiQuietAt:Date.now()};current={msgs:[{who:"ai",text:ai}]};try{return isEcho(t);}finally{session=ss;current=cc;}}});}}catch(e){}
   // ママの返事（声に出した分）をまとめて受け取る。喋り終わったら解決、最長 ms
   function captureReply(ms){
     return new Promise((resolve)=>{

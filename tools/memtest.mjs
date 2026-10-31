@@ -228,6 +228,15 @@ try {
     await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
     const again = await enter(p);
     ok("入り直しても「今夜の決まりごと」（睡眠薬・お酒飲めへん）を覚えてる", again.memory.includes("今夜の決まりごと") && again.memory.includes("睡眠薬"), "入り直したら消えてる");
+    // v47 10/31「睡眠薬って言うてるのに、なんで飲めへんの？と何回も聞く」
+    ok("薬・お酒の話は「絶対忘れへんこと」に★で入って、次の夜も残る", /【ママが絶対に忘れへんこと[\s\S]*お酒は飲めへん[^\n]*睡眠薬/.test(again.memory) && JSON.stringify(bk.lt || []).includes("ALCBAN"), (again.memory.match(/[^\n]*お酒は飲めへん[^\n]*/) || ["（届いてへん）"])[0]);
+    ok("「なんで飲めへんの？」と聞き返さへんルールが届く", again.memory.includes("「なんで飲めへんの？」「一杯だけでも」とは絶対に聞かへん"), "ルールが無い");
+    await p.evaluate(() => localStorage.setItem("tokie_test_hooks", "1"));
+    await p.reload(); await p.waitForTimeout(1200);
+    const lk = await p.evaluate(() => { const f = window.__tokieTest && window.__tokieTest.isLeak; if (!f) return "フック無し"; return [f("せかさず待つ。"), f("せかさんと待っとくわ。"), f("静かに見守っとこ。"), f("急かさへんから、ゆっくりでええよ。"), f("ほな、お水で乾杯な！")].join(","); });
+    ok("「せかさず待つ」系の心の声は、関西弁の語尾でも声を消す（ふつうのセリフは消さへん）", lk === "true,true,true,false,false", lk);
+    const pm = await p.evaluate(() => document.querySelectorAll(".priobox.prio-main button").length);
+    ok("入店前の画面で「今夜とくに覚えといてほしいこと」を毎回切り替えられる", pm === 6, String(pm));
     await ctx.close();
   }
   { // 静かな入り直し（長話の頭脳代の上がり止め）：挨拶なしで、今夜の話を持ったまま入り直すか
