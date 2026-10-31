@@ -1742,11 +1742,11 @@
   function ltNorm(x){
     x=x||{};const t=String(x.t||"").trim().slice(0,80);
     return {id:x.id||ltHash(t),t,imp:ltImp(x),nights:(x.nights&&typeof x.nights==="object")?x.nights:{},
-      legacy:x.legacy!=null?(x.legacy|0):(x.n|0),pin:!!x.pin,manual:!!x.manual,cat:PRIO_KEYS.includes(x.cat)?x.cat:"",first:x.first||"",last:x.last||"",lastTs:x.lastTs||Date.now()};
+      legacy:x.legacy!=null?(x.legacy|0):(x.n|0),pin:!!x.pin,manual:!!x.manual,cat:PRIO_KEYS.includes(x.cat)?x.cat:"",emo:Math.max(0,Math.min(2,parseInt(x.emo,10)||0)),feel:String(x.feel||"").trim().slice(0,12),first:x.first||"",last:x.last||"",lastTs:x.lastTs||Date.now()};
   }
   function ltTotal(x){let s=(x.legacy|0);const ns=x.nights||{};for(const k in ns)s+=Math.min(3,ns[k]|0);return s;}
-  function ltHot(x,pr){if(!x)return false;x=x.nights?x:ltNorm(x);const n=ltTotal(x),i=ltImpE(x,pr);return !!(x.pin||(i>=5&&n>=1)||(i>=4&&n>=2)||n>=3);}
-  function ltScore(x,pr){const days=(Date.now()-(x.lastTs||Date.now()))/86400000;return (ltHot(x,pr)?1000:0)+(x.pin?500:0)+ltImpE(x,pr)*10+ltTotal(x)*3-Math.min(30,days)/3;}
+  function ltHot(x,pr){if(!x)return false;x=x.nights?x:ltNorm(x);const n=ltTotal(x),i=ltImpE(x,pr);return !!(x.pin||(i>=5&&n>=1)||((x.emo|0)>=2&&n>=1)||(i>=4&&n>=2)||n>=3);} // v48 気持ちが強く出た話（悔しい・寂しい等）は1回で昇格
+  function ltScore(x,pr){const days=(Date.now()-(x.lastTs||Date.now()))/86400000;return (ltHot(x,pr)?1000:0)+(x.pin?500:0)+ltImpE(x,pr)*10+(x.emo|0)*8+ltTotal(x)*3-Math.min(30,days)/3;}
   /* v46「決めたこと帳」：やる・やめる・待つと決めた話を、理由と日付とセットで持つ。同じ件を決め直したら上書き（前の決定は1つだけ控えに残す） */
   const DEC_MAX=20, DEC_DAYS=365;
   function decList(){const now=Date.now();return (loadBook().decisions||[]).filter(x=>x&&x.t&&(now-(x.ts||0))<DEC_DAYS*86400000).sort((a,c)=>(c.ts||0)-(a.ts||0));}
@@ -1776,11 +1776,11 @@
     if(lab.length)parts.push("【お客さんが特に覚えといてほしい分野】"+lab.join("／")+"（この分野の話は、細かいとこまで気にかけて覚えとく）");
     const used=()=>parts.reduce((n,x)=>n+jbytes(x)+4,0);
     if(hot.length){
-      const h="【ママが絶対に忘れへんこと（何回も聞いた話・大事な話・「覚えといて」と言われた話。手帳の他の部分より優先。この話が出たら、知ってる前提で話す。「初めて聞いた」顔は絶対せん）】\n";
+      const h="【ママが絶対に忘れへんこと（何回も聞いた話・大事な話・「覚えといて」と言われた話。手帳の他の部分より優先。この話が出たら、知ってる前提で話す。「初めて聞いた」顔は絶対せん。「気持ちが強く出た話」は、1回しか聞いてなくても覚えてる。入店して落ち着いたら、たまに「あの○○の件、あれから気持ちどう？」と1つだけ気にかける（毎回はせん・しつこく聞かん））】\n";
       const cap=Math.min(LT_BYTES,maxAll-used());
       let body="";
       for(const x of hot){
-        const tag=x.pin?"覚えといてと言われた":`${ltImpE(x,pr)>=5?"いちばん大事・":ltImpE(x,pr)>=4?"大事・":""}${ltTotal(x)}回聞いた`;
+        const tag=x.pin?"覚えといてと言われた":`${(x.emo|0)>=2?"気持ちが強く出た話"+(x.feel?"（"+x.feel+"）":"")+"・":""}${ltImpE(x,pr)>=5?"いちばん大事・":ltImpE(x,pr)>=4?"大事・":""}${ltTotal(x)}回聞いた`;
         const line="・"+x.t+"（"+tag+"）\n";
         if(jbytes(h+body+line)>cap)break;
         body+=line;
@@ -1798,7 +1798,7 @@
     return parts.join("\n\n");
   }
   const LT_PROMPT="あなたはスナックのママの手帳係です。お客さんが今夜話した言葉を読んで、手帳の【数え表】を更新する「差分」だけをJSONで出してください。\n"+
-    "拾うのは「今後も残る話」：夢・目標・人生の計画、仕事、家族・人間関係、体調・生活、決めたこと・やらないと言ったこと、好き嫌い、何度も出る悩みや口ぐせ。今夜限りの出来事・その場の気分・あいづちは拾わない。\n"+"女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。\n"+
+    "拾うのは「今後も残る話」：夢・目標・人生の計画、仕事、家族・人間関係、体調・生活、決めたこと・やらないと言ったこと、好き嫌い、何度も出る悩みや口ぐせ。今夜限りの出来事・その場の気分・あいづちは拾わない。ただし、客が強い気持ち（悔しい・寂しい・腹立つ・羨ましい・情けない・嬉しい・戻りたい・泣きそう・もう嫌や・絶対○○したい など）を込めて話した話は、1回でも必ず拾う（何に対してその気持ちになったかを t に書く）。\n"+"女の子・夜のお店・風俗・下世話な話も、客にとって気になってる話・続きがある話なら必ず残す（ここは大人のスナックで、ママは何でも聞く。品よく短く書く。露骨な描写は書かない）。\n"+
     "各話に「大事さ imp」1〜5をつける：\n"+
     "5＝夢・目標・人生の大きな計画・本人の強いこだわり（例：都知事選や衆院選に挑む、アプリで独立する）\n"+
     "体調・薬・お酒が飲めない（飲まない）話は、命と体に関わるので必ず5にする。\n"+"4＝仕事・家族・体調・お金・決めたこと・やらないと言ったこと\n3＝好み・習慣・よく会う人や店\n2＝最近の出来事・近況\n1＝雑談・どうでもええ話\n"+
@@ -1810,8 +1810,9 @@
     "4. 今夜出てない話は出さない。似た話は1つにまとめる。\n"+
     "5. 各話に分野 cat をつける：family＝家族・大事な人／health＝体調・体／work＝仕事・やってること／love＝恋愛・女性／dream＝夢・目標／decide＝決めたこと／other＝それ以外。\n"+
     "6. 客が【数え表】や【決めたこと】の話について「それ忘れて」「もう古い」「なかったことに」「もうええ」とはっきり言った時だけ、その id で forget:true を出す（ほかの項目は出さんでええ）。迷ったら forget にしない。\n"+
-    "7. 【決めたこと】：客が今夜「やる」「やめる」「見送る」「待つ」「○○にする」と決めた話（予定ではなく方針）は decisions に出す。t＝何を決めたか（40字以内・固有名詞を残す）、why＝客が言った理由（客が言ってなければ空文字。推測で書かない）、date＝決めた日（暦で直す。分からなければ今日）。【決めたこと】に同じ件があればその id で出して t・why・date を新しい内容にする（決め直し）。同じ件で理由だけ新しく分かった時も、その id で why を出す。今夜決めてない話は出さない。\n"+
-    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"t\":\"…\",\"imp\":5,\"tonight\":3,\"pin\":false,\"cat\":\"work\",\"forget\":false}],\"decisions\":[{\"id\":\"…\",\"t\":\"…\",\"why\":\"…\",\"date\":\"YYYY-MM-DD\",\"forget\":false}]}";
+    "7. 気持ちの強さ emo を各話につける：2＝客がはっきり強い気持ちを込めて話した（言葉が強い・同じ気持ちを繰り返す・ため息まじり・吐き出すように言う）／1＝少し気持ちがこもってる／0＝淡々と話した。emo が1以上なら feel にその気持ちを短く（例：悔しい・寂しい・羨ましい・嬉しい・戻りたい。8字以内）。数え表にある話でも、今夜強い気持ちが出たら emo を出す。\n"+
+    "8. 【決めたこと】：客が今夜「やる」「やめる」「見送る」「待つ」「○○にする」と決めた話（予定ではなく方針）は decisions に出す。t＝何を決めたか（40字以内・固有名詞を残す）、why＝客が言った理由（客が言ってなければ空文字。推測で書かない）、date＝決めた日（暦で直す。分からなければ今日）。【決めたこと】に同じ件があればその id で出して t・why・date を新しい内容にする（決め直し）。同じ件で理由だけ新しく分かった時も、その id で why を出す。今夜決めてない話は出さない。\n"+
+    "出力は次のJSONだけ：{\"items\":[{\"id\":\"…\",\"t\":\"…\",\"imp\":5,\"tonight\":3,\"pin\":false,\"cat\":\"work\",\"emo\":0,\"feel\":\"\",\"forget\":false}],\"decisions\":[{\"id\":\"…\",\"t\":\"…\",\"why\":\"…\",\"date\":\"YYYY-MM-DD\",\"forget\":false}]}";
   async function updateLongterm(msgs,opt){
     opt=opt||{};
     if(!gKey())return []; // 写真機能のキーが無い時は数えへん（手入力の「覚えさせる」だけ使える）
@@ -1847,6 +1848,9 @@
       if(y.imp!=null&&!x.manual)x.imp=Math.max(ltImp(x),ltImp(y)); // 大事さは下げへん（下げたい時は手帳で押して変える）
       if(tn>0){x.nights[key]=Math.max(x.nights[key]|0,tn);x.last=today;x.lastTs=now;}
       if(y.pin)x.pin=true;
+      { const em=Math.max(0,Math.min(2,parseInt(y.emo,10)||0)); // v48 気持ちの強さは下げへん（強かった時の気持ちを残す）
+        if(em>=(x.emo|0)&&em>0){const f=String(y.feel||"").trim().slice(0,12);if(f)x.feel=f;}
+        if(em>(x.emo|0))x.emo=em; }
       if(PRIO_KEYS.includes(y.cat)&&!x.cat)x.cat=y.cat;
       const ks=Object.keys(x.nights);if(ks.length>40){for(const k of ks.slice(0,ks.length-40)){x.legacy+=Math.min(3,x.nights[k]|0);delete x.nights[k];}}
     }
@@ -1930,10 +1934,10 @@
     const IMPN={1:"雑談",2:"近況",3:"ふつう",4:"大事",5:"いちばん大事"};
     for(const x of items){
       const d=document.createElement("div");d.className="ltrow"+(ltHot(x,pr)?" hot":"");
-      const n=document.createElement("b");n.textContent=(x.pin?"★":ltHot(x,pr)?"🔥":"")+`${IMPN[ltImpE(x,pr)]}・${ltTotal(x)}回`;
+      const n=document.createElement("b");n.textContent=(x.pin?"★":ltHot(x,pr)?"🔥":"")+((x.emo|0)>=2?"💢":"")+`${IMPN[ltImpE(x,pr)]}・${ltTotal(x)}回`;
       n.title="押すと大事さが変わる";n.style.cursor="pointer";
       n.onclick=()=>{const bb=loadBook();bb.lt=(bb.lt||[]).map(ltNorm).map(y=>y.id===x.id?Object.assign(y,{imp:ltImp(y)%5+1}):y);saveBook(bb);renderLT();};
-      const t=document.createElement("span");t.textContent=x.t;
+      const t=document.createElement("span");t.textContent=x.t+((x.emo|0)>=1&&x.feel?"（"+x.feel+"）":"");
       const del=document.createElement("button");del.textContent="忘れさせる";
       del.onclick=()=>{const bb=loadBook();bb.lt=(bb.lt||[]).map(ltNorm).filter(y=>y.id!==x.id);saveBook(bb);renderLT();};
       d.appendChild(n);d.appendChild(t);d.appendChild(del);box.appendChild(d);

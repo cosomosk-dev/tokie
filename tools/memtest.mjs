@@ -90,6 +90,7 @@ const book = { __photo: MARK.photo, profile, visits,
   lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
     // v46 大事さ4・1回だけ。家族は「特に覚えといてほしい分野」（既定）なので1段上がって昇格するはず
     { t: "目印カゾク：母が10/28から入院中", imp: 4, cat: "family", nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
+    { t: "目印キモチ：ハロウィンのインスタが楽しそうで悔しかった", imp: 3, cat: "", emo: 2, feel: "悔しい", nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
     { id: "LTW", t: "目印ワスレ：前の店の話", imp: 3, nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }],
   decisions: [{ id: "D1", t: "目印キメタ：市議選には出ない", why: "体調と対人疲労", date: DBY, ts: now - 2 * 86400e3 }] };
 const longText = (mark) => ["・【夜の分】Claudeとの会話履歴は今日も直接読めへんかったので、要点から書いています。細かいところはママから聞いてあげて。", "・" + mark]
@@ -189,6 +190,7 @@ try {
     ok(`${nm}：「話に出た日と起きた日は別」のルールが届く`, memory.includes("『話に出た日』と『起きた日』は別"), "時系列のルールに無い");
     ok(`${nm}：決めたことが理由と日付つきで届く`, /目印キメタ[^\n]*に決めた[^\n]*理由：体調と対人疲労/.test(memory) && memory.includes("ここに書いてある理由だけを使う"), (memory.match(/目印キメタ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：選んだ分野の話は1段上がって早めに昇格する`, /【ママが絶対に忘れへんこと[\s\S]*目印カゾク[^\n]*いちばん大事/.test(memory) && memory.includes("【お客さんが特に覚えといてほしい分野】"), (memory.match(/[^\n]*目印カゾク[^\n]*/) || ["（届いてへん）"])[0]);
+    ok(`${nm}：気持ちが強く出た話は1回で昇格して「気持ちが強く出た話」と添えて届く`, /【ママが絶対に忘れへんこと[\s\S]*目印キモチ[^\n]*気持ちが強く出た話（悔しい）/.test(memory), (memory.match(/[^\n]*目印キモチ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：前後の暦と時系列のルールが届く`, memory.includes("これから来る日（まだ先）") && memory.includes("【時系列のルール"), "暦が無い");
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
     ok(`${nm}：見せた写真（昨日）が届く`, memory.includes(MARK.photo), "写真の記録がママに渡ってへん");
