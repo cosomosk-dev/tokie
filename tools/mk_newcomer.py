@@ -73,7 +73,7 @@ R('return [base,mode,VOICE_BLOCK,toneBlock(S.strength),PACE_BLOCK,toneReminder(S
 R('ネームタグ「${S.tagName}」','ネームタグ「${S.tagName||custName()||"なし"}」')
 
 # 6) 席は1つ（頭の良さで差をつけへん・10/22の決定）。おごりも無し
-R('seat:"box"}','seat:"box"}',1)
+R('seat:"box", prio:','seat:"box", prio:',1)
 R('box:{name:"ボックス",llm:"",mult:1.5,','box:{name:"ボックス",llm:"",mult:1,')
 R('  function giftReason(ss){','  function giftReason(ss){ if(NEWCOMER)return null;')
 

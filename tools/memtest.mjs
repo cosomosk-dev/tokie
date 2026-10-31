@@ -14,6 +14,7 @@
     7. 会話の途中で、何回も言うた大事な話がその場で昇格するか
     8. 喋ってる最中に「立ち飲みを試す」を押しても、黙って無視せえへんか
     9. 前から続いてる話（入院など）を「今日起きた」と取り違えへんように、起きた日が届いてるか（2026/10/31）
+   10. 決めたこと帳（理由つき）・選んだ分野の底上げ・声で「忘れて」が効くか（2026/10/31）
 
   使い方（初回だけ）:
     npm i --prefix tools playwright@1.47.2
@@ -86,7 +87,11 @@ const book = { __photo: MARK.photo, profile, visits,
     // v45 前から続いてる話：起きた日（since）は聞いた日と分けて渡す／起きた日が無い話は「今日とは限らへん」と添える
     { id: "T2", t: "目印オキタ：母が肺炎で入院中", ask: "お母さんの具合", next: "退院", since: DBY3, first: "", last: "", lastTs: now - 5 * 86400e3, done: false },
     { id: "T3", t: "目印フメイ：会長と揉めてる件", ask: "会長との件", next: "仲直り", first: "", last: "", lastTs: now - 6 * 86400e3, done: false }],
-  lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }] };
+  lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
+    // v46 大事さ4・1回だけ。家族は「特に覚えといてほしい分野」（既定）なので1段上がって昇格するはず
+    { t: "目印カゾク：母が10/28から入院中", imp: 4, cat: "family", nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
+    { id: "LTW", t: "目印ワスレ：前の店の話", imp: 3, nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }],
+  decisions: [{ id: "D1", t: "目印キメタ：市議選には出ない", why: "体調と対人疲労", date: DBY, ts: now - 2 * 86400e3 }] };
 const longText = (mark) => ["・【夜の分】Claudeとの会話履歴は今日も直接読めへんかったので、要点から書いています。細かいところはママから聞いてあげて。", "・" + mark]
   .concat(Array.from({ length: 10 }, (_, i) => "・仕事の動き" + i + "：アプリの細かい話がいろいろあって、本人はかなり頑張ってた一日やったそうです。ほんまにお疲れさん。"))
   .concat(["・明日（木）：昼に用事、午後に確認", "・" + MARK.ask + "：ねぎらってあげて"]).join("\n");
@@ -133,7 +138,10 @@ async function page(seat, opt = {}) {
     } else if (txt.includes("手帳係")) {
       const said = txt.split("【今夜の客の言葉")[1] || "";
       const n = (said.match(/目印ヤクソク/g) || []).length;
-      out = JSON.stringify({ items: n ? [{ id: "new", t: "目印ヤクソク：都知事選のポスターを作る", imp: 5, tonight: n }, { id: "new", t: "雨やった", imp: 1, tonight: 1 }] : [] });
+      const items = n ? [{ id: "new", t: "目印ヤクソク：都知事選のポスターを作る", imp: 5, tonight: n }, { id: "new", t: "雨やった", imp: 1, tonight: 1 }] : [];
+      if (said.includes("目印ワスレ")) items.push({ id: "LTW", forget: true });
+      const decisions = said.includes("目印ケツダン") ? [{ id: "new", t: "目印ケツダン：トキエの商用化は見送り", why: "原価が高いから", date: TODAY }] : [];
+      out = JSON.stringify({ items, decisions });
     }
     r.fulfill({ contentType: "application/json", body: JSON.stringify({ candidates: [{ content: { parts: [{ text: out }] } }] }) });
   });
@@ -179,6 +187,8 @@ try {
     ok(`${nm}：話の続きに「起きた日」が聞いた日と分けて届く`, new RegExp("目印オキタ[^\\n]*起きたのは" + mdOf(DBY3) + "（3日前）").test(memory), (memory.match(/目印オキタ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：起きた日が分からん話は「今日とは限らへん」と添えて届く`, /目印フメイ[^\n]*起きた日は未確認/.test(memory), (memory.match(/目印フメイ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：「話に出た日と起きた日は別」のルールが届く`, memory.includes("『話に出た日』と『起きた日』は別"), "時系列のルールに無い");
+    ok(`${nm}：決めたことが理由と日付つきで届く`, /目印キメタ[^\n]*に決めた[^\n]*理由：体調と対人疲労/.test(memory) && memory.includes("ここに書いてある理由だけを使う"), (memory.match(/目印キメタ[^\n]*/) || ["（届いてへん）"])[0]);
+    ok(`${nm}：選んだ分野の話は1段上がって早めに昇格する`, /【ママが絶対に忘れへんこと[\s\S]*目印カゾク[^\n]*いちばん大事/.test(memory) && memory.includes("【お客さんが特に覚えといてほしい分野】"), (memory.match(/[^\n]*目印カゾク[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：前後の暦と時系列のルールが届く`, memory.includes("これから来る日（まだ先）") && memory.includes("【時系列のルール"), "暦が無い");
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
     ok(`${nm}：見せた写真（昨日）が届く`, memory.includes(MARK.photo), "写真の記録がママに渡ってへん");
@@ -195,7 +205,7 @@ try {
   { // 会話の途中で大事な話が昇格するか
     const { p, ctx } = await page("counter", { gemini: true });
     await enter(p);
-    const say = ["目印ヤクソク、都知事選のポスター作るで", "今日は雨やった", "ほんで目印ヤクソクの話やけど", "アプリの話", "目印ヤクソク、ちゃんとやる", "眠いわ", "目印ヤクソク覚えといて", "まあええわ", "睡眠薬飲んでるから今日はお酒飲めへんねん"];
+    const say = ["目印ヤクソク、都知事選のポスター作るで", "今日は雨やった", "ほんで目印ヤクソクの話やけど", "アプリの話", "目印ヤクソク、ちゃんとやる", "眠いわ", "目印ヤクソク覚えといて", "まあええわ", "睡眠薬飲んでるから今日はお酒飲めへんねん", "目印ケツダン、トキエの商用化は見送るわ、原価が高いから", "目印ワスレの話な、それもう古いから忘れて"];
     for (const t of say) {
       await p.evaluate((t) => window.__o.onMessage({ message: t, source: "user" }), t); await p.waitForTimeout(120);
       await p.evaluate(() => window.__o.onMessage({ message: "へえ、そうなん", source: "ai" })); await p.waitForTimeout(80);
@@ -207,6 +217,13 @@ try {
     await p.waitForTimeout(2500);
     const th = await p.evaluate(() => JSON.stringify((JSON.parse(localStorage.getItem("tokie_notebook_v1")).threads || []).map((x) => [x.t, x.done])));
     ok("お会計で「話の続き帳」に今夜の途中の話が入る", th.includes("目印ツギ"), th);
+    const bk = await p.evaluate(() => JSON.parse(localStorage.getItem("tokie_notebook_v1")));
+    const dj = JSON.stringify(bk.decisions || []);
+    ok("今夜決めたことが「決めたこと帳」に理由つきで入る", dj.includes("目印ケツダン") && dj.includes("原価が高いから") && dj.includes("目印キメタ"), dj);
+    ok("声で「それ忘れて」と言うたら、その場でママに伝わる", notes.includes("忘れとくわ") && notes.includes("目印ワスレ"), "忘れてのメモが届いてへん");
+    ok("声で「それ忘れて」と言うた話は手帳から消える", !JSON.stringify(bk.lt || []).includes("目印ワスレ"), JSON.stringify((bk.lt || []).map((x) => x.t)));
+    const pb = await p.evaluate(() => [document.querySelectorAll("#guidesheet .priobox button").length, document.querySelectorAll("#sheet .priobox button").length]);
+    ok("最初の案内と手帳に「特に覚えといてほしい分野」の選択がある", pb[0] === 6 && pb[1] === 6, JSON.stringify(pb));
     ok("体調・薬・お酒の話は、言うたその場で「今夜の決まりごと」としてママに届く", notes.includes("今夜の決まりごと") && notes.includes("睡眠薬"), "決まりごとのメモが届いてへん");
     await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
     const again = await enter(p);
