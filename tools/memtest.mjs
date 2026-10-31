@@ -287,6 +287,20 @@ try {
     ok("喋ってる最中に「立ち飲みを試す」→ 確認が出て立ち飲みの選択に進む", (p.__dialogs || []).length > 0 && open.includes("trialsheet"), "黙って無視してる");
     await ctx.close();
   }
+  { // v49 10/31「途中で何を覚えてもらいたいか変えられない」：喋ってる最中に分野のボタンが全部押せて、押したらママに届くか
+    const { p, ctx } = await page("counter");
+    await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
+    await enter(p);
+    const reach = await p.evaluate(() => { const bs = [...document.querySelectorAll(".priobox.prio-main button")]; let n = 0;
+      for (const b of bs) { b.scrollIntoView({ block: "center", inline: "center" }); const r = b.getBoundingClientRect(); const x = r.left + r.width / 2, y = r.top + r.height / 2;
+        if (r.width > 0 && x >= 0 && x <= innerWidth && document.elementFromPoint(x, y) === b) n++; } return [bs.length, n]; });
+    ok("喋ってる最中も「覚えてほしい分野」のボタンが全部画面の中で押せる", reach[0] === 6 && reach[1] === 6, JSON.stringify(reach));
+    const b0 = await p.$(".priobox.prio-main button"); await b0.scrollIntoViewIfNeeded(); await b0.tap(); await p.waitForTimeout(300);
+    const notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+    const pn = await p.textContent("#prionote");
+    ok("喋ってる最中に分野を押したら、その場でママに伝わる", notes.includes("覚えといてほしい分野を変えた") && pn.includes("ここから効く"), pn);
+    await ctx.close();
+  }
 } finally {
   await browser.close(); server.close();
 }

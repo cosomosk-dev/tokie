@@ -342,6 +342,19 @@
   .stage.on .knobs .opts{gap:4px}
   .stage.on .knobs button{min-width:0;padding:6px 7px 5px;font-size:11px;letter-spacing:.02em}
   .stage.on #seatpick{padding-left:6px;border-left:1px solid rgba(255,241,226,.25)}
+  /* v49 覚えてほしい分野：喋ってる途中は濃さ・席の下に1段で置き、横にスクロールして全部押せるようにする（左が画面外に切れて押せへんかった） */
+  .priopick{position:relative;z-index:2;width:100%;display:flex;flex-direction:column;align-items:center}
+  .priopick .sl{font-size:11px;letter-spacing:.2em;color:var(--dim);text-align:center}
+  .priopick .sn{font-size:11px;color:var(--amber);text-align:center;min-height:14px}
+  .prio-live{display:none}
+  .stage.on .knobs{flex-wrap:wrap;row-gap:6px}
+  .stage.on #priopick{order:3;flex:0 0 100%;align-items:stretch}
+  .stage.on #priopick .prio-sl{display:block;margin:0;text-align:center;font-size:10px;color:var(--cream);opacity:.85}
+  .stage.on #priopick .prio-live{display:inline}
+  .stage.on .priobox.prio-main{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:2px 0 0;padding:2px 8px 4px;scrollbar-width:none}
+  .stage.on .priobox.prio-main::-webkit-scrollbar{display:none}
+  .stage.on .priobox.prio-main button{flex:0 0 auto;white-space:nowrap;padding:6px 10px;font-size:12px}
+  .stage.on #prionote{text-align:center;font-size:11px;color:var(--amber);min-height:0}
   .stage.on .caption{max-height:22vh;max-height:22dvh;min-height:60px}
   .stage.on .mama{font-size:19px;line-height:1.5}
   .stage.on .mama.long{font-size:16px}
@@ -390,7 +403,9 @@
       </div>
       <div class="sd" id="strengthdesc"></div>
       <div class="sn" id="strengthnote"></div>
-      <div class="sl prio-sl">今夜とくに覚えてほしいこと</div>
+    </div>
+    <div class="priopick" id="priopick">
+      <div class="sl prio-sl">今夜とくに覚えてほしいこと<small class="prio-live">喋ってる途中でも押して変えられる</small></div>
       <div class="priobox prio-main"></div>
       <div class="sn" id="prionote"></div>
     </div>
@@ -708,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-10-31 v48";
+  const APP_VER="2026-10-31 v49";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
