@@ -1616,14 +1616,14 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     var st=S.settings, b=el('f-sms');
     b.hidden=false;
     if(isFriend()){
-      b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くメッセージ（例）</div><div>'+st.familyName+'です。ワンポチで、お互いの「元気」を毎日たしかめあおう。押すとすぐ始まるよ。<br><b>wanpochi.app/f/8k2m</b></div><div class="from">押すと、'+st.parentName+'さんも相棒を1匹えらんで始まります。登録・コード入力はありません。</div>';
+      b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くメッセージ（例）</div><div>'+st.familyName+'です。ワンポチで、お互いの「元気」を毎日たしかめあおう。押すとすぐ始まるよ。<br><b>（招待リンク：アプリ側で発行）</b></div><div class="from">押すと、'+st.parentName+'さんも相棒を1匹えらんで始まります。登録・コード入力はありません。</div>';
       toast('送りました（試作のため実際には送られません）'); return;
     }
     if(st.device==='phone'){
       b.innerHTML='<div class="from">'+st.parentName+'さんのケータイ（'+(st.mail||'メールアドレス未入力')+'）に届くメール（例）</div><div>件名：'+ANIMALS[st.animal].name+'から：はじめまして（確認）<br>'+st.parentName+'さん、はじめまして。'+ANIMALS[st.animal].name+'だよ。あしたから毎'+st.timeOfDay+'、メールを1通送るね。<br><b>▶ ここを押す</b></div><div class="from">リンクを開けたら登録完了。あすから毎'+st.timeOfDay+'「きょうの1問」が届き、<b>開いた時点で「無事」</b>（答えなくてもOK・返信でもOK）。開かれなければ昼と夕方にもう一度。'+st.alertAfter+'日続けて開かれないと あなたに知らせます。SMSも電話番号も使わないので、通信費はかかりません。</div><div class="from">受信許可の設定：docomo「メール設定→受信リスト」／au「迷惑メールフィルター→受信リスト」／SoftBank「迷惑メールブロック設定→受信許可リスト」に wanpochi.app を追加</div>';
       S.phoneIntro=false; PH.day=''; save(); renderParent(); toast('確認メールを送りました（試作のため実際には送られません）'); return;
     }
-    b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くSMS（例）</div><div>'+st.familyName+'です。これを押すと「'+ANIMALS[st.animal].name+'」が毎'+st.timeOfDay+'あいさつに来ます。押すだけでいいよ。<br><b>wanpochi.app/f/8k2m</b></div><div class="from">リンクを押した瞬間に親の画面になります。名前・相棒・時間はここで決めた通り。親側の登録・コード入力はありません。帰省したときはこのQRを目の前で読ませてもOK。</div>';
+    b.innerHTML='<div class="from">'+st.parentName+'さんのスマホに届くSMS（例）</div><div>'+st.familyName+'です。これを押すと「'+ANIMALS[st.animal].name+'」が毎'+st.timeOfDay+'あいさつに来ます。押すだけでいいよ。<br><b>（招待リンク：アプリ側で発行）</b></div><div class="from">リンクを押した瞬間に親の画面になります。名前・相棒・時間はここで決めた通り。親側の登録・コード入力はありません。帰省したときはこのQRを目の前で読ませてもOK。</div>';
     toast('送りました（試作のため実際には送られません）');
   });
   el('f-share').addEventListener('click', function(){
