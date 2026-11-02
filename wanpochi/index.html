@@ -625,6 +625,7 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
       <p class="lead">あいさつと お知らせに使います（ニックネームでOK）</p>
       <div class="field"><label for="n-me">あなたの よび名</label><input type="text" id="n-me" maxlength="12" placeholder="例：たかひろ" autocomplete="off"></div>
       <div class="field"><label for="n-other" id="n-other-l">親の よび名</label><input type="text" id="n-other" maxlength="12" placeholder="例：おかあさん" autocomplete="off"></div>
+      <div class="field fam-only" id="n-rel-f"><label>親から見た あなたは</label><div class="seg" id="n-rel"></div></div>
       <button class="pick-ok" id="name-ok" type="button" disabled>はじめる</button>
     </div>
     <p class="safe">🔒 登録なし。記録はこのスマホの中だけ。<a href="/privacy">くわしく</a></p>
@@ -1003,8 +1004,19 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   }
   var DATA_V=2; // 2026/11/2：見本データ入りの古い保存は、一度だけまっさらにする
   function load(){
-    try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers&&S.v>=DATA_V){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); migrate(); return; } } }catch(e){}
+    try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); migrate(); if(!(S.v>=DATA_V)) dropSample(); return; } } }catch(e){}
     freshClean();
+  }
+  var SAMPLE_NAMES={'ゆか':1,'ふみこ':1,'みさき':1,'たかし':1};
+  function dropSample(){ // 2026/11/2：見本の記録・名前・電話番号だけ消す。本人が実際に答えた記録（via あり）は残す
+    var st=S.settings, kept=null;
+    Object.keys(S.answers).forEach(function(k){ var r=S.answers[k]; if(!r||(!r.via&&!r.label)) delete S.answers[k]; else if(!kept||k<kept) kept=k; });
+    if(SAMPLE_NAMES[st.parentName]) st.parentName=''; if(SAMPLE_NAMES[st.familyName]) st.familyName='';
+    if(st.phone==='090-1234-5678'||st.phone==='080-2345-6789') st.phone='';
+    st.members=(st.members||[]).filter(function(m){ return m&&!SAMPLE_NAMES[m.name]; });
+    S.since=kept||key(today()); S.fLinked=false; S.fReal=null; S.fFirst=key(today()); S.v=DATA_V;
+    if(!st.parentName||!st.familyName) S.chosen=false;
+    save();
   }
   function migrate(){ // 前の版の保存データに、プランまわりの項目を足す
     if(S.plan!=='plus') S.plan='free';
@@ -1014,6 +1026,7 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     if(!S.settings.reportDay) S.settings.reportDay='月';
     if(!S.settings.mode) S.settings.mode='family';
     if(!S.fAnimal) S.fAnimal='cat'; if(!S.fGifts) S.fGifts=[]; if(!S.fMiss) S.fMiss={}; if(!S.fFirst) S.fFirst=key(daysAgo(11));
+    if(S.fLinked===undefined) S.fLinked=true; if(S.fReal===undefined) S.fReal=null;
   }
   var demo=false;
   function save(){ if(demo||swapping) return; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -1624,7 +1637,8 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   function renderChoose(){
     el('mode-step').hidden=chooseStep!=='mode'; el('pet-step').hidden=chooseStep!=='pet'; el('name-step').hidden=chooseStep!=='name';
     if(chooseStep==='name'){ var st0=S.settings; el('n-other-l').textContent=isFriend()?'友だちの よび名':'親の よび名'; el('n-other').placeholder=isFriend()?'例：みさき':'例：おかあさん';
-      if(document.activeElement!==el('n-me')) el('n-me').value=st0.familyName||''; if(document.activeElement!==el('n-other')) el('n-other').value=st0.parentName||''; nameCheck(); }
+      if(document.activeElement!==el('n-me')) el('n-me').value=st0.familyName||''; if(document.activeElement!==el('n-other')) el('n-other').value=st0.parentName||'';
+      el('n-rel-f').hidden=isFriend(); seg('n-rel',['むすこ','むすめ','まご'],nRel,function(v){ nRel=v; nameCheck(); }); nameCheck(); }
     el('mode-family').setAttribute('aria-pressed', !isFriend()?'true':'false'); el('mode-friend').setAttribute('aria-pressed', isFriend()?'true':'false');
     var box=el('pets'); box.innerHTML='';
     ['dog','cat','panda','rabbit'].forEach(function(a){
@@ -1646,14 +1660,15 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     S.chosen=true; S.hello=true; save(); renderAll(); show('parent'); window.scrollTo(0,0);
     var b=el('p-pet'); b.classList.remove('jump'); void b.offsetWidth; b.classList.add('jump');
   }
-  function nameCheck(){ el('name-ok').disabled=!(el('n-me').value.trim() && el('n-other').value.trim()); }
+  var nRel=''; // 最初は選ばせる（むすめ決め打ちにしない）
+  function nameCheck(){ el('name-ok').disabled=!(el('n-me').value.trim() && el('n-other').value.trim() && (isFriend()||nRel)); }
   el('n-me').addEventListener('input', nameCheck); el('n-other').addEventListener('input', nameCheck);
   el('name-ok').addEventListener('click', function(){
     var me=el('n-me').value.trim(), ot=el('n-other').value.trim(); if(!me||!ot) return;
-    S.settings.familyName=me.replace(/さん$/,''); S.settings.parentName=ot.replace(/さん$/,''); finishChoose();
+    S.settings.familyName=me.replace(/さん$/,''); S.settings.parentName=ot.replace(/さん$/,''); if(!isFriend()&&nRel) S.settings.relation=nRel; finishChoose();
   });
   function show(v){
-    if(v!=='choose' && !S.chosen) v='choose';
+    if(v!=='choose' && (!S.chosen || !S.settings.parentName || !S.settings.familyName)) v='choose';
     view=v;
     if(v==='choose'){ pick=null; chooseStep=modeFromUrl?'pet':'mode'; renderChoose(); }
     el('choose').hidden=v!=='choose'; document.body.classList.toggle('choosing', v==='choose');
