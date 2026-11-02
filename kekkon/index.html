@@ -431,6 +431,12 @@ details.alb summary::-webkit-details-marker{display:none}
 .pov{background:linear-gradient(150deg,#FFF6E3,var(--rose-soft));border:1.5px solid #C9A227;border-radius:20px;padding:14px 16px}
 .pov .k{font-size:.76rem;font-weight:800;color:var(--gold);letter-spacing:.08em}
 .pov p{font-family:var(--font-mincho);font-weight:800;font-size:1rem;line-height:1.85;margin-top:6px}
+/* 白い札の文字は、ダーク表示でも濃い色に固定(2026/11/02「字が見づらい」) */
+.bk-r.tot b,.mr.tot b{color:#9A6B00}
+.bk,.mr,#g-vs,.mrows{--ink:#3B2430;--ink-2:#5E4350;color:#3B2430}
+.bk-r span{color:#3B2430;font-size:.84rem}.bk-r small{color:#5E4350;font-size:.8rem;line-height:1.45}.bk-h{color:#5E4350}.bk-r.tot em{color:#5E4350;font-size:.84rem}
+.mr{background:#FFFFFF;color:#3B2430}.mr span{color:#3B2430;font-weight:700}.mr small{color:#5E4350;font-size:.82rem;font-weight:500;line-height:1.45}.mr.tot span{color:#3B2430}
+#g-vs.vtab{background:#FFFDF7;border:1.5px solid #E2C98A}#g-vs .vh{color:#B8336A}.valt{color:#3B2430;font-size:.86rem}.vq{color:#3B2430}#g-vs .vnote{color:#5E4350;font-size:.8rem}.vq .on b.up,#g-vs .vr b.up{color:#1F7A4A}
 </style>
 
 <div class="app">
@@ -1668,6 +1674,8 @@ details.alb summary::-webkit-details-marker{display:none}
     else if(age<18){a=42+(P?118-(G<590?6:G<910?34:46):56);l=P?'私立高':'高校生';}
     else if(age<22){a=48+(P?103:61);l=P?'私立大':'大学生';ca=0;}
     else{a=0;ca=0;l='';}
+    // お金持ちの家の上乗せ(2026/11/02「この費用で済むとは思わない」): 習い事・家庭教師・お受験塾・海外サマースクール・留学。世帯の額面で2段階(年1,500万〜/3,000万〜)、1人あたり年額
+    if(a){const rich=G>=3000?1:G>=1500?0.4:0;if(rich){const add=Math.round(rich*(age<3?60:age<6?120:age<18?150:250));a+=add;l+=age<3?'・ベビーシッター':age<6?'・お受験塾・習い事':age<18?'・習い事・家庭教師・海外研修':'・留学・仕送り';}}
     let tot=a*k;if(age<3&&k>1)tot-=hoiku*0.5*(k-1);
     return {a:Math.round(tot),ca:ca*k,age,l:(k>1?k+'人・':'')+l};}
   // ===== 夫婦の支出(2026/10/26 作り直し): 「平均的な家は、手取りの1割しか貯まらない」に合わせる =====
@@ -1731,7 +1739,7 @@ details.alb summary::-webkit-details-marker{display:none}
       // 物価高と賃上げ(2026/11/1): 金額は2026年の物価が基準。現実の出来事として「値上げ」と「賃上げ」を1回ずつ入れる
       if(!p0.split&&!p0.mB){
         if(s.inflY==null&&y>=2){s.inflY=y0;rows+=`<div class="mr dn"><span>🛒 値上げ<small>食料品の値上げで、食費が月1万円アップ(この先ずっと)</small></span><b>月−1万</b></div>`;}
-        else if(s.inflY!=null&&s.raiseY==null&&y0>s.inflY&&((s.rid!=='S'&&(s.H||0)>0)||(s.W||0)>0)){const hR=s.rid!=='S'&&(s.H||0)>0,wR=(s.W||0)>0;const a0=TH(s.H||0)+TH(s.W||0);if(hR)s.H*=1.03;if(wR)s.W*=1.03;const up=(TH(s.H||0)+TH(s.W||0)-a0)/12;s.raiseY=y0;const who=hR&&wR?'夫とあなた':hR?'夫':'あなた';/* タカヒロは収入を実際どおりに固定(2026/10/27の指示)なので、上げるのはあなたの給料だけ */rows+=`<div class="mr up"><span>📈 春の賃上げ<small>物価に合わせて、${who}の給料が3%アップ</small></span><b>月+${mn(up)}</b></div>`;}
+        else if(s.inflY!=null&&s.raiseY==null&&y0>s.inflY&&((s.rid!=='S'&&((s.H||0)>0||(s.R||0)>0))||(s.W||0)>0)){const hR=s.rid!=='S'&&(s.H||0)>0,rR=s.rid!=='S'&&!hR&&(s.R||0)>0,wR=(s.W||0)>0;const a0=TH(s.H||0)+TH(s.W||0)+(s.R||0);if(hR)s.H*=1.03;if(rR)s.R=Math.round(s.R*1.03);if(wR)s.W*=1.03;const up=(TH(s.H||0)+TH(s.W||0)+(s.R||0)-a0)/12;s.raiseY=y0;/* 家賃が収入の家(誠一郎など)は「賃上げ」ではなく「家賃の改定」(2026/11/02の指摘)。タカヒロは収入を実際どおりに固定(2026/10/27)なので、上げるのはあなたの給料だけ */const ttl=rR?'🏢 家賃の改定':'📈 春の賃上げ',sub=rR?('物価に合わせて、ビルの家賃を3%上げた'+(wR?'。あなたの給料も3%アップ':'')):('物価に合わせて、'+(hR&&wR?'夫とあなた':hR?'夫':'あなた')+'の給料が3%アップ');rows+=`<div class="mr up"><span>${ttl}<small>${sub}</small></span><b>月+${mn(up)}</b></div>`;}
       }
       let g=0,t=y0;const ev=[];
       while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1){const o1=pickOops(s,t);if(o1)ev.push(o1);if(s.car&&(Math.floor(t)+2)%9===0)ev.push({l:'車の買い替え(頭金と諸費用)',a:120});}if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
@@ -3726,6 +3734,19 @@ details.alb summary::-webkit-details-marker{display:none}
   const pc=PRO.find(x=>x.who==='B');if(pc&&pc.ch&&pc.ch[1])pc.ch[1].t='倒れた花をそっと直した、彼の手を見る';
   if(miss.length)console.warn('CHT unmatched',miss);window.__chtmiss=miss;}
   // ===== 物語 v7 ここまで =====
+  // ===== 物語 v8(2026/11/02): 厳しい審査員で全ルートを読み直し。日本語をシンプルに、展開を読めなくする =====
+  //  書き方: STORY3.<ルート>={eps:{'題名' か 'ev:イベントkey':{text,tease,ch:[{t,o,nak,w:[信頼が動いた理由,ときめきが動いた理由],hook}]}},ends:{'結末id':s=>'…'}}
+  {const STORY3={};
+/*S3-BEGIN*/
+/*S3-END*/
+   const fnz=v=>typeof v==='function'?v:()=>v;const miss=[];
+   Object.keys(STORY3).forEach(r=>{const S3=STORY3[r]||{};
+     Object.keys(S3.eps||{}).forEach(k=>{let c=null;if(k.startsWith('ev:')){const kk=k.slice(3);Object.keys(EV).forEach(sl=>EV[sl].forEach(e=>{if(e.k===kk)c=e;}));}else c=EP[r].find(x=>!x.slot&&x.title===k);
+       if(!c){miss.push(r+' '+k);return;}const o=S3.eps[k];
+       if(o.text!=null)c.text=fnz(o.text);if(o.tease!=null)c.tease=o.tease;if(o.ttl!=null)c.ttl=o.ttl;
+       (o.ch||[]).forEach((x,j)=>{const h=c.ch&&c.ch[j];if(!h||!x){if(x)miss.push(r+' '+k+' ch'+j);return;}if(x.t!=null)h.t=x.t;if(x.o!=null)h.o=x.o;if(x.nak!=null)h.nak=x.nak;if(x.w!=null)h.w=x.w;if(x.hook!=null)h.hook=x.hook;});});
+     Object.keys(S3.ends||{}).forEach(id=>{const e=(END[r]||[]).find(x=>x.id===id);if(e)e.s=S3.ends[id];else miss.push(r+' end '+id);});});
+   if(miss.length)console.warn('STORY3 unmatched',miss);window.__s3miss=miss;}
   // タカヒロ編は離婚の回を出さない(11/01)ので、離婚の結末は図鑑からも外す(残すと図鑑が埋まらない)
   END.S=END.S.filter(x=>x.k!=='rikon');
   const ENDN=()=>Object.values(END).reduce((a,x)=>a+x.length,0);
@@ -4199,7 +4220,7 @@ function drawCard(kind){
     const list=EP[cur.id];window.__WS=[];
     for(let k=0;k<list.length;k++){renderEp();const c=EPAT(ci);const pre={t:$('#g-pre-t').textContent,x:$('#g-pre-x').textContent,rows:$('#g-pre-rows').textContent};const bk=$('#g-book .bk');const book=bk?bk.textContent:'';
       const i=Math.min(c.ch.length-1,pk[k]==='B'?1:pk[k]==='C'?2:0);choose(i);
-      window.__WS.push({ep:k+1,year:c.year,title:c.title,pick:['A','B','C'][i],pre,book,sav:st.sav,H:Math.round(st.H||0),W:Math.round(st.W||0),R:st.R||0,kids:st.kids||0,kidY:st.kidY,rent:st.rent,eduP:!!st.eduP,f:Object.keys(st.f||{}).join(','),scene:$('#g-scene').textContent,tease:c.tease?resolve(c.tease,st):'',choices:[...$$('#g-choices button')].map(b=>b.textContent),out:$('#g-out').textContent,why:$('#g-why').textContent,vs:$('#g-vs').textContent,nak:$('#nako-game').textContent,hook:$('#g-hook').hidden?'':$('#g-hook-t').textContent,twist:!$('#g-twist').hidden,pop:$('#g-pop').textContent});
+      window.__WS.push({ep:k+1,key:c.slot?'ev:'+c.k:c.title,year:c.year,title:c.title,pick:['A','B','C'][i],pre,book,sav:st.sav,H:Math.round(st.H||0),W:Math.round(st.W||0),R:st.R||0,kids:st.kids||0,kidY:st.kidY,rent:st.rent,eduP:!!st.eduP,f:Object.keys(st.f||{}).join(','),scene:$('#g-scene').textContent,tease:c.tease?resolve(c.tease,st):'',choices:[...$$('#g-choices button')].map(b=>b.textContent),out:$('#g-out').textContent,why:$('#g-why').textContent,vs:$('#g-vs').textContent,nak:$('#nako-game').textContent,hook:$('#g-hook').hidden?'':$('#g-hook-t').textContent,twist:!$('#g-twist').hidden,pop:$('#g-pop').textContent});
       if(k<list.length-1){const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
       if(q.get('stop')&&k+2>=+q.get('stop')){renderEp();show('s-game');if(q.get('pick'))choose(+q.get('pick'));window.__WS_DONE=true;window.__WS_STOP=true;break;}}
     if(!window.__WS_STOP){
