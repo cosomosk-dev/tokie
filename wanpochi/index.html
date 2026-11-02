@@ -359,6 +359,11 @@ body.choosing .brand{display:none}
 .ftabs button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
 .fcard{border-radius:22px;padding:12px 16px;display:flex;align-items:center;gap:12px;border:1.5px solid;text-align:left;width:100%;font:inherit;color:inherit;cursor:pointer}
 .fcard .petimg{width:56px;flex:0 0 auto}
+.fcard .fc-wait{width:56px;height:56px;flex:0 0 auto;display:grid;place-items:center;border-radius:50%;background:var(--white);font-size:28px}
+.fcard.wait{background:var(--white);border-color:var(--line);border-style:dashed} .fcard.wait b{color:var(--ink)}
+.status .inv{margin-top:10px}
+#name-step .field label{font-size:16px;color:var(--ink)}
+#name-step input{font-size:20px;padding:12px 16px}
 .fcard .tx{display:flex;flex-direction:column;gap:2px;min-width:0}
 .fcard .tx b{font-family:var(--font-head);font-weight:800;font-size:19px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
 .fcard .tx small{font-size:14px;font-weight:700;color:var(--ink-2)}
@@ -615,6 +620,13 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     <button class="pick-ok" id="pick-ok" type="button" disabled>この子にする</button>
     <p class="later" data-fri="あとから設定でも変えられます">あとから家族の画面でも変えられます</p>
     </div>
+    <div id="name-step" class="choose" hidden>
+      <h1>よび名を 教えてね</h1>
+      <p class="lead">あいさつと お知らせに使います（ニックネームでOK）</p>
+      <div class="field"><label for="n-me">あなたの よび名</label><input type="text" id="n-me" maxlength="12" placeholder="例：たかひろ" autocomplete="off"></div>
+      <div class="field"><label for="n-other" id="n-other-l">親の よび名</label><input type="text" id="n-other" maxlength="12" placeholder="例：おかあさん" autocomplete="off"></div>
+      <button class="pick-ok" id="name-ok" type="button" disabled>はじめる</button>
+    </div>
     <p class="safe">🔒 登録なし。記録はこのスマホの中だけ。<a href="/privacy">くわしく</a></p>
   </section>
 
@@ -803,6 +815,11 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
         <button id="d-mfri" aria-pressed="false">友だち同士</button>
         <span class="lbl">（本番は ?mode=friend）</span>
       </div>
+      <div class="row">
+        <span class="lbl">友だち</span>
+        <button id="d-fsample" aria-pressed="false">見本を表示</button>
+        <button id="d-fnone" aria-pressed="true">まだ未接続</button>
+      </div>
     </div>
   </details>
 </div>
@@ -974,11 +991,20 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     var times=['8:12','7:55','8:40','9:03','8:21','8:08','7:48','8:33','8:15','9:10','8:02'];
     for(var i=1;i<=11;i++){ s.answers[key(daysAgo(i))]={pick:0, correct:i%5!==0, time:times[i-1], label:''}; }
     s.settings.mode='family'; s.fAnimal='cat'; s.fGifts=[]; s.fMiss={}; s.fFirst=key(daysAgo(11));
+    s.fLinked=true; s.fReal=null; s.v=DATA_V; // fresh() はデモ用の見本（11日分の記録・ゆか／ふみこ／みさき）
     return s;
   }
+  // 本番の始まり：見本の記録・名前・電話番号は入れない。名前は最初の画面で聞く。友だちは招待してつながるまで「未接続」
+  function freshClean(){
+    fresh(); var st=S.settings;
+    S.answers={}; st.parentName=''; st.familyName=''; st.phone=''; st.members=[];
+    S.since=key(today()); S.fFirst=key(today()); S.fLinked=false; S.fReal=null; S.chosen=false;
+    return S;
+  }
+  var DATA_V=2; // 2026/11/2：見本データ入りの古い保存は、一度だけまっさらにする
   function load(){
-    try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); migrate(); return; } } }catch(e){}
-    fresh();
+    try{ var raw=localStorage.getItem(KEY); if(raw){ S=JSON.parse(raw); if(S&&S.settings&&S.answers&&S.v>=DATA_V){ S.worn=(S.worn||[]).filter(function(x){ return ITEMS[x]; }); migrate(); return; } } }catch(e){}
+    freshClean();
   }
   function migrate(){ // 前の版の保存データに、プランまわりの項目を足す
     if(S.plan!=='plus') S.plan='free';
@@ -1017,16 +1043,17 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   function isFriend(){ return S.settings.mode==='friend'; }
   var swapping=false;
   var FT=['8:05','7:52','8:31','8:14','9:02','8:20','7:47','8:38','8:09','8:56','8:11'];
-  function friendAnswers(){ // 試作：友だちは毎日答えている（S.fMiss の日だけ答えなし）
+  function friendAnswers(){ // 未接続：空／本番：サーバーから受け取った記録(S.fReal)／見本：毎日答えている（S.fMiss の日だけ答えなし）
+    if(!S.fLinked) return {}; if(S.fReal) return S.fReal;
     var o={};
     for(var i=0;i<400;i++){ var d=daysAgo(i), k=key(d); if(k<S.fFirst) break; if(S.fMiss[k]) continue; var qa=questionFor(d); o[k]={pick:qa.a, correct:true, time:FT[i%FT.length], label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'}; }
     return o;
   }
   function friendWorn(){ var t=key(today()), w=[]; S.fGifts.forEach(function(g){ var it=ITEMS[g.id]; if(g.day<t && it){ w=w.filter(function(x){ return ITEMS[x]&&ITEMS[x].slot!==it.slot; }); w.push(g.id); } }); return w; }
   function withFriend(fn){ // 友だちの記録に一時的に入れ替えて描く（保存はしない）
-    var keep={a:S.answers, sh:S.shield, an:S.settings.animal, w:S.worn, g:S.gifts, pl:S.plan};
-    swapping=true; S.answers=friendAnswers(); S.shield={days:{}}; S.settings.animal=S.fAnimal; S.worn=friendWorn(); S.gifts=S.fGifts; S.plan='free';
-    try{ return fn(); } finally { S.answers=keep.a; S.shield=keep.sh; S.settings.animal=keep.an; S.worn=keep.w; S.gifts=keep.g; S.plan=keep.pl; swapping=false; }
+    var keep={a:S.answers, sh:S.shield, an:S.settings.animal, w:S.worn, g:S.gifts, pl:S.plan, si:S.since};
+    swapping=true; S.since=S.fFirst; S.answers=friendAnswers(); S.shield={days:{}}; S.settings.animal=S.fAnimal; S.worn=friendWorn(); S.gifts=S.fGifts; S.plan='free';
+    try{ return fn(); } finally { S.answers=keep.a; S.shield=keep.sh; S.settings.animal=keep.an; S.worn=keep.w; S.gifts=keep.g; S.plan=keep.pl; S.since=keep.si; swapping=false; }
   }
   function setMode(v){
     var st=S.settings; if(v!=='friend'&&v!=='family') return; if(v===st.mode) return; st.mode=v;
@@ -1034,19 +1061,24 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     else { if(st.parentName==='みさき') st.parentName='ふみこ'; if(st.phone==='080-2345-6789') st.phone='090-1234-5678'; if(st.contact==='アプリ通知') st.contact='SMS'; }
     PH.day=''; save();
   }
+  function friendWaiting(){ return isFriend() && !S.fLinked; }
+  function friendSample(){ return isFriend() && S.fLinked && !S.fReal && !demo; }
   function renderFriendCard(){
     var b=el('p-friend'); b.hidden=!isFriend(); if(!isFriend()) return;
+    if(friendWaiting()){ b.className='fcard wait'; b.innerHTML='<span class="fc-wait">✉️</span><span class="tx"><b>'+(S.settings.parentName||'友だち')+'さんとは まだ つながっていません</b><small>招待を送ると、友だちの「きょう」がここに出ます</small></span><span class="go">招待 ›</span>'; return; }
     var st=S.settings, f=withFriend(function(){ var d=S.answers[key(today())]; return {done:d, missed:missedBeforeToday(), pet:pet(S.settings.animal, S.worn, !!d)}; });
     var cls, t, sub;
     if(f.done){ cls='ok'; t=st.parentName+'さん、きょうも元気'; sub=f.done.time+' に答えました'; }
     else if(f.missed>=st.alertAfter){ cls='bad'; t=st.parentName+'さんが '+f.missed+'日 答えていません'; sub='電話してみてください'; }
     else { cls='warn'; t=st.parentName+'さんは、きょうは まだ'; sub=f.missed>0?'きのうも答えていません':'相棒が 朝・昼・夕方に 声をかけます'; }
+    if(friendSample()) sub+='（見本）';
     b.className='fcard '+cls; b.innerHTML=f.pet+'<span class="tx"><b>'+t+'</b><small>'+sub+'</small></span><span class="go">見る ›</span>';
   }
   function applyMode(){
     var f=isFriend(); document.body.classList.toggle('friendmode', f);
     Array.prototype.forEach.call(document.querySelectorAll('[data-fri]'), function(n){ if(n.getAttribute('data-fam')===null) n.setAttribute('data-fam', n.innerHTML); n.innerHTML=f?n.getAttribute('data-fri'):n.getAttribute('data-fam'); });
     el('ft-friend').textContent=S.settings.parentName+'さん';
+    el('d-fsample').setAttribute('aria-pressed', S.fLinked&&!S.fReal?'true':'false'); el('d-fnone').setAttribute('aria-pressed', S.fLinked?'false':'true');
     el('d-mfam').setAttribute('aria-pressed', f?'false':'true'); el('d-mfri').setAttribute('aria-pressed', f?'true':'false');
     el('ftabs').hidden=!f || view==='choose';
     el('ft-me').setAttribute('aria-pressed', view==='parent'?'true':'false'); el('ft-friend').setAttribute('aria-pressed', view==='family'?'true':'false');
@@ -1070,7 +1102,7 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   }
   function missedBeforeToday(){
     var n=0;
-    for(var i=1;i<400;i++){ if(S.answers[key(daysAgo(i))]) break; n++; }
+    for(var i=1;i<400;i++){ var k=key(daysAgo(i)); if(S.since && k<S.since) break; if(S.answers[k]) break; n++; }
     return n;
   }
   function paused(){ return !!(S.settings.pauseUntil && key(today())<=S.settings.pauseUntil); }
@@ -1236,8 +1268,14 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     el('f-title').textContent=st.parentName+'さんの きょう';
     el('f-os').textContent=IOS_READY?'':'🍎 iPhone版は近日公開'; el('f-os').hidden=IOS_READY;
     el('f-pet').innerHTML=pet(st.animal, S.worn, !!done);
-    var s=el('f-status'), h='';
-    if(done){
+    var s=el('f-status'), h='', wait=friendWaiting();
+    el('f-week').hidden=wait; el('f-streak').parentNode.hidden=wait;
+    if(wait){
+      s.className='status warn';
+      h='<div class="st">'+ico('i-mail')+'まだ つながっていません</div>';
+      h+='<div class="sub">'+st.parentName+'さんに招待を送ってね。'+st.parentName+'さんが始めると、毎日の「元気」がここに出ます。</div>';
+      h+='<button type="button" class="btn primary inv" id="f-invite">'+ico('i-mail')+'招待を送る</button>';
+    }else if(done){
       s.className='status ok';
       h='<div class="st">'+ico('i-check')+'きょう '+done.time+' に '+(done.via==='mail'?'メールを 開きました':'答えました')+'</div>';
       if(done.via==='mail') h+='<div class="sub">'+(done.how==='intro'?'はじめての確認メールのリンクを開きました（登録完了）':(done.how==='reply'?an.name+'のメールに 返信がありました':an.name+'のメールのリンクを開きました'))+(done.pick>=0?'。答え：'+done.label+(done.correct?'（せいかい）':'（こたえは '+done.ans+'）'):'')+'</div>';
@@ -1251,7 +1289,7 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     }else if(missed>=st.alertAfter){
       s.className='status bad';
       h='<div class="st">'+ico('i-bell')+st.parentName+'さんが '+missed+'日 答えていません</div>';
-      h+='<div class="sub">電話してみてください</div><a class="tel" href="tel:'+st.phone.replace(/[^0-9+]/g,'')+'">'+ico('i-phone')+st.phone+'<span class="go">押して発信</span></a>';
+      h+='<div class="sub">電話してみてください</div>'+(st.phone?'<a class="tel" href="tel:'+st.phone.replace(/[^0-9+]/g,'')+'">'+ico('i-phone')+st.phone+'<span class="go">押して発信</span></a>':'<div class="sub">設定に電話番号を入れると、ここから押すだけで発信できます</div>');
       h+='<div class="sms">'+st.contact+'で届いた知らせ（例）<br><b>【ワンポチ】'+st.parentName+'さんが'+missed+'日答えていません。電話してみてください。</b></div>';
     }else{
       s.className='status warn';
@@ -1259,6 +1297,8 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
       h+='<div class="sub">'+(missed>0?('きのうも答えていません。'+(st.alertAfter-missed)+'日 続くと知らせが届きます。'):(an.name+'が '+st.timeOfDay+'に「まってるよ」と声をかけます。答えがなければ昼と夕方にもう一度。'))+'</div>';
     }
     s.innerHTML=h;
+    if(wait) el('f-invite').addEventListener('click', function(){ ftGo('set'); el('f-send').click(); el('f-send').scrollIntoView({behavior:'smooth', block:'center'}); });
+    if(friendSample()) s.insertAdjacentHTML('beforeend','<div class="sub">※ 試作の見本です（友だちとつながると本物の記録になります）</div>');
 
     var w=el('f-week'); w.innerHTML='';
     for(var i=6;i>=0;i--){
@@ -1271,7 +1311,7 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
     el('f-streak').innerHTML='つづけて <b>'+streak()+'</b> 日'+(sh?'<span class="sh">🙆 うっかりセーフ '+sh+'回</span>':'');
 
     var plus=isPlus();
-    el('f-gift-sub').textContent= isFriend() ? ('1つ100円。あす、'+st.parentName+'さんの相棒に「あなたからのプレゼント」として届きます。') : plus
+    el('f-gift-sub').textContent= wait ? ('友だちとつながったら、1つ100円で '+st.parentName+'さんの相棒に贈れます。') : isFriend() ? ('1つ100円。あす、'+st.parentName+'さんの相棒に「あなたからのプレゼント」として届きます。') : plus
       ? '家族プランなので、ぜんぶプラン込み。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。毎月1日に、新作が自動で1つ増えます。'
       : '1つ100円。あす朝、親の画面に「あなたからのプレゼント」として届きます。親は何も操作しません。';
     var g=el('f-gifts'); g.innerHTML='';
@@ -1287,6 +1327,7 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
       if(worn){ b.className='worn'; b.textContent='着ています'; b.disabled=true; }
       else if(sent){ b.className='sent'; b.textContent='あす朝とどく'; b.disabled=true; }
       else if(locked){ b.className='lock'; b.textContent='プランで解放'; b.addEventListener('click', function(){ ftGo('plan'); el('f-plan').scrollIntoView({behavior:'smooth', block:'start'}); }); }
+      else if(wait){ b.className='lock'; b.textContent='贈る'; b.disabled=true; }
       else { b.textContent='贈る'; b.addEventListener('click', function(){ if(hasNative()&&PRODUCTS.costume[id]){ buyingGift=id; askNative({type:'wanpochi:buy', productId:PRODUCTS.costume[id]}); return; } giftDone(id); }); }
       card.appendChild(b); g.appendChild(card);
     });
@@ -1581,7 +1622,9 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   // ---------- 試作メニュー ----------
   var view='parent', pick=null, chooseStep='mode', modeFromUrl=false;
   function renderChoose(){
-    el('mode-step').hidden=chooseStep!=='mode'; el('pet-step').hidden=chooseStep!=='pet';
+    el('mode-step').hidden=chooseStep!=='mode'; el('pet-step').hidden=chooseStep!=='pet'; el('name-step').hidden=chooseStep!=='name';
+    if(chooseStep==='name'){ var st0=S.settings; el('n-other-l').textContent=isFriend()?'友だちの よび名':'親の よび名'; el('n-other').placeholder=isFriend()?'例：みさき':'例：おかあさん';
+      if(document.activeElement!==el('n-me')) el('n-me').value=st0.familyName||''; if(document.activeElement!==el('n-other')) el('n-other').value=st0.parentName||''; nameCheck(); }
     el('mode-family').setAttribute('aria-pressed', !isFriend()?'true':'false'); el('mode-friend').setAttribute('aria-pressed', isFriend()?'true':'false');
     var box=el('pets'); box.innerHTML='';
     ['dog','cat','panda','rabbit'].forEach(function(a){
@@ -1595,8 +1638,19 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   }
   el('pick-ok').addEventListener('click', function(){
     if(!pick) return;
-    S.settings.animal=pick; S.chosen=true; S.hello=true; S.worn=[]; save(); renderAll(); show('parent'); window.scrollTo(0,0);
+    S.settings.animal=pick; S.worn=[];
+    if(!S.settings.familyName || !S.settings.parentName){ chooseStep='name'; renderChoose(); window.scrollTo(0,0); return; }
+    finishChoose();
+  });
+  function finishChoose(){
+    S.chosen=true; S.hello=true; save(); renderAll(); show('parent'); window.scrollTo(0,0);
     var b=el('p-pet'); b.classList.remove('jump'); void b.offsetWidth; b.classList.add('jump');
+  }
+  function nameCheck(){ el('name-ok').disabled=!(el('n-me').value.trim() && el('n-other').value.trim()); }
+  el('n-me').addEventListener('input', nameCheck); el('n-other').addEventListener('input', nameCheck);
+  el('name-ok').addEventListener('click', function(){
+    var me=el('n-me').value.trim(), ot=el('n-other').value.trim(); if(!me||!ot) return;
+    S.settings.familyName=me.replace(/さん$/,''); S.settings.parentName=ot.replace(/さん$/,''); finishChoose();
   });
   function show(v){
     if(v!=='choose' && !S.chosen) v='choose';
@@ -1620,11 +1674,13 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   ftGo('today');
   el('p-friend').addEventListener('click', function(){ show('family'); window.scrollTo(0,0); });
   el('d-mfam').addEventListener('click', function(){ setMode('family'); renderAll(); show(view); toast('親と家族（試作）'); });
+  el('d-fsample').addEventListener('click', function(){ S.fLinked=true; S.fReal=null; save(); renderAll(); toast('友だちの見本を表示（試作）'); });
+  el('d-fnone').addEventListener('click', function(){ S.fLinked=false; S.fReal=null; save(); renderAll(); toast('友だちは未接続（試作）'); });
   el('d-mfri').addEventListener('click', function(){ setMode('friend'); renderAll(); show(view); toast('友だち同士（試作）'); });
   el('d-parent').addEventListener('click', function(){ show('parent'); });
   el('d-family').addEventListener('click', function(){ show('family'); ftGo('today'); });
   el('d-next').addEventListener('click', function(){ S.dayOffset++; S.hello=false; PH.day=''; save(); renderAll(); toast('1日すすめました'); });
-  el('d-reset').addEventListener('click', function(){ var p=S.plan; PH.day=''; phClear(); fresh(); S.plan=p; if(p==='plus') S.planSince=key(today()); S.phoneIntro=false; calOff=0; calSel=''; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
+  el('d-reset').addEventListener('click', function(){ var p=S.plan; PH.day=''; phClear(); freshClean(); S.plan=p; if(p==='plus') S.planSince=key(today()); S.phoneIntro=false; calOff=0; calSel=''; save(); renderAll(); show('choose'); window.scrollTo(0,0); });
   el('d-free').addEventListener('click', function(){ setPlan('free'); toast('無料プラン（試作）'); });
   el('d-plus').addEventListener('click', function(){ setPlan('plus'); toast('家族プラン（試作）'); });
 
@@ -2149,8 +2205,14 @@ body:not(.demoing){padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
   function giftDone(id){ if(isFriend()){ S.fGifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす、'+S.settings.parentName+'さんの相棒にとどきます'); return; } S.gifts.push({id:id, day:key(today())}); save(); renderFamily(); toast('あす朝、'+S.settings.parentName+'さんの画面にとどきます'); }
   window.wanpochi={ products:PRODUCTS,
     purchased:function(pid){ var id=null; Object.keys(PRODUCTS.costume).forEach(function(k){ if(PRODUCTS.costume[k]===pid) id=k; }); if(id){ buyingGift=null; giftDone(id); } },
-    setPlan:function(p){ var was=isPlus(); setPlan(p); if(p==='plus'&&!was) renderWelcome(); }, getPlan:function(){ return S.plan; }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
-  window.addEventListener('message', function(e){ var m=e&&e.data; if(m&&m.type==='wanpochi:plan') setPlan(m.plan); });
+    setPlan:function(p){ var was=isPlus(); setPlan(p); if(p==='plus'&&!was) renderWelcome(); }, getPlan:function(){ return S.plan; },
+    // 友だちとつながったら、サーバーの記録をここに渡す：setFriend({name:'みさき', animal:'cat', answers:{'2026-11-02':'8:05', ...}})
+    setFriend:setFriend, unlinkFriend:function(){ S.fLinked=false; S.fReal=null; save(); renderAll(); }, setIos:function(v){ IOS_READY=!!v; renderAll(); } };
+  function setFriend(o){ o=o||{}; S.fLinked=true;
+    if(o.name) S.settings.parentName=String(o.name).replace(/さん$/,''); if(o.animal&&ANIMALS[o.animal]) S.fAnimal=o.animal;
+    var a={}, first=null; Object.keys(o.answers||{}).forEach(function(k){ var d=new Date(k+'T12:00:00'); if(isNaN(d)) return; var qa=questionFor(d); a[k]={pick:qa.a, correct:true, time:String(o.answers[k]), label:qa.c[qa.a][1], ans:qa.c[qa.a][1], via:'app'}; if(!first||k<first) first=k; });
+    S.fReal=a; S.fFirst=o.since||first||key(today()); save(); renderAll(); }
+  window.addEventListener('message', function(e){ var m=e&&e.data; if(m&&m.type==='wanpochi:plan') setPlan(m.plan); if(m&&m.type==='wanpochi:friend') setFriend(m.friend); });
   renderAll();
   var v='parent'; try{ v=localStorage.getItem(KEY+'_view')||'parent'; }catch(e){} if(v==='choose') v='parent';
   if(location.search.indexOf('view=family')>=0) v='family';
