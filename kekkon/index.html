@@ -1439,7 +1439,7 @@ details.alb summary::-webkit-details-marker{display:none}
       if(p.custH&&yo)lines.push(row('養育費','元夫へ(子どもは元夫と暮らす)',-yo));
       if(ins)lines.push(row('保険','ひとり分',-ins));if(ot)lines.push(row('ほか',p.oth.map(c=>c.l).join('・'),-ot));
       const fp=!w?'まず自分の収入をつくるのが先。養育費は公正証書(強制執行認諾文言つき)で確実に。':p.custH?'養育費を払う側でも、面会と学費の分担は公正証書に。自分の年金記録(厚生年金)は20年分が分け方の対象。':(yo?'養育費は算定表が目安で月'+mn(yo)+'。公正証書の額は、自動では変わらない。元夫の収入が落ちれば、減額を求められることもある。':'')+(k&&(s.W||0)<=400?(yo?'児童扶養手当は、養育費の8割も収入に数えるので、ほぼ対象外。':'児童扶養手当は年収'+Math.round(s.W||0)+'万なら月数千円〜。'):'ひとりの家計は「固定費を手取りの半分以下」が目安。');
-      return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入(ボーナス込みの月割り)',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fp)}</div></div>`;}
+      return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('収入(月割り)',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fp)}</div></div>`;}
     const inc=p.inc/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,sp=p.sp/12,ot=p.ot/12,out=live+pk+rent+kc+ins+sp+ot,net=inc-out;
     const who=[p.inH?'夫 '+mn(p.inH/12):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+')':''):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):'',p.lc?'住宅ローン控除 '+mn(p.lc/12):''].filter(Boolean).join(' + ');
     const kids=s.kids||0;
@@ -1451,7 +1451,7 @@ details.alb summary::-webkit-details-marker{display:none}
     if(kc)lines.push(row('子ども',p.kc.l+(p.kc.age<3?'(食費・服・保育料)':p.kc.age<6?'(食費・服・給食費・教材費)':p.kc.age<18?'(食費・服・学校・塾)':'(食費・服・学費)'),-kc));
     if(ins+sp)lines.push(row('保険・特別費',(s.insL||'保険')+' '+mn(ins)+(sp?' ・ 帰省・旅行・冠婚葬祭・家電 '+mn(sp)+(p.cut?'(切り詰め)':''):''),-(ins+sp)));
     if(ot)lines.push(row('ほか',p.oth.map(c=>c.l).join('・'),-ot));
-    return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}${p.sep?' ・ 別居中(家計は2軒分)':''}</i></div>${row('収入(ボーナス込みの月割り)',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0,p))}</div></div>`;}
+    return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}${p.sep?' ・ 別居中(家計は2軒分)':''}</i></div>${row('収入(月割り)',who||'収入なし',inc)}${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fpLine(s,inc,out,net,rent,s.kids||0,p))}</div></div>`;}
   const isDv=s=>!!(s&&s.f&&(s.f.divorce||s.f.sign));
   // タカヒロ(作者がモデル)だけは、夫の財産を「夫のもの」と分けず「家族の不動産と預金」として、ふたりで豊かになった見せ方にする(2026/10/27 作者の指示)
   const famS=s=>!!(s&&s.rid==='S'&&!isDv(s));
