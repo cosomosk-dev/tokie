@@ -4180,6 +4180,14 @@ function drawCard(kind){
     renderEp();show('s-game');
   }}catch(e){console.log('test play failed',e);}
 
+  // 本人確認用(2026/11/02): ?test=allopen で5人全員(シークレット含む)を全話解除・CMなし。この端末のこのブラウザだけに効く。進み具合はそのまま
+  try{if(new URLSearchParams(location.search).get('test')==='allopen'){
+    ['A','B','C','D','S'].forEach(k=>{const r=pers.routes[k]||(pers.routes[k]={ci:0,st:null,picks:[],unlocked:0,freeAt:null,bought:false,adDay:'',preApplied:false,done:false});r.bought=true;r.unlocked=Math.max(r.unlocked||0,99);});
+    pers.secFree=true;save();
+    try{history.replaceState(null,'',location.pathname);}catch(e){}
+    toast('全員・全話を解除しました');
+  }}catch(e){console.log('test allopen failed',e);}
+
   // 確認用: ?test=auto&r=C&p=AABAB...&job=office で1ルートを自動で通し、各話の家計簿と結末を window.__WS に記録(家計の検算用)
   try{const q=new URLSearchParams(location.search);if(q.get('test')==='auto'){
     const rid=q.get('r')||'C',pk=q.get('p')||'';
