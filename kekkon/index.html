@@ -1456,9 +1456,9 @@ details.alb summary::-webkit-details-marker{display:none}
     const kids=s.kids||0;
     {const key=Math.round(inc)+'|'+Math.round(out);if(s.bkEp!==ci){s.bkCompact=(s.bkKey===key&&s.bkEp!=null);s.bkKey=key;s.bkEp=ci;}
      if(s.bkCompact)return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div><div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>前の話と同じ ・ 内訳は前の話で</em></div></div>`;}
-    const lines=[row('暮らし',p.mB?'夫からの生活費でまかなう':'食費 '+mn(p.food)+(p.infl?'(値上げ分+1万込み)':'')+' ・ 光熱・通信 '+mn(p.util)+' ・ 日用品・服・医療・交通 '+mn(p.daily)+' ・ 交際・娯楽 '+mn(p.fun),-live)];
+    const lines=[row('暮らし',p.mB?'夫からの生活費でまかなう':'食費 '+mn(p.food)+(p.infl?'(値上げ分+1万込み)':'')+' ・ 光熱・通信 '+mn(p.util)+' ・ 日用品・服・医療・交通 '+mn(p.daily)+' ・ 交際・娯楽 '+mn(p.fun)+(p.jt?' ・ 共働きの外食・お惣菜・時短 '+mn(p.jt):''),-live)];
     if(pk)lines.push(s.rid==='A'?row('自由に使うお金',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW)+'(服・美容・友だちとの食事)':''].filter(Boolean).join(' ・ '),-pk):row('お小遣い',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW):''].filter(Boolean).join(' ・ ')+(p.cut?'(切り詰め)':kids&&kc&&p.pkc?'(子どもがいる間は25%減)':''),-pk));
-    if(rent)lines.push(row(s.own?'住まい':'家賃',(s.rentL||'')+(p.sep&&!/別居/.test(s.rentL||'')?(s.rentL?' ＋ ':'')+'別居のアパート 7万':''),-rent));
+    if(rent)lines.push(row(s.own?'住まい':'家賃',(s.rentL||'')+(p.kosin?' ＋ 更新料(2年に1か月分)':'')+(p.sep&&!/別居/.test(s.rentL||'')?(s.rentL?' ＋ ':'')+'別居のアパート 7万':''),-rent));
     if(kc)lines.push(row('子ども',p.kc.l+(p.kc.age<3?'(食費・服・保育料)':p.kc.age<6?'(食費・服・給食費・教材費)':p.kc.age<18?'(食費・服・学校・塾)':'(食費・服・学費)'),-kc));
     if(ins+sp)lines.push(row('保険・特別費',(s.insL||'保険')+' '+mn(ins)+(sp?' ・ 帰省・旅行・冠婚葬祭・家電 '+mn(sp)+(p.cut?'(切り詰め)':''):''),-(ins+sp)));
     if(ot)lines.push(row('ほか',p.oth.map(c=>c.l).join('・'),-ot));
@@ -1655,6 +1655,13 @@ details.alb summary::-webkit-details-marker{display:none}
   const WY=()=>Math.round((WINC[pers.job]||415)*(AREAS[pers.area]?AREAS[pers.area].k:1));
   // 家賃補助: 令和7年就労条件総合調査 住宅手当など 平均1.87万円/月(支給企業45.7%)
   const HOJO=1.87;
+  // 毎年の昇給(2026/11/04「順調に賃上げされるのは大企業だけ」): 金額は2026年の物価が基準なので、物価を除いた実質の伸び
+  //  根拠: 令和6年賃金構造基本統計調査 企業規模別・年齢階級別(月額・千円) — 男性 大企業 30〜34歳 343.7→50〜54歳 484.1(年1.7%)、小企業 295.4→363.9(年1%、45歳からは横ばい)
+  //        女性 大企業 295.2→318.2、小企業 251.2→267.4(20年で+6〜8%、ほぼ平ら)。公務員・教員は号俸表で40代まで上がる
+  const WGROW={office:.004,nurse:.006,civil:.015,teacher:.015,hoiku:.005,beauty:.003,it:.008,other:.004};
+  // 春の賃上げ(名目): 大企業は5%前後・中小は2%前後(連合・中小企業の賃上げ調査の幅)、公務員は人事院勧告で3%台、看護・保育は公定価格で2%台。物価+3%で割って実質にする
+  const WRAISE={office:.025,nurse:.025,civil:.035,teacher:.035,hoiku:.025,beauty:.02,it:.04,other:.025};
+  const HRAISE={B:.05,C:.02,D:.02};
   const WBON={office:.15,nurse:.17,civil:.28,teacher:.28,hoiku:.17,beauty:.06,it:.15,other:.155};
   const TH=g=>{if(!(g>0))return 0;const P=[[0,.82],[300,.8],[500,.77],[800,.73],[1200,.7],[2000,.63],[4000,.55],[1e9,.5]];for(let i=1;i<P.length;i++){if(g<=P[i][0]){const [a,ra]=P[i-1],[b,rb]=P[i];return Math.round(g*(ra+(rb-ra)*(g-a)/(b-a)));}}return Math.round(g*.5);};
   const man=v=>Math.round(v).toLocaleString()+'万';
@@ -1680,7 +1687,7 @@ details.alb summary::-webkit-details-marker{display:none}
     else if(age<22){a=48+(P?103:61);l=P?'私立大':'大学生';ca=0;}
     else{a=0;ca=0;l='';}
     // お金持ちの家の上乗せ(2026/11/02「この費用で済むとは思わない」): 習い事・家庭教師・お受験塾・海外サマースクール・留学。世帯の額面で2段階(年1,500万〜/3,000万〜)、1人あたり年額
-    if(a){const rich=Math.max(s.rid==='S'?1:0,G>=4000?1.5:G>=3000?1:G>=1500?0.4:0);if(rich){const add=Math.round(rich*(age<3?60:age<6?120:age<18?150:250));a+=add;l+=age<3?'・ベビーシッター':age<6?'・お受験塾・習い事':age<18?'・習い事・家庭教師・海外研修':'・留学・仕送り';}}
+    if(a){const rich=Math.max(s.rid==='S'&&(s.R||0)>=1000?1:0,G>=4000?1.5:G>=3000?1:G>=1500?0.4:0);if(rich){const add=Math.round(rich*(age<3?60:age<6?120:age<18?150:250));a+=add;l+=age<3?'・ベビーシッター':age<6?'・お受験塾・習い事':age<18?'・習い事・家庭教師・海外研修':'・留学・仕送り';}}
     let tot=a*k;if(age<3&&k>1)tot-=hoiku*0.5*(k-1);
     return {a:Math.round(tot),ca:ca*k,age,l:(k>1?k+'人・':'')+l};}
   // ===== 夫婦の支出(2026/10/26 作り直し): 「平均的な家は、手取りの1割しか貯まらない」に合わせる =====
@@ -1705,11 +1712,14 @@ details.alb summary::-webkit-details-marker{display:none}
     const D=(inH+inW+inR)/12;
     const k=(s.kids&&kc.age!=null&&kc.age>=0&&kc.age<22)?(s.kids||0):0;
     const b=B2(D,k,mB);const infl=(!mB&&s.inflY!=null&&y>=s.inflY)?1:0;b.food+=infl;const mul=(s.abroad?1.3:1)*(sep?1.25:1);
-    const liveM=mB?inR/12:(b.food+b.util+b.daily+b.fun)*mul;
+    // 共働きの時短コスト(2026/11/04): ふたりとも働く家は、外食・お惣菜・冷凍食品・タクシー・家事代行が増える(家計調査 共働き世帯は「調理食品」「外食」が多い)
+    const jt=(!mB&&!split&&!s.abroad&&(s.H||0)>0&&(s.W||0)>0&&wm>0.75)?Math.min(4,0.03*D+0.8):0;
+    const liveM=mB?inR/12:(b.food+b.util+b.daily+b.fun+jt)*mul;
     // お小遣い: 働いている人は手取りに応じて(2〜6万)、専業なら1.5万。誠一郎(生活費は夫もち)の時は生活費に含む
     const pkH=s.pkH0!=null?s.pkH0:((s.H||0)>0?b.pk:((s.W||0)>0||inR>0?1.5:0));const pkW=mB?((s.W||0)>0?Math.min(6,Math.max(2,0.065*inW/12))*0.85:0):((s.W||0)>0?b.pk*0.85:((s.H||0)>0?1.5:0));
     const spM=mB?0:b.sp, insM=s.insM0!=null?s.insM0+(s.ins?2:0):(mB?1:(b.ins+(s.ins?2:0)));
-    const rent=Math.round((s.rent||0)+(sep?84:0));
+    const kosin=(!s.own&&!s.abroad&&/^家賃 月/.test(s.rentL||''))?Math.round((s.rent||0)/24):0; // 賃貸の更新料(首都圏は2年ごとに家賃1か月分)
+    const rent=Math.round((s.rent||0)+kosin+(sep?84:0));
     const oth=(s.costs||[]).filter(c=>y>=(c.from==null?-1:c.from)&&y<(c.to==null?99:c.to));const ot=oth.reduce((p,c)=>p+c.a,0);
     // 赤字なら、ふつうの家がやるように 特別費(半分まで)→お小遣い(3割まで) の順に切り詰める
     let spm=spM,ph=pkH,pw=pkW,cut=0;const need=()=>(inc/12)-(liveM+ph+pw+rent/12+kc.a/12+insM+spm+ot/12);
@@ -1719,7 +1729,7 @@ details.alb summary::-webkit-details-marker{display:none}
       const yo=yoiku(s),cH=!!s.custH,k2=cH?0:k,wW=TH(s.W||0),inc2=wW+(cH?0:yo*12)+(cH?0:kc.ca);const D2=(wW+(cH?0:yo*12))/12;const b2=B2(D2,k2,false);
       const live2=Math.round((b2.food+b2.util+b2.daily+b2.fun)*0.72*12),pk2=Math.round(((s.W||0)>0?b2.pk*0.85:1)*12),ins2=Math.round((b2.ins*0.6+(s.ins?2:0))*12),rent2=Math.round((s.divRent!=null?s.divRent:8)*12),kc2=cH?0:kc.a,ot2=ot;
       return {inH:0,inW:wW,inR:0,yo,custH:cH,inc:inc2,lc:0,live:live2,pk:pk2,pkH:0,pkW:pk2/12,sp:0,rent:rent2,ins:ins2,kc:cH?{a:0,ca:0,l:'',age:kc.age}:kc,wl:'',oth,ot:ot2,sep:false,split,mB:false,cut:false,food:b2.food,util:b2.util,daily:b2.daily,fun:b2.fun,net:inc2-live2-pk2-rent2-kc2-ins2-ot2-(cH?yo*12:0)};}
-    return {inH,inW,inR,inc,lc,live,pkc:b.pkc,pk,pkH:ph,pkW:pw,sp,rent,ins,kc:s.abroad?Object.assign({},kc,{ca:0}):kc,wl,oth,ot,sep,split,mB,cut:cut>0,infl,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
+    return {inH,inW,inR,inc,lc,live,pkc:b.pkc,pk,pkH:ph,pkW:pw,sp,rent,ins,kc:s.abroad?Object.assign({},kc,{ca:0}):kc,wl,oth,ot,sep,split,mB,cut:cut>0,infl,jt:jt*mul,kosin,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
   // 思わぬ出費(実際の相場)。年1件・上限60万、特別費(帰省・旅行・冠婚葬祭・家電の買い替え)と重なるものは入れない。1周で同じ事は1回。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
     {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:35},{l:'親の入院の付き添いと、新幹線代',a:25},{l:'歯のインプラント1本',a:40},{l:'親戚のお葬式(香典・交通費・喪服)',a:15},
@@ -1748,11 +1758,11 @@ details.alb summary::-webkit-details-marker{display:none}
       // 物価高と賃上げ(2026/11/1): 金額は2026年の物価が基準。現実の出来事として「値上げ」と「賃上げ」を1回ずつ入れる
       if(!p0.split&&!p0.mB){
         if(s.inflY==null&&y>=2){s.inflY=y0;rows+=`<div class="mr dn"><span>🛒 値上げ<small>食料品の値上げで、食費が月1万円アップ(この先ずっと)</small></span><b>月−1万</b></div>`;}
-        else if(s.inflY!=null&&s.raiseY==null&&y0>s.inflY&&((s.rid!=='S'&&((s.H||0)>0||(s.R||0)>0))||(s.W||0)>0)){const hR=s.rid!=='S'&&(s.H||0)>0,rR=s.rid!=='S'&&!hR&&(s.R||0)>0,wR=(s.W||0)>0;const a0=TH(s.H||0)+TH(s.W||0)+(s.R||0);if(hR)s.H*=1.03;if(rR)s.R=Math.round(s.R*1.03);if(wR)s.W*=1.03;const up=(TH(s.H||0)+TH(s.W||0)+(s.R||0)-a0)/12;s.raiseY=y0;/* 家賃が収入の家(誠一郎など)は「賃上げ」ではなく「家賃の改定」(2026/11/02の指摘)。タカヒロは収入を実際どおりに固定(2026/10/27)なので、上げるのはあなたの給料だけ */const ttl=rR?'🏢 家賃の改定':'📈 春の賃上げ',sub=rR?('物価に合わせて、ビルの家賃を3%上げた'+(wR?'。あなたの給料も3%アップ':'')):('物価に合わせて、'+(hR&&wR?'夫とあなた':hR?'夫':'あなた')+'の給料が3%アップ');rows+=`<div class="mr up"><span>${ttl}<small>${sub}</small></span><b>月+${mn(up)}</b></div>`;}
+        else if(s.inflY!=null&&s.raiseY==null&&y0>s.inflY&&((s.rid!=='S'&&((s.H||0)>0||(s.R||0)>0))||(s.W||0)>0)){const hR=s.rid!=='S'&&(s.H||0)>0,rR=s.rid!=='S'&&!hR&&(s.R||0)>0,wR=(s.W||0)>0;const a0=TH(s.H||0)+TH(s.W||0)+(s.R||0);const hN=s.selfH?0:(HRAISE[s.rid]||.02),wN=WRAISE[pers.job]||.025;if(hR)s.H*=(1+hN)/1.03;if(rR)s.R=Math.round(s.R*1.03);if(wR)s.W*=(1+wN)/1.03;const up=(TH(s.H||0)+TH(s.W||0)+(s.R||0)-a0)/12;s.raiseY=y0;/* 家賃が収入の家(誠一郎など)は「賃上げ」ではなく「家賃の改定」(2026/11/02の指摘)。タカヒロは収入を実際どおりに固定(2026/10/27)なので、上げるのはあなたの給料だけ */const pc=v=>Math.round(v*1000)/10+'%',gl=[hR?'夫 +'+pc(hN)+(s.selfH?'(自営なので無し)':''):'',wR?'あなた +'+pc(wN):''].filter(Boolean).join('・');const ttl=rR?'🏢 家賃の改定':up>=0.05?'📈 春の賃上げ':'📉 賃上げが、物価に負けた',sub=rR?('物価に合わせて、ビルの家賃を3%上げた'+(wR?'。あなたの給料は +'+pc(wN)+'(物価は+3%)':'')):('給料 '+gl+'。でも物価も +3%。'+(up>=0.05?'大きな会社ほど、物価より上がる':'中小企業や病院・保育園は、物価に追いつかないことが多い'));rows+=`<div class="mr ${up>=0?'up':'dn'}"><span>${ttl}<small>${sub}</small></span><b>月${up>=0?'+':'−'}${mn(Math.abs(up))}</b></div>`;}
       }
       let g=0,t=y0;const ev=[];
       while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1){const o1=pickOops(s,t);if(o1)ev.push(o1);if(s.car&&(Math.floor(t)+2)%9===0)ev.push({l:'車の買い替え(頭金と諸費用)',a:120});}if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
-        s.H=(s.H||0)*(1+((s.Hstop!=null&&t>=s.Hstop)?0:(s.Hg||0))*d);s.W=(s.W||0)*(1+0.01*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
+        s.H=(s.H||0)*(1+((s.Hstop!=null&&t>=s.Hstop)?0:(s.Hg||0))*d);s.W=(s.W||0)*(1+((t<20)?(WGROW[pers.job]||.004):0)*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
       g=Math.round(g);const E=ev.reduce((p,e)=>p+e.a,0);const it=s.nisa&&s.sav>0?Math.round(s.sav*0.5*(Math.pow(1.03,dy)-1)):0;
       const b0=s.sav;s.sav=s.sav+g-E+it;s.yr=y;const real=s.sav-b0;
       {
@@ -2106,7 +2116,7 @@ details.alb summary::-webkit-details-marker{display:none}
     G('B','女部長と、エプロンの夫').pre=s=>s.f.london?{after:true,title:'帰国',text:'5年ぶりの日本。あなたはロンドンで働いた日系企業の東京本社に、正社員で戻った。夫の駐在手当はなくなった。'+(s.f.together?'房子さんの店の借金は、結婚10年目に完済した。':''),d:{H:-300,home:s.own?'都内のマンション(3LDK・ペアローン)':'都内の賃貸マンション(家賃20万)',set:{abroad:0,R:0,Rl:'',W:Math.round((s.W0||350)*1.1),rent:s.own?270:240,rentL:s.own?'ペアローン 月18万+管理費・修繕3万+固定資産税':'家賃 月20万'}}}:{after:true,title:'夫が帰国',text:'二重生活が終わった。夫の駐在手当はなくなった。'+(s.f.together?'房子さんの店の借金は、結婚10年目に完済した。':''),d:{H:-300,set:{R:0,Rl:''}}};}
    {const c=G('B','女部長と、エプロンの夫');setD(c.ch[0],()=>({sav:0,set:{H:700,W:({office:850,nurse:950,civil:900,teacher:800,hoiku:650,beauty:650,it:950,other:750})[pers.job]||750}}));setD(c.ch[1],s=>({sav:0,W:80,set:{H:Math.max(2100,Math.round((s.H||0)/100)*100+100)}}));}
    // 悠太
-   G('C','若奥様').pre.d.set=Object.assign(G('C','若奥様').pre.d.set,{rid:'C',H:450,Hg:.015,Hstop:20,W:W0(),W0:W0(),live:300,rent:120,rentL:'家賃 月10万'});
+   G('C','若奥様').pre.d.set=Object.assign(G('C','若奥様').pre.d.set,{rid:'C',H:450,Hg:.012,Hstop:14,W:W0(),W0:W0(),live:300,rent:120,rentL:'家賃 月10万'});
    {const c=G('C','蔵を、継ぐか');setD(c.ch[0],s=>({W:m(s,'W',0.8),set:{H:600,rent:0,rentL:'蔵の母屋(家賃なし)',car:1},cost:cost('車2台の維持費(ガソリン・保険・車検・積立)',84,3)}));}
    {const c=G('C','わたしの仕事');setD(c.ch[0],s=>({sav:0,W:m(s,'W',1.15)}));setD(c.ch[1],s=>({sav:0,W:m(s,'W',1.15),cost:cost('夜間学校の学費(2年)',50,2,4)}));}
    {const c=G('C','海を渡る酒');setD(c.ch[0],s=>({sav:0,W:250,H:s.f.kura?450:200,L:-4}));setD(c.ch[1],()=>({sav:0,H:30}));}
