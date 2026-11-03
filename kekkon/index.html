@@ -501,7 +501,8 @@ details.alb summary::-webkit-details-marker{display:none}
       <p class="small muted">これは「体験お見合い」だけの仮の診断。結婚して20年たつと、完成版が出ます。</p>
     </div>
     <div class="nako" id="nako-pmini"></div>
-    <div class="row"><button class="btn-gold" id="pm-save" style="flex:1">画像で保存</button></div>
+    <img id="pm-cardprev" alt="シェア用の画像" hidden style="width:56%;margin:0 auto;display:block;border-radius:16px;box-shadow:0 8px 24px rgba(201,42,98,.25)">
+    <div class="row"><button class="btn-gold" id="pm-share" style="flex:1 1 160px;min-height:56px">📸 シェアする</button><button class="btn-line" id="pm-save" style="flex:1 1 120px">画像を保存</button></div>
     <button class="btn-rose btn-block" id="pm-next" style="min-height:62px;font-size:1.1rem">指輪を渡す人を選ぶ</button>
   </section>
 
@@ -600,6 +601,13 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="report" id="r-report"></div>
     </div>
     <div class="nako" id="nako-result"></div>
+    <div class="card stack sharecard">
+      <div style="text-align:center"><div class="eyebrow">Share</div><div style="font-family:var(--font-mincho);font-weight:800;font-size:1.35rem">わたしの夫、載せちゃう？</div><div class="small muted">婚活タイプは「<b id="t-name3" style="color:var(--rose-deep)"></b>」。友だちが誰と結婚したか、比べてみて。</div></div>
+      <img id="r-cardprev" alt="シェア用の画像" hidden style="width:62%;margin:0 auto;display:block;border-radius:18px;box-shadow:0 8px 28px rgba(201,42,98,.28)">
+      <button class="btn-rose btn-block" id="r-copy" style="min-height:62px;font-size:1.1rem">📸 ストーリーズ・LINEでシェア</button>
+      <button class="btn-line btn-block" id="r-save">画像だけ保存する</button>
+      <div class="sharebox" id="r-share" hidden></div>
+    </div>
     <div id="r-author" hidden class="stack">
       <div class="secret"><div class="stamp">Afterword</div><div class="sub">作者あとがき</div><p>物語は、ここでおしまい。<br>最後に、ひとつだけ種明かしを。<br>タカヒロのモデルは、このゲームの作者です。物語はフィクションで、作者に会ったり連絡したりはできません。</p></div>
       <div class="card stack">
@@ -624,11 +632,6 @@ details.alb summary::-webkit-details-marker{display:none}
     </div>
 
 
-    <div class="card stack">
-      <div style="text-align:center"><div class="small muted">あなたの結婚観タイプ</div><div style="font-family:var(--font-mincho);font-weight:800;font-size:1.5rem;color:var(--rose-deep)" id="t-name3"></div><div class="small muted">画像にして、友だちと見せ合えます</div></div>
-      <div class="row"><button class="btn-rose" id="r-save" style="flex:1 1 140px;min-height:60px">画像で保存</button><button class="btn-gold" id="r-copy" style="flex:1 1 140px;min-height:60px">友だちに送る</button></div>
-      <div class="sharebox" id="r-share"></div>
-    </div>
 
     <div class="card stack">
       <div><div class="eyebrow">Collection</div><h3>エンディング図鑑 <span class="mono" id="z-n"></span></h3><p class="small muted" id="z-sub"></p></div>
@@ -4496,9 +4499,11 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
     nako('#nako-pmini','4人とも、まだ秘密を隠してるわよ。それと、リストにない5人目。あんたとの相性も、一応出しといたわ。誰に指輪を渡すかで、20年後のお金もグラフの形も、まるで変わる。…さ、決めなさい。');
     show('s-pmini');
+    setTimeout(()=>cardPreview('mini','#pm-cardprev'),50);
   }
   $('#pm-next').addEventListener('click',()=>{renderList();show('s-list');});
   $('#pm-save').addEventListener('click',()=>drawCard('mini'));
+  $('#pm-share').addEventListener('click',()=>shareCard('mini'));
 
   // ================= 4人 =================
   function renderList(){
@@ -4726,6 +4731,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     $('#t-desc').textContent=ty.d;$('#t-match').textContent=ty.m;$('#t-adv').textContent=ty.adv;$('#t-compat').innerHTML=compatHTML(tk);$('#t-data').textContent=ty.data;$('#t-src').textContent=ty.src;
     $('#ibj-list').innerHTML=IBJ.map(([k,v])=>`<div><span class="small" style="color:var(--rose);font-weight:700">${esc(k)}</span><br>${esc(v)}</div>`).join('');$('#ibj-src').textContent=IBJ_SRC;
     $('#r-share').textContent=shareText();
+    setTimeout(()=>cardPreview('result','#r-cardprev'),50);
     nako('#nako-pr','物語はここまで。これから探すなら、「'+ty.n+'」のあんたには「'+ty.cat+'」が合うわ。もう結婚してる？ なら、夫婦のお金の相談を一度。どっちも、あたしが選んどいたから、のぞくだけのぞいてみなさい。');
     $('#pr-btn').href='osusume.html#'+tk;
     $('#r-moshi').innerHTML=(secFree()?[SEC].concat(P):P.concat([SEC])).filter(p=>p.id!==cur.id).map(p=>`<button data-id="${p.id}"><span class="mf">${img(p.id,p.name)}</span><b>${esc(p.name)}</b><span class="q">総資産 ???</span><span class="small muted">秘密 ???</span><span class="small muted">${pers.routes[p.id]&&pers.routes[p.id].bought?'購入済み':(p.id==='S'&&secFree()?'🔓 全話無料':'3話まで無料')}</span></button>`).join('');
@@ -4749,9 +4755,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   $('#r-again2').addEventListener('click',()=>$('#r-again').click());
   $('#r-again').addEventListener('click',()=>{const r=R();pers.routes[cur.id]={ci:0,st:Object.assign(clone(START),{f:{},x:clone(pers.pro?pers.pro.x:{})}),picks:[],unlocked:r.bought?99:0,freeAt:null,bought:r.bought,adDay:r.adDay||'',preApplied:false,done:false};save();resume();});
   $('#r-top').addEventListener('click',renderIntro);
-  $('#r-copy').addEventListener('click',()=>{const t=shareText();const done=()=>toast('コピーしました。LINEやストーリーズに貼れます');
-    const fb=()=>{const rg=document.createRange();rg.selectNodeContents($('#r-share'));const s=getSelection();s.removeAllRanges();s.addRange(rg);toast('文章を選択しました。コピーして送ってください');};
-    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(fb);}else fb();});
+  $('#r-copy').addEventListener('click',()=>shareCard('result'));
   $('#r-save').addEventListener('click',()=>drawCard('result'));
 
   // ================= シェア画像 1080x1920 =================
@@ -4759,64 +4763,107 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
 function showImgSheet(du){const o=document.createElement('div');o.className='imgsheet';o.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(30,15,22,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px';
   o.innerHTML='<div style="color:#fff;font-weight:800;font-size:18px;text-align:center;line-height:1.6">画像を<b style="color:#FFD2E1">長押し</b>して保存してね<br><span style="font-weight:500;font-size:14px">(保存できない時は、この画面をスクショ)</span></div><img alt="ウェディングストーリーの画像" style="max-width:100%;max-height:68vh;border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.4)"><button type="button" style="min-height:48px;padding:0 34px;border-radius:999px;border:0;background:#fff;color:#C92A62;font-weight:800;font-size:16px">閉じる</button>';
   o.querySelector('img').src=du;o.querySelector('button').addEventListener('click',()=>o.remove());document.body.appendChild(o);}
-function drawCard(kind){
+// 2026/11/03 シェア画像を作り直し:「ストーリーに載せたくなる」1枚に。夫の顔を大きく、婚活タイプを主役に、情報は3つだけ。
+//   インスタのストーリーは上下が画面の文字で隠れるので、大事な情報は 250〜1680px の中に収める
+function cardFonts(){try{return Promise.race([Promise.all(["800 90px 'Shippori Mincho B1'","700 40px 'Zen Kaku Gothic New'","600 italic 40px 'Cormorant Garamond'"].map(f=>document.fonts.load(f))),new Promise(r=>setTimeout(r,2500))]);}catch(e){return Promise.resolve();}}
+function loadImg(src){return new Promise(res=>{if(!src){res(null);return;}const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);im.src=src;});}
+async function makeCard(kind){
+    await cardFonts();
     const c=$('#cardcv'),g=c.getContext('2d'),W=1080,Hh=1920;
-    const MIN="'Shippori Mincho B1','Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif",GOT="'Zen Kaku Gothic New','Hiragino Sans','Noto Sans CJK JP',sans-serif";
+    const MIN="'Shippori Mincho B1','Hiragino Mincho ProN','Yu Mincho','Noto Serif CJK JP',serif",GOT="'Zen Kaku Gothic New','Hiragino Sans','Noto Sans CJK JP',sans-serif",ITA="'Cormorant Garamond',serif";
+    let sd=7;const rnd=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
     const rr=(x,y,w,h,r)=>{g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath();};
-    const tx=(t,x,y,size,font,col,w)=>{g.font=(w||800)+' '+size+'px '+font;g.fillStyle=col;g.textAlign='center';g.fillText(t,x,y);};
-    const fit=(t,max,size,font)=>{let s=size;g.font='800 '+s+'px '+font;while(g.measureText(t).width>max&&s>24){s-=2;g.font='800 '+s+'px '+font;}return s;};
-    const bg=g.createLinearGradient(0,0,W,Hh);bg.addColorStop(0,'#FDE3EB');bg.addColorStop(.55,'#FBD0DD');bg.addColorStop(1,'#F7E6C9');g.fillStyle=bg;g.fillRect(0,0,W,Hh);
-    for(let i=0;i<26;i++){g.save();g.translate(Math.random()*W,Math.random()*Hh);g.rotate(Math.random()*6.3);g.fillStyle='rgba(232,69,124,'+(0.07+Math.random()*0.1)+')';g.beginPath();g.ellipse(0,0,26+Math.random()*20,13+Math.random()*9,0,0,7);g.fill();g.restore();}
-    for(let i=0;i<80;i++){g.fillStyle='rgba(255,255,255,'+(0.25+Math.random()*0.5)+')';g.beginPath();g.arc(Math.random()*W,Math.random()*Hh,Math.random()*4+1,0,7);g.fill();}
-    g.strokeStyle='#C9A227';g.lineWidth=9;g.beginPath();g.arc(W/2,68,26,0,7);g.stroke();g.fillStyle='#FFF6E3';g.beginPath();g.moveTo(W/2,24);g.lineTo(W/2+13,38);g.lineTo(W/2,52);g.lineTo(W/2-13,38);g.closePath();g.fill();g.strokeStyle='#C9A227';g.lineWidth=3;g.stroke();
-    tx('ウェディングストーリー',W/2,140,60,MIN,'#3B2430');tx('結婚シミュレーション',W/2,195,28,GOT,'#B8921C',700);
-    g.fillStyle='rgba(255,255,255,.92)';rr(70,240,W-140,1400,56);g.fill();g.strokeStyle='rgba(201,162,39,.7)';g.lineWidth=3;g.stroke();
-    const sc=kind==='mini'?scores(pers.pro.x):lastSc;const ty=TYPES[typeKey(sc)];
-    const radar=(cx,cy,R)=>{
-      const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(a)*R*v/100,cy+Math.sin(a)*R*v/100];};
-      const poly=(vals,fill,stroke,dash,lw)=>{g.beginPath();vals.forEach((v,i)=>{const [x,y]=pt(i,v);i?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();if(fill){g.fillStyle=fill;g.fill();}g.setLineDash(dash||[]);g.strokeStyle=stroke;g.lineWidth=lw||2;g.stroke();g.setLineDash([]);};
-      [25,50,75,100].forEach(r=>poly([r,r,r,r,r],null,'rgba(59,36,48,.14)'));
-      poly(AX.map(([k])=>AVG[k]),null,'#9A8A95',[12,10],4);
-      poly(AX.map(([k])=>sc[k]),'rgba(232,69,124,.22)','#E8457C',null,6);
-      AX.forEach(([k,l],i)=>{const [x,y]=pt(i,128);tx(l,x,y+8,34,GOT,'#3B2430',700);tx(String(sc[k]),x,y+48,30,GOT,'#C92A62',700);});
-    };
-    const finish=()=>{
-      if(kind==='mini'){
-        tx('体験お見合いでのあなた',W/2,330,40,GOT,'#B8921C',700);
-        const s1=fit(ty.n,W-240,92,MIN);tx(ty.n,W/2,450,s1,MIN,'#C92A62');
-        radar(W/2,860,250);
-        tx('あなたなら、4人の誰に指輪を渡す？',W/2,1300,42,MIN,'#3B2430');
-        tx('全員に、秘密がある。',W/2,1370,52,MIN,'#C92A62');
-      }else{
-        tx(cur.name+'と結婚して、20年',W/2,320,34,GOT,'#8E6E7B',500);
-        const s0=fit('「'+lastEnd.t+'」',W-240,58,MIN);tx('「'+lastEnd.t+'」',W/2,400,s0,MIN,'#3B2430');
-        tx('わたしの婚活タイプ',W/2,480,30,GOT,'#B8921C',700);
-        const s1=fit(ty.n,W-240,92,MIN);tx(ty.n,W/2,585,s1,MIN,'#C92A62');
-        radar(W/2,930,230);
-        const o=st.hw?40:0;
-        if(st.hw)tx((famS(st)?'家族の不動産と預金 約':'夫のもの(別) 約')+yen(st.hw),W/2,1245,54,MIN,'#5A3A4A');
-        tx('20年後の、ふたりの貯金',W/2,1290+o,32,GOT,'#8E6E7B',700);
-        const mv=yen(st.sav);const s3=fit(mv,W-220,70,MIN);tx(mv,W/2,1380+o,s3,MIN,'#B8921C');
-        tx('信頼 '+lst(st)+'   ときめき '+'♥'.repeat(hearts(st.T))+'♡'.repeat(5-hearts(st.T)),W/2,1450+o,34,GOT,'#C92A62',700);
-        tx('紹介された4人。全員に、秘密がある。',W/2,1530+o,38,MIN,'#3B2430');
-      }
-      tx('あなたは、誰と結婚する？',W/2,1760,52,MIN,'#C92A62');
-      tx('#ウェディングストーリー',W/2,1840,32,GOT,'#8E6E7B',700);
-      c.toBlob(async blob=>{
-        if(!blob){toast('画像を作れませんでした');return;}
-        const fn=kind==='mini'?'wedding-story-omiai.png':'wedding-story.png';
-        // アプリ(WebView)の中では、ダウンロード用のリンクを押すと画面ごと別ページに飛んでアプリが最初からになる。
-        // → アプリにWeddingNative.saveImageがあればそれで保存、なければ画面の上に画像を出して長押し/スクショで保存してもらう
-        if(IN_APP()){const rd=new FileReader();rd.onload=()=>{const du=rd.result;
-          try{if(window.WeddingNative&&WeddingNative.saveImage){WeddingNative.saveImage(du.split(',')[1],fn);toast('画像を保存しました');return;}}catch(e){}
-          showImgSheet(du);};rd.readAsDataURL(blob);return;}
-        let dl=null;try{if(window.claude&&window.claude.use)dl=await window.claude.use('downloads');}catch(e){dl=null;}
-        if(dl){try{await dl.save({filename:fn,data:blob});toast('画像を保存しました(1080×1920)');}catch(err){toast(err&&err.code==='declined'?'保存をやめました':'この画面では保存できませんでした');}return;}
-        try{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('画像を保存しました');}catch(e){toast('この画面では保存できません');}
-      },'image/png');
-    };
-    finish();
+    const tx=(t,x,y,size,font,col,w,al)=>{g.font=(w||800)+' '+size+'px '+font;g.fillStyle=col;g.textAlign=al||'center';g.fillText(t,x,y);};
+    const fit=(t,max,size,font,w)=>{let s=size;g.font=(w||800)+' '+s+'px '+font;while(g.measureText(t).width>max&&s>24){s-=2;g.font=(w||800)+' '+s+'px '+font;}return s;};
+    const sc=kind==='mini'?scores(pers.pro.x):lastSc;const tk=typeKey(sc),ty=TYPES[tk];
+    const pid=kind==='mini'?topCand():cur.id,person=pid==='S'?SEC:byId(pid);
+    const face=await loadImg(pid==='S'?(IMG.pS||IMG.S):IMG[pid]);
+    // 背景: ピンクのサテン+花びら+きらきら
+    const bg=g.createLinearGradient(0,0,W,Hh);bg.addColorStop(0,'#FFE7EF');bg.addColorStop(.5,'#FBCFDD');bg.addColorStop(1,'#F8E3C4');g.fillStyle=bg;g.fillRect(0,0,W,Hh);
+    const glow=g.createRadialGradient(W/2,560,60,W/2,560,620);glow.addColorStop(0,'rgba(255,255,255,.85)');glow.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=glow;g.fillRect(0,0,W,1200);
+    for(let i=0;i<30;i++){g.save();g.translate(rnd()*W,rnd()*Hh);g.rotate(rnd()*6.3);g.fillStyle='rgba(232,69,124,'+(0.08+rnd()*0.12)+')';g.beginPath();g.ellipse(0,0,24+rnd()*22,12+rnd()*10,0,0,7);g.fill();g.restore();}
+    for(let i=0;i<90;i++){g.fillStyle='rgba(255,255,255,'+(0.35+rnd()*0.5)+')';g.beginPath();g.arc(rnd()*W,rnd()*Hh,rnd()*4+1,0,7);g.fill();}
+    // ロゴ
+    tx('Wedding Story',W/2,118,46,ITA,'#B8921C',600);
+    tx('ウェディングストーリー',W/2,178,40,MIN,'#3B2430');
+    // 夫の顔(大きく丸く)
+    const cx=W/2,cy=540,R=270;
+    g.save();g.shadowColor='rgba(201,42,98,.35)';g.shadowBlur=50;g.fillStyle='#fff';g.beginPath();g.arc(cx,cy,R+22,0,7);g.fill();g.restore();
+    g.save();g.beginPath();g.arc(cx,cy,R,0,7);g.clip();
+    if(face){const s=Math.max(2*R/face.width,2*R/face.height);const w=face.width*s,h=face.height*s;g.drawImage(face,cx-w/2,cy-R-(h-2*R)*.15,w,h);}else{g.fillStyle='#F6C9D7';g.fillRect(cx-R,cy-R,2*R,2*R);}
+    g.restore();
+    const ring=g.createLinearGradient(cx-R,cy-R,cx+R,cy+R);ring.addColorStop(0,'#F3D98A');ring.addColorStop(.5,'#C9A227');ring.addColorStop(1,'#F1D27A');
+    g.strokeStyle=ring;g.lineWidth=14;g.beginPath();g.arc(cx,cy,R+7,0,7);g.stroke();
+    // 指輪のダイヤ
+    g.fillStyle='#FFFFFF';g.beginPath();g.moveTo(cx,cy-R-52);g.lineTo(cx+26,cy-R-24);g.lineTo(cx,cy-R+4);g.lineTo(cx-26,cy-R-24);g.closePath();g.fill();g.strokeStyle='#C9A227';g.lineWidth=5;g.stroke();
+    // リボン
+    const lab=kind==='mini'?'わたしに、ぴったりな人':(isDv(st)?'わたしの、元夫':'わたしの夫');
+    g.font='800 40px '+GOT;const lw=g.measureText(lab).width+90;
+    g.fillStyle='#E8457C';rr(cx-lw/2,cy+R-28,lw,78,39);g.fill();tx(lab,cx,cy+R+24,40,GOT,'#fff',800);
+    // 名前
+    const nm=person.name;const s1=fit(nm,W-200,96,MIN);tx(nm,W/2,cy+R+150,s1,MIN,'#3B2430');
+    if(kind==='mini'){
+      tx('体験お見合いで、いちばん相性がよかった人',W/2,cy+R+210,34,GOT,'#8E6E7B',700);
+      tx('いまのところ、わたしは',W/2,1110,34,GOT,'#B8921C',700);
+      const s2=fit(ty.n,W-200,100,MIN);tx(ty.n,W/2,1220,s2,MIN,'#C92A62');
+      // ほかの4人(顔は「？」)
+      const others=['A','B','C','D','S'].filter(k=>k!==pid).slice(0,4);const fx=[W/2-330,W/2-110,W/2+110,W/2+330];
+      for(let i=0;i<others.length;i++){const im=others[i]==='S'?null:await loadImg(IMG[others[i]]);const x=fx[i],y=1370,r=84;
+        g.save();g.beginPath();g.arc(x,y,r,0,7);g.clip();if(im){const s=2*r/Math.min(im.width,im.height);g.drawImage(im,x-im.width*s/2,y-r,im.width*s,im.height*s);g.fillStyle='rgba(59,36,48,.45)';g.fillRect(x-r,y-r,2*r,2*r);}else{g.fillStyle='#3B2430';g.fillRect(x-r,y-r,2*r,2*r);}g.restore();
+        g.strokeStyle='#fff';g.lineWidth=8;g.beginPath();g.arc(x,y,r,0,7);g.stroke();tx('？',x,y+28,80,MIN,'#fff');}
+      tx('ほかの4人にも、全員に秘密がある。',W/2,1525,40,MIN,'#3B2430');
+    }else{
+      tx(isDv(st)?'と結婚して、そして別れた。':'と結婚して、20年。',W/2,cy+R+210,38,GOT,'#8E6E7B',700);
+      // 結末
+      const rk=RANK[lastEnd.k]||'結末',et='「'+lastEnd.t+'」';
+      g.fillStyle='rgba(255,255,255,.92)';rr(110,1035,W-220,110,55);g.fill();
+      g.font='800 30px '+GOT;const bw=g.measureText(rk).width+44;g.fillStyle='#C9A227';rr(140,1062,bw,56,28);g.fill();tx(rk,140+bw/2,1101,30,GOT,'#fff',800);
+      const s3=fit(et,W-220-bw-90,50,MIN);tx(et,(140+bw+W-110)/2+6,1108,s3,MIN,'#3B2430');
+      // タイプ(主役)
+      tx('わたしの婚活タイプは',W/2,1215,34,GOT,'#B8921C',700);
+      const s2=fit(ty.n,W-200,104,MIN);tx(ty.n,W/2,1325,s2,MIN,'#C92A62');
+      if(ty.rare){g.font='800 28px '+GOT;g.fillStyle='#C9A227';rr(W/2-110,1345,220,48,24);g.fill();tx('★ レアタイプ',W/2,1379,28,GOT,'#fff',800);}
+      // 数字は3つだけ
+      const fam=famS(st)&&st.hw;const money=yen(fam?st.sav+st.hw+(st.mine||0):st.sav);
+      const tiles=[[fam?'ふたりの資産':'20年後の貯金',money],['信頼',lst(st)],['ときめき','♥'.repeat(hearts(st.T))+'♡'.repeat(5-hearts(st.T))]];
+      const tw=280,gap=26,x0=(W-(tw*3+gap*2))/2,ty0=ty.rare?1415:1395;
+      tiles.forEach(([k,v],i)=>{const x=x0+i*(tw+gap);g.fillStyle='rgba(255,255,255,.95)';rr(x,ty0,tw,150,30);g.fill();tx(k,x+tw/2,ty0+52,28,GOT,'#8E6E7B',700);const s=fit(v,tw-30,42,i===2?GOT:MIN);tx(v,x+tw/2,ty0+115,s,i===2?GOT:MIN,i===2?'#E8457C':'#3B2430');});
+    }
+    // 呼びかけ
+    g.save();g.shadowColor='rgba(201,42,98,.35)';g.shadowBlur=24;g.fillStyle='#E8457C';rr(120,1588,W-240,104,52);g.fill();g.restore();
+    tx(kind==='mini'?'あなたは、誰に指輪を渡す？':'あなたは、誰と結婚する？',W/2,1658,50,MIN,'#fff');
+    tx('アプリで「ウェディングストーリー」と検索',W/2,1760,32,GOT,'#5A3A4A',700);
+    tx('#ウェディングストーリー',W/2,1815,30,GOT,'#B8921C',700);
+    return new Promise(res=>c.toBlob(b=>res(b),'image/png'));
   }
+  const cardName=kind=>kind==='mini'?'wedding-story-omiai.png':'wedding-story.png';
+  function blobToDataURL(b){return new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(b);});}
+  function cardText(kind){return kind==='mini'?'💍 体験お見合いで、いちばん相性がよかったのは'+(topCand()?byId(topCand()).name:'')+'。\n紹介された4人、全員に秘密がある。あなたなら、誰に指輪を渡す？\n#ウェディングストーリー':shareText();}
+  // 画像で保存
+  async function drawCard(kind){
+    const blob=await makeCard(kind);if(!blob){toast('画像を作れませんでした');return;}
+    const fn=cardName(kind);track('card_save',{kind});
+    // アプリ(WebView)の中では、ダウンロード用のリンクを押すと画面ごと別ページに飛んでアプリが最初からになる。
+    // → アプリにWeddingNative.saveImageがあればそれで保存、なければ画面の上に画像を出して長押し/スクショで保存してもらう
+    if(IN_APP()){const du=await blobToDataURL(blob);
+      try{if(window.WeddingNative&&WeddingNative.saveImage){WeddingNative.saveImage(du.split(',')[1],fn);toast('画像を保存しました');return;}}catch(e){}
+      showImgSheet(du);return;}
+    let dl=null;try{if(window.claude&&window.claude.use)dl=await window.claude.use('downloads');}catch(e){dl=null;}
+    if(dl){try{await dl.save({filename:fn,data:blob});toast('画像を保存しました(1080×1920)');}catch(err){toast(err&&err.code==='declined'?'保存をやめました':'この画面では保存できませんでした');}return;}
+    try{const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('画像を保存しました');}catch(e){toast('この画面では保存できません');}
+  }
+  // ストーリーズ・LINEでシェア(画像ごと共有シートを開く)
+  async function shareCard(kind){
+    const blob=await makeCard(kind);if(!blob){toast('画像を作れませんでした');return;}
+    const fn=cardName(kind),text=cardText(kind);
+    try{if(window.WeddingNative&&WeddingNative.shareImage){const du=await blobToDataURL(blob);WeddingNative.shareImage(du.split(',')[1],fn,text);track('card_share',{kind,via:'native'});return;}}catch(e){}
+    try{const file=new File([blob],fn,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],text});track('card_share',{kind,via:'web'});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+    // 共有シートが使えない時: 画像を保存してもらい、文章はコピー
+    await drawCard(kind);
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(text);setTimeout(()=>toast('画像を保存して、ストーリーズに載せてね(文章もコピーしました)'),1200);}}catch(e){}
+  }
+  async function cardPreview(kind,sel){try{const b=await makeCard(kind);if(!b)return;const el=$(sel);if(!el)return;if(el.dataset.u)URL.revokeObjectURL(el.dataset.u);const u=URL.createObjectURL(b);el.dataset.u=u;el.src=u;el.hidden=false;}catch(e){}}
 
   const AT0=pers.at||{};
   renderIntro();
@@ -4853,6 +4900,13 @@ function drawCard(kind){
     for(let k=0;k<last;k++){renderEp();choose(0);const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
     renderEp();show('s-game');
   }}catch(e){console.log('test sec failed',e);}
+
+  // 確認用: ?test=pmini で体験お見合いの結果画面(シェア画像つき)へ直行
+  try{if(new URLSearchParams(location.search).get('test')==='pmini'){
+    if(!pers.name){pers.name='あなた';me='あなた';}
+    if(!pers.pro)pers.pro={x:{a:2,t:3,s:1},sc:{A:0,B:0,C:0,D:4,S:0}};
+    renderPmini();window.__PM=true;
+  }}catch(e){console.log('test pmini failed',e);window.__PM_ERR=String(e&&e.stack||e);}
 
   // 確認用: ?test=play&r=C&job=office で、そのルートの第1話から手動で通せる状態にする(購入済み扱い・CMなし。確認動画の録画用)
   try{const q=new URLSearchParams(location.search);if(q.get('test')==='play'){
