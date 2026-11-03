@@ -465,8 +465,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <button class="btn-line btn-block" id="bk-load">このコードで引き継ぐ</button>
     </div></details>
     <button class="linkbtn" id="reset-all">最初からやり直す(データを消す)</button>
-    <p class="foot">本ゲームはフィクションです。登場する人物・団体はすべて架空です。<br><span style="font-size:11px;opacity:.6">ver 2026.11.02a</span><br>企画・開発 加藤貴大</p>
-    <a class="linkbtn" href="https://linktr.ee/taka.kato" target="_blank" rel="noopener" style="display:block;text-align:center;font-weight:700;color:var(--gold)">作者のほかの作品 ›</a>
+    <p class="foot">本ゲームはフィクションです。登場する人物・団体はすべて架空です。<br><span style="font-size:11px;opacity:.6">ver 2026.11.03a</span><br>企画・開発 加藤貴大</p>
   </section>
 
   <!-- ===== 序章 ===== -->
@@ -1724,9 +1723,12 @@ details.alb summary::-webkit-details-marker{display:none}
     {l:'給湯器が壊れた',a:30,w:s=>!!s.own},{l:'修繕積立金の値上がり',a:24,w:s=>!!s.own&&(!/固定資産税/.test(s.rentL||'')||/管理費/.test(s.rentL||''))},{l:'外壁と屋根の塗り替え(一戸建て)',a:60,w:s=>!!s.own&&/固定資産税/.test(s.rentL||'')&&!/管理費/.test(s.rentL||'')},{l:'給湯器の水漏れと、床の張り替え',a:25,w:s=>!!s.own},
     {l:'親戚の法事と冠婚葬祭(高橋家は親戚が多い)',a:60,w:s=>s.rid==='A'},{l:'ビルの大規模修繕の、ふたりの持ち出し分',a:60,w:s=>s.rid==='A'&&!s.f.modeB},
     {l:'シャンプー台の故障と修理',a:60,w:s=>s.rid==='D'&&!!s.f.open},{l:'仕事用のハサミ2本の買い替え(1本20万)',a:40,w:s=>s.rid==='D'},
-    {l:'雪国の冬の灯油代と、雪下ろし',a:20,w:s=>!!(s.f.kura||s.f.kuraback)},{l:'房子さんの花屋の、冷蔵ケースが故障',a:50,w:(s,t)=>s.rid==='B'&&t<10&&!!s.f.together}];
+    {l:'雪国の冬の灯油代と、雪下ろし',a:20,w:s=>!!(s.f.kura||s.f.kuraback)},{l:'房子さんの花屋の、冷蔵ケースが故障',a:50,w:(s,t)=>s.rid==='B'&&t<10&&!!s.f.together},
+    {l:'グランドピアノの調律と、弦の張り替え',a:15,w:s=>s.rid==='S'},{l:'茅ヶ崎のマンションの、共用部の修繕(持ち出し分)',a:40,w:s=>s.rid==='S'},{l:'ふたりの記念日旅行が、つい豪華に',a:30,w:s=>s.rid==='S'}];
+  // タカヒロ編はマイナスの描写を出さない(病気・入院・お葬式・ケガ・事故・収入減)。2026/11/03 タケオさん指示
+  const NEG_S=/入院|葬式|香典|法事|通院|骨折|ぶつけて|ボーナスが出なかった|歯の|インプラント/;
   const hsh=t=>{let h=7;for(const ch of String(t))h=(h*31+ch.charCodeAt(0))%100003;return h;};
-  const pickOops=(s,t)=>{const used=s.oopsUsed||(s.oopsUsed=[]);const L=OOPS.filter(o=>(!o.w||o.w(s,t))&&!used.includes(o.l));if(!L.length)return null;const o=L[hsh((s.rid||'')+t)%L.length];used.push(o.l);return {l:o.l,a:Math.min(60,typeof o.a==='function'?o.a(s):o.a)};};
+  const pickOops=(s,t)=>{const used=s.oopsUsed||(s.oopsUsed=[]);const L=OOPS.filter(o=>(!o.w||o.w(s,t))&&!used.includes(o.l)&&!(s.rid==='S'&&NEG_S.test(o.l)));if(!L.length)return null;const o=L[hsh((s.rid||'')+t)%L.length];used.push(o.l);return {l:o.l,a:Math.min(60,typeof o.a==='function'?o.a(s):o.a)};};
   const mrow=(ic,lab,v,sub,cls)=>`<div class="mr ${cls||(v>=0?'up':'dn')}"><span>${ic} ${esc(lab)}${sub?`<small>${esc(sub)}</small>`:''}</span><b>${v>=0?'+':'−'}${yen(Math.abs(v))}</b></div>`;
   const arr=(n,o)=>o==null||Math.abs(n-o)<=Math.max(30,o*0.08)?'':(n>o?' ↑':' ↓');
   // 話の前の「その間に…」: 物語の出来事(pre) + 家計簿
