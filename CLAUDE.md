@@ -35,3 +35,7 @@ node tools/memtest.mjs
 - newcomer/index.html は手で直さへん。`python3 tools/mk_newcomer.py` で、俺専用版（index.html）から作り直す（俺専用版は読むだけ）。そのあと `node tools/nctest.mjs` で検査（全部✓で反映）。
 - 保存場所は tokienew_ で始まる名前に分けてある。俺専用版の手帳（tokie_〜）には絶対に書き込まへん（Geminiのキーだけ読むのはOK）。
 - ママの土台（ElevenLabsのエージェント）はまだ俺専用と同じ。商用版では別のエージェントを作る。
+
+## ウェディングストーリー（kekkon/）のお金の現実チェック — 2026/11/04
+- kekkon/index.html を変えたら、反映（push）する前に必ず `python3 tools/kekkon_check.py` を流す。全5ルート×8職種×A/Bを自動で通して、あなたの年収(29歳前後・都市部)・手取り率・お小遣い・貯蓄率・式の自己負担・中小の賃上げ・タカヒロ編の赤字を検査する。
+- 1つでも ✗ が出たら push しない。基準は2つ以上の出典で突き合わせた値。基準を変える時は出典を書き、タケオさんに理由を説明する。
