@@ -1410,13 +1410,13 @@ details.alb summary::-webkit-details-marker{display:none}
   const pct=(a,b)=>b>0?Math.round(a/b*100):0;
   function fpLine(s,inc,out,net,rent,kids,p){
     const sr=pct(net,inc),rr=pct(rent,inc);const C=[];const age=(p&&p.kc&&p.kc.age!=null)?p.kc.age:-1;const small=kids&&age>=0&&age<6,sch=kids&&age>=6&&age<13,mid=kids&&age>=13&&age<16,hi=kids&&age>=16&&age<19;
-    if(p&&p.sep){const km=konpi(s);C.push('赤字の原因は家賃2軒分。別居中は、生活費(婚姻費用)を夫に請求できる。裁判所の算定表なら月'+mn(km)+'ほど。払われていないなら、家庭裁判所に調停を。');}
+    if(p&&p.sep){const km=konpi(s);C.push((net<0?'赤字の原因は家賃2軒分。':'貯金が細る原因は家賃2軒分。')+'別居中は、生活費(婚姻費用)を夫に請求できる。裁判所の算定表なら月'+mn(km)+'ほど。払われていないなら、家庭裁判所に調停を。');}
     if(net<0)C.push('赤字。本来なら借金になる額。'+(small?'子どもが小さい間は多くの家がこうなる。':hi?'大学の初年度は国公立で約80万、私立文系で約120万が一度に出る。':'')+'見直す順は、特別費(旅行・家電)→お小遣い→住まい・保険。');
     else if(p&&p.cut)C.push('今月は特別費とお小遣いを切り詰めて、なんとかプラス。ふつうの家が毎月やってることよ。');
     if(rr>30)C.push('住まいが手取りの'+rr+'%。目安は25%まで。家計を一番重くしてるのはここ。');
     if(kids&&net>=0){if(sr<10)C.push(small?'子どもが小さい間は多くの家がここ(貯蓄率'+sr+'%)。児童手当(3歳まで1.5万・その後1万)だけは手をつけず教育費の口座へ。高校卒業まで続ければ約250万。':'貯蓄率'+sr+'%。'+(hi||mid?'大学の初年度(国公立約80万・私立文系約120万)は一度に出る。4年分を別口座に分けておいて。':'塾代が増える前に、固定費をあと1割。児童手当は全部、教育費の口座へ。'));
       else C.push('貯蓄率'+sr+'%。子どもがいて全国平均(1割ほど)を超えてる。'+(small?'小学校に上がる前に、塾代を先取りしておくと楽。':sch?'小学生のうちに大学費用(国公立250万・私立450万〜)を先取りしておくと、中高の塾代で慌てない。':mid?'高校は授業料が国から出ても、塾と受験で年50万は見ておいて。':'大学の初年度は国公立約80万・私立文系約120万。入学金は合格の翌週に要る。'));}
-    if(kids&&!s.fpK&&inc<2000&&(s.H||0)>0){s.fpK=1;C.unshift('子どもが生まれると、ふつうの家は貯金がほぼ止まる。ふつうの家は手取りの1割ほどしか貯められない。6軒に1軒は、生活費以外の貯えがない(J-FLEC「家計の金融行動に関する世論調査」2025年)。お小遣いは夫3万台が現実。児童手当は全部、教育費の口座へ。');}
+    if(kids&&!s.fpK&&inc<2000&&(s.H||0)>0){s.fpK=1;C.unshift('子どもが生まれると、ふつうの家は貯金がほぼ止まる。ふつうの家は手取りの1割ほどしか貯められない。6軒に1軒は、生活費以外の貯えがない(J-FLEC「家計の金融行動に関する世論調査」2025年)。お小遣いは夫2〜4万円が現実。児童手当は全部、教育費の口座へ。');}
     if(sr>=0&&sr<5)C.push('貯蓄率'+sr+'%。ほぼ貯まらない。日本の平均は1割ほど、6軒に1軒は貯えゼロ。先取り貯金で月'+mn(Math.max(1,inc*0.1))+'を自動に。');
     if(inc>=2000)C.unshift(s.hw?'お金持ちの家の貯金は「次の相続税を小さくすること」。生命保険の非課税枠(500万×相続人の数)と、毎年110万までの贈与を今から。':'収入が大きい家ほど、生活費の上限を先に決める。贈与や名義を動かしたら、申告の要・不要を税理士に。NISAは夫婦で年720万まで。');
     const em=Math.round(s.sav/Math.max(1,out));if(em<6&&net>=0&&inc<2000)C.push(s.yr<=1||!s.sav?'ふたりの貯金はゼロからスタート。最初の目標は生活費6か月分('+yen(Math.round(out*6))+')。':'貯金は生活費の'+em+'か月分。まず6か月分('+yen(Math.round(out*6))+')を「使わないお金」として確保。');
@@ -1451,7 +1451,7 @@ details.alb summary::-webkit-details-marker{display:none}
     {const key=Math.round(inc)+'|'+Math.round(out);if(s.bkEp!==ci){s.bkCompact=(s.bkKey===key&&s.bkEp!=null);s.bkKey=key;s.bkEp=ci;}
      if(s.bkCompact)return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>${s.yr===0?'結婚したて':s.yr===0.5?'結婚半年':'結婚'+s.yr+'年目'}</i></div><div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>前の話と同じ ・ 内訳は前の話で</em></div></div>`;}
     const lines=[row('暮らし',p.mB?'夫からの生活費でまかなう':'食費 '+mn(p.food)+(p.infl?'(値上げ分+1万込み)':'')+' ・ 光熱・通信 '+mn(p.util)+' ・ 日用品・服・医療・交通 '+mn(p.daily)+' ・ 交際・娯楽 '+mn(p.fun),-live)];
-    if(pk)lines.push(s.rid==='A'?row('自由に使うお金',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW)+'(服・美容・友だちとの食事)':''].filter(Boolean).join(' ・ '),-pk):row('お小遣い',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW):''].filter(Boolean).join(' ・ ')+(p.cut?'(切り詰め)':kids&&kc?'(子どもがいる間は25%減)':''),-pk));
+    if(pk)lines.push(s.rid==='A'?row('自由に使うお金',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW)+'(服・美容・友だちとの食事)':''].filter(Boolean).join(' ・ '),-pk):row('お小遣い',[p.pkH?'夫 '+mn(p.pkH):'',p.pkW?'あなた '+mn(p.pkW):''].filter(Boolean).join(' ・ ')+(p.cut?'(切り詰め)':kids&&kc&&p.pkc?'(子どもがいる間は25%減)':''),-pk));
     if(rent)lines.push(row(s.own?'住まい':'家賃',(s.rentL||'')+(p.sep&&!/別居/.test(s.rentL||'')?(s.rentL?' ＋ ':'')+'別居のアパート 7万':''),-rent));
     if(kc)lines.push(row('子ども',p.kc.l+(p.kc.age<3?'(食費・服・保育料)':p.kc.age<6?'(食費・服・給食費・教材費)':p.kc.age<18?'(食費・服・学校・塾)':'(食費・服・学費)'),-kc));
     if(ins+sp)lines.push(row('保険・特別費',(s.insL||'保険')+' '+mn(ins)+(sp?' ・ 帰省・旅行・冠婚葬祭・家電 '+mn(sp)+(p.cut?'(切り詰め)':''):''),-(ins+sp)));
@@ -1674,7 +1674,7 @@ details.alb summary::-webkit-details-marker{display:none}
     else if(age<22){a=48+(P?103:61);l=P?'私立大':'大学生';ca=0;}
     else{a=0;ca=0;l='';}
     // お金持ちの家の上乗せ(2026/11/02「この費用で済むとは思わない」): 習い事・家庭教師・お受験塾・海外サマースクール・留学。世帯の額面で2段階(年1,500万〜/3,000万〜)、1人あたり年額
-    if(a){const rich=G>=3000?1:G>=1500?0.4:0;if(rich){const add=Math.round(rich*(age<3?60:age<6?120:age<18?150:250));a+=add;l+=age<3?'・ベビーシッター':age<6?'・お受験塾・習い事':age<18?'・習い事・家庭教師・海外研修':'・留学・仕送り';}}
+    if(a){const rich=Math.max(s.rid==='S'?1:0,G>=4000?1.5:G>=3000?1:G>=1500?0.4:0);if(rich){const add=Math.round(rich*(age<3?60:age<6?120:age<18?150:250));a+=add;l+=age<3?'・ベビーシッター':age<6?'・お受験塾・習い事':age<18?'・習い事・家庭教師・海外研修':'・留学・仕送り';}}
     let tot=a*k;if(age<3&&k>1)tot-=hoiku*0.5*(k-1);
     return {a:Math.round(tot),ca:ca*k,age,l:(k>1?k+'人・':'')+l};}
   // ===== 夫婦の支出(2026/10/26 作り直し): 「平均的な家は、手取りの1割しか貯まらない」に合わせる =====
@@ -1687,9 +1687,10 @@ details.alb summary::-webkit-details-marker{display:none}
   const B2=(D,k,mB)=>{
     const x=Math.min(100,Math.max(0,D-50)); // 手取り50万を超えた分は、外食・旅行・服のグレードが上がる(高収入ほど貯蓄率は上がるが2割台まで。150万超は頭打ち)
     const food=Math.min(13,0.12*D+2.5+0.0003*x*x), util=(0.015*D+1.5)+1.5, daily=(0.012*D+0.8)+0.045*D+(0.01*D+0.5)+(0.01*D+0.5), fun=(0.06*D+0.0005*x*x)*(k?0.9:1); // 交際・娯楽は家族分(個人分はお小遣い)
-    const pk=Math.min(6,Math.max(2,0.065*D))*(k?0.75:1);
+    const pkc=!!k&&D<=100; // 2026/11/03: ふつうの家は2.5〜4万(FPの「夫2〜4万が現実」と揃える)。手取り月100万超の資産家は上がる(最大15万)。子どもがいる間の25%減はふつうの家だけ
+    const pk=(D<=100?Math.min(4,Math.max(2.5,0.06*D)):Math.min(15,4+0.06*(D-100)))*(pkc?0.75:1);
     const sp=Math.max(2,0.08*D)+0.0003*x*x+0.3*k, ins=0.012*D+1.6+(k?0.8:0);
-    return {food,util,daily,fun,pk,sp,ins};};
+    return {food,util,daily,fun,pk,pkc,sp,ins};};
   function pace(s,y){y=y==null?(s.yr||0):y;const split=!!(s.f&&(s.f.divorce||s.f.sign));const sep=!!(s.f&&s.f.separate&&!s.f.reunite&&!s.f.divorce);
     // 育休: 給付は額面の67%(180日まで)→50%、非課税+社会保険料免除なので手取りの7割ほど(2025年4月〜の出生後休業支援給付13%は28日だけ)。時短(〜小学校入学): 手取り8割(2歳までは時短給付10%つき)
     const kc=kidCost(s,y);const wm=(s.kids&&kc.age!=null&&kc.age>=0&&(s.W||0)>0)?(kc.age<1?0.7:kc.age<6?0.8:1):1;const wl=wm===0.7?'育休':wm===0.8?'時短':'';
@@ -1712,7 +1713,7 @@ details.alb summary::-webkit-details-marker{display:none}
       const yo=yoiku(s),cH=!!s.custH,k2=cH?0:k,wW=TH(s.W||0),inc2=wW+(cH?0:yo*12)+(cH?0:kc.ca);const D2=(wW+(cH?0:yo*12))/12;const b2=B2(D2,k2,false);
       const live2=Math.round((b2.food+b2.util+b2.daily+b2.fun)*0.72*12),pk2=Math.round(((s.W||0)>0?b2.pk*0.85:1)*12),ins2=Math.round((b2.ins*0.6+(s.ins?2:0))*12),rent2=Math.round((s.divRent!=null?s.divRent:8)*12),kc2=cH?0:kc.a,ot2=ot;
       return {inH:0,inW:wW,inR:0,yo,custH:cH,inc:inc2,lc:0,live:live2,pk:pk2,pkH:0,pkW:pk2/12,sp:0,rent:rent2,ins:ins2,kc:cH?{a:0,ca:0,l:'',age:kc.age}:kc,wl:'',oth,ot:ot2,sep:false,split,mB:false,cut:false,food:b2.food,util:b2.util,daily:b2.daily,fun:b2.fun,net:inc2-live2-pk2-rent2-kc2-ins2-ot2-(cH?yo*12:0)};}
-    return {inH,inW,inR,inc,lc,live,pk,pkH:ph,pkW:pw,sp,rent,ins,kc:s.abroad?Object.assign({},kc,{ca:0}):kc,wl,oth,ot,sep,split,mB,cut:cut>0,infl,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
+    return {inH,inW,inR,inc,lc,live,pkc:b.pkc,pk,pkH:ph,pkW:pw,sp,rent,ins,kc:s.abroad?Object.assign({},kc,{ca:0}):kc,wl,oth,ot,sep,split,mB,cut:cut>0,infl,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
   // 思わぬ出費(実際の相場)。年1件・上限60万、特別費(帰省・旅行・冠婚葬祭・家電の買い替え)と重なるものは入れない。1周で同じ事は1回。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
     {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:35},{l:'親の入院の付き添いと、新幹線代',a:25},{l:'歯のインプラント1本',a:40},{l:'親戚のお葬式(香典・交通費・喪服)',a:15},
