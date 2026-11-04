@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-04 v50";
+  const APP_VER="2026-11-04 v51";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2212,6 +2212,8 @@
     const detail=bits.join(" / ");
     const text=detail.toLowerCase();
     if(ctx.type==="max_duration_exceeded"||/max_duration/.test(text))return {kind:"maxdur",detail};
+    // 「Failed to fetch」＝返事が来る前に止まった（Wi‑Fi・VPN・広告ブロックで弾かれた）。クレジットは関係ない
+    if(/failed to fetch|networkerror|network error|load failed|err_name_not_resolved|err_connection|dns/.test(text))return {kind:"net",detail};
     if(/data packet larger|packet larger than|message too large|too large/.test(text))return {kind:"toobig",detail};
     if(/quota|credit|insufficient|402|payment|subscription|usage|billing/.test(text))return {kind:"credit",sure:true,detail};
     if(/exceed|limit|unauthorized|401|403/.test(text))return {kind:"credit",sure:false,detail};
@@ -2770,6 +2772,11 @@
         r.sure?"ママ：堪忍な、クレジット切れや":"ママ：堪忍な、たぶんクレジット切れや",
         "ElevenLabsの今月ぶんの通話時間を使い切ったみたい。追加クレジットを買うか、プランを一段上げたら、すぐまた入れる。",
         {href:ELEVEN_SUB,label:"ElevenLabsの料金ページを開く"},r.detail);
+    }else if(r.kind==="net"){
+      errEl.textContent="";statusEl.textContent="回線が繋がらんかった（クレジットは関係ない）";
+      showNotice("dropped","ママ：うち、電波が届いてへんわ",
+        "ElevenLabsに繋がる前に止まった。クレジットは減ってへん。Wi‑FiやVPN・広告ブロックで弾かれてることが多いから、Wi‑Fiを切ってモバイル回線にしてもう一回入店してみて。",
+        null,r.detail);
     }else if(r.kind==="toobig"){
       statusEl.textContent="手帳が重すぎて入れへんかった";
       showNotice("dropped","ママ：手帳が分厚うなりすぎたわ",
