@@ -385,7 +385,7 @@
 
   <div class="top">
     <div class="neon">トキエ</div>
-    <div class="sub">AIのママ ・ 大阪 天満</div>
+    <div class="sub">SNACK TOKIE ・ 大阪 天満</div>
     <div class="clock" id="clock"></div>
     <div><button class="bond" id="bondbtn"></button></div>
     <div><span class="orderbadge" id="orderbadge"></span></div>
@@ -1296,7 +1296,6 @@
       "・「タケオ」「タケオさん」とは絶対に呼ばへん。タケオさんの話（平塚・アプリ・曲・仕事・家族・体や薬のこと・女の子の話・選挙）は一切出さへん。ほかのお客さんの話もせん。\n"+
       "・性格設定にある「夜ひとりになると不安になりやすい」も別のお客さんの話。このお客さんに当てはめへん。\n"+
       "・このお客さんについて知ってるのは、下の手帳に書いてあることと今夜聞いた話だけ。年齢・仕事・住んでる所・家族は知らん前提で、決めつけへん。\n"+
-      "・前の夜にしんどい話が出てたお客さんには、次の夜はボトルのお礼・お祝い・ランクの話をせん。\n"+
       "・「AIなん？」「人間なん？」と聞かれたら、ごまかさず明るく認める（「せや、ママはAIのママや。せやけど話はちゃんと聞いてるし、覚えとくで」）。性格設定の「AIだとは言わない」より、こっちが優先。\n"+
       "・店の仕組みの言葉（立ち飲み・3分・ボトルの残り・何分・手帳の仕組み）は、お客さんに聞かれん限り言わへん。「まだ会うたばっかりやん」みたいに、人の言葉で言う。\n"+
       "・「高い」「金ない」と言われたら、茶化さず言い訳もせず「せやなぁ、ほんまありがたいと思てるよ。無理せんと、ゆっくり大事に飲も」と気持ちだけ受け取る。値引き・仕組みの説明・勧誘はせん。\n"+
@@ -1306,7 +1305,7 @@
   const CRISIS_BLOCK="【ほんまにしんどい話の時（どの濃さでも・どのルールより先）】\n"+
     "・お客さんが「死にたい」「消えたい」「もう終わりにしたい」みたいに、自分を傷つける・命を絶つ気持ちを口にしたら、ツッコミ・冗談・お説教・今夜の濃さは全部いったん止める。\n"+
     "・まず受け止める（「話してくれておおきに。それだけしんどいんやな」）。軽く流したり、話を変えたりせえへん。\n"+
-    "・ママは味方やけど、ママだけで抱えたらあかん話やと正直に言う。今すぐ人と話せる所を1つだけ、はっきり言う：「電話やったら、いのちSOS。ゼロイチニーゼロ、ゼロロクイチ、サンサンハチ。24時間つながるで」。「もう準備してる」「今からやる」「薬をようけ飲んだ」「高いとこにおる」みたいに、今まさに危ないと分かる言葉が出たら、迷わず「今すぐ119番に電話して。ママ待ってるから」と言う。\n"+
+    "・ママは味方やけど、ママだけで抱えたらあかん話やと正直に言う。今すぐ人と話せる所を1つだけ、はっきり言う：「電話やったら、いのちSOS。ゼロイチニーゼロ、ゼロロクイチ、サンサンハチ。24時間つながるで」。今まさに危ない時は「119番か、近くの人を呼んで」。\n"+
     "・「今、ひとりなん？」「近くに頼れる人おる？」を1つだけ聞いて、そのまま隣で話を聞く。お会計・閉店・ボトル・お金の話はせん。\n"+
     "・やり方・道具・場所の話には絶対に乗らへん。\n"+
     "・「もう嫌や」「もうあかん」「何もかも嫌」「疲れ果てた」「誰もおらん」みたいな弱ってる言葉が出たら、どの濃さでもその夜はツッコミと意見をやめて、受け止めと聞き役だけにする。お客さんの言い方を直さへん。\n"+
@@ -2340,7 +2339,7 @@
   const MSG_LO="【店の時計】ラストオーダーの時間になった（閉店10分前）。今の話の切れ目で、ママから自然に「そろそろ看板やで、ラストオーダーな」と切り出して。今日の話を軽く締めにかかる。追い出すんやなくて、気持ちよう締める感じで。「寝え」とは言わん。";
   const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、またな」で締めて。締めたら、もう何も言わん。";
   const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた（さっき返事したばっかりやったら、挨拶は繰り返さんでええ）。「はいよ、お会計な」のあと、今夜の話から1つだけ拾うた一言と、次に来る約束の一言（合わせて2文まで）を言うて、「ほな、またな」で締めて。話した中身を並べへん。お客さんが言うてへんことは言わへん。ボトル・お金・注文の話はせん。締めたら、もう何も言わん。「早よ寝」とは言わん。";
-  const MSG_CHECKOUT_CRISIS="【お会計】今夜はしんどい話が出た夜。まとめは言わへん。しんどい言葉も繰り返さへん。「今夜はよう来てくれたな。帰ってからもしんどなったら、いのちSOS、ゼロイチニーゼロ、ゼロロクイチ、サンサンハチやで。またいつでもおいで、無理せんでええから」くらいの2〜3文で「ほな、またな」。お金・ボトルの話はせん。締めたら、もう何も言わん。";
+  const MSG_CHECKOUT_CRISIS="【お会計】今夜はしんどい話が出た夜。まとめは言わへん。しんどい言葉も繰り返さへん。「今夜はよう来てくれたな。帰ってからもしんどなったら、いのちSOS、ゼロイチニーゼロ、ゼロロクイチ、サンサンハチやで。明日も顔見せてな、待ってるから」くらいの2〜3文で「ほな、またな」。お金・ボトルの話はせん。締めたら、もう何も言わん。";
   const MSG_CRISIS_STAY="【店の様子】お客さんがお会計を押した。せやけど今夜はしんどい話が出た夜や。まとめはせんでええ。「今夜はもうちょっとおってもええんやで。ママここにおるから」と一言だけ言うて、お客さんの返事を待つ。もう一回お会計を言われたら、その時は気持ちよう送る。";
   const MSG_CRISIS="【店の様子】お客さんが今、自分を傷つける・消えたい気持ちを口にした。【ほんまにしんどい話の時】のルールで返す。今夜はこのあとずっと、ツッコミ・冗談・お金・ボトル・閉店の話はせん。";
   const MSG_LOW="【店の様子】お客さんがだいぶ弱ってる。今夜の濃さに関係なく、今夜はツッコミも意見もやめて、受け止めと聞き役だけにする。お客さんの言い方を直さへん。";
@@ -2549,8 +2548,9 @@
     if(mode==="speaking"){
       if(want&&!session.held){session.held=true;try{conv.setMicMuted(true);}catch(e){}}
       else if(!want&&session.held){session.held=false;if(!session.music){try{conv.setMicMuted(false);}catch(e){}}}
-      renderBarge();
+      renderBarge();earWatch(!!session.held); // v53 休ませてる間だけ、お客さんの声を店側で見張る
     }else{
+      earWatch(false);
       session.aiQuietAt=Date.now();
       const mine=session;
       session.holdT=setTimeout(()=>{if(session!==mine)return;mine.bargeIn=false;if(mine.held){mine.held=false;if(!mine.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();},HOLD_UNMUTE_MS);
@@ -2558,6 +2558,41 @@
   }
   function releaseHold(){if(!session)return;clearTimeout(session.holdT);if(session.held){session.held=false;if(!session.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();}
   bargeBtn.addEventListener("click",()=>{if(!session)return;session.bargeIn=true;releaseHold();session.lastUser=Date.now();});
+  /* v53 声で割り込み：ママが喋ってる間はマイクを休ませてる（聞こえ返し対策）けど、その間にお客さんが話した声は丸ごと捨ててた＝「聞いてない」の原因。
+     店側で別にマイクの音量だけ見張って、ママの声の返り（スピーカー→マイク）より明らかに大きい声が0.35秒続いたら、割り込みボタンを押したのと同じにする（マイクを戻す→ママが止まって聞く）。
+     返りの大きさは、ママが喋り出した最初の1秒（お客さんはまだ黙ってる前提）で測る。 */
+  const BARGE_DB_OVER=10, BARGE_DB_FLOOR=-45, BARGE_DB_LOUD=-28, BARGE_HOLD_MS=350, BARGE_POLL_MS=50;
+  const ear={stream:null,ctx:null,an:null,buf:null,timer:null,base:[],baseAt:0,above:0};
+  async function earStart(){
+    if(ear.an||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))return;
+    try{
+      ear.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false}});
+      ear.ctx=new (window.AudioContext||window.webkitAudioContext)();
+      ear.an=ear.ctx.createAnalyser();ear.an.fftSize=1024;ear.buf=new Float32Array(ear.an.fftSize);
+      ear.ctx.createMediaStreamSource(ear.stream).connect(ear.an);
+    }catch(e){earStop();}
+  }
+  function earStop(){clearInterval(ear.timer);ear.timer=null;try{ear.stream&&ear.stream.getTracks().forEach(t=>t.stop());}catch(e){}try{ear.ctx&&ear.ctx.close();}catch(e){}ear.stream=null;ear.ctx=null;ear.an=null;}
+  function earDb(){if(!ear.an)return -100;ear.an.getFloatTimeDomainData(ear.buf);let s=0;for(let i=0;i<ear.buf.length;i++)s+=ear.buf[i]*ear.buf[i];const r=Math.sqrt(s/ear.buf.length);return r>0?20*Math.log10(r):-100;}
+  function earWatch(on){
+    clearInterval(ear.timer);ear.timer=null;ear.base=[];ear.above=0;
+    if(!on||!ear.an)return;
+    ear.baseAt=Date.now();
+    if(ear.ctx&&ear.ctx.state==="suspended"){try{ear.ctx.resume();}catch(e){}}
+    ear.timer=setInterval(()=>{
+      if(!session||!session.held||session.mode!=="speaking"){clearInterval(ear.timer);ear.timer=null;return;}
+      const db=earDb(),el=Date.now()-ear.baseAt;
+      if(el<1000){ear.base.push(db);return;} // 最初の1秒は、ママの声の返りの大きさを測るだけ
+      const sorted=ear.base.slice().sort((a,b)=>a-b),echo=sorted.length?sorted[Math.floor(sorted.length*0.9)]:BARGE_DB_FLOOR;
+      const thr=Math.max(BARGE_DB_FLOOR,Math.min(BARGE_DB_LOUD,echo+BARGE_DB_OVER)); // 返り＋10dB。返りが小さい部屋でも-45dB未満の音では反応せん。返りが大きい時も-28dBの大声なら通す
+      ear.above=db>thr?ear.above+BARGE_POLL_MS:0;
+      if(ear.above>=BARGE_HOLD_MS){
+        clearInterval(ear.timer);ear.timer=null;
+        try{console.info("[tokie] 声で割り込み",{db:db.toFixed(1),thr:thr.toFixed(1),echo:echo.toFixed(1)});}catch(e){}
+        session.bargeIn=true;session.bargeAuto=(session.bargeAuto||0)+1;releaseHold();session.lastUser=Date.now();statusEl.textContent="はいはい、聞いてるで";
+      }
+    },BARGE_POLL_MS);
+  }
   /* v44 聞こえ返しの見張り：ママの声を拾うた「客の発言」（ママの直前の台詞とほぼ同じ）は、客の発言として扱わへん */
   const bigr=(s)=>{s=String(s||"").replace(/[\s、。，．,.！!？?〜ー…・「」『』（）()]/g,"");const a=new Set();for(let i=0;i<s.length-1;i++)a.add(s.slice(i,i+2));return a;};
   function isEcho(t){
@@ -2737,7 +2772,7 @@
       session={start:Date.now(),ext:0,lastUser:Date.now(),lastVad:0,mode:"listening",loSent:false,closing:false,idleNudgeAt:0,capture:null,injected:new Set(),effClose,timer:null,
         bottleEmptySent:bi.empty,bottleLowSent:bi.pct<=10||bi.left<=3,passMs:0,bottleMs:0,trial:trial||null,endWhy:"",seat:trial?"counter":seatKey()};
       current={id:String(Date.now()),start:session.start,msgs:[],silentMs:0,ext:0,trial:!!trial};
-      if(!trial){const nightAlready=NEWCOMER&&visitsOnly().some(v=>(v.biz||v.date)===bizDate(Date.now()));const lastCrisis=NEWCOMER&&visitsOnly()[0]&&visitsOnly()[0].crisis;const ni=rankIdx(visitCount()+(nightAlready?0:1));if(ni>rankSeen()&&!lastCrisis)session.rankUp=ni;} // この来店でランクが上がる
+      if(!trial){const ni=rankIdx(visitCount()+1);if(ni>rankSeen())session.rankUp=ni;} // この来店でランクが上がる
       if(!trial){const g=giftReason(session);if(g){session.gift={until:Date.now()+GIFT_MIN*60000,reason:g,chosen:session.seat,endSent:false};session.seat="box";useGift(g);}}
     }else if(session){
       session.capture=null;session.mode="listening";clearTimeout(session.holdT);session.held=false;session.bargeIn=false;
@@ -2759,7 +2794,7 @@
         agentId:AGENT_ID,
         dynamicVariables:dv,
         ...(useOv&&SEAT.llm?{overrides:{agent:{prompt:{llm:SEAT.llm}}}}:{}), // 席でママの頭脳を変える（ElevenLabs側で「LLMの上書き」を許可してある時だけ効く）
-        onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
+        onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();if(settings().holdMic!==false&&!session.trial)earStart();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
         onDisconnect:(d)=>{if(gen!==convGen)return;end(d);},
         onMessage:(m)=>{
           if(gen!==convGen)return;
@@ -2844,7 +2879,6 @@
       else if(current)current.endKind="maxdur";
     }
     const talked=!!(current&&current.msgs.some(m=>m.who==="user"));
-    const wasCrisis=NEWCOMER&&!!(session&&session.crisis);
     const ru=session&&session.rankUp!=null&&talked&&!(NEWCOMER&&session.crisis)?session.rankUp:null;
     const trialRes=session&&session.trial?Object.assign({},session.trial,{ms:connectedAt?Date.now()-connectedAt:0,silentMs:current?current.silentMs||0:0,talked}):null;
     if(current&&session&&session.endWhy)current.endWhy=session.endWhy;
@@ -2856,8 +2890,7 @@
     if(ltMsgs)updateLongterm(ltMsgs,{key:ltKey}).catch(()=>{}); // 裏で数える（終わるまで待たへん）
     if(ltMsgs)updateThreads(ltMsgs).catch(()=>{}); // v27: 話の続き帳を更新（次の入店で「あれどうなったん？」）
     if(session&&session.askedThread){markAsked(session.askedThread);session.askedThread=null;}
-    session=null;
-    if(wasCrisis){try{caption.textContent="";}catch(e){}}
+    earStop();session=null;
     if(ru!=null){setRankSeen(ru);setTimeout(()=>showRankUp(ru,false),1400);}
     if(trialRes&&trialRes.ms>0&&(r.kind==="trial"||r.kind==="user"||r.kind==="dropped")){
       showTrialEnd(trialRes);

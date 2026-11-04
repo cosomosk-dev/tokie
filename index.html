@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-04 v52";
+  const APP_VER="2026-11-04 v53";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2477,8 +2477,9 @@
     if(mode==="speaking"){
       if(want&&!session.held){session.held=true;try{conv.setMicMuted(true);}catch(e){}}
       else if(!want&&session.held){session.held=false;if(!session.music){try{conv.setMicMuted(false);}catch(e){}}}
-      renderBarge();
+      renderBarge();earWatch(!!session.held); // v53 休ませてる間だけ、お客さんの声を店側で見張る
     }else{
+      earWatch(false);
       session.aiQuietAt=Date.now();
       const mine=session;
       session.holdT=setTimeout(()=>{if(session!==mine)return;mine.bargeIn=false;if(mine.held){mine.held=false;if(!mine.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();},HOLD_UNMUTE_MS);
@@ -2486,6 +2487,41 @@
   }
   function releaseHold(){if(!session)return;clearTimeout(session.holdT);if(session.held){session.held=false;if(!session.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();}
   bargeBtn.addEventListener("click",()=>{if(!session)return;session.bargeIn=true;releaseHold();session.lastUser=Date.now();});
+  /* v53 声で割り込み：ママが喋ってる間はマイクを休ませてる（聞こえ返し対策）けど、その間にお客さんが話した声は丸ごと捨ててた＝「聞いてない」の原因。
+     店側で別にマイクの音量だけ見張って、ママの声の返り（スピーカー→マイク）より明らかに大きい声が0.35秒続いたら、割り込みボタンを押したのと同じにする（マイクを戻す→ママが止まって聞く）。
+     返りの大きさは、ママが喋り出した最初の1秒（お客さんはまだ黙ってる前提）で測る。 */
+  const BARGE_DB_OVER=10, BARGE_DB_FLOOR=-45, BARGE_DB_LOUD=-28, BARGE_HOLD_MS=350, BARGE_POLL_MS=50;
+  const ear={stream:null,ctx:null,an:null,buf:null,timer:null,base:[],baseAt:0,above:0};
+  async function earStart(){
+    if(ear.an||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))return;
+    try{
+      ear.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false}});
+      ear.ctx=new (window.AudioContext||window.webkitAudioContext)();
+      ear.an=ear.ctx.createAnalyser();ear.an.fftSize=1024;ear.buf=new Float32Array(ear.an.fftSize);
+      ear.ctx.createMediaStreamSource(ear.stream).connect(ear.an);
+    }catch(e){earStop();}
+  }
+  function earStop(){clearInterval(ear.timer);ear.timer=null;try{ear.stream&&ear.stream.getTracks().forEach(t=>t.stop());}catch(e){}try{ear.ctx&&ear.ctx.close();}catch(e){}ear.stream=null;ear.ctx=null;ear.an=null;}
+  function earDb(){if(!ear.an)return -100;ear.an.getFloatTimeDomainData(ear.buf);let s=0;for(let i=0;i<ear.buf.length;i++)s+=ear.buf[i]*ear.buf[i];const r=Math.sqrt(s/ear.buf.length);return r>0?20*Math.log10(r):-100;}
+  function earWatch(on){
+    clearInterval(ear.timer);ear.timer=null;ear.base=[];ear.above=0;
+    if(!on||!ear.an)return;
+    ear.baseAt=Date.now();
+    if(ear.ctx&&ear.ctx.state==="suspended"){try{ear.ctx.resume();}catch(e){}}
+    ear.timer=setInterval(()=>{
+      if(!session||!session.held||session.mode!=="speaking"){clearInterval(ear.timer);ear.timer=null;return;}
+      const db=earDb(),el=Date.now()-ear.baseAt;
+      if(el<1000){ear.base.push(db);return;} // 最初の1秒は、ママの声の返りの大きさを測るだけ
+      const sorted=ear.base.slice().sort((a,b)=>a-b),echo=sorted.length?sorted[Math.floor(sorted.length*0.9)]:BARGE_DB_FLOOR;
+      const thr=Math.max(BARGE_DB_FLOOR,Math.min(BARGE_DB_LOUD,echo+BARGE_DB_OVER)); // 返り＋10dB。返りが小さい部屋でも-45dB未満の音では反応せん。返りが大きい時も-28dBの大声なら通す
+      ear.above=db>thr?ear.above+BARGE_POLL_MS:0;
+      if(ear.above>=BARGE_HOLD_MS){
+        clearInterval(ear.timer);ear.timer=null;
+        try{console.info("[tokie] 声で割り込み",{db:db.toFixed(1),thr:thr.toFixed(1),echo:echo.toFixed(1)});}catch(e){}
+        session.bargeIn=true;session.bargeAuto=(session.bargeAuto||0)+1;releaseHold();session.lastUser=Date.now();statusEl.textContent="はいはい、聞いてるで";
+      }
+    },BARGE_POLL_MS);
+  }
   /* v44 聞こえ返しの見張り：ママの声を拾うた「客の発言」（ママの直前の台詞とほぼ同じ）は、客の発言として扱わへん */
   const bigr=(s)=>{s=String(s||"").replace(/[\s、。，．,.！!？?〜ー…・「」『』（）()]/g,"");const a=new Set();for(let i=0;i<s.length-1;i++)a.add(s.slice(i,i+2));return a;};
   function isEcho(t){
@@ -2685,7 +2721,7 @@
         agentId:AGENT_ID,
         dynamicVariables:dv,
         ...(useOv&&SEAT.llm?{overrides:{agent:{prompt:{llm:SEAT.llm}}}}:{}), // 席でママの頭脳を変える（ElevenLabs側で「LLMの上書き」を許可してある時だけ効く）
-        onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
+        onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();if(settings().holdMic!==false&&!session.trial)earStart();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
         onDisconnect:(d)=>{if(gen!==convGen)return;end(d);},
         onMessage:(m)=>{
           if(gen!==convGen)return;
@@ -2778,7 +2814,7 @@
     if(ltMsgs)updateLongterm(ltMsgs,{key:ltKey}).catch(()=>{}); // 裏で数える（終わるまで待たへん）
     if(ltMsgs)updateThreads(ltMsgs).catch(()=>{}); // v27: 話の続き帳を更新（次の入店で「あれどうなったん？」）
     if(session&&session.askedThread){markAsked(session.askedThread);session.askedThread=null;}
-    session=null;
+    earStop();session=null;
     if(ru!=null){setRankSeen(ru);setTimeout(()=>showRankUp(ru,false),1400);}
     if(trialRes&&trialRes.ms>0&&(r.kind==="trial"||r.kind==="user"||r.kind==="dropped")){
       showTrialEnd(trialRes);
