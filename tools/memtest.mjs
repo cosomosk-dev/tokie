@@ -237,6 +237,8 @@ try {
     await p.reload(); await p.waitForTimeout(1200);
     const lk = await p.evaluate(() => { const f = window.__tokieTest && window.__tokieTest.isLeak; if (!f) return "フック無し"; return [f("せかさず待つ。"), f("せかさんと待っとくわ。"), f("静かに見守っとこ。"), f("急かさへんから、ゆっくりでええよ。"), f("ほな、お水で乾杯な！")].join(","); });
     ok("「せかさず待つ」系の心の声は、関西弁の語尾でも声を消す（ふつうのセリフは消さへん）", lk === "true,true,true,false,false", lk);
+    const lk50 = await p.evaluate(() => { const f = window.__tokieTest && window.__tokieTest.isLeak; if (!f) return "フック無し"; return [f("この時お客様は考え事をしてる、待った方がいい。"), f("今は待った方がいい。"), f("お客さんは考え事をしてる。"), f("そら待った方がええわ。"), f("タケオさん、考え事してるん？"), f("今はゆっくり休んだ方がええよ。")].join(","); });
+    ok("「この時お客様は考え事をしてる、待った方がいい」型の見立て・判断は声を消す（ふつうのセリフは消さへん）", lk50 === "true,true,true,false,false,false", lk50);
     const pm = await p.evaluate(() => document.querySelectorAll(".priobox.prio-main button").length);
     ok("入店前の画面で「今夜とくに覚えといてほしいこと」を毎回切り替えられる", pm === 6, String(pm));
     await ctx.close();
