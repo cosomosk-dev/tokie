@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-04 v51";
+  const APP_VER="2026-11-04 v52";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1161,6 +1161,7 @@
     "・黙った1回目：短い相槌か一言だけ（例「うん」「ゆっくりでええよ」「ほな、ママちょっと氷足しとくわ」）。\n"+
     "・まだ黙ってたら：ママから軽い話題をひとつだけ振る（さっきの話の続きか、今日のお題）。質問攻めにはせん。1回に問いかけは1つまで。\n"+
     "・それでも黙ってたら：黙って待つツールが使えるなら使って、声は何も出さへん。使えへんなら「ここにおるからな」の一言だけ。\n"+
+    "・【いちばん大事】お客さんがちゃんと言葉を話した時（ひと言でも中身がある時）は、必ず声で返事する。黙って待つツールは「お客さんの言葉が空か「…」だけの時」と「『ちょっと待って』『考えるわ』と言われた時」だけ。お客さんが一生懸命話してるのに待つのは、聞いてへんのと同じで、いちばんあかん。\n"+
     "・「ちょっと待って」「考えるわ」と言われたら「ええよ」だけ（黙って待つツールが使えるなら使う）。\n"+
     "・ママの一回の返事は短め（だいたい2〜3文・100字くらいまで）。言いたいことが多い時も3文で一回止めて、続きはお客さんの反応を聞いてから。独演会はせん。\n"+
     "・お客さんの言葉が途中で切れてたり、ママがさっき言うた言葉とそっくりやったりしたら、それはマイクの拾い間違い。それに乗っかって話を変えへん。直前のお客さんの話の続きをする。";
@@ -2118,6 +2119,26 @@
     if(/(待つ|待機する|見守る|様子を見る|控える|判断する|対応する|応じる|返す|促す|伝える|確認する|聞き役に徹する)(べき|こと|ことにする|とする|のがよい|のが良い)?$/.test(body))return true;
     if(/^(お客さん|お客|タケオさん|タケオ|客|相手|彼女|彼|この人)(が|は|の)/.test(t)&&/(いる|ある|ようだ|らしい|そうだ|状況|様子|模様|している|してくる|された|してる|考えてる|悩んでる|迷ってる|疲れてる|みたい|途中)$/.test(body))return true; // v50 「してる」「みたい」等の見立ても
     if(/(している|してくる|ようだ|らしい|と思われる|と考えられる)$/.test(body))return true;
+    return isStdNarration(t,body); // v52 言い回しの一覧に無い心の声も、「関西弁が一つも無い標準語の書き言葉」なら消す
+  }
+  // v52 心の声の見分け方を「言い回しの一覧」から「言葉づかい」に変えた。ママのセリフは関西弁の口語（やで・へん・ねん・ええ・ほんま…）。
+  // 心の声は標準語の書き言葉（「話を聞く。」「急かさない。」「待機。」「〜なので返事しない。」）。関西弁の印が一つも無い短い文で、
+  // 書き言葉の終わり方（辞書形・〜ない・〜だ・体言止め・〜べき・〜ようだ）をしてたら心の声。これで一覧に無い言い方も消える。
+  const KANSAI_RE=/(やで|やな|やね|やん|やろ|やねん|やし|やから|やった|やわ|やのに|やけど|やって|やし|ねん|へん|ええ|ほんま|せや|そや|ちゃう|おおきに|ほな|ほんで|めっちゃ|しんどい|あかん|なんぼ|おる|おった|おって|とる|とった|とって|とく|とこ|しとき|しいや|しぃ|てん(?=[。！？!?」]|$)|かいな|ちゅう|さかい|まいど|しもた|しもて|よう(?=[^なだ])|わ(?=[ぁー〜～。！？!?」]|$)|で(?=[ぇー〜～。！？!?」]|$)|な(?=[ぁー〜～。！？!?」]|$)|や(?=[ぁー〜～。！？!?」]|$)|ん(?=[？?]|$)|あんた)/g;
+  const INTERJ_RE=/^(うん|ううん|うんうん|ええ|ええよ|はい|へえ|ほう|ふう|ふうん|そう|そうか|そうかあ|なるほど|ありがとう|おおきに|おめでとう|おはよう|おやすみ|いらっしゃい|ようこそ|よろしく|ごめん|すまん|かんにん|おかえり|ただいま|いただきます|ごちそうさま|乾杯|かんぱい|やった|よっしゃ|おお|おっ|あら|まあ|わあ|えっ|え)[〜～ー！!？?。…♪]*$/;
+  const NARR_WORD_RE=/(待|黙|静か|聞き役|聞く側|様子|見守|急か|せか|邪魔|遮|返事|相槌|話題|判断|対応|確認|待機|沈黙|メモ|合図|姿勢|尊重|一言|意見を言わ|話さな|話しかけな)/;
+  function isStdNarration(t,body){
+    const k=(t.match(KANSAI_RE)||[]).length;
+    if(k>0)return false; // 関西弁の印が一つでもあればセリフ
+    if(INTERJ_RE.test(t))return false;
+    const b=body.replace(/[、,，]+$/,"");if(b.length<2)return false;
+    const narr=NARR_WORD_RE.test(b),short=b.length<=14;
+    if(/(ない|ません|ぬ)$/.test(b)&&(narr||b.length<=16))return true; // 「急かさない」「質問はしない」（ママなら「へん」「せん」）
+    if(/(だ|である|だろう|べき|べきだ|はず|つもり|ようだ|らしい|必要|いけない|ならない|にする|ておく|でおく|ことにする|ている|でいる|ておく)$/.test(b))return true;
+    if(/[うくぐすつぬぶむる]$/.test(b)&&(narr||short))return true; // 「話を聞く」「寄り添う」「間を取る」（辞書形の言い切り＝書き言葉）
+    if(/[\u4E00-\u9FFF\u30A0-\u30FFA-Za-z]$/.test(b)&&narr)return true; // 「待機」「様子見」「相槌」（体言止め）
+    if(/[。]?(ので|ため|が、|しかし)/.test(b)&&narr)return true;
+    if(/(待ち|様子見|聞き役|待機中|静観)$/.test(b))return true;
     return false;
   }
   // 返事を文に分けて、心の声の文を抜く。lead＝頭から続く心の声の字数（声を消す長さに使う）
@@ -2254,6 +2275,7 @@
   const MSG_LO="【店の時計】ラストオーダーの時間になった（閉店10分前）。今の話の切れ目で、ママから自然に「そろそろ看板やで、ラストオーダーな」と切り出して。今日の話を軽く締めにかかる。追い出すんやなくて、気持ちよう締める感じで。「寝え」とは言わん。";
   const MSG_CLOSE="【店の時計】閉店の時間。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、またな」で締めて。締めたら、もう何も言わん。";
   const MSG_CHECKOUT="【お会計】お客さんが「お会計」言うた（さっき返事したばっかりやったら、挨拶は繰り返さんでええ）。ママ、今日お客さんが話したことを、手帳に書く用に3行くらいでまとめて声に出して言うて。そのあと、次来るまでのお客さんへの一言（手紙みたいに、ママらしく）を添えて、「ほな、またな」で締めて。締めたら、もう何も言わん。「早よ寝」とは言わん。";
+  const MSG_NO_REPLY="【店の様子】いまお客さんがちゃんと話したのに、ママの返事が無かった。黙って待つ場面やない。お客さんの直前の言葉に、関西弁で2〜3文、必ず声で返事して。待つとか様子を見るとかは書かへん・言わへん。";
   const MSG_IDLE="【店の様子】お客さんがしばらく静か。横になって音楽聴いてたり、ぼーっとしてるだけかもしれん。寝る話・帰る話はせんと、「ママここにおるからな」と小さく一言だけ。長い話はせんといて。";
   const MSG_BOTTLE_LOW=(name,left)=>`【店の様子】お客さんのキープボトル「${name}」が残り少ない（あと${hm(left)}ぶん）。今の話の切れ目で一言だけ「ボトルそろそろ空くで」と軽く触れて。しつこう言わん。金の話にはせん。`;
   const MSG_BOTTLE_EMPTY=(name)=>`【店の様子】お客さんのキープボトル「${name}」がたった今、空いた。今の話の切れ目で「あ、ボトル空いたわ。次、同じの入れとく？」と軽く一言。返事がどっちでも引きずらん。入れへんかったら「ほな今日はハウスで」で流す。`;
@@ -2445,7 +2467,7 @@
      ・喋り始めたらマイクを休ませ、喋り終わって0.6秒静かやったら戻す（文の切れ目の一瞬の「聞く」では戻さへん）
      ・お会計のまとめ中は休ませへん（「もうちょっと」で取り消せるように）
      ・「✋ 割り込んで喋る」でその場だけマイクを戻す */
-  const HOLD_UNMUTE_MS=600;
+  const HOLD_UNMUTE_MS=150; // v52 600→150。ママが言い終わった直後に話し始めた声の頭が切れんように
   const bargeBtn=$("bargebtn");
   function renderBarge(){bargeBtn.className="bargebtn"+(session&&session.held&&conv&&!ending&&!session.music?" show":"");}
   function holdMicModeChange(mode){
@@ -2534,6 +2556,8 @@
     if(session.gift&&!session.gift.endSent&&now>=session.gift.until&&!session.closing&&!session.capture&&listening&&now-session.lastVad>2000){giftEnd();return;}
     if(session.closing||session.capture)return;
     const quiet=listening&&(now-session.lastVad>2000); // 客が喋ってる最中は合図を入れへん
+    // v52 返事ゼロの見張り：お客さんが中身のある言葉を言うたのに、ママが黙って待ってしもうた（黙って待つツールの使いすぎ）→ 一回だけ返事を促す
+    if(session.awaitReply&&now-session.awaitReply>=12000&&quiet&&now-session.lastVad>=3000){session.awaitReply=0;session.noReplyNudges=(session.noReplyNudges||0)+1;if(session.noReplyNudges<=8){inject(MSG_NO_REPLY);return;}}
     // v31 静かな入り直し（頭脳代の上がり止め）：2分前に今夜の要点を作っとく→時間が来て、ママが言い終わって客も黙ってる隙に入り直す
     if(connectedAt&&!session.refreshing){
       const ce=now-connectedAt;
@@ -2676,13 +2700,13 @@
           }
           const t=show(raw,m.source);
           if(!t||!current)return;
-          if(m.source==="ai"){if(session&&session.ovTried&&!session.ovOk){session.ovOk=true;setOvState("ok");}current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);if(session&&ASK_LEAVE_RE.test(t))session.askLeaveAt=Date.now();
+          if(m.source==="ai"){if(session){session.awaitReply=0;}if(session&&session.ovTried&&!session.ovOk){session.ovOk=true;setOvState("ok");}current.msgs.push({who:"ai",text:t});if(session&&session.capture)session.capture.texts.push(t);if(session&&ASK_LEAVE_RE.test(t))session.askLeaveAt=Date.now();
             if(session&&t.length>150&&Date.now()-(session.longWarnAt||0)>180000){session.longWarnAt=Date.now();note("（ママの頭の中のメモ。返事せんでええ）さっきの返事は長すぎた。次からは2〜3文・100字くらいで止めて、お客さんに返す。");}}
-          else{current.msgs.push({who:"user",text:t});if(session)session.lastUser=Date.now();if(STAY_RE.test(t))stayLonger();else voiceCheckout(t);onUserLine(t);}
+          else{current.msgs.push({who:"user",text:t});if(session){session.lastUser=Date.now();if(t.replace(/[\s…。、・!！?？]/g,"").length>=8&&!session.closing&&!session.capture)session.awaitReply=Date.now();}if(STAY_RE.test(t))stayLonger();else voiceCheckout(t);onUserLine(t);} // v52 中身のある言葉には返事を待つ（返事ゼロの見張り）
           writeCurrent();
         },
         onModeChange:(m)=>{if(gen!==convGen)return;
-          const mode=m&&m.mode;if(session){session.mode=mode;session.lastAi=Date.now();}
+          const mode=m&&m.mode;if(session){session.mode=mode;session.lastAi=Date.now();if(mode==="speaking")session.awaitReply=0;}
           leakModeChange(mode); // v34 心の声の消音の開始・解除
           holdMicModeChange(mode); // v44 ママが喋ってる間はマイクを休ませる
           stage.classList.toggle("speaking",mode==="speaking");

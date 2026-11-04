@@ -239,6 +239,8 @@ try {
     ok("「せかさず待つ」系の心の声は、関西弁の語尾でも声を消す（ふつうのセリフは消さへん）", lk === "true,true,true,false,false", lk);
     const lk50 = await p.evaluate(() => { const f = window.__tokieTest && window.__tokieTest.isLeak; if (!f) return "フック無し"; return [f("この時お客様は考え事をしてる、待った方がいい。"), f("今は待った方がいい。"), f("お客さんは考え事をしてる。"), f("そら待った方がええわ。"), f("タケオさん、考え事してるん？"), f("今はゆっくり休んだ方がええよ。")].join(","); });
     ok("「この時お客様は考え事をしてる、待った方がいい」型の見立て・判断は声を消す（ふつうのセリフは消さへん）", lk50 === "true,true,true,false,false,false", lk50);
+    const lk52 = await p.evaluate(() => { const f = window.__tokieTest && window.__tokieTest.isLeak; if (!f) return "フック無し"; return [f("話を聞く。"), f("急かさない。"), f("黙って待機。"), f("店の時計の合図なので返事しない。"), f("お客さんが話し終わるのを待つべきだ。"), f("また明日。"), f("今日はアプリの話と、お母さんの入院の話をした。"), f("ありがとう。"), f("大丈夫やで。"), f("それは無理。")].join(","); });
+    ok("v52 一覧に無い心の声も「関西弁ゼロの書き言葉」なら消す（ふつうのセリフ・挨拶・まとめは消さへん）", lk52 === "true,true,true,true,true,false,false,false,false,false", lk52);
     const pm = await p.evaluate(() => document.querySelectorAll(".priobox.prio-main button").length);
     ok("入店前の画面で「今夜とくに覚えといてほしいこと」を毎回切り替えられる", pm === 6, String(pm));
     await ctx.close();
