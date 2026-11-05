@@ -516,7 +516,7 @@ details.alb summary::-webkit-details-marker{display:none}
   <section id="s-pmini" hidden class="stack">
     <div class="top"><div class="brand">体験お見合いでのあなた</div><span class="eyebrow">Preview</span></div>
     <div class="diag">
-      <div class="lab">結婚観診断(仮) ・ 3つの質問と4人との体験お見合いから</div>
+      <div class="lab">結婚観診断(仮) ・ 3つの質問と5人との体験お見合いから</div>
       <div id="pm-radar"></div>
       <div class="legend"><span><i style="background:var(--rose)"></i>あなた</span><span><i style="background:#9A8A95"></i>婚活女子の傾向(目安)</span></div>
       <div class="tn" id="pm-type" style="font-size:1.5rem"></div>
@@ -526,7 +526,9 @@ details.alb summary::-webkit-details-marker{display:none}
     </div>
     <div class="nako" id="nako-pmini"></div>
     <img id="pm-cardprev" alt="シェア用の画像" hidden style="width:56%;margin:0 auto;display:block;border-radius:16px;box-shadow:0 8px 24px rgba(201,42,98,.25)">
-    <div class="row"><button class="btn-gold" id="pm-share" style="flex:1 1 160px;min-height:56px">📸 シェアする</button><button class="btn-line" id="pm-save" style="flex:1 1 120px">画像を保存</button></div>
+    <!-- 2026/11/05 体験お見合いの結果も、LINE・Xへそのまま飛べる形に(作者の指示「拡散すべき」) -->
+    <button class="btn-gold btn-block" id="pm-share" style="min-height:56px">📸 ストーリーズ・LINEでシェア</button>
+    <div class="shx-btns"><button type="button" class="shx-line" id="pm-line">LINEで送る</button><button type="button" id="pm-x">Xに投稿</button><button type="button" id="pm-copy">リンクをコピー</button><button type="button" id="pm-save">画像を保存</button></div>
     <button class="btn-rose btn-block" id="pm-next" style="min-height:62px;font-size:1.1rem">指輪を渡す人を選ぶ</button>
   </section>
 
@@ -827,6 +829,13 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:'髪を、まかせる',o:'ハサミの音が、首のうしろで鳴る。鏡の中で目が合って、二人とも笑った。',x:{t:2},nak:'仕事を見せたがる男は、仕事に自信がある男。でもね、顔と腕で選ぶなら、お金の話を必ず向こうから言わせなさい。自分から言わない美容師は、やめときな。'},
         {t:'「指名、多いんでしょ？」',o:'「やっと増えてきたとこ。でも給料は、正直まだ低い。結婚のことも、ちゃんと考えてる」。お金の話を、彼のほうから先にした。まっすぐな目だった。',x:{m:1,s:1},nak:'向こうから先にお金の話をした。これは大きいわよ。年収300万でも「ちゃんと考えてる」と言える男は、計画がある男。次は「5年後、どうしたい？」を聞きなさい。'},
+      ]},
+    // 2026/11/05 作者の指示: リストにない5人目(タカヒロ=作者モデル)とも体験お見合いをする。4人目(蓮=表参道・派手)と「明らかに違う」と感じる作りに
+    {who:'S',ep:'お見合い 5人目 ・ リストにない人',title:'写真のない、封筒',
+      text:'4人が終わったあと、千代子が封筒をひとつ出した。写真がない。「リストには載せてない人。…会うかどうかは、あんたが決めなさい」。待ち合わせは、駅から少し歩いた古い喫茶店。約束の10分前、彼はもう窓際にいて、水を一杯だけ頼んで英語の本を読んでいた。あなたに気づいて立ち上がり、椅子を引く。その所作だけで、さっきまでの4人と、何かが明らかに違った。「名刺は…肩書きが多すぎて、かえって邪魔なんです。名前だけ、覚えてもらえますか」',
+      ch:[
+        {t:'「肩書き、いくつあるんですか？」',o:'「7つ。でも、全部あわせても僕の半分くらいです」。そう言って笑ったあと、彼は店の古いアップライトピアノに目をやった。「ここ、弾かせてもらえるんですよ」。流れたのはショパン。店主が、かけていたレコードを静かに止めた。',x:{t:2,s:1},sc:{S:3},nak:'肩書きを数えさせない男は、二種類。数えたら引かれるほど持ってるか、一つもないか。…この人は前者ね。ピアノは、あたしも初めて聞いたわ。'},
+        {t:'「暮らし、質素なんですね」',o:'「お金は、使い方より"使わなくていい理由"のほうが大事で」。伝票は、あなたが気づく前に消えていた。帰り道、高級ホテルの前でドアマンが彼に深く頭を下げた。彼は「友達の店なんです」とだけ言って、歩く速さを、あなたに合わせた。',x:{m:1,a:1},sc:{S:3,A:1},nak:'ドアマンが頭を下げる"友達の店"。嘘はついてない。全部を言ってないだけ。…この人の秘密、4人の中でいちばん大きいかもしれないわよ。'},
       ]},
   ];
 
@@ -4584,7 +4593,8 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   // ================= 序章 =================
   // 3つの質問のあと、まず「あなたにぴったりな人」(答えで決まる)と会い、残りは 蓮→黒田→悠太→誠一郎 の順で体験お見合い
   let proTop=null;const liveTop=()=>['A','B','C','D'].slice().sort((p,q)=>(proScore[q]||0)-(proScore[p]||0))[0];const PTOP=()=>proTop||liveTop();
-  const SEQ=()=>{const qs=PRO.filter(x=>x.who==='N');const t=PTOP();const OMI=[t].concat(['D','B','C','A'].filter(k=>k!==t));const om=PRO.filter(x=>x.who!=='N').slice().sort((p,q)=>OMI.indexOf(p.who)-OMI.indexOf(q.who));return qs.concat(om);};
+  // 2026/11/05 最後にリストにない5人目(S=タカヒロ)とも体験お見合い
+  const SEQ=()=>{const qs=PRO.filter(x=>x.who==='N');const t=PTOP();const OMI=[t].concat(['D','B','C','A'].filter(k=>k!==t)).concat(['S']);const om=PRO.filter(x=>x.who!=='N').slice().sort((p,q)=>OMI.indexOf(p.who)-OMI.indexOf(q.who));return qs.concat(om);};
   function renderPro(){
     const seq=SEQ(),sc=seq[pi];
     $('#p-pos').textContent=`${pi+1} / ${seq.length}`;
@@ -4593,7 +4603,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     if(sc.who==='N'){$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img('N','千代子')}</div><b>仲人・千代子</b><span>成婚300組の毒舌仲人</span></div>`;}
     else{const p=byId(sc.who);$('#p-who').innerHTML=`<div class="who"><div class="scene-face">${img(p.id,p.name)}</div><b>${esc(p.name)}(${p.age})</b><span>${esc(p.job)} ・ ${p.income}</span></div>`;}
     $('#p-card').classList.toggle('qcard',sc.who==='N');
-    $('#p-ep').textContent=sc.who==='N'?sc.ep:(pi===qn?'千代子が選んだ、あなたにぴったりな人':`体験お見合い ${pi-qn}人目 / 3人`);$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
+    $('#p-ep').textContent=sc.who==='N'?sc.ep:(pi===qn?'千代子が選んだ、あなたにぴったりな人':sc.who==='S'?'リストにない、5人目':`体験お見合い ${pi-qn}人目 / 3人`);$('#p-title').textContent=sc.title;$('#p-text').textContent=sc.text;
     $('#p-choices').innerHTML=sc.ch.map((h,i)=>`<button data-i="${i}"><span class="ab">${['A','B','C'][i]}</span><span>${esc(h.t)}</span></button>`).join('');
     $$('#p-choices button').forEach(b=>b.addEventListener('click',()=>proChoose(+b.dataset.i)));
     $('#p-after').hidden=true;window.scrollTo(0,0);
@@ -4605,7 +4615,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     const h=SEQ()[pi].ch[i];proLast=h;addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
     $$('#p-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
     $('#p-out').textContent=typeof h.o==='function'?h.o():h.o;nako('#nako-pro',h.nak,true);
-    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+SN(byId(seq[pi+1].who))+'に会う':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ')));
+    const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+SN(byId(seq[pi+1].who))+'に会う':(seq[pi+1].who==='S'?'リストにない5人目に、会ってみる':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ'))));
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
   $('#p-redo').addEventListener('click',()=>{
@@ -4618,7 +4628,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
-    nako('#nako-pmini','4人とも、まだ秘密を隠してるわよ。それと、リストにない5人目。あんたとの相性も、一応出しといたわ。誰に指輪を渡すかで、20年後のお金もグラフの形も、まるで変わる。…さ、決めなさい。');
+    nako('#nako-pmini','4人とも、まだ秘密を隠してるわよ。それと、リストにない5人目。…会ってみて、分かったでしょ。あの人だけ、何かが違う。あんたとの相性も出しといたわ。誰に指輪を渡すかで、20年後のお金もグラフの形も、まるで変わる。…さ、決めなさい。');
     show('s-pmini');
     setTimeout(()=>cardPreview('mini','#pm-cardprev'),50);
   }
@@ -4959,7 +4969,7 @@ async function makeCard(kind){
   }
   const cardName=kind=>kind==='mini'?'wedding-story-omiai.png':'wedding-story.png';
   function blobToDataURL(b){return new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.readAsDataURL(b);});}
-  function cardText(kind){return kind==='mini'?'💍 体験お見合いで、いちばん相性がよかったのは'+(topCand()?byId(topCand()).name:'')+'。\n紹介された4人、全員に秘密がある。あなたなら、誰に指輪を渡す？\n#ウェディングストーリー':shareText();}
+  function cardText(kind){return kind==='mini'?'💍 体験お見合いで、いちばん相性がよかったのは'+(topCand()?byId(topCand()).name:'')+'。\n紹介された4人と、リストにない5人目。全員に秘密がある。あなたなら、誰に指輪を渡す？\n#ウェディングストーリー':shareText();}
   // 画像で保存
   async function drawCard(kind){
     const blob=await makeCard(kind);if(!blob){toast('画像を作れませんでした');return;}
@@ -5128,9 +5138,9 @@ async function makeCard(kind){
     const copyText=t=>new Promise(res=>{try{navigator.clipboard.writeText(t).then(()=>res(true),()=>res(fallbackCopy(t)));}catch(e){res(fallbackCopy(t));}});
     function fallbackCopy(t){try{const a=document.createElement('textarea');a.value=t;a.setAttribute('readonly','');a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok;}catch(e){return false;}}
     // 外のアプリ・ページを開く: AppShare.openExternal → アプリの中なら同じ画面で移動 → 新しい窓
-    function openExt(url){const a=appShare();if(a&&typeof a.openExternal==='function'){callMaybe(a.openExternal.bind(a),url).catch(()=>{location.href=url;});return;}if(IN_APP()){location.href=url;return;}let w=null;try{w=window.open(url,'_blank','noopener');}catch(e){}if(!w)location.href=url;}
+    function openExt(url){try{if(window.WeddingNative&&typeof WeddingNative.openExternal==='function'){WeddingNative.openExternal(url);return;}}catch(e){}const a=appShare();if(a&&typeof a.openExternal==='function'){callMaybe(a.openExternal.bind(a),url).catch(()=>{location.href=url;});return;}if(IN_APP()){location.href=url;return;}let w=null;try{w=window.open(url,'_blank','noopener');}catch(e){}if(!w)location.href=url;}
     // LINEで送る。先に文章をコピー。アプリの中でつなぎが無い時は、line.me をアプリ内で開くと壊れるのでコピー+案内だけ
-    function sendLine(full){const a=appShare();if(IN_APP()&&!(a&&(typeof a.openExternal==='function'||typeof a.share==='function'))){copyText(full).then(ok=>toast(ok?'文章をコピーしました。LINEのトークに貼り付けてね':'コピーできませんでした'));return;}if(a&&typeof a.openExternal!=='function'&&typeof a.share==='function'){callMaybe(a.share.bind(a),full).catch(()=>{});return;}copyText(full);openExt(lineUrl(full));}
+    function sendLine(full){const a=appShare();if(window.WeddingNative&&typeof WeddingNative.openExternal==='function'){copyText(full);openExt(lineUrl(full));return;}if(IN_APP()&&!(a&&(typeof a.openExternal==='function'||typeof a.share==='function'))){copyText(full).then(ok=>toast(ok?'文章をコピーしました。LINEのトークに貼り付けてね':'コピーできませんでした'));return;}if(a&&typeof a.openExternal!=='function'&&typeof a.share==='function'){callMaybe(a.share.bind(a),full).catch(()=>{});return;}copyText(full);openExt(lineUrl(full));}
     function postX(text,url){openExt(xUrl(text,url));}
     function copyLink(full){copyText(full).then(ok=>toast(ok?'文章とリンクをコピーしました':'コピーできませんでした'));}
     // 画像つきシェア: WeddingNative.shareImage → navigator.share(ファイル) → AppShare.share(文章) → 画像を保存+文章コピー
@@ -5272,6 +5282,11 @@ async function makeCard(kind){
     const getType=async()=>typeBlob||(typeBlob=await drawTypeCard());
     const getPoll=async()=>pollBlob||(pollBlob=await drawPollCard());
     $('#shx-share').addEventListener('click',async()=>{const b=await getType();shareImage(b,'wedding-type.png',typeText(),typeUrl(),'type');});
+    // 2026/11/05 体験お見合いの結果画面(s-pmini)からも、LINE・Xへ直接(文章は cardText('mini')、リンクは共有URL)
+    const miniText=()=>cardText('mini'),miniUrl=()=>{try{return shareUrl(typeKey(scores(pers.pro.x)));}catch(e){return shareUrl('a');}};
+    $('#pm-line').addEventListener('click',()=>{track('shx_share',{kind:'mini',via:'line'});sendLine(miniText()+'\n'+miniUrl());});
+    $('#pm-x').addEventListener('click',()=>{track('shx_share',{kind:'mini',via:'x'});postX(miniText(),miniUrl());});
+    $('#pm-copy').addEventListener('click',()=>copyLink(miniText()+'\n'+miniUrl()));
     $('#shx-line').addEventListener('click',()=>sendLine(typeText()+'\n'+typeUrl()));
     $('#shx-x').addEventListener('click',()=>postX(typeText(),typeUrl()));
     $('#shx-copy').addEventListener('click',()=>copyLink(typeText()+'\n'+typeUrl()));
