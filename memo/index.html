@@ -108,36 +108,98 @@
   }
 
   // ── 耳（開いたら勝手に聞く）──────────────
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  let rec=null, wantEar=true, buf="", bufT=0, restarts=0;
-  const FLUSH_MS=1800; // ひと息（1.8秒）空いたら1件として保存
+  // v2: Chromeの音声認識はやめた（「えっと」を何十回も重ねる・断片ごとに保存・聞き間違いが多い）。
+  // 今はマイクの音をそのまま録って、間（1.6秒の静けさ）で1かたまりに区切り、Gemini（トキエと同じキー）に
+  // 「言いたいことだけ整った文で。えー・あの・とか・言い直しは捨てる。中身が無ければ『なし』」で書き起こさせる。
+  // 「えーと」だけの断片やテレビの音は Gemini が「なし」と返すので保存されへん。
+  const G_MODELS=["gemini-4-argon","gemini-3.8-flash","gemini-flash-latest","gemini-2.5-flash","gemini-2.5-flash-lite"];
+  const SILENCE_MS=1600, MIN_SPEECH_MS=700, MAX_SEG_MS=60000, THRESH=0.012;
+  function gKey(){try{return (localStorage.getItem("tokie_gemini_key_v1")||"").trim();}catch(e){return "";}}
+  let stream=null, ac=null, analyser=null, recorder=null, chunks=[], wantEar=true, vadT=null;
+  let talking=false, talkStart=0, lastLoud=0, segStart=0, busy=0, pendingBlob=null;
   function earState(cls,txt){ear.className="ear "+cls;earTxt.textContent=txt;}
-  function flush(){clearTimeout(bufT);bufT=0;const t=buf.trim();buf="";interimEl.textContent="";if(!t)return;const x=addMemo(t,"ear");if(x)toast("メモした（"+openCount()+"件）");}
-  function earStart(){
-    if(!SR){earState("off","このブラウザは音声認識が使えへん（Chromeで開いて）");return;}
-    if(rec)return;
+  function mime(){for(const m of ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"]){try{if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m;}catch(e){}}return "";}
+  async function earStart(){
+    if(stream)return;
+    if(!gKey()){earState("off","Geminiのキーが無い。トキエを一回開いてから、ここに戻って");renderKeyBox(true);return;}
     try{
-      rec=new SR();rec.lang="ja-JP";rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
-      rec.onstart=()=>{restarts=0;earState("on","聞いてるで。喋ったら勝手にメモする");};
-      rec.onresult=(e)=>{
-        let fin="",tmp="";
-        for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript;else tmp+=r[0].transcript;}
-        if(tmp){ear.classList.add("hear");interimEl.textContent=tmp;}
-        if(fin){buf+=(buf?" ":"")+fin.trim();interimEl.textContent=buf;clearTimeout(bufT);bufT=setTimeout(flush,FLUSH_MS);}
-      };
-      rec.onspeechend=()=>{ear.classList.remove("hear");};
-      rec.onerror=(e)=>{
-        const k=e&&e.error;
-        if(k==="not-allowed"||k==="service-not-allowed"){wantEar=false;rec=null;earState("off","ここをタップしてマイクを許可");return;}
-        // no-speech / network / aborted は黙って立て直す
-      };
-      rec.onend=()=>{rec=null;ear.classList.remove("hear");if(buf)flush();if(!wantEar||document.hidden)return;restarts++;setTimeout(earStart,restarts>5?3000:400);};
-      rec.start();
-    }catch(e){rec=null;earState("off","マイクが立たへん："+String(e&&e.message||e));}
+      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}});
+    }catch(e){earState("off",(e&&e.name==="NotAllowedError")?"ここをタップしてマイクを許可":"マイクが使えへん："+String(e&&e.message||e));return;}
+    ac=new (window.AudioContext||window.webkitAudioContext)();
+    const src=ac.createMediaStreamSource(stream);analyser=ac.createAnalyser();analyser.fftSize=1024;src.connect(analyser);
+    startRecorder();
+    earState("on","聞いてるで。喋ったら勝手にメモする");
+    const buf=new Float32Array(analyser.fftSize);
+    vadT=setInterval(()=>{
+      if(!analyser)return;
+      analyser.getFloatTimeDomainData(buf);let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i]*buf[i];const rms=Math.sqrt(sum/buf.length);
+      const now=Date.now();
+      if(rms>THRESH){lastLoud=now;if(!talking){talking=true;talkStart=now;ear.classList.add("hear");interimEl.textContent="…";}}
+      if(talking&&now-lastLoud>SILENCE_MS){ // ひと息ついた → ここまでを1かたまり
+        talking=false;ear.classList.remove("hear");
+        const spoke=lastLoud-talkStart;
+        cutSegment(spoke>=MIN_SPEECH_MS);
+      }else if(talking&&now-segStart>MAX_SEG_MS){cutSegment(true);talkStart=now;}
+    },100);
   }
-  function earStop(){wantEar=false;const r=rec;rec=null;try{r&&r.stop();}catch(e){}earState("off","止めてる（タップで再開）");}
-  ear.onclick=()=>{if(rec){earStop();}else{wantEar=true;earStart();}};
-  document.addEventListener("visibilitychange",()=>{if(document.hidden){const r=rec;rec=null;try{r&&r.stop();}catch(e){}}else if(wantEar)earStart();});
+  function startRecorder(){
+    chunks=[];const m=mime();
+    try{recorder=new MediaRecorder(stream,m?{mimeType:m}:undefined);}catch(e){recorder=new MediaRecorder(stream);}
+    recorder.ondataavailable=(e)=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    recorder.onstop=()=>{const blob=new Blob(chunks,{type:recorder.mimeType||m||"audio/webm"});chunks=[];const keep=pendingBlob;pendingBlob=null;if(keep&&blob.size>2000)transcribe(blob);if(stream&&wantEar)startRecorder();};
+    recorder.start();segStart=Date.now();
+  }
+  function cutSegment(keep){ // 録音を切って、中身があれば Gemini へ。すぐ次の録音を始める（取りこぼしは最大0.1秒）
+    if(!recorder||recorder.state!=="recording")return;
+    pendingBlob=keep;try{recorder.stop();}catch(e){}
+  }
+  function earStop(){
+    wantEar=false;clearInterval(vadT);vadT=null;
+    try{if(recorder&&recorder.state==="recording"){pendingBlob=false;recorder.stop();}}catch(e){}recorder=null;
+    try{stream&&stream.getTracks().forEach(t=>t.stop());}catch(e){}stream=null;
+    try{ac&&ac.close();}catch(e){}ac=null;analyser=null;talking=false;ear.classList.remove("hear");
+    earState("off","止めてる（タップで再開）");
+  }
+  function b64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(blob);});}
+  const PROMPT="これは、ある人がスマホに向かって思いついたことを口にした録音です。日本語で書き起こしてください。\n"+
+    "ルール：\n"+
+    "・「えー」「えっと」「あの」「とか」「なんか」「っていうのも」などの口ぐせ・つなぎ言葉・言い直し・同じ言葉の繰り返しは全部捨てる。\n"+
+    "・言いたい中身だけを、本人が言った言葉を生かして1〜3文の整った日本語にする。要約しすぎない。本人が言っていないことは足さない。\n"+
+    "・聞き取れない語は前後の文脈から一番自然な語を選ぶ（例：アプリやビジネスの話の流れなら、それに合う語）。\n"+
+    "・つなぎ言葉だけ／意味のある内容が無い／テレビや音楽や他人の声だけ、の時は「なし」とだけ書く。\n"+
+    "・説明や前置きは書かない。書き起こした文だけ、または「なし」。";
+  async function transcribe(blob){
+    busy++;earTxt.textContent="書き起こし中…";
+    try{
+      const data=await b64(blob);const key=gKey();
+      const body={contents:[{parts:[{text:PROMPT},{inline_data:{mime_type:(blob.type||"audio/webm").split(";")[0],data}}]}],generationConfig:{temperature:0.2,maxOutputTokens:400}};
+      let text="",lastErr="";
+      for(const m of G_MODELS){
+        try{
+          const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},body:JSON.stringify(body)});
+          const j=await r.json().catch(()=>({}));
+          if(!r.ok){lastErr=(j&&j.error&&j.error.message)||("HTTP "+r.status);if(r.status===400&&/API key/i.test(lastErr))break;continue;}
+          text=(((j.candidates||[])[0]||{}).content||{}).parts?.map(p=>p.text||"").join("").trim()||"";
+          break;
+        }catch(e){lastErr=String(e&&e.message||e);}
+      }
+      if(!text&&lastErr){toast("書き起こしでけへん："+lastErr.slice(0,60));return;}
+      text=text.replace(/^[「『"]|[」』"]$/g,"").trim();
+      if(!text||/^(なし|無し|none)[。．.]?$/i.test(text))return;
+      const x=addMemo(text,"ear");if(x)toast("メモした（"+openCount()+"件）");
+    }finally{busy--;if(stream&&!busy)earTxt.textContent="聞いてるで。喋ったら勝手にメモする";interimEl.textContent="";}
+  }
+  function renderKeyBox(show){
+    let box=document.getElementById("keyBox");
+    if(!show){if(box)box.remove();return;}
+    if(box)return;
+    box=document.createElement("div");box.id="keyBox";box.className="row";box.style.marginTop="8px";
+    box.innerHTML='<input type="text" id="keyIn" placeholder="GeminiのAPIキー（トキエに入れたのと同じ）"><button id="keyOk">入れる</button>';
+    ear.after(box);
+    box.querySelector("#keyOk").onclick=()=>{const v=box.querySelector("#keyIn").value.trim();if(!v)return;try{localStorage.setItem("tokie_gemini_key_v1",v);}catch(e){}box.remove();wantEar=true;earStart();};
+  }
+  ear.onclick=()=>{if(stream){earStop();}else{wantEar=true;earStart();}};
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){if(stream){const w=wantEar;earStop();wantEar=w;}}else if(wantEar)earStart();});
 
   // ── 画面 ─────────────────────────────
   let showDone=false;
@@ -162,7 +224,7 @@
     const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("昨夜のやつ：\n"+open.map(x=>"・"+x.text).join("\n"));};
     const sd=$("showDone");if(sd)sd.onclick=()=>{showDone=!showDone;render();};
     const ad=$("add");if(ad)ad.onclick=()=>{const v=$("manual").value.trim();if(!v)return;$("manual").value="";addMemo(v,"hand");};
-    const mi=$("manual");if(mi){mi.onkeydown=(e)=>{if(e.key==="Enter")$("add").click();};mi.onfocus=()=>{const r=rec;rec=null;try{r&&r.stop();}catch(e){}};mi.onblur=()=>{if(wantEar)earStart();};}
+    const mi=$("manual");if(mi){mi.onkeydown=(e)=>{if(e.key==="Enter")$("add").click();};mi.onfocus=()=>{if(stream){const w=wantEar;earStop();wantEar=w;}};mi.onblur=()=>{if(wantEar)earStart();};}
     main.querySelectorAll("li").forEach(li=>{
       const id=li.dataset.id;
       li.querySelector(".chk").onclick=()=>{const a=all();const x=a.find(y=>y.id===id);if(x){x.done=!x.done;save(a);render();if(x.done)api({op:"sent",ids:[id]}).catch(()=>{});else pushOne(x);}};
