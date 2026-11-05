@@ -114,7 +114,7 @@
   //   ElevenLabsのAPIキーはこのブラウザに1回だけ入れる（tokie_memo_el_key）。
   const SILENCE_MS=2200, MIN_SPEECH_MS=600, MAX_SEG_MS=60000, THRESH=0.012, JOIN_MS=12000;
   const EL_MODELS=["scribe_v2","scribe_v1"];
-  function elKey(){try{return (localStorage.getItem("tokie_memo_el_key")||"").trim();}catch(e){return "";}}
+  function elKey(){try{return (localStorage.getItem("tokie_memo_el_key")||"").replace(/\s+/g,"");}catch(e){return "";}}
   let stream=null, ac=null, analyser=null, recorder=null, chunks=[], wantEar=true, vadT=null;
   let talking=false, talkStart=0, lastLoud=0, segStart=0, busy=0, pendingBlob=null, lastMemoId=null, lastMemoAt=0;
   function earState(cls,txt){ear.className="ear "+cls;earTxt.textContent=txt;}
@@ -177,11 +177,12 @@
         try{
           const r=await fetch("https://api.elevenlabs.io/v1/speech-to-text",{method:"POST",headers:{"xi-api-key":key},body:fd});
           const j=await r.json().catch(()=>({}));
-          if(!r.ok){lastErr=(j&&j.detail&&(j.detail.message||j.detail.status||JSON.stringify(j.detail)))||("HTTP "+r.status);if(r.status===401){renderKeyBox(true);break;}continue;}
+          if(!r.ok){lastErr=(j&&j.detail&&(j.detail.message||j.detail.status||JSON.stringify(j.detail)))||("HTTP "+r.status);if(r.status===401){showErr(/permission|speech_to_text/i.test(lastErr)?"この鍵は「Speech to Text」が No Access になってる。ElevenLabsの鍵の設定で Speech to Text を Access にして、このページを開き直して。":"鍵が違う（"+lastErr+"）。下の欄に入れ直して。");renderKeyBox(true);return;}continue;}
           text=String(j.text||"").trim();break;
         }catch(e){lastErr=String(e&&e.message||e);}
       }
-      if(!text){if(lastErr)toast("書き起こしでけへん："+lastErr.slice(0,70));return;}
+      if(!text){if(lastErr)showErr("書き起こしでけへん："+lastErr);return;}
+      showErr("");
       const s=cleanText(text);
       if(!meaningful(s))return;
       const now=Date.now();
@@ -192,6 +193,7 @@
       const x=addMemo(s,"ear");if(x){lastMemoId=x.id;lastMemoAt=now;toast("メモした（"+openCount()+"件）");}
     }finally{busy--;if(stream&&!busy)earTxt.textContent="聞いてるで。喋ったら勝手にメモする";interimEl.textContent="";}
   }
+  function showErr(t){let el=document.getElementById("errLine");if(!el){el=document.createElement("div");el.id="errLine";el.style.cssText="color:#e89a8a;font-size:13px;line-height:1.5;margin:6px 0 0;word-break:break-word;text-align:center";ear.after(el);}el.textContent=t||"";}
   function renderKeyBox(show){
     let box=document.getElementById("keyBox");
     if(!show){if(box)box.remove();return;}
@@ -199,7 +201,7 @@
     box=document.createElement("div");box.id="keyBox";box.className="row";box.style.marginTop="8px";
     box.innerHTML='<input type="text" id="keyIn" placeholder="ElevenLabsのAPIキー（sk_…）"><button id="keyOk">入れる</button>';
     ear.after(box);
-    box.querySelector("#keyOk").onclick=()=>{const v=box.querySelector("#keyIn").value.trim();if(!v)return;try{localStorage.setItem("tokie_memo_el_key",v);}catch(e){}box.remove();wantEar=true;earStart();};
+    box.querySelector("#keyOk").onclick=()=>{const v=box.querySelector("#keyIn").value.replace(/\s+/g,"");if(!v)return;try{localStorage.setItem("tokie_memo_el_key",v);}catch(e){}box.remove();wantEar=true;earStart();};
   }
   ear.onclick=()=>{if(stream){earStop();}else{wantEar=true;earStart();}};
   document.addEventListener("visibilitychange",()=>{if(document.hidden){if(stream){const w=wantEar;earStop();wantEar=w;}}else if(wantEar)earStart();});
