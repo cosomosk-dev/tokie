@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-05 v56";
+  const APP_VER="2026-11-05 v57";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2498,6 +2498,30 @@
     if(session.trial){trialLeave();return;}
     checkout(true);
   }
+  /* v57 マイクの休ませ方を変更（イヤホン対策）
+     v44/v53で、ママが喋るたびに conv.setMicMuted(true/false) を繰り返し、さらに見張り用にマイクをもう1本開いてた。
+     setMicMuted は中で音の回路（AudioContext）を作り直し、2本目のマイクは録音の口をもう1つ開く。Android はこの出入りのたびに
+     音の出し先を見直すので、Bluetoothイヤホン（WI-1000XM2）から本体スピーカーに落ちてた（11/5 タケオさん指摘。10/31頃から）。
+     → 休ませる時はマイクの「線」1本だけを enabled=false にする（録音の口は開けっぱなし・回路は作り直さへん）。
+     → 見張りは同じマイクの線を clone して聴く（2本目のマイクは開かへん）。clone は元が enabled=false でも音が来る。 */
+  function micTrack(){
+    try{
+      const lp=conv&&conv.connection&&conv.connection.room&&conv.connection.room.localParticipant;
+      if(!lp||!lp.audioTrackPublications)return null;
+      let any=null;
+      for(const pub of lp.audioTrackPublications.values()){
+        const t=pub&&pub.track&&pub.track.mediaStreamTrack;if(!t)continue;
+        if(pub.source==="microphone")return t;
+        any=any||t;
+      }
+      return any;
+    }catch(e){return null;}
+  }
+  function micMute(on){
+    const t=micTrack();
+    if(t&&t.readyState==="live"){t.enabled=!on;return;}
+    try{if(conv&&typeof conv.setMicMuted==="function")conv.setMicMuted(!!on);}catch(e){} // 線が取れへん時だけ、前のやり方
+  }
   // 音楽タイム：マイクを休ませて、ママは静かに隣におる
   const musicBtn=$("musicbtn");
   function renderMusic(){
@@ -2507,7 +2531,7 @@
   function setMusic(on){
     if(!conv||!session||session.closing)return;
     session.music=!!on;
-    try{if(typeof conv.setMicMuted==="function")conv.setMicMuted(session.music);}catch(e){}
+    micMute(session.music);
     if(session.music){session.musicAt=Date.now();inject(MSG_MUSIC_ON);statusEl.textContent="音楽タイム。ママは静かに隣におる";}
     else{session.lastUser=Date.now();session.held=false;inject(MSG_MUSIC_OFF);statusEl.textContent="聞いてくれてる";}
     renderMusic();renderBarge();
@@ -2527,37 +2551,45 @@
     clearTimeout(session.holdT);
     const want=settings().holdMic!==false&&!session.closing&&!session.bargeIn&&!session.music;
     if(mode==="speaking"){
-      if(want&&!session.held){session.held=true;try{conv.setMicMuted(true);}catch(e){}}
-      else if(!want&&session.held){session.held=false;if(!session.music){try{conv.setMicMuted(false);}catch(e){}}}
+      if(want&&!session.held){session.held=true;micMute(true);}
+      else if(!want&&session.held){session.held=false;if(!session.music){micMute(false);}}
       renderBarge();earWatch(!!session.held); // v53 休ませてる間だけ、お客さんの声を店側で見張る
     }else{
       earWatch(false);
       session.aiQuietAt=Date.now();
       const mine=session;
-      session.holdT=setTimeout(()=>{if(session!==mine)return;mine.bargeIn=false;if(mine.held){mine.held=false;if(!mine.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();},HOLD_UNMUTE_MS);
+      session.holdT=setTimeout(()=>{if(session!==mine)return;mine.bargeIn=false;if(mine.held){mine.held=false;if(!mine.music){micMute(false);}}renderBarge();},HOLD_UNMUTE_MS);
     }
   }
-  function releaseHold(){if(!session)return;clearTimeout(session.holdT);if(session.held){session.held=false;if(!session.music){try{conv&&conv.setMicMuted(false);}catch(e){}}}renderBarge();}
+  function releaseHold(){if(!session)return;clearTimeout(session.holdT);if(session.held){session.held=false;if(!session.music){micMute(false);}}renderBarge();}
   bargeBtn.addEventListener("click",()=>{if(!session)return;session.bargeIn=true;releaseHold();session.lastUser=Date.now();});
   /* v53 声で割り込み：ママが喋ってる間はマイクを休ませてる（聞こえ返し対策）けど、その間にお客さんが話した声は丸ごと捨ててた＝「聞いてない」の原因。
      店側で別にマイクの音量だけ見張って、ママの声の返り（スピーカー→マイク）より明らかに大きい声が0.35秒続いたら、割り込みボタンを押したのと同じにする（マイクを戻す→ママが止まって聞く）。
      返りの大きさは、ママが喋り出した最初の1秒（お客さんはまだ黙ってる前提）で測る。 */
   const BARGE_DB_OVER=10, BARGE_DB_FLOOR=-45, BARGE_DB_LOUD=-28, BARGE_HOLD_MS=350, BARGE_POLL_MS=50;
-  const ear={stream:null,ctx:null,an:null,buf:null,timer:null,base:[],baseAt:0,above:0};
+  const ear={stream:null,clone:null,src:null,node:null,ctx:null,an:null,buf:null,timer:null,base:[],baseAt:0,above:0};
   async function earStart(){
-    if(ear.an||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia))return;
+    if(ear.an)return;
+    const t=micTrack(); // v57 2本目のマイクは開かへん。ママ用のマイクの線を clone して聴く
+    if(!t)return;      // 線が取れへん時は見張りなし（✋ボタンは手で押せる）
     try{
-      ear.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:false}});
-      ear.ctx=new (window.AudioContext||window.webkitAudioContext)();
+      ear.src=t;ear.clone=t.clone();ear.stream=new MediaStream([ear.clone]);
+      ear.ctx=ear.ctx||new (window.AudioContext||window.webkitAudioContext)();
       ear.an=ear.ctx.createAnalyser();ear.an.fftSize=1024;ear.buf=new Float32Array(ear.an.fftSize);
-      ear.ctx.createMediaStreamSource(ear.stream).connect(ear.an);
+      ear.node=ear.ctx.createMediaStreamSource(ear.stream);ear.node.connect(ear.an);
     }catch(e){earStop();}
   }
-  function earStop(){clearInterval(ear.timer);ear.timer=null;try{ear.stream&&ear.stream.getTracks().forEach(t=>t.stop());}catch(e){}try{ear.ctx&&ear.ctx.close();}catch(e){}ear.stream=null;ear.ctx=null;ear.an=null;}
+  function earRefresh(){ // v57 入り直し・席の移動でマイクの線が入れ替わってたら、clone を取り直す
+    const t=micTrack();
+    if(ear.an&&(t!==ear.src||!ear.clone||ear.clone.readyState!=="live")){try{ear.node&&ear.node.disconnect();}catch(e){}try{ear.clone&&ear.clone.stop();}catch(e){}ear.an=null;ear.clone=null;ear.src=null;ear.stream=null;}
+    if(!ear.an)earStart();
+  }
+  function earStop(){clearInterval(ear.timer);ear.timer=null;try{ear.node&&ear.node.disconnect();}catch(e){}try{ear.clone&&ear.clone.stop();}catch(e){}try{ear.ctx&&ear.ctx.close();}catch(e){}ear.stream=null;ear.clone=null;ear.src=null;ear.node=null;ear.ctx=null;ear.an=null;}
   function earDb(){if(!ear.an)return -100;ear.an.getFloatTimeDomainData(ear.buf);let s=0;for(let i=0;i<ear.buf.length;i++)s+=ear.buf[i]*ear.buf[i];const r=Math.sqrt(s/ear.buf.length);return r>0?20*Math.log10(r):-100;}
   function earWatch(on){
     clearInterval(ear.timer);ear.timer=null;ear.base=[];ear.above=0;
-    if(!on||!ear.an)return;
+    if(!on)return;
+    earRefresh();if(!ear.an)return;
     ear.baseAt=Date.now();
     if(ear.ctx&&ear.ctx.state==="suspended"){try{ear.ctx.resume();}catch(e){}}
     ear.timer=setInterval(()=>{
@@ -2674,7 +2706,7 @@
   async function closeByTime(){
     if(!conv||!session||session.closing)return;
     const mine=session;
-    if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
+    if(session.music){session.music=false;micMute(false);renderMusic();}
     session.closing=true;releaseHold();armQuickExit(mine);statusEl.textContent="閉店の時間や。ママが手帳に書いてる…";
     const p=captureReply(60000);
     if(!inject(MSG_CLOSE+billLine())){if(current)current.endKind="closed";end({reason:"closed"});return;}
@@ -2696,7 +2728,7 @@
     if(!conv||!session)return;
     if(session.trial){if(byVoice){trialLeave();}else{session.endWhy="出るボタン";end({reason:"trial"});}return;}
     if(!session.closing&&!session.endWhy)session.endWhy=byVoice?"声":"お会計ボタン";
-    if(session.music){session.music=false;try{conv.setMicMuted(false);}catch(e){}renderMusic();}
+    if(session.music){session.music=false;micMute(false);renderMusic();}
     if(session.closing){ // 2回目のボタン＝すぐ出る（間違えて2回押してまとめが消えんように、確認してから）
       if(byVoice)return;
       if(btn.disabled)return;
@@ -2773,7 +2805,7 @@
         agentId:AGENT_ID,
         dynamicVariables:dv,
         ...(useOv&&SEAT.llm?{overrides:{agent:{prompt:{llm:SEAT.llm}}}}:{}), // 席でママの頭脳を変える（ElevenLabs側で「LLMの上書き」を許可してある時だけ効く）
-        onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();if(settings().holdMic!==false&&!session.trial)earStart();stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
+        onConnect:()=>{if(gen!==convGen||!session)return;connectedAt=Date.now();if(settings().holdMic!==false&&!session.trial){earStart();setTimeout(()=>{if(session&&conv)earRefresh();},1500);}stage.classList.add("on");statusEl.textContent=T?(T.mode==="joren"?"常連さん体験：ママが来た":"立ち飲み：ママが来た"):"ママがカウンターに来た";btn.textContent=T?"出る（体験おしまい）":"お会計";btn.className="btn out";btn.disabled=false;startTick();if(session){session.music=false;if(session.trial)trialTick(Date.now(),true);}renderMusic();renderSeat();renderOrderBadge();},
         onDisconnect:(d)=>{if(gen!==convGen)return;end(d);},
         onMessage:(m)=>{
           if(gen!==convGen)return;

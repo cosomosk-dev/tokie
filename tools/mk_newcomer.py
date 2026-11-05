@@ -392,7 +392,7 @@ R2('      if(!trial){const ni=rankIdx(visitCount()+1);if(ni>rankSeen())session.r
    '      if(!trial){const nightAlready=NEWCOMER&&visitsOnly().some(v=>(v.biz||v.date)===bizDate(Date.now()));const lastCrisis=NEWCOMER&&visitsOnly()[0]&&visitsOnly()[0].crisis;const ni=rankIdx(visitCount()+(nightAlready?0:1));if(ni>rankSeen()&&!lastCrisis)session.rankUp=ni;}')
 R2('    const talked=!!(current&&current.msgs.some(m=>m.who==="user"));',
    '    const talked=!!(current&&current.msgs.some(m=>m.who==="user"));\n    const wasCrisis=NEWCOMER&&!!(session&&session.crisis);')
-R2('    session=null;\n    if(ru!=null)','    session=null;\n    if(wasCrisis){try{caption.textContent="";}catch(e){}}\n    if(ru!=null)')
+R2('    earStop();session=null;\n    if(ru!=null)','    earStop();session=null;\n    if(wasCrisis){try{caption.textContent="";}catch(e){}}\n    if(ru!=null)')  # v53でearStop()が前に付いた
 R2('"・「AIなん？」「人間なん？」と聞かれたら','"・前の夜にしんどい話が出てたお客さんには、次の夜はボトルのお礼・お祝い・ランクの話をせん。\\n"+\n      "・「AIなん？」「人間なん？」と聞かれたら')
 R2('今まさに危ない時は「119番か、近くの人を呼んで」。','「もう準備してる」「今からやる」「薬をようけ飲んだ」「高いとこにおる」みたいに、今まさに危ないと分かる言葉が出たら、迷わず「今すぐ119番に電話して。ママ待ってるから」と言う。')
 R2('明日も顔見せてな、待ってるから」くらいの2〜3文','またいつでもおいで、無理せんでええから」くらいの2〜3文')
