@@ -116,6 +116,7 @@
   const EL_MODELS=["scribe_v2","scribe_v1"];
   function elKey(){try{return (localStorage.getItem("tokie_memo_el_key")||"").replace(/\s+/g,"");}catch(e){return "";}}
   let stream=null, ac=null, analyser=null, recorder=null, chunks=[], wantEar=true, vadT=null;
+  let floor=0.004, thr=0.012; // 部屋の音（テレビ・音楽）の大きさを覚えて、それより一段大きい声だけを「喋った」とみなす
   let talking=false, talkStart=0, lastLoud=0, segStart=0, busy=0, pendingBlob=null, lastMemoId=null, lastMemoAt=0;
   function earState(cls,txt){ear.className="ear "+cls;earTxt.textContent=txt;}
   function mime(){for(const m of ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"]){try{if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m;}catch(e){}}return "";}
@@ -134,7 +135,8 @@
       if(!analyser)return;
       analyser.getFloatTimeDomainData(buf);let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i]*buf[i];const rms=Math.sqrt(sum/buf.length);
       const now=Date.now();
-      if(rms>THRESH){lastLoud=now;if(!talking){talking=true;talkStart=now;ear.classList.add("hear");interimEl.textContent="…";}}
+      floor+=(rms-floor)*(rms<floor?0.2:0.008); thr=Math.max(THRESH,floor*2.2); // 下がる時は速く、上がる時はゆっくり（ずっと鳴ってる音＝部屋の音として覚える）
+      if(rms>thr){lastLoud=now;if(!talking){talking=true;talkStart=now;ear.classList.add("hear");interimEl.textContent="…";}}
       if(talking&&now-lastLoud>SILENCE_MS){
         talking=false;ear.classList.remove("hear");
         cutSegment(lastLoud-talkStart>=MIN_SPEECH_MS);
@@ -185,6 +187,7 @@
       showErr("");
       const s=cleanText(text);
       if(!meaningful(s))return;
+      if(!(await isMyMemo(s))){rejectAdd(s);return;}
       const now=Date.now();
       if(lastMemoId&&now-lastMemoAt<JOIN_MS){ // 続きの一言 → 前のメモにつなぐ
         const a=all();const x=a.find(y=>y.id===lastMemoId&&!y.done);
@@ -193,6 +196,32 @@
       const x=addMemo(s,"ear");if(x){lastMemoId=x.id;lastMemoAt=now;toast("メモした（"+openCount()+"件）");}
     }finally{busy--;if(stream&&!busy)earTxt.textContent="聞いてるで。喋ったら勝手にメモする";interimEl.textContent="";}
   }
+  // テレビ・音楽・他人の話を弾く（トキエと同じGeminiのキーを使う。キーが無い時・判定でけへん時は残す）
+  const J_MODELS=["gemini-3.8-flash","gemini-flash-latest","gemini-2.5-flash","gemini-4-argon"];
+  function gKey(){try{return (localStorage.getItem("tokie_gemini_key_v1")||"").trim();}catch(e){return "";}}
+  const JUDGE="次の文は、スマホのメモアプリのマイクが拾った音声の書き起こしです。持ち主（40歳前後の男性。アプリ開発・行政書士・社労士・不動産・音楽・選挙などに関わる）が自分用に吹き込んだ「メモ・思いつき・やること・アイデア・独り言」なら MEMO、"+
+    "テレビ番組・ニュース・CM・ドラマのセリフ・歌詞・ラジオ・動画・周りの他人の会話など、持ち主のメモではない音なら NOISE と答えてください。"+
+    "判断の目安：「〜すること」「〜したい」「明日〜」「〜を作る」「〜を直す」など自分の行動・計画・アイデアは MEMO。第三者への語りかけ、番組の進行、ニュース原稿口調、物語のセリフ、歌詞、脈絡のない断片は NOISE。迷ったら MEMO。"+
+    "答えは MEMO か NOISE の1語だけ。\n\n文：";
+  async function isMyMemo(text){
+    const key=gKey();if(!key)return true;
+    for(const m of J_MODELS){
+      try{
+        const ac=new AbortController();const t=setTimeout(()=>ac.abort(),8000);
+        const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},signal:ac.signal,
+          body:JSON.stringify({contents:[{parts:[{text:JUDGE+text}]}],generationConfig:{temperature:0,maxOutputTokens:5}})});
+        clearTimeout(t);
+        if(!r.ok)continue;
+        const j=await r.json();const a=((((j.candidates||[])[0]||{}).content||{}).parts||[]).map(p=>p.text||"").join("").toUpperCase();
+        if(a.includes("NOISE"))return false;
+        if(a.includes("MEMO"))return true;
+      }catch(e){}
+    }
+    return true;
+  }
+  const RJ="tokie_memo_rejected_v1";
+  function rejects(){try{const a=JSON.parse(localStorage.getItem(RJ)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function rejectAdd(t){const a=rejects();a.push({ts:Date.now(),text:t});try{localStorage.setItem(RJ,JSON.stringify(a.slice(-40)));}catch(e){}render();}
   function showErr(t){let el=document.getElementById("errLine");if(!el){el=document.createElement("div");el.id="errLine";el.style.cssText="color:#e89a8a;font-size:13px;line-height:1.5;margin:6px 0 0;word-break:break-word;text-align:center";ear.after(el);}el.textContent=t||"";}
   function renderKeyBox(show){
     let box=document.getElementById("keyBox");
@@ -209,6 +238,8 @@
   // ── 画面 ─────────────────────────────
   let showDone=false;
   function openCount(){return all().filter(x=>!x.done).length;}
+  function rejBlock(){const a=rejects();if(!a.length)return "";return '<div class="exp" style="display:block"><button class="sm" id="rjT">テレビ・音楽として弾いた分（'+a.length+'件）'+(showRj?'を隠す':'を見る')+'</button>'+(showRj?'<ul>'+a.slice().reverse().map((x,i)=>'<li><div class="t" style="font-size:14px;color:var(--dim)">'+esc(x.text)+'<div class="when">'+when(x.ts)+'</div></div><button class="sm rjBack" data-i="'+(a.length-1-i)+'">メモに戻す</button></li>').join("")+'</ul>':'')+'</div>';}
+  let showRj=false;
   function expBlock(){return '<div class="exp">実験中：夜でも中身を見せる <button class="sm '+(peek()?"on":"")+'" id="peek">'+(peek()?"オン":"オフ")+'</button><span>— 動くのを確かめたら「オフ」にする</span></div>';}
   function render(){
     const a=all(), open=a.filter(x=>!x.done);
@@ -221,10 +252,12 @@
     const list=(showDone?a:open).slice().reverse();
     h+=list.length?'<ul>'+list.map(x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+({tokie:"・ママ経由",ear:"・声",hand:"・手"}[x.from]||"")+'</div></div><button class="sm del" title="消す">✕</button></li>').join("")+'</ul>':'<div class="empty">まだ何もない。喋るだけでここに溜まる。トキエで「ママ、これメモしといて」でも入る。</div>';
     h+='<div class="row"><input type="text" id="manual" placeholder="手で足す"><button id="add">足す</button></div>';
-    h+=expBlock();
+    h+=rejBlock()+expBlock();
     main.innerHTML=h;bind();
   }
   function bind(){
+    const rt=$("rjT");if(rt)rt.onclick=()=>{showRj=!showRj;render();};
+    main.querySelectorAll(".rjBack").forEach(b=>b.onclick=()=>{const a=rejects();const i=+b.dataset.i;const x=a[i];if(!x)return;a.splice(i,1);try{localStorage.setItem(RJ,JSON.stringify(a));}catch(e){}addMemo(x.text,"ear");});
     const p=$("peek");if(p)p.onclick=()=>{localStorage.setItem(PEEK,peek()?"0":"1");render();};
     const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("昨夜のやつ：\n"+open.map(x=>"・"+x.text).join("\n"));};
     const sd=$("showDone");if(sd)sd.onclick=()=>{showDone=!showDone;render();};
