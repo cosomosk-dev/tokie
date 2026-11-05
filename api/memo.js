@@ -10,6 +10,7 @@
 //   POST /api/memo  {k, op:"sync", memos:[...]}        → 端末のメモをまとめて足す（同じidは飛ばす）
 //   POST /api/memo  {k, op:"sent", ids:[...]}          → 渡した／済みにした（sent/ へ移す）
 //   POST /api/memo  {k, op:"del",  ids:[...]}          → 消す
+//   GET  /api/memo?k=KEY&op=sent&ids=a,b          → 同じ（朝の自動作業用）
 // Blob がまだつながってへん時は 503 {ok:false, cloud:false} を返す（画面側は端末だけで動き続ける）
 'use strict';
 
@@ -46,6 +47,7 @@ module.exports = async (req, res) => {
   const { put, list, del } = blob;
 
   const q = req.query || {};
+  const url = new URL(req.url || "/", "http://x"); for (const [kk, vv] of url.searchParams) if (!(kk in q)) q[kk] = vv;
   const body = req.method === 'POST' ? await readBody(req) : {};
   const k = String(q.k || body.k || '');
   if (k !== KEY) return json(res, 403, { ok: false, why: '合言葉がちゃう' });
@@ -78,12 +80,14 @@ module.exports = async (req, res) => {
   }
 
   try {
-    if (req.method === 'GET') {
+    // GET でも op=sent / op=del を受ける（朝のClaudeの自動作業は GET しかできへんので）： /api/memo?k=KEY&op=sent&ids=a,b
+    const op = String(body.op || q.op || '');
+    if (req.method === 'GET' && !op) {
       const { memos } = await readMemos('memo/');
       return json(res, 200, { ok: true, cloud: true, memos });
     }
-    if (req.method !== 'POST') return json(res, 405, { ok: false });
-    const op = String(body.op || '');
+    if (req.method !== 'POST' && req.method !== 'GET') return json(res, 405, { ok: false });
+    if (!body.ids && q.ids) body.ids = String(q.ids).split(',').map((s) => s.trim()).filter(Boolean);
 
     if (op === 'add') {
       const x = clean(body);
