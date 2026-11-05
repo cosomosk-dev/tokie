@@ -1012,8 +1012,8 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[
         {t:s=>s.f.nokids?'「毎年、ふたりで一度は遠くへ」':'「公立で、のびのび」。浮いたお金は家族の時間に',o:s=>s.f.nokids?'毎年1回、ふたりで遠くへ。樽の水は、5年で5か所分になった。'+(s.f.kura?'蔵人たちは「若夫婦の樽」と呼んで、誰も触らなかった。':'2DKの棚のいちばん上に、樽が置かれた。'):'保育園は夫が送り、あなたが迎え。名前は「悠(はる)」。'+(s.f.kura?'蔵人たちが、代わる代わる抱っこした。':'2DKが、少し狭くなった。'),d:s=>s.f.nokids?{sav:-60,L:10,T:6}:{sav:-100,L:10},x:{c:2,a:1},f:'public',
           nak:'全部公立で約614万(文科省の調査・令和8年1月の訂正後)。3〜5歳の保育料は2019年から無料、高校の授業料は2026年4月から年収に関係なく国が出す。でも塾と部活と給食は残るのよ。まずは0〜2歳の保育園代。浮いた分は、家族3人の旅行に使いなさい。',hook:'結婚8年目。蔵に、夫の「許嫁」だった人が帰ってきた。'},
-        {t:s=>s.f.nokids?'「浮いた分は、ふたりの老後に先取りで」':'「私立で、選択肢を増やす」。ふたりで稼いで払う',o:s=>s.f.nokids?'教育費のかわりに、家計簿に「ふたりの老後」の行ができた。毎月、児童手当のかわりに自分たちで積み立てる。夫は言った。「60歳で、蔵の近くに小さな家を」':'家計簿に「学費」の行が、15年分並んだ。夫は言った。「大丈夫。ふたりなら払える」。名前は「悠(はる)」。'+(s.f.kura?'蔵の神棚に、小さな靴が供えられた。':'2DKの壁に、身長の線が増えていった。'),d:s=>s.f.nokids?{L:8,T:4}:{sav:-300,T:6},x:{m:1,s:2},f:'private',
-          nak:'全部私立だと約1,969万。私立高校の授業料は2026年4月から国が年45万7,200円まで出す。それでも1,800万は残る。大学は3人以上の子を同時に養っている間なら無償化(2025年〜)だけど、うちは一人で対象外。「払える」と言える共働き、強いわよ。',hook:'結婚8年目。蔵に、夫の「許嫁」だった人が帰ってきた。'},
+        {t:s=>s.f.nokids?'「浮いた分は、ふたりの老後に先取りで」':'「中学から私立も選べるように、今から積み立てる」',o:s=>s.f.nokids?'教育費のかわりに、家計簿に「ふたりの老後」の行ができた。毎月、児童手当のかわりに自分たちで積み立てる。夫は言った。「60歳で、蔵の近くに小さな家を」':'家計簿に「学費」の行が、15年分並んだ。夫は言った。「大丈夫。ふたりなら払える」。名前は「悠(はる)」。'+(s.f.kura?'蔵の神棚に、小さな靴が供えられた。':'2DKの壁に、身長の線が増えていった。'),d:s=>s.f.nokids?{L:8,T:4}:{sav:-300,T:6},x:{m:1,s:2},f:'private',
+          nak:'幼稚園と小学校は公立、中学から私立で約1,090万(全部公立なら約614万)。私立高校の授業料は2026年4月から国が年45万7,200円まで出す。大学は3人以上の子を同時に養っている間なら無償化(2025年〜)だけど、うちは一人で対象外。「払える」と言える共働き、強いわよ。',hook:'結婚8年目。蔵に、夫の「許嫁」だった人が帰ってきた。'},
       ]},
     {year:'結婚8年目',title:'蔵の、許嫁',img:'house',
       text:s=>(s.f.kura?'蔵の杜氏の娘、美咲さんが、10年ぶりに東京から戻ってきた。':'蔵の手伝いに行った週末。杜氏の娘、美咲さんに会った。')+'先代(夫の父)が昔から「悠太の嫁に」と決めていた人。夫は10年前、それを蹴って家を出た。美咲さんは蔵の新しい商品企画を任されて、夫と毎日、仕込みの話をしている。「若、昔と全然変わらない」。…若、って呼び方。',
@@ -1641,7 +1641,7 @@ details.alb summary::-webkit-details-marker{display:none}
     let h=`<div class="pr"><span class="pk">お金</span>${bar(meterP(b.sav),meterP(a.sav))}<b class="${cls(dS)}">${(a.f&&(a.f.divorce||a.f.sign)&&!(b.f&&(b.f.divorce||b.f.sign)))?'離婚後、手元に '+yen(a.sav):dS?(dS>0?'+':'−')+yen(Math.abs(dS)):'→ 変わらず'}</b></div>`;
     if(dH)h+=`<div class="pr sub"><span class="pk"></span><span class="pn">${famS(a)?'家族の不動産と預金':'夫のもの(別)'} ${dH>0?'+':'−'}${yen(Math.abs(dH))}</span></div>`;
     if(a.home!==b.home)h+=`<div class="pr sub"><span class="pk"></span><span class="pn">⌂ ${esc(a.home)} へ引っ越し</span></div>`;
-    {const dm=(a.mine||0)-(b.mine||0);if(dm)h+=`<div class="pr sub"><span class="pk"></span><span class="pn">${a.divMine&&dm<0?'あなた個人の貯金 '+yen(Math.abs(dm))+' も、手元のお金にまとめた':'あなた個人の財産 '+(dm>0?'+':'−')+yen(Math.abs(dm))}</span></div>`;}
+    {const dm=(a.mine||0)-(b.mine||0);if(dm)h+=`<div class="pr sub"><span class="pk"></span><span class="pn">${a.divMine&&dm<0?'あなた個人の貯金 '+yen(Math.abs(dm))+' も、手元のお金にまとめた':(dm<0&&a.f&&a.f.buy&&!(b.f&&b.f.buy))?'あなたの結婚前の貯金 −'+yen(Math.abs(dm))+'(家の持ち分に)':'あなた個人の財産 '+(dm>0?'+':'−')+yen(Math.abs(dm))}</span></div>`;}
     if(a.yr!=null&&a.rid&&b.rid){const f=v=>(v>=0?'+':'−')+Math.abs(Math.round(v)).toLocaleString()+'万';const p1=pace(b).net,p2=pace(a).net;
       if(Math.round(a.H||0)!==Math.round(b.H||0))h+=`<div class="pr sub"><span class="pk"></span><span class="pn">夫の年収 ${Math.round(b.H||0).toLocaleString()}万 → ${Math.round(a.H||0).toLocaleString()}万</span></div>`;
       if(Math.round(a.W||0)!==Math.round(b.W||0))h+=`<div class="pr sub"><span class="pk"></span><span class="pn">あなたの年収 ${Math.round(b.W||0).toLocaleString()}万 → ${Math.round(a.W||0).toLocaleString()}万</span></div>`;
@@ -1673,7 +1673,7 @@ details.alb summary::-webkit-details-marker{display:none}
   function adjD(c,i,d){return Object.assign({},d||{});}
   const arrow=v=>v>=10?'↑↑':v>0?'↑':v<=-10?'↓↓':v<0?'↓':'→';
   function deltaHTML(a,b){const p=[];const d=a.sav-b.sav;if(d)p.push(`<b class="${d>0?'up':'dn'}">${d>0?'+':'−'}${yen(Math.abs(d))}</b>`);const dh=(a.hw||0)-(b.hw||0);if(dh)p.push(`<span class="hw">夫 ${dh>0?'+':'−'}${yen(Math.abs(dh))}</span>`);p.push(`<span>信頼 ${arrow(a.L-b.L)}</span>`);p.push(`<span>ときめき ${arrow(a.T-b.T)}</span>`);if(a.home!==b.home)p.push(`<span>⌂ ${esc(a.home)}</span>`);return p.join('');}
-  function vsHTML(c,i,b,a){const j=c.ch[1-i]?1-i:0;const alt=c.ch[j];if(!alt||alt===c.ch[i])return '';const ad=adjD(c,j,resolve(alt.d,b));const as=clone(b);applyD(as,ad);if(alt.f)as.f[alt.f]=true;afterPick(as,b);
+  function vsHTML(c,i,b,a){const j=c.ch[1-i]?1-i:0;const alt=c.ch[j];if(!alt||alt===c.ch[i])return '';const ad=adjD(c,j,resolve(alt.d,b));const as=clone(b);applyD(as,ad);{const af=resolve(alt.f,b);if(af)as.f[af]=true;}afterPick(as,b);
     const dS=as.sav-a.sav,dHw=(as.hw||0)-(a.hw||0),dM=Math.abs(dS)+Math.abs(dHw),dL=as.L-a.L,dH=hearts(as.T)-hearts(a.T);
     const sc={m:dM?1+Math.log10(dM):0,l:Math.abs(dL)/6,t:Math.abs(dH)*1.5};let best=['m','l','t'].reduce((p,k)=>sc[k]>sc[p]?k:p,'m');
     if(!sc[best])best=['m','l','t'][Math.floor(Math.random()*3)];
@@ -1740,7 +1740,7 @@ details.alb summary::-webkit-details-marker{display:none}
   //  ③ 0〜2歳の認可保育料(母が働いている時だけ): 世帯年収×0.4%/月(年収800万で月3.2万、上限6.5万)、2人目は半額。3〜5歳は無償化(2019年〜)
   //  児童手当(2024年10月〜): 0〜2歳 1.5万/月、3歳〜高校生 1万/月
   function kidCost(s,y){const k=s.kids||0;if(!k||s.kidY==null)return {a:0,ca:0,l:''};const age=y-s.kidY;if(age<0)return {a:0,ca:0,l:''};let a,l,ca=12;
-    const P=!!s.eduP,G=(s.H||0)+(s.W||0)+(s.R||0);
+    const P=!!s.eduP&&!(s.eduP===2&&age<12),G=(s.H||0)+(s.W||0)+(s.R||0);
     const tokyo=/都内|東京|代々木|表参道|高円寺|谷中|渋谷|豊洲|恵比寿|目黒|世田谷|^2DKの賃貸$/.test(s.home||''),niigata=/新潟|雪国|蔵/.test(s.home||'');
     const hoiku=((s.W||0)>0&&age>=1&&!tokyo)?Math.min(78,Math.max(0,Math.round(G*(niigata?0.06:0.048)))):0; // 育休中(0歳)は入園前。東京は2025年9月から第1子の0〜2歳も無償
     if(age<3){a=24+hoiku;l='0〜2歳'+(hoiku?'・保育園':'');ca=18;}
@@ -1796,8 +1796,8 @@ details.alb summary::-webkit-details-marker{display:none}
     return {inH,inW,inR,inc,lc,live,pkc:b.pkc,pk,pkH:ph,pkW:pw,sp,rent,ins,kc:s.abroad?Object.assign({},kc,{ca:0}):kc,wl,oth,ot,sep,split,mB,cut:cut>0,infl,jt:jt*mul,kosin,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
   // 思わぬ出費(実際の相場)。年1件・上限60万、特別費(帰省・旅行・冠婚葬祭・家電の買い替え)と重なるものは入れない。1周で同じ事は1回。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
-    {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:35},{l:'親の入院の付き添いと、新幹線代',a:25},{l:'歯のインプラント1本',a:40},{l:'親戚のお葬式(香典・交通費・喪服)',a:15},
-    {l:'家族の入院(差額ベッド代)',a:20},{l:'実家への仕送り(親の家電と通院)',a:30},{l:'ノートパソコンが壊れた',a:20},{l:'歯の治療(保険のきかない詰め物)',a:18},{l:'急な帰省が2回(新幹線と香典)',a:16},
+    {l:'冷蔵庫と洗濯機が、同じ月に壊れた',a:35},{l:'親の入院の付き添いと、新幹線代',a:25},{l:'歯のインプラント1本',a:40,opt:1},{l:'親戚のお葬式(香典・交通費・喪服)',a:15},
+    {l:'家族の入院(差額ベッド代)',a:20},{l:'実家への仕送り(親の家電と通院)',a:30,opt:1},{l:'ノートパソコンが壊れた',a:20},{l:'歯の治療(保険のきかない詰め物)',a:18,opt:1},{l:'急な帰省が2回(新幹線と香典)',a:16},
     {l:'ボーナスが出なかった',a:s=>Math.round(TH(s.H||0)*0.15),w:s=>(s.H||0)>0&&(s.rid==='B'||s.rid==='C'||s.rid==='S')&&!s.f.kura&&!s.f.export&&!s.f.kuraback},
     {l:'ランドセルと入学準備',a:15,w:(s,t)=>s.kids>0&&s.kidY!=null&&t-s.kidY>=5&&t-s.kidY<=6},{l:'子どもの骨折と通院',a:10,w:(s,t)=>s.kids>0&&s.kidY!=null&&t-s.kidY>=3&&t-s.kidY<=15},
     {l:'車検とタイヤ交換',a:15,w:s=>!!s.car},{l:'車をぶつけて修理',a:30,w:s=>!!s.car},
@@ -1809,7 +1809,7 @@ details.alb summary::-webkit-details-marker{display:none}
   // タカヒロ編はマイナスの描写を出さない(病気・入院・お葬式・ケガ・事故・収入減)。2026/11/03 タケオさん指示
   const NEG_S=/入院|葬式|香典|法事|通院|骨折|ぶつけて|ボーナスが出なかった|歯の|インプラント/;
   const hsh=t=>{let h=7;for(const ch of String(t))h=(h*31+ch.charCodeAt(0))%100003;return h;};
-  const pickOops=(s,t)=>{const used=s.oopsUsed||(s.oopsUsed=[]);const L=OOPS.filter(o=>(!o.w||o.w(s,t))&&!used.includes(o.l)&&!(s.rid==='S'&&NEG_S.test(o.l)));if(!L.length)return null;const o=L[hsh((s.rid||'')+t)%L.length];used.push(o.l);return {l:o.l,a:Math.min(60,typeof o.a==='function'?o.a(s):o.a)};};
+  const pickOops=(s,t)=>{const used=s.oopsUsed||(s.oopsUsed=[]);const L=OOPS.filter(o=>(!o.w||o.w(s,t))&&!(o.opt&&(s.sav||0)<50)&&!used.includes(o.l)&&!(s.rid==='S'&&NEG_S.test(o.l)));if(!L.length)return null;const o=L[hsh((s.rid||'')+t)%L.length];used.push(o.l);return {l:o.l,a:Math.min(60,typeof o.a==='function'?o.a(s):o.a)};};
   const mrow=(ic,lab,v,sub,cls)=>`<div class="mr ${cls||(v>=0?'up':'dn')}"><span>${ic} ${esc(lab)}${sub?`<small>${esc(sub)}</small>`:''}</span><b>${v>=0?'+':'−'}${yen(Math.abs(v))}</b></div>`;
   const arr=(n,o)=>o==null||Math.abs(n-o)<=Math.max(30,o*0.08)?'':(n>o?' ↑':' ↓');
   // 話の前の「その間に…」: 物語の出来事(pre) + 家計簿
@@ -1825,7 +1825,7 @@ details.alb summary::-webkit-details-marker{display:none}
         else if(s.inflY!=null&&s.raiseY==null&&y0>s.inflY&&((s.rid!=='S'&&((s.H||0)>0||(s.R||0)>0))||(s.W||0)>0)){const hR=s.rid!=='S'&&(s.H||0)>0,rR=s.rid!=='S'&&!hR&&(s.R||0)>0,wR=(s.W||0)>0;const a0=TH(s.H||0)+TH(s.W||0)+(s.R||0);const hN=s.selfH?0:(HRAISE[s.rid]||.02),wN=WRAISE[pers.job]||.025;if(hR)s.H*=(1+hN)/1.03;if(rR)s.R=Math.round(s.R*1.03);if(wR)s.W*=(1+wN)/1.03;const up=(TH(s.H||0)+TH(s.W||0)+(s.R||0)-a0)/12;s.raiseY=y0;/* 家賃が収入の家(誠一郎など)は「賃上げ」ではなく「家賃の改定」(2026/11/02の指摘)。タカヒロは収入を実際どおりに固定(2026/10/27)なので、上げるのはあなたの給料だけ */const pc=v=>Math.round(v*1000)/10+'%',gl=[hR?'夫 +'+pc(hN)+(s.selfH?'(自営なので無し)':''):'',wR?'あなた +'+pc(wN):''].filter(Boolean).join('・');const ttl=rR?'🏢 家賃の改定':up>=0.05?'📈 春の賃上げ':'📉 賃上げが、物価に負けた',sub=rR?('物価に合わせて、ビルの家賃を3%上げた'+(wR?'。あなたの給料は +'+pc(wN)+'(物価は+3%)':'')):('給料 '+gl+'。でも物価も +3%。'+(up>=0.05?'大きな会社ほど、物価より上がる':'中小企業や病院・保育園は、物価に追いつかないことが多い'));rows+=`<div class="mr ${up>=0?'up':'dn'}"><span>${ttl}<small>${sub}</small></span><b>月${up>=0?'+':'−'}${mn(Math.abs(up))}</b></div>`;}
       }
       let g=0,t=y0;const ev=[];
-      while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1){const o1=pickOops(s,t);if(o1)ev.push(o1);if(s.car&&(s.carY!=null?(Math.floor(t)>s.carY&&(Math.floor(t)-s.carY)%9===0):(Math.floor(t)+2)%9===0))ev.push({l:'車の買い替え(頭金と諸費用)',a:120});}if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
+      while(t<y-1e-9){const d=Math.min(1,y-t);const p=pace(s,t);g+=p.net*d;if(!p.split&&d>=1){const o1=pickOops(s,t);if(o1)ev.push(o1);if(s.car&&(s.sav||0)>=150&&(s.carY!=null?(Math.floor(t)>s.carY&&(Math.floor(t)-s.carY)%9===0):(Math.floor(t)+2)%9===0))ev.push({l:'車の買い替え(頭金と諸費用)',a:120});}if(!p.split&&s.kids&&s.kidY!=null&&t<=s.kidY&&s.kidY<t+d)ev.push({l:'出産の自己負担と、ベビー用品一式',a:40*(s.kids||1)});
         s.H=(s.H||0)*(1+((s.Hstop!=null&&t>=s.Hstop)?0:(s.Hg||0))*d);s.W=(s.W||0)*(1+((t<20)?(WGROW[pers.job]||.004):0)*d);s.live=(s.live||300)*(1+0.02*d);t+=d;}
       g=Math.round(g);const E=ev.reduce((p,e)=>p+e.a,0);const it=s.nisa&&s.sav>0?Math.round(s.sav*0.5*(Math.pow(1.03,dy)-1)):0;
       const b0=s.sav;s.sav=s.sav+g-E+it;s.yr=y;const real=s.sav-b0;
@@ -1987,7 +1987,7 @@ details.alb summary::-webkit-details-marker{display:none}
     talk:[['m','名前の本、もう3冊買いました'],['y','早すぎ'],['m','…家計簿にも、新しい項目を作った'],['m','「教育費」']]}];
   // 2周目以降は「授からないまま」の分岐(pers.routes.C.laps>=1)。第1〜6話の前に印をつける
   {const c=G('C','焦げた卵焼き');const p0=c.pre;c.pre=s=>{const r=(pers.routes&&pers.routes.C)||{};if((r.laps||0)>=1)s.f.nokids=true;return resolve(p0,s);};}
-  {const c=G('C','はじめての名前');c.year='結婚7年目';c.ttl=s=>s.f.nokids?'ふたりの、樽':'はじめての名前';c.tease=s=>s.f.nokids?'結婚7年目。ふたり旅の初日。夫がスーツケースに、小さな樽を入れていた。':'結婚7年目。出産予定日まで、あと1か月。';c.ch[0].d={L:10};c.ch[1].d={T:6,set:{eduP:1}};}
+  {const c=G('C','はじめての名前');c.year='結婚7年目';c.ttl=s=>s.f.nokids?'ふたりの、樽':'はじめての名前';c.tease=s=>s.f.nokids?'結婚7年目。ふたり旅の初日。夫がスーツケースに、小さな樽を入れていた。':'結婚7年目。出産予定日まで、あと1か月。';c.ch[0].d={L:10};c.ch[1].d={T:6,set:{eduP:2}};}
   {const c=G('C','蔵の、許嫁');c.ch[1].d={L:-6,T:6,sav:-200,crack:1};}
   {const c=G('C','はじめての名前');const n0=c.ch[0].nak,n1=c.ch[1].nak;c.ch[0].nak=s=>s.f.nokids?'毎年ふたりで旅。子どもがいない夫婦の「ふたりの時間」は、一番の財産よ。でも老後の積み立てだけは、児童手当のかわりに自分で作りなさい。':resolve(n0,s);c.ch[1].nak=s=>s.f.nokids?'先取りで老後。子どもがいない夫婦は、相続する人がいないぶん、「使い切る計画」も大事なの。遺言は、ふたりとも元気なうちに。':resolve(n1,s);}
   {const c=G('C','海を渡る酒');c.ch[0].d={ann:150,T:8};c.ch[1].d={L:8,ann:10};c.talk=[['m','海外の件、ありがとう'],['y','楽しかった'],['m','…最近、父さんの具合がよくない'],['m','会社のほうも、ちょっとバタバタしてる']];}
@@ -2184,21 +2184,30 @@ details.alb summary::-webkit-details-marker{display:none}
    {const c=G('C','蔵を、継ぐか');setD(c.ch[0],s=>{ // 2026/11/05 車2台200万: 貯金は生活費1か月分(約50万)を残して出せる分だけ。足りない分は5年のマイカーローン(金利3%・年0.216倍)。貯金をマイナス(カードローン)にしない
      const cash=Math.max(0,Math.min(200,Math.floor(((s.sav||0)-50)/10)*10)),ln=200-cash,pay=Math.round(ln*0.216);
      return {sav:-cash,W:m(s,'W',0.8),set:{H:600,rent:60,rentL:'義実家に入れる生活費 月5万(蔵の母屋に同居・家賃なし)',car:1,carY:3,carTxt:ln?(cash?'貯金から'+cash+'万、残り'+ln+'万は5年のマイカーローン':'貯金では足りず、全額5年のマイカーローン'):'ふたりの貯金から払った'},cost:[cost('車2台の維持費(ガソリン・保険・車検・積立)',84,3)].concat(ln?[cost('マイカーローンの返済(5年)',pay,3,8)]:[])};});}
-   {const c=G('C','チラシの、間取り図'); // 2026/11/05 FP審査: 貯金がない家が頭金500万を払えるのはおかしい/マンションの管理費・修繕積立金・固定資産税が抜けていた
-     const flo=(v,lo,hi)=>Math.max(lo,Math.min(hi,Math.floor(v/10)*10));
-     setD(c.ch[0],s=>{const k=!!s.f.kura,P=k?2500:5200,fee=k?150:200,Y=k?20:35,r=0.015/12; // 諸費用: 注文住宅6%・新築マンション4%。金利: 2026年10月の大手行の変動金利 1.2〜1.5%
-       const cash=flo((s.sav||0)-100,0,fee+500),dp=Math.max(0,cash-fee),ln=P+fee-cash,pay=Math.round(ln*r/(1-Math.pow(1+r,-Y*12))*10)/10;
-       const txt=(dp?'頭金'+dp+'万と諸費用'+fee+'万は、貯金から。':cash?'貯金から出せたのは、諸費用の'+cash+'万だけ。頭金はゼロ。':'貯金からは出せず、頭金ゼロ。諸費用まで借りた。')+'借りたのは'+ln.toLocaleString()+'万。'+(k?'20年ローン':'ペアローン、35年')+'で月'+pay+'万。';
-       return {sav:-cash,set:k?{rent:Math.round((pay+1)*12),rentL:'住宅ローン 月'+pay+'万＋固定資産税 月1万',own:1,loanY:9,lcA:Math.min(14,Math.round(ln*0.007)),houseTxt:txt}
-         :{rent:Math.round((pay+3+1.5)*12),rentL:'ペアローン 月'+pay+'万＋管理費・修繕積立金 月3万＋固定資産税 月1.5万',own:1,loanY:9,lcA:Math.min(28,Math.round(ln*0.007)),houseTxt:txt}};});
-     setD(c.ch[1],s=>{if(!s.f.kura)return s.f.nokids?{}:{home:'都内の2LDKの賃貸',set:{rent:156,rentL:'家賃 月13万'}}; /* 借り続けても、子ども部屋のある2LDKへは移る(東京の2DK→2LDKで+3万) */const cash=flo((s.sav||0)-50,0,150),ln=150-cash;return {sav:-cash,cost:ln?[cost('床暖房のリフォームローンの返済(5年)',Math.round(ln*0.216),9,14)]:[]};});}
-   {const c=G('C','蔵の、許嫁');setD(c.ch[1],s=>{const cash=Math.max(0,Math.min(200,Math.floor(((s.sav||0)-50)/10)*10));return {sav:-cash,set:{tarC:cash}};});}
+   {const c=G('C','チラシの、間取り図'); // 2026/11/05 タケオ「貯金ゼロで家を建てるやついんの？」
+     // 家を買えるのは、頭金(物件価格の1割)＋諸費用＋生活費の2か月分(100万)が貯金にある時だけ。足りなければ「買う」は出さず「頭金が貯まるまで待つ」に替える
+     //  頭金: 全銀協「少なくとも1割、目安は2割」/ フラット35利用者調査2024: 注文住宅の手持金 平均9%・マンション 平均24%
+     //  諸費用: 全銀協「新築 3〜7%」/ リクルート「新築マンション 3〜5%・一戸建て 6〜13%」→ 蔵の隣の注文住宅6%(150万)・新築マンション4%(200万)
+     //  金利: 2026年10月の大手行の変動金利 1.2〜1.5% → 1.5%で計算
+     // 家の頭金には、あなたの結婚前の貯金も出せる(出した分は、家の持ち分にする)。生活費100万は手元に残す
+     globalThis.cHouse=s=>{const k=!!(s.f&&s.f.kura),P=k?2500:5200,dp=P/10,fee=k?150:200,need=dp+fee,sav=Math.max(0,Math.round(s.sav||0)),mine=Math.max(0,Math.round(s.mine||0)),ok=sav+mine>=need+100;
+       const two=Math.min(need,Math.max(0,sav-100)),my=need-two;return {k,P,dp,fee,need,sav,mine,ok,two,my};};
+     c.ch[0].f=s=>cHouse(s).ok?'buy':'hwait';c.ch[0].fs=['buy','hwait'];
+     c.ch[0].d=s=>{const H=cHouse(s);if(!H.ok)return {};const Y=H.k?20:35,r=0.015/12,ln=H.P-H.dp,pay=Math.round(ln*r/(1-Math.pow(1+r,-Y*12))*10)/10;
+       const txt='頭金'+H.dp+'万と諸費用'+H.fee+'万は、'+(H.my?'ふたりの貯金から'+H.two+'万、あなたの結婚前の貯金から'+H.my+'万。出した分は、家の持ち分にした。':'ふたりの貯金から。')+'借りたのは'+ln.toLocaleString()+'万。'+(H.k?'20年ローン':'ペアローン、35年')+'で月'+pay+'万。';
+       return {sav:-H.two,mine:-H.my,home:H.k?'新潟・蔵の隣の新しい家':'都内の3LDK(ペアローン)',set:H.k?{rent:Math.round((pay+1)*12),rentL:'住宅ローン 月'+pay+'万＋固定資産税 月1万',own:1,loanY:9,lcA:Math.min(14,Math.round(ln*0.007)),houseTxt:txt}
+         :{rent:Math.round((pay+3+1.5)*12),rentL:'ペアローン 月'+pay+'万＋管理費・修繕積立金 月3万＋固定資産税 月1.5万',own:1,loanY:9,lcA:Math.min(28,Math.round(ln*0.007)),houseTxt:txt}};};
+     // 「このまま」: 蔵は床暖房150万(貯金が250万以上ある時だけ。なければ断熱シートとストーブ20万)。東京は子どもがいれば2LDKへ
+     c.ch[1].d=s=>{if(!s.f.kura)return s.f.nokids?{}:{home:'都内の2LDKの賃貸',set:{rent:156,rentL:'家賃 月13万'}};return (s.sav||0)>=250?{sav:-150,set:{dan:2}}:{sav:-Math.min(20,Math.max(0,Math.round(s.sav||0))),set:{dan:1}};};}
+   /* 2周目以降の「授からない」分岐: 治療を選んでも授からない(前は子が生まれて、第8話の「ふたりの樽」と食い違っていた) */
+   {const c=E('C1','C_funin');c.ch[0].d=s=>s.f.nokids?{sav:-60,L:12,T:6}:{sav:-60,L:12,T:6,kids:1,set:{kidY:7}};}
+   {const c=G('C','蔵の、許嫁');setD(c.ch[1],s=>(s.sav||0)>=250?{sav:-200,set:{tarC:200}}:{sav:0,set:{tarC:0},cost:cost('樽代の返済(夫の給料から月2万・8年)',24,s.yr||8,(s.yr||8)+8)});} /* 貯金が足りなければ、蔵への分割払い */
    {const c=G('C','最後の一本');setD(c.ch[0],s=>s.f.kura?{sav:-Math.max(0,Math.min(300,Math.floor(((s.sav||0)-100)/10)*10))}:{});}
    {const c=G('C','わたしの仕事');setD(c.ch[0],s=>({sav:0,W:m(s,'W',1.15)}));setD(c.ch[1],s=>({sav:0,W:m(s,'W',1.15),cost:cost('夜間学校の学費(2年)',50,2,4)}));}
    {const c=G('C','海を渡る酒');setD(c.ch[0],s=>({sav:0,W:s.f.kura?250:150,H:s.f.kura?450:100,L:-4})) /* 2026/11/05 叔父の蔵(週末だけ)の役員報酬・海外担当の報酬は、本業がある副業なので控えめに */;setD(c.ch[1],()=>({sav:0,H:30}));}
    setD(E('C2','C_kaigo').ch[0],()=>({cost:cost('お義父さんの介護の雑費(サービス代は本人の年金から)',12,13)})); /* 2026/11/05 千代子の助言「介護費は本人の年金と貯金から」と合わせる。要介護3の在宅サービスの1割負担は月2〜3万。蔵の先代は年金と資産があるので、家計は雑費(おむつ・付き添いの交通費)だけ */
    setD(E('C2','C_kaigo').ch[1],s=>({set:{W:0,Wq:s.W||0}}));
-   {const back=s=>(s.f.quit&&!(s.W>0)&&s.Wq)?{title:'結婚20年目まで',text:'お義父さんは2年後、施設に移った。あなたはパートで働きはじめた。給料は、辞める前の半分。'+(s.eduP?'悠の私立小の受験は、やめた。地元の公立へ。':''),d:{set:{W:Math.round(s.Wq*0.5),eduP:0}}}:null;
+   {const back=s=>(s.f.quit&&!(s.W>0)&&s.Wq)?{title:'結婚20年目まで',text:'お義父さんは2年後、施設に移った。あなたはパートで働きはじめた。給料は、辞める前の半分。'+(s.eduP?'悠の中学受験は、やめた。地元の公立中へ。':''),d:{set:{W:Math.round(s.Wq*0.5),eduP:0}}}:null;
     E('CF','C_last2').pre=back;G('C','最後の一本').pre=back;}
    setD(E('C2','C_kibou').ch[0],s=>({sav:800-150-(s.f.buy?200:0),W:m(s,'W',0.8),set:{carY:13,H:450,rent:60,rentL:'新潟の借家 月5万',car:1,loanY:null,own:0},cost:cost('車の維持費(ガソリン・保険・車検・積立)',42,13)}));
    setD(E('C2','C_kibou').ch[1],s=>({H:m(s,'H',0.9)}));
@@ -2976,12 +2985,12 @@ details.alb summary::-webkit-details-marker{display:none}
         ?'毎年1回、ふたりで遠くへ。木の器の水は、5年で5か所分になった。旅先で夫は、段差のたびに振り向く。'+(s.f.kura?'蔵人たちは、その樽を「若夫婦の樽」と呼んだ。':'樽は台所の棚の、桐の箱の隣に置かれた。')
         :'送りは夫、迎えはあなた。退院の日、夫の半紙には「悠」の一文字。読みは、はる。「…いちばん上手く書けたやつ」と、夫は顔を隠した。'+(s.f.kura?'蔵人たちは、誰も仕事に戻らなかった。':'ベビーベッドは、狭い部屋にぎりぎり入った。'),
       nak:s=>s.f.nokids?'旅先で夫が、段差のたびに振り向いてたわね。旅と老後のお金は、口座を分けなさい。お金は、楽しい方から先に減るの。次の旅は、夫に「どこへ行きたい？」と先に聞きなさい。':'「悠」の一字、夫が一晩中練習してたわね。全部公立で約614万(文科省の調査)。3〜5歳の保育料は、2019年から無料よ。浮いた分の使い道は、夫の「こうしたい」を先に聞いてからになさい。',
-      hook:'夫の元許嫁が、帰り際に耳打ちした。「毎年届いた、あの箱…」',lt:[6,7,'家族の時間を、ふたりで選んだ','夫の手書きの字に、ときめく']},
-     {t:s=>s.f.nokids?'「浮いた分は、ふたりの老後に先取りで」':'「私立で選択肢を増やす。ふたりで稼いで払う」',
+      hook:'夫の元許嫁が、帰り際に耳打ちした。「毎年届いた、あの箱…」',lt:s=>s.f.nokids?[6,7,'ふたりの時間を、選んだ','旅先で振り向く夫に、ドキッ']:[6,7,'家族の時間を、ふたりで選んだ','夫の手書きの字に、ときめく']},
+     {t:s=>s.f.nokids?'「浮いた分は、ふたりの老後に先取りで」':'「中学から私立も選べるように、今から積み立てる」',
       o:s=>s.f.nokids
         ?'家計簿に「ふたりの老後」の行ができた。毎月先に積み立て、旅は近場を年1回まで。表の端に、小さな書き込み。「60歳、蔵の近くに縁側つきの家」。'
         :'「学費は、毎月の先取り積み立てで。ふたりなら払える」と夫。筆で書いた「悠(はる)」の字は、出生届の控えと引き出しへ。'+(s.f.kura?'蔵の神棚に、小さな靴が供えられた。':'柱に、身長を刻む最初の線が引かれた。'),
-      nak:s=>s.f.nokids?'家計簿の端に「縁側つきの家」と書いてあったわね。子がなく親も亡くなっていれば、相続人は配偶者と兄弟。兄弟に遺留分はないから、「全部を配偶者に」と遺言すればその通りになるの。夫に「縁側の家、どこがいい？」と聞いてから、遺言の話をなさい。':'「悠」の一字、夫が一晩中練習してたわね。全部私立だと約1,969万。私立高校の授業料は、2026年4月から国が年45万7,200円まで出すの。積み立ては、児童手当をそのまま回すのが一番ラクよ。学費の話は、夫の「こうしたい」を先に聞いてからになさい。',
+      nak:s=>s.f.nokids?'家計簿の端に「縁側つきの家」と書いてあったわね。子がなく親も亡くなっていれば、相続人は配偶者と兄弟。兄弟に遺留分はないから、「全部を配偶者に」と遺言すればその通りになるの。夫に「縁側の家、どこがいい？」と聞いてから、遺言の話をなさい。':'「悠」の一字、夫が一晩中練習してたわね。幼稚園と小学校は公立、中学から私立で約1,090万(全部公立なら約614万)。私立高校の授業料は、2026年4月から国が年45万7,200円まで出すの。積み立ては、児童手当をそのまま回すのが一番ラクよ。学費の話は、夫の「こうしたい」を先に聞いてからになさい。',
       hook:'夫の元許嫁が、帰り際に耳打ちした。「毎年届いた、あの箱…」',lt:[0,-7,'お金の決め方。気持ちは同じ','積み立ての話で、余裕なし']}
     ]
   },
@@ -3003,20 +3012,24 @@ details.alb summary::-webkit-details-marker{display:none}
 
   'チラシの、間取り図':{
     ttl:s=>s.f.kura?'母屋の、図面':'チラシの、間取り図',
-    text:s=>s.f.kura
-      ?'「冬の廊下で、足の指がなくなるかと思った」。築120年の母屋で笑うあなたに、夫が図面を広げた。建て替えか、隣に小さな家か、このままか。建てるなら2,500万。'+(s.f.nokids?'「ふたりなら、母屋を直すだけでもいい」。':'「悠の部屋が、そろそろ要る」。')+'図面の隅には、桐の箱の棚。'
-      :'夫が、新築マンションのチラシを持ってきた。3LDKで5,200万。「頭金500万、ペアローンで月14万。でも35年」。'+(s.f.nokids?'「定年を過ぎても、まだ払ってる」。':'「悠が大学を出ても、まだ払ってる」。')+'夫は間取り図に、鉛筆で四角を描き足した。「ここに、箱の棚」',
+    text:s=>{const H=cHouse(s),money=H.ok?'ふたりの貯金'+H.sav.toLocaleString()+'万'+(H.mine?'と、あなたの結婚前の貯金'+H.mine.toLocaleString()+'万':'')+'。頭金'+H.dp+'万と諸費用'+H.fee+'万を払っても、生活費は残る。':'ただ、'+(H.sav<30?'ふたりの貯金はほとんどない':'ふたりの貯金は'+H.sav.toLocaleString()+'万')+(H.mine?'。あなたの結婚前の貯金'+H.mine.toLocaleString()+'万を足しても、':'。')+'頭金と諸費用で'+H.need+'万、生活費も残すと'+(H.need+100)+'万は要る。';
+      return s.f.kura
+      ?'「冬の廊下で、足の指がなくなるかと思った」。築120年の母屋で笑うあなたに、夫が図面を広げた。蔵の隣に小さな家を建てるなら2,500万。'+(s.f.nokids?'「ふたりなら、母屋を直すだけでもいい」。':'「悠の部屋が、そろそろ要る」。')+money+'図面の隅には、桐の箱の棚。'
+      :'夫が、新築マンションのチラシを持ってきた。3LDKで5,200万。'+(s.f.nokids?'':'「悠の部屋が、そろそろ要る」。')+money+'夫は間取り図に、鉛筆で四角を描き足した。「ここに、箱の棚」';},
     talk:[['m','棚に、箱を全部並べ直しました'],['y','壮観だね'],['m','開けるのは、1年に1本ずつにします'],['m','…最初の1本は、海外の人に飲ませたい']],
     ch:[
-     {t:s=>s.f.kura?'「建てよう。蔵の隣に、小さな家を」':(s.f.nokids?'「買おう。ふたりの家が、ほしい」':'「買おう。悠の部屋が、ほしい」'),
+     {t:s=>cHouse(s).ok?(s.f.kura?'「建てよう。蔵の隣に、小さな家を」':(s.f.nokids?'「買おう。ふたりの家が、ほしい」':'「買おう。悠の部屋が、ほしい」')):(s.f.kura?'「頭金が貯まるまで、建てるのは待とう」':(s.f.nokids?'「頭金が貯まるまで、買うのは待とう」':'「頭金が貯まるまで、今の2DKで我慢しよう」')),
+      o:s=>s.f.buy
+        ?(s.f.kura?'蔵の隣に、小さな2階建てが建った。'+(s.houseTxt||'')+'鍵を受け取った日、夫がいきなりあなたを抱き上げた。「…一回、やってみたかった」。'
+          :(s.houseTxt||'')+'鍵を受け取った日、'+(s.f.nokids?'何もない部屋の真ん中で、':'悠がドアを3回開け閉めする隙に、')+'夫がいきなりあなたを抱き上げた。「…一回、やってみたかった」')
+        :'夫は図面を丸めて、桐の箱の棚に立てかけた。家計簿に、新しい行ができる。「家の頭金」。ボーナスの半分は、毎回そこへ。'+(s.f.kura?'冬の廊下には、ふたりで断熱シートを貼った。':s.f.nokids?'':'悠のベッドは、押し入れを外した所に置いた。')+'夫が笑う。「家計簿で、こんなにわくわくするの初めてだ」',
+      nak:s=>s.f.buy?'夫が間取りに、箱の棚まで描いてたわね。ローンは手取りの25%までが目安。家の持ち分は、出したお金の割合どおりに登記しなさい。ずれると、その差が贈与とみなされるの。夫には、箱をどこに置きたいか聞きなさい。'
+        :'待てたのは、えらいわ。頭金は家の値段の1割はほしいし、登記やローンの手数料も、新築で3〜7%は現金で要るの。それと、生活費の数か月分は手元に残しておくこと。夫には「どんな家に住みたい？」と、夢の方から聞きなさい。',
+      hook:s=>s.f.kura?'結婚10年目。英語のメールを前に、夫がつぶやいた。「…これ、俺の酒だ」':'叔父から電話。英語の注文書を前に、声が震えていた。',
+      lt:s=>(s.f.buy||(!s.f.hwait&&cHouse(s).ok))?[0,14,'住まいの話。気持ちは同じ','「やってみたかった」に、ドキッ']:[6,7,'家の目標を、ふたりで決めた','わくわくする夫に、ドキッ']},
+     {t:s=>s.f.kura?((s.sav||0)>=250?'「このままで。母屋の廊下だけ、直そう」':'「このままで。この冬は、断熱シートとストーブで」'):(s.f.nokids?'「借り続けよう。身軽でいたい」':'「借り続けよう。子ども部屋のある2LDKへ」'),
       o:s=>s.f.kura
-        ?'蔵の隣に、小さな2階建てが建った。'+(s.houseTxt||'')+'鍵を受け取った日、夫がいきなりあなたを抱き上げた。「…一回、やってみたかった」。'
-        :(s.houseTxt||'ペアローン、35年。')+'鍵を受け取った日、'+(s.f.nokids?'何もない部屋の真ん中で、':'悠がドアを3回開け閉めする隙に、')+'夫がいきなりあなたを抱き上げた。「…一回、やってみたかった」',
-      nak:'夫が間取りに、箱の棚まで描いてたわね。ローンは手取りの25%までが目安。家の持ち分は、出したお金の割合どおりに登記しなさい。ずれると、その差が贈与とみなされるの。夫には、箱をどこに置きたいか聞きなさい。',
-      hook:s=>s.f.kura?'結婚10年目。英語のメールを前に、夫がつぶやいた。「…これ、俺の酒だ」':'叔父から電話。英語の注文書を前に、声が震えていた。',lt:[0,14,'住まいの話。気持ちは同じ','「やってみたかった」に、ドキッ']},
-     {t:s=>s.f.kura?'「このままで。母屋の廊下だけ、直そう」':'「借り続けよう。身軽でいたい」',
-      o:s=>s.f.kura
-        ?'150万で、母屋の廊下に床暖房を入れた。夫が柱の傷を、指でなぞる。「じいちゃんも、親父も、俺も。ここで背を測ったんだ」。初めて聞く話だった。'
+        ?(s.dan===2?'150万で、母屋の廊下に床暖房を入れた。':'窓に断熱シートを貼り、廊下にストーブを置いた。')+'夫が柱の傷を、指でなぞる。「じいちゃんも、親父も、俺も。ここで背を測ったんだ」。初めて聞く話だった。'
         :'チラシは、資源ごみの日に出した。'+(s.f.nokids?'家賃は続くが、どこへでも行ける。':'悠の部屋のために、家賃13万の2LDKへ移った。ローンはない。どこへでも行ける。')+'夫は箱の棚を見て、小さく言った。「…いつか、蔵に戻る日が来るかもしれないし」。冗談の声ではなかった。',
       nak:s=>s.f.kura?'柱の傷の話、夫から聞いたのは初めてね。古い家は、直し続けるお金が毎年かかるの。屋根、水回り、雪の重み。修繕の積み立てを月2万、別の口座にしておきなさい。夫に「この家で、残したいものは？」と聞きなさい。':'「蔵に戻るかも」は、冗談の声じゃなかったわね。借り続けるのも正解。ただ「買わなかった分」を毎月3万、別の口座に貯めなさい。老後も家賃を払う分、貯金が要るのよ。夫に「戻るなら、いつがいい？」と聞きなさい。',
       hook:s=>s.f.kura?'結婚10年目。英語のメールを前に、夫がつぶやいた。「…これ、俺の酒だ」':'叔父から電話。英語の注文書を前に、声が震えていた。',lt:s=>s.f.kura?[6,7,'夫の本音を、ひとつ聞けた','柱の傷をなぞる夫の横顔に、ドキッ']:[6,-7,'夫の本音を、ひとつ聞けた','住まいの出費が、ずっと続く']}
@@ -3046,7 +3059,7 @@ details.alb summary::-webkit-details-marker{display:none}
 
   'ev:C_kaigo':{
     tease:'結婚13年目、朝4時。仕込み中の蔵に、救急車のサイレンが近づく。',
-    text:s=>'朝4時の蔵に、救急車の赤い光が回っていた。夫の父が2度目の脳梗塞で倒れ、まひが残って要介護3。'+(s.f.rentgo?'床暖房の廊下にも、段差は残っている。':'母屋は段差だらけで、冬は廊下が凍る。')+'義母は75歳、夫は仕込みで手が離せない。あなたは来月、'+J().rise+'に昇進するはずだった。',
+    text:s=>'朝4時の蔵に、救急車の赤い光が回っていた。夫の父が2度目の脳梗塞で倒れ、まひが残って要介護3。'+(s.f.rentgo&&s.dan===2?'床暖房の廊下にも、段差は残っている。':'母屋は段差だらけで、冬は廊下が凍る。')+'義母は75歳、夫は仕込みで手が離せない。あなたは来月、'+J().rise+'に昇進するはずだった。',
     talk:[['m','父さんのこと、ありがとう'],['y','家族でしょ'],['m','…今度の休み、ふたりで温泉に行こう'],['m','ちゃんと、休んでほしい']],
     ch:[
      {t:'「私は仕事を続ける。介護はプロと、家族みんなで」',
@@ -4163,7 +4176,7 @@ STORY3.C={
   'ev:C_funin':{
     text:s=>'封筒の中は「男性不妊外来 ご予約票」だった。'+(s.f.kura?'母屋の神棚には、蔵人たちが供えた子宝のお守り。':'')+'子どもがほしいと話して3年。夫はいつも「焦らなくていい」と言う。なのに予約票の日付は、3回書き直されていた。最初の日付は、半年も前だ。',
     ch:[
-     {o:'「…ひとりで行く勇気が、なかった」。検査で、原因は夫のほうにもあると分かった。治療を始めて1年後の春。モニターに、小さな心拍が映る。夫は廊下に出て、声を出さずに泣いた。'},
+     {o:s=>s.f.nokids?'「…ひとりで行く勇気が、なかった」。検査で、原因は夫のほうにもあると分かった。治療は2年。保険の回数を使い切った夜、夫が言った。「ふたりで、楽しもう。蔵の樽、本当に使おう」。あなたは夫の手を、強く握り返した。':'「…ひとりで行く勇気が、なかった」。検査で、原因は夫のほうにもあると分かった。治療を始めて1年後の春。モニターに、小さな心拍が映る。夫は廊下に出て、声を出さずに泣いた。'},
      {}
     ]
   },
@@ -4184,7 +4197,7 @@ STORY3.C={
      {t:'美咲さんを誘い、箱のことをふたりきりで聞く',
       o:'縁側で、美咲さんが古い帳面を開いた。20歳の夫の仕込み帳だ。「若が家を出た夜、先代は泣いてたんです。それから毎年、これどおりに一樽だけ」。箱の中身は、夫の酒だった。帰り際、彼女が左手を見せる。「私、来月、源さんの息子と結婚します」'},
      {t:'夫に「美咲さんと、何をそんなに話すの？」と聞く',
-      o:s=>'夫は翌朝、企画から降りた。仕込み済みの樽は、夫がけじめで買い取った。'+(s.tarC>=200?'200万円、家の貯金から。':s.tarC>0?'200万円。家の貯金から'+s.tarC+'万、足りない分は夫の独身時代の貯金から。':'200万円は、夫の独身時代の貯金から。')+'布団の中で、夫があなたの手を探す。「君しか、見てない」。翌月、美咲さんから結婚式の招待状。相手は源さんの息子で、一筆あった。「箱の中身は、若の酒です。先代の言いつけでした」'}
+      o:s=>'夫は翌朝、企画から降りた。仕込み済みの樽は、夫がけじめで買い取った。'+(s.tarC>=200?'200万円、家の貯金から。':'200万円。家の貯金では足りず、夫の給料から月2万ずつ、8年かけて蔵に返す。')+'布団の中で、夫があなたの手を探す。「君しか、見てない」。翌月、美咲さんから結婚式の招待状。相手は源さんの息子で、一筆あった。「箱の中身は、若の酒です。先代の言いつけでした」'}
     ]
   },
 
@@ -4215,7 +4228,7 @@ STORY3.C={
   },
 
   'ev:C_kaigo':{
-    text:s=>'朝4時の蔵に、救急車の赤い光が回る。夫の父が、2度目の脳梗塞で倒れた。まひが残り、要介護3。'+(s.f.rentgo?'床暖房の廊下にも、段差は残っている。':'母屋は段差だらけで、冬は廊下が凍る。')+'義母は75歳。夫は仕込みで手が離せない。あなたは来月、'+J().rise+'に昇進するはずだった。',
+    text:s=>'朝4時の蔵に、救急車の赤い光が回る。夫の父が、2度目の脳梗塞で倒れた。まひが残り、要介護3。'+(s.f.rentgo&&s.dan===2?'床暖房の廊下にも、段差は残っている。':'母屋は段差だらけで、冬は廊下が凍る。')+'義母は75歳。夫は仕込みで手が離せない。あなたは来月、'+J().rise+'に昇進するはずだった。',
     ch:[
      {o:'ケアマネと3回話し、デイサービスと訪問介護、ショートステイを組んだ。ある夜、父がまひの残る手で、夫の手を握った。「…悠太。いい嫁を、もらったな」'},
      {}
@@ -4757,7 +4770,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   function choose(i){
     if(!$('#g-after').hidden)return;
     const r=R(),c=EPAT(ci),h=c.ch[i];
-    const b=clone(st),dd=adjD(c,i,resolve(h.d,b));applyD(st,dd);if(h.f)st.f[h.f]=true;afterPick(st,b);addX(st.x,h.x||{});r.picks[ci]=i;track('ep_read',{route:cur.id,ep:ci+1,pick:i});setEv(ci+1,st);
+    const b=clone(st),dd=adjD(c,i,resolve(h.d,b));applyD(st,dd);{const hf=resolve(h.f,b);if(hf)st.f[hf]=true;}afterPick(st,b);addX(st.x,h.x||{});r.picks[ci]=i;track('ep_read',{route:cur.id,ep:ci+1,pick:i});setEv(ci+1,st);
     $$('#g-choices button').forEach((x,j)=>{x.disabled=true;x.classList.add(j===i?'picked':'dim');});
     $('#g-stat').innerHTML=statHTML(b);setTimeout(()=>rollSav(b.sav,st.sav),300);
     setTimeout(()=>{const f=$('#g-stat .meter .fill');if(f)f.style.width=meterP(st.sav).toFixed(1)+'%';},350);
@@ -4819,7 +4832,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
      const topT=rows.filter(x=>x.dT>0).sort((p,q)=>q.dT-p.dT).slice(0,2);
      const topL=rows.filter(x=>x.dL>0).sort((p,q)=>q.dL-p.dL).slice(0,2);
      const flags=new Set();END[cur.id].forEach(e=>(e.test.toString().match(/s\.f\.(\w+)/g)||[]).forEach(m=>flags.add(m.slice(4))));
-     const turns=rows.filter(x=>x.dC||x.c.ch.some(h=>h.f&&flags.has(h.f)));
+     const turns=rows.filter(x=>x.dC||x.c.ch.some(h=>(h.fs||[h.f]).some(f=>f&&typeof f==='string'&&flags.has(f))));
      $('#r-why').innerHTML='<b>20年のふりかえり</b><div class="fb">'
        +`<div><span class="fk T">♥ いちばんときめいた場面</span>${topT.length?topT.map(ep).join('、'):'大きく上がった場面は、なかった'}</div>`
        +`<div><span class="fk L">♡ 信頼が深まった場面</span>${topL.length?topL.map(ep).join('、'):'大きく深まった場面は、なかった'}</div>`
@@ -4847,7 +4860,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     else if(isNew)setTimeout(()=>toast('図鑑に新しい結末が追加されました'),600);
   }
   function replayRows(picks){const list=EP[cur.id],r=R();picks=picks||r.picks;let s=Object.assign(clone(START),{f:{},x:clone(pers.pro?pers.pro.x:{})});const rows=[];
-    list.forEach((raw,i)=>{const c=raw.slot?pickEv(raw,s):raw;prep(s,c);const h=c.ch[picks[i]];if(!h)return;const b=clone(s);applyD(s,adjD(c,picks[i],resolve(h.d,b)));if(h.f)s.f[h.f]=true;afterPick(s,b);rows.push({i,c,title:c.title,t:resolve(h.t,b),dL:s.L-b.L,dT:s.T-b.T,dS:s.sav-b.sav,dC:(s.crack||0)-(b.crack||0)});});return {rows,st:s};}
+    list.forEach((raw,i)=>{const c=raw.slot?pickEv(raw,s):raw;prep(s,c);const h=c.ch[picks[i]];if(!h)return;const b=clone(s);applyD(s,adjD(c,picks[i],resolve(h.d,b)));{const hf=resolve(h.f,b);if(hf)s.f[hf]=true;}afterPick(s,b);rows.push({i,c,title:c.title,t:resolve(h.t,b),dL:s.L-b.L,dT:s.T-b.T,dS:s.sav-b.sav,dC:(s.crack||0)-(b.crack||0)});});return {rows,st:s};}
   function shareText(){return `💍 #ウェディングストーリー\n${cur.name}(${cur.job})と結婚して、20年。\n結末は『${lastEnd.t}』\n${famS(st)&&st.hw?'ふたりの資産 '+yen(st.sav+st.hw+(st.mine||0)):'ふたりの貯金 '+yen(st.sav)} ✨\n信頼 ${lst(st)} ／ ときめき ${'♥'.repeat(hearts(st.T))}\nわたしの婚活タイプは「${lastType.n}」\n紹介された4人、全員に秘密がある。\nあなたなら、誰を選ぶ？`;}
   $('#r-sgo').addEventListener('click',()=>openDetail('S'));
   $('#pr-btn').addEventListener('click',()=>track('pr_click',{route:cur?cur.id:''}));
@@ -5037,7 +5050,7 @@ async function makeCard(kind){
     const list=EP[cur.id];window.__WS=[];
     for(let k=0;k<list.length;k++){renderEp();const c=EPAT(ci);const pre={t:$('#g-pre-t').textContent,x:$('#g-pre-x').textContent,rows:$('#g-pre-rows').textContent};const bk=$('#g-book .bk');const book=bk?bk.textContent:'';
       const i=Math.min(c.ch.length-1,pk[k]==='B'?1:pk[k]==='C'?2:0);choose(i);
-      window.__WS.push({ep:k+1,key:c.slot?'ev:'+c.k:c.title,year:c.year,title:c.title,pick:['A','B','C'][i],pre,book,sav:st.sav,H:Math.round(st.H||0),W:Math.round(st.W||0),R:st.R||0,kids:st.kids||0,kidY:st.kidY,rent:st.rent,eduP:!!st.eduP,f:Object.keys(st.f||{}).join(','),scene:$('#g-scene').textContent,tease:c.tease?resolve(c.tease,st):'',choices:[...$$('#g-choices button')].map(b=>b.textContent),out:$('#g-out').textContent,why:$('#g-why').textContent,vs:$('#g-vs').textContent,nak:$('#nako-game').textContent,hook:$('#g-hook').hidden?'':$('#g-hook-t').textContent,twist:!$('#g-twist').hidden,pop:$('#g-pop').textContent});
+      window.__WS.push({ep:k+1,key:c.slot?'ev:'+c.k:c.title,year:c.year,title:c.title,pick:['A','B','C'][i],pre,book,sav:st.sav,mine:st.mine||0,H:Math.round(st.H||0),W:Math.round(st.W||0),R:st.R||0,kids:st.kids||0,kidY:st.kidY,rent:st.rent,eduP:!!st.eduP,f:Object.keys(st.f||{}).join(','),scene:$('#g-scene').textContent,tease:c.tease?resolve(c.tease,st):'',choices:[...$$('#g-choices button')].map(b=>b.textContent),out:$('#g-out').textContent,why:$('#g-why').textContent,vs:$('#g-vs').textContent,nak:$('#nako-game').textContent,hook:$('#g-hook').hidden?'':$('#g-hook-t').textContent,twist:!$('#g-twist').hidden,pop:$('#g-pop').textContent});
       if(k<list.length-1){const r2=R();ci++;r2.ci=ci;r2.st=clone(st);r2.preApplied=false;save();}
       if(q.get('stop')&&k+2>=+q.get('stop')){renderEp();show('s-game');if(q.get('pick'))choose(+q.get('pick'));window.__WS_DONE=true;window.__WS_STOP=true;break;}}
     if(!window.__WS_STOP){

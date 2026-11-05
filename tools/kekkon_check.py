@@ -30,6 +30,14 @@ BUY_EP = ['蔵を、継ぐか', 'チラシの、間取り図', '蔵の、許嫁'
 # ⑦ マンションを買ったら、ローンのほかに管理費・修繕積立金・固定資産税がかかる
 #   首都圏の新築70㎡換算で管理費2.2万+修繕積立金1.0万=月3.2万(東京カンテイ2025)／修繕積立金の平均 月1.3万(国交省 令和5年度マンション総合調査)
 #   固定資産税+都市計画税: 新築マンション 年10万〜28万(リクルート/CREX の試算)
+# ⑩ 家は、頭金と諸費用が貯まっていなければ買わない(2026/11/05 タケオ「貯金ゼロで家をたてるやついんの？」)
+#   頭金: 全銀協「少なくとも物件価格の1割、目安は2割」/ フラット35利用者調査2024: 注文住宅の手持金 平均9%・マンション 平均24%
+#   諸費用: 全銀協「新築 3〜7%」/ リクルート「新築マンション 3〜5%・一戸建て 6〜13%」
+#   → 買う前の貯金(ふたりの貯金＋頭金に出したあなたの結婚前の貯金) ≧ 頭金1割＋諸費用。足りない時は「建てよう／買おう」の選択肢を出さない。HOUSE = 話の名前: {印: (価格, 諸費用)}
+HOUSE = {'チラシの、間取り図': {'kura': (2500, 150), '': (5200, 200)}}
+# ⑪ 貯金が足りないのに200万の樽を「家の貯金から」払わない／新潟の蔵の家(貯金ゼロの家)が小学校から私立に入れない
+# ⑫ 貯金がマイナスの家に「インプラント」「保険のきかない詰め物」「実家への仕送り」「車の買い替え」は起きない(ふつうは保険の治療・先送りにする)
+OPT_OOPS = ['インプラント', '保険のきかない詰め物', '実家への仕送り', '車の買い替え']
 # ⑧ 車の買い替えは買ってから9年ごと(自動車検査登録情報協会の平均使用年数 約13年より短め)。ローン返済中に買い替えない
 
 def run():
@@ -41,9 +49,9 @@ def run():
             b = p.chromium.launch()
             for job in JOBS:
                 for r in 'ABCDS':
-                    for pat in ['A', 'B', 'AB', 'BA', 'AAAAB', 'BBBBA']:
+                    for pat in ['A', 'B', 'AB', 'BA', 'AAAAB', 'BBBBA'] + (['A2', 'B2'] if r == 'C' else []):  # 悠太は2周目(授からない分岐)も
                         pg = b.new_page()
-                        pg.goto(f'http://localhost:8766/index.html?test=auto&r={r}&p={(pat*16)[:16]}&job={job}')
+                        pg.goto(f'http://localhost:8766/index.html?test=auto&r={r}&p={(pat[0]*16) if pat.endswith("2") else (pat*16)[:16]}&job={job}' + ('&lap=1' if pat.endswith('2') else ''))
                         pg.wait_for_function('window.__WS_DONE', timeout=60000)
                         out[(job, r, pat)] = {'ws': pg.evaluate('window.__WS'), 'err': pg.evaluate('window.__WS_ERR||""'), 'end': pg.evaluate('window.__WS_END||""')}
                         pg.close()
@@ -88,6 +96,24 @@ def check(out):
             if yn and buyY is not None:
                 age = int(yn.group(1)) - buyY
                 t(not ('外壁と屋根' in e['pre']['rows'] and age < 10) and not ('給湯器' in e['pre']['rows'] and age < 8), f'{tag} {e["year"]}: 建てて{age}年の家に外壁塗装・給湯器の故障')
+            if k and ws[k - 1]['sav'] < 0:
+                t(not any(w in e['pre']['rows'] for w in OPT_OOPS), f'{tag} {e["year"]}: 貯金がマイナスの家に、ぜいたくな思わぬ出費')
+            if e['key'] in HOUSE:
+                price, fee = HOUSE[e['key']]['kura' if 'kura' in e['f'].split(',') else '']
+                need = price // 10 + fee
+                m2 = re.search(r'ふたりの貯金 (?:大きな出費|出費)−([\d,]+)万円', e['pop'])
+                m4 = re.search(r'あなた個人の貯金\(ふたりの貯金とは別\)−([\d,]+)万円', e['pop'])  # 頭金にはあなたの結婚前の貯金も出せる(持ち分にする)
+                before = e['sav'] + (num(m2.group(1)) if m2 else 0) + e.get('mine', 0) + (num(m4.group(1)) if m4 else 0)
+                bought = 'buy' in e['f'].split(',')
+                t(not bought or before >= need, f'{tag} {e["year"]}: 貯金{before:.0f}万で家を買った(頭金1割＋諸費用で{need}万は要る)')
+                t(before >= need or not any(re.search(r'建てよう|買おう', c) for c in e['choices']), f'{tag} {e["year"]}: 貯金{before:.0f}万なのに「買う」選択肢が出てる')
+            if '家の貯金から' in e['out']:
+                m3 = re.search(r'(?:出費|大きな出費)−([\d,]+)万円', e['pop'])
+                t(not m3 or e['sav'] >= 0, f'{tag} {e["year"]}: 「家の貯金から」払って貯金がマイナス')
+            if r == 'C':  # 悠太2周目の「授からない」分岐: 子がいるのに子なしの話を出さない
+                t(not (e['kids'] and re.search(r'ふたりの、樽|ふたりの老後', e['title'] + e['scene'])), f'{tag} {e["year"]}: 子どもがいるのに「授からない」側の話')
+            if r == 'C' and re.search(r'私立小', e['book']):
+                ng.append(f'{tag} {e["year"]}: 悠太編で小学校から私立(新潟の蔵・ふつうの家には不自然)')
             if k and '車の買い替え' in e['pre']['rows'] and 'マイカーローン' in e['book']:
                 ng.append(f'{tag} {e["year"]}: マイカーローン返済中に車を買い替えてる')
         # あなたの年収(結婚1年目の家計簿の「あなた 〇万(年収〇万)」)
