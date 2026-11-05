@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-05 v54";
+  const APP_VER="2026-11-05 v55";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2404,6 +2404,7 @@
     const t=String(text||"").replace(/\s+/g," ").trim();if(t.length<2)return null;
     const a=memoAll();const x={id:String(Date.now())+Math.random().toString(36).slice(2,6),ts:Date.now(),text:t,done:false,from:"tokie"};
     a.push(x);try{localStorage.setItem("tokie_memo_v1",JSON.stringify(a.slice(-500)));}catch(e){}
+    try{fetch("/api/memo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({k:"yorumemo-7a3k9q2v",op:"add",id:x.id,ts:x.ts,text:x.text,from:x.from})}).catch(()=>{});}catch(e){} // クラウド（/api/memo）にも。つながってへん時は端末だけ
     return x;
   }
   function memoExtract(t){ // 合図の言葉を抜いて、中身だけ残す

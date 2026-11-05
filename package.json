@@ -1,0 +1,8 @@
+{
+  "name": "tokie",
+  "private": true,
+  "description": "スナックトキエ（静的ページ）＋ 夜メモの預かり所（api/memo.js）",
+  "dependencies": {
+    "@vercel/blob": "^1.1.1"
+  }
+}

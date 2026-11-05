@@ -4,16 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b0a09">
+<link rel="manifest" href="/memo/manifest.json">
+<link rel="icon" href="/memo/icon-192.png">
+<link rel="apple-touch-icon" href="/memo/icon-192.png">
 <title>夜メモ</title>
 <style>
   :root{--bg:#0b0a09;--fg:#d9cdb8;--dim:#6f6558;--amber:#e8c98a;--line:rgba(232,201,138,.18)}
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
   body{min-height:100vh;padding:max(18px,env(safe-area-inset-top)) 16px 40px}
-  h1{font-size:15px;font-weight:600;letter-spacing:.12em;color:var(--amber);margin:6px 0 2px}
-  .sub{font-size:12px;color:var(--dim);margin-bottom:18px}
-  .night{margin-top:28vh;text-align:center}
-  .night .big{font-size:22px;color:var(--amber);margin-bottom:10px}
+  h1{font-size:15px;font-weight:600;letter-spacing:.12em;color:var(--amber);margin:6px 0 2px;display:flex;align-items:center;gap:10px}
+  .sub{font-size:12px;color:var(--dim);margin-bottom:14px}
+  /* 聞いてる印：点がゆっくり呼吸する。夜はこれと件数しか出さへん */
+  .ear{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px 0 8px;cursor:pointer}
+  .dot{width:72px;height:72px;border-radius:50%;border:2px solid var(--amber);display:flex;align-items:center;justify-content:center;transition:transform .4s,background .4s}
+  .dot i{width:22px;height:22px;border-radius:50%;background:var(--amber);opacity:.35}
+  .ear.on .dot{animation:breath 2.6s ease-in-out infinite}
+  .ear.on .dot i{opacity:1}
+  .ear.hear .dot{background:rgba(232,201,138,.18);transform:scale(1.08)}
+  .ear.off .dot{border-color:var(--dim)}
+  .ear.off .dot i{background:var(--dim)}
+  @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  .earTxt{font-size:14px;color:var(--amber);min-height:1.4em;text-align:center}
+  .interim{font-size:13px;color:var(--dim);min-height:1.4em;text-align:center;max-width:90vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .night{margin-top:12vh;text-align:center}
+  .night .big{font-size:20px;color:var(--amber);margin-bottom:8px}
   .night .n{font-size:13px;color:var(--dim)}
   ul{list-style:none;margin:0;padding:0}
   li{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -26,69 +41,138 @@
   .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}
   .row{display:flex;gap:8px;margin-top:18px}
   input[type=text]{flex:1;background:#141210;border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:11px 12px;font-size:15px;font-family:inherit}
-  .empty{color:var(--dim);font-size:14px;padding:24px 0}
-  .exp{margin-top:26px;padding-top:12px;border-top:1px dashed var(--line);font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px}
-  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(20,16,12,.9);color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
+  .empty{color:var(--dim);font-size:14px;padding:18px 0}
+  .exp{margin-top:26px;padding-top:12px;border-top:1px dashed var(--line);font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cloud{font-size:11px;color:var(--dim);font-weight:400;letter-spacing:0}
+  .cloud.ok{color:#8fbf9a}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(20,16,12,.9);color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .toast.on{opacity:1}
 </style>
 </head>
 <body>
-<h1>夜メモ</h1>
+<h1>夜メモ <span class="cloud" id="cloud"></span></h1>
 <div class="sub" id="sub"></div>
+<div class="ear" id="ear"><div class="dot"><i></i></div><div class="earTxt" id="earTxt">…</div><div class="interim" id="interim"></div></div>
 <div id="main"></div>
 <div class="toast" id="toast"></div>
 <script>
 (()=>{
-  // しくみ：トキエ（/）で「メモしといて」と言うた内容が、同じブラウザの localStorage "tokie_memo_v1" に溜まる。ここはそれを読むだけ。
-  // 夜（22時〜8時）は中身を見せへん。件数だけ。読み返すと頭が回り出すから。
-  const KEY="tokie_memo_v1", PEEK="tokie_memo_peek_v1";
+  // しくみ
+  //  ・開いたら勝手にマイクが立つ（Chromeの音声認識）。喋ったら文字になって、ひと息ついたら保存。ボタンは要らん。
+  //  ・保存先は2つ：この端末（localStorage "tokie_memo_v1"。トキエで「メモしといて」と言うた分も同じ場所）＋ クラウド（/api/memo）。
+  //    クラウドがつながってたら、毎朝8時前にClaudeが /api/memo を読んで並べる。つながってへん間は端末だけで動く。
+  //  ・夜（22時〜8時）は中身を見せへん。件数と「聞いてる」の印だけ。読み返すと頭が回り出すから。
+  const KEY="tokie_memo_v1", PEEK="tokie_memo_peek_v1", API="/api/memo", API_KEY="yorumemo-7a3k9q2v";
   const OPEN_H=8, CLOSE_H=22;
   const $=(id)=>document.getElementById(id);
-  const main=$("main"), sub=$("sub");
+  const main=$("main"), sub=$("sub"), ear=$("ear"), earTxt=$("earTxt"), interimEl=$("interim"), cloudEl=$("cloud");
   function all(){try{const a=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
   function save(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(-500)));}catch(e){}}
   function peek(){return localStorage.getItem(PEEK)==="1";}
   function isDay(){const h=new Date().getHours();return h>=OPEN_H&&h<CLOSE_H;}
   function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-  function when(ts){const d=new Date(ts);const md=(d.getMonth()+1)+"/"+d.getDate();const hm=d.getHours()+":"+String(d.getMinutes()).padStart(2,"0");return md+" "+hm;}
-  function toast(t){const el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("on"),1800);}
+  function when(ts){const d=new Date(ts);return (d.getMonth()+1)+"/"+d.getDate()+" "+d.getHours()+":"+String(d.getMinutes()).padStart(2,"0");}
+  function toast(t){const el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("on"),2000);}
   function copyText(t){
     if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(()=>toast("コピーした"),()=>toast("コピーでけへんかった"));
     const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("コピーした");}catch(e){toast("コピーでけへんかった");}ta.remove();
   }
+
+  // ── クラウド ─────────────────────────────
+  let cloud=null; // null=未確認 / true / false
+  async function api(body){
+    const r=await fetch(API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({k:API_KEY},body))});
+    const j=await r.json().catch(()=>({ok:false}));
+    cloud=!!(j.cloud);renderCloud();
+    return j;
+  }
+  function renderCloud(){cloudEl.textContent=cloud===null?"":(cloud?"☁ つながってる":"端末だけ（クラウド未接続）");cloudEl.className="cloud"+(cloud?" ok":"");}
+  async function syncCloud(){ // 端末の分を全部クラウドへ（同じidは向こうで飛ばす）、クラウドの分を端末へ
+    try{
+      const j=await api({op:"sync",memos:all().filter(x=>!x.done)});
+      if(!j.ok)return;
+      const a=all();const ids=new Set(a.map(x=>x.id));let n=0;
+      for(const m of (j.memos||[])){if(!ids.has(m.id)){a.push({id:m.id,ts:m.ts,text:m.text,done:false,from:m.from});n++;}}
+      if(n){save(a);render();}
+    }catch(e){cloud=false;renderCloud();}
+  }
+  function pushOne(x){api({op:"add",id:x.id,ts:x.ts,text:x.text,from:x.from}).catch(()=>{});}
+
+  // ── 保存 ─────────────────────────────
+  function addMemo(text,from){
+    const t=String(text||"").replace(/\s+/g," ").trim();if(t.length<2)return null;
+    const a=all();const x={id:String(Date.now())+Math.random().toString(36).slice(2,6),ts:Date.now(),text:t,done:false,from:from||"web"};
+    a.push(x);save(a);pushOne(x);render();
+    try{navigator.vibrate&&navigator.vibrate(30);}catch(e){}
+    return x;
+  }
+
+  // ── 耳（開いたら勝手に聞く）──────────────
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let rec=null, wantEar=true, buf="", bufT=0, restarts=0;
+  const FLUSH_MS=1800; // ひと息（1.8秒）空いたら1件として保存
+  function earState(cls,txt){ear.className="ear "+cls;earTxt.textContent=txt;}
+  function flush(){clearTimeout(bufT);bufT=0;const t=buf.trim();buf="";interimEl.textContent="";if(!t)return;const x=addMemo(t,"ear");if(x)toast("メモした（"+openCount()+"件）");}
+  function earStart(){
+    if(!SR){earState("off","このブラウザは音声認識が使えへん（Chromeで開いて）");return;}
+    if(rec)return;
+    try{
+      rec=new SR();rec.lang="ja-JP";rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+      rec.onstart=()=>{restarts=0;earState("on","聞いてるで。喋ったら勝手にメモする");};
+      rec.onresult=(e)=>{
+        let fin="",tmp="";
+        for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript;else tmp+=r[0].transcript;}
+        if(tmp){ear.classList.add("hear");interimEl.textContent=tmp;}
+        if(fin){buf+=(buf?" ":"")+fin.trim();interimEl.textContent=buf;clearTimeout(bufT);bufT=setTimeout(flush,FLUSH_MS);}
+      };
+      rec.onspeechend=()=>{ear.classList.remove("hear");};
+      rec.onerror=(e)=>{
+        const k=e&&e.error;
+        if(k==="not-allowed"||k==="service-not-allowed"){wantEar=false;rec=null;earState("off","ここをタップしてマイクを許可");return;}
+        // no-speech / network / aborted は黙って立て直す
+      };
+      rec.onend=()=>{rec=null;ear.classList.remove("hear");if(buf)flush();if(!wantEar||document.hidden)return;restarts++;setTimeout(earStart,restarts>5?3000:400);};
+      rec.start();
+    }catch(e){rec=null;earState("off","マイクが立たへん："+String(e&&e.message||e));}
+  }
+  function earStop(){wantEar=false;const r=rec;rec=null;try{r&&r.stop();}catch(e){}earState("off","止めてる（タップで再開）");}
+  ear.onclick=()=>{if(rec){earStop();}else{wantEar=true;earStart();}};
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){const r=rec;rec=null;try{r&&r.stop();}catch(e){}}else if(wantEar)earStart();});
+
+  // ── 画面 ─────────────────────────────
+  let showDone=false;
+  function openCount(){return all().filter(x=>!x.done).length;}
+  function expBlock(){return '<div class="exp">実験中：夜でも中身を見せる <button class="sm '+(peek()?"on":"")+'" id="peek">'+(peek()?"オン":"オフ")+'</button><span>— 動くのを確かめたら「オフ」にする</span></div>';}
   function render(){
     const a=all(), open=a.filter(x=>!x.done);
-    sub.textContent=isDay()?"今日やるのは昼過ぎでええ。終わったら✓":"朝8時〜22時に出す";
+    sub.textContent=isDay()?"喋るだけでメモ。朝8時前にClaudeへ届く。終わったら✓":"朝8時〜22時に中身を出す。今は喋るだけでええ";
     if(!isDay()&&!peek()){
-      main.innerHTML='<div class="night"><div class="big">'+(open.length?"メモ "+open.length+"件、預かってるで":"今夜はまだ何も")+'</div><div class="n">朝8時に出すわ。今は見んでええ。</div></div>'+expBlock();
+      main.innerHTML='<div class="night"><div class="big">'+(open.length?"メモ "+open.length+"件、預かってる":"今夜はまだ何も")+'</div><div class="n">朝8時にClaudeが並べて出す。今は見んでええ。</div></div>'+expBlock();
       bind();return;
     }
-    let h='<div class="bar"><button id="copyAll">全部コピー（Claudeに貼る用）</button><button class="sm" id="showDone">済みも見る</button></div>';
+    let h='<div class="bar"><button id="copyAll">全部コピー（Claudeに貼る用）</button><button class="sm" id="showDone">'+(showDone?"済みを隠す":"済みも見る")+'</button></div>';
     const list=(showDone?a:open).slice().reverse();
-    h+=list.length?'<ul>'+list.map(x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+(x.from==="tokie"?"・ママ経由":"")+'</div></div><button class="sm del" title="消す">✕</button></li>').join("")+'</ul>':'<div class="empty">まだ何もない。トキエで「ママ、これメモしといて」と言うたらここに溜まる。</div>';
-    h+='<div class="row"><input type="text" id="manual" placeholder="手で足す（昼用）"><button id="add">足す</button></div>';
+    h+=list.length?'<ul>'+list.map(x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+({tokie:"・ママ経由",ear:"・声",hand:"・手"}[x.from]||"")+'</div></div><button class="sm del" title="消す">✕</button></li>').join("")+'</ul>':'<div class="empty">まだ何もない。喋るだけでここに溜まる。トキエで「ママ、これメモしといて」でも入る。</div>';
+    h+='<div class="row"><input type="text" id="manual" placeholder="手で足す"><button id="add">足す</button></div>';
     h+=expBlock();
     main.innerHTML=h;bind();
   }
-  let showDone=false;
-  function expBlock(){return '<div class="exp">実験中：夜でも中身を見せる <button class="sm '+(peek()?"on":"")+'" id="peek">'+(peek()?"オン":"オフ")+'</button><span>— 動くのを確かめたら「オフ」にする</span></div>';}
   function bind(){
     const p=$("peek");if(p)p.onclick=()=>{localStorage.setItem(PEEK,peek()?"0":"1");render();};
     const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("昨夜のやつ：\n"+open.map(x=>"・"+x.text).join("\n"));};
     const sd=$("showDone");if(sd)sd.onclick=()=>{showDone=!showDone;render();};
-    const ad=$("add");if(ad)ad.onclick=()=>{const v=$("manual").value.trim();if(!v)return;const a=all();a.push({id:String(Date.now()),ts:Date.now(),text:v,done:false,from:"hand"});save(a);render();};
-    const mi=$("manual");if(mi)mi.onkeydown=(e)=>{if(e.key==="Enter")$("add").click();};
+    const ad=$("add");if(ad)ad.onclick=()=>{const v=$("manual").value.trim();if(!v)return;$("manual").value="";addMemo(v,"hand");};
+    const mi=$("manual");if(mi){mi.onkeydown=(e)=>{if(e.key==="Enter")$("add").click();};mi.onfocus=()=>{const r=rec;rec=null;try{r&&r.stop();}catch(e){}};mi.onblur=()=>{if(wantEar)earStart();};}
     main.querySelectorAll("li").forEach(li=>{
       const id=li.dataset.id;
-      li.querySelector(".chk").onclick=()=>{const a=all();const x=a.find(y=>y.id===id);if(x){x.done=!x.done;save(a);render();}};
-      li.querySelector(".del").onclick=()=>{if(!confirm("消す？"))return;save(all().filter(y=>y.id!==id));render();};
+      li.querySelector(".chk").onclick=()=>{const a=all();const x=a.find(y=>y.id===id);if(x){x.done=!x.done;save(a);render();if(x.done)api({op:"sent",ids:[id]}).catch(()=>{});else pushOne(x);}};
+      li.querySelector(".del").onclick=()=>{if(!confirm("消す？"))return;save(all().filter(y=>y.id!==id));render();api({op:"del",ids:[id]}).catch(()=>{});};
     });
   }
-  // 実験中は最初からオン（確かめたら画面下でオフにする）
-  if(localStorage.getItem(PEEK)===null)localStorage.setItem(PEEK,"1");
-  render();
+  if(localStorage.getItem(PEEK)===null)localStorage.setItem(PEEK,"1"); // 実験中は最初からオン
+  render();earStart();syncCloud();
   window.addEventListener("storage",(e)=>{if(e.key===KEY)render();}); // 別タブのトキエで足された時も即出す
-  setInterval(render,60000);
+  setInterval(render,60000);setInterval(syncCloud,5*60000);
 })();
 </script>
 </body>

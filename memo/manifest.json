@@ -1,0 +1,13 @@
+{
+  "name": "夜メモ",
+  "short_name": "夜メモ",
+  "start_url": "/memo/",
+  "scope": "/memo/",
+  "display": "standalone",
+  "background_color": "#0b0a09",
+  "theme_color": "#0b0a09",
+  "icons": [
+    { "src": "/memo/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/memo/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

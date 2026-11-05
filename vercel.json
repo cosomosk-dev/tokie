@@ -1,6 +1,14 @@
 {
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- index.html mama.jpg digest.enc vercel.json newcomer memo",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- index.html mama.jpg digest.enc vercel.json newcomer memo api package.json",
   "headers": [
-    { "source": "/(.*)", "headers": [ { "key": "Cache-Control", "value": "no-cache, must-revalidate" } ] }
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    }
   ]
 }
