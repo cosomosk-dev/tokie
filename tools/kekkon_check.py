@@ -23,6 +23,14 @@ POCKET_RICH = 12
 SAVE_MAX_NOKID, SAVE_MAX_KID = 25, 20
 # ⑤ 結婚式であなたが出す額: ゼクシィ結婚トレンド調査2024(家族婚の負担は援助込みで50〜100万をふたりで)
 WED = (0, 60)
+# ⑥ 家・車を「持っていない貯金」で買わない(2026/11/05 悠太の点検): 頭金・諸費用・車は貯金から出せる分だけ、足りない分はローン。
+#   貯金がプラスの家が、買い物ひとつでマイナス(カードローン)になるのは現実にはない(貸金業法の総量規制で、カードローンは年収の1/3まで)。
+#   病院代(不妊治療など)は対象外。BUY_EP は「買う」選択がある話
+BUY_EP = ['蔵を、継ぐか', 'チラシの、間取り図', '蔵の、許嫁', '最後の一本', 'ev:C_ippon', 'ev:C_kibou']
+# ⑦ マンションを買ったら、ローンのほかに管理費・修繕積立金・固定資産税がかかる
+#   首都圏の新築70㎡換算で管理費2.2万+修繕積立金1.0万=月3.2万(東京カンテイ2025)／修繕積立金の平均 月1.3万(国交省 令和5年度マンション総合調査)
+#   固定資産税+都市計画税: 新築マンション 年10万〜28万(リクルート/CREX の試算)
+# ⑧ 車の買い替えは買ってから9年ごと(自動車検査登録情報協会の平均使用年数 約13年より短め)。ローン返済中に買い替えない
 
 def run():
     srv = subprocess.Popen(['python3', '-m', 'http.server', '8766', '-d', ROOT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -33,11 +41,11 @@ def run():
             b = p.chromium.launch()
             for job in JOBS:
                 for r in 'ABCDS':
-                    for pat in 'AB':
+                    for pat in ['A', 'B', 'AB', 'BA', 'AAAAB', 'BBBBA']:
                         pg = b.new_page()
-                        pg.goto(f'http://localhost:8766/index.html?test=auto&r={r}&p={pat*15}&job={job}')
+                        pg.goto(f'http://localhost:8766/index.html?test=auto&r={r}&p={(pat*16)[:16]}&job={job}')
                         pg.wait_for_function('window.__WS_DONE', timeout=60000)
-                        out[(job, r, pat)] = {'ws': pg.evaluate('window.__WS'), 'err': pg.evaluate('window.__WS_ERR||""')}
+                        out[(job, r, pat)] = {'ws': pg.evaluate('window.__WS'), 'err': pg.evaluate('window.__WS_ERR||""'), 'end': pg.evaluate('window.__WS_END||""')}
                         pg.close()
             b.close()
     finally:
@@ -57,6 +65,31 @@ def check(out):
         tag = f'{JN[job]}・{r}{pat}'
         t(not v['err'], f'{tag}: エラー {v["err"][:80]}')
         ws = v['ws']
+        end = v.get('end', '')
+        # 結末で「貯金が増えた」と言うなら、本当に増えていること
+        if ws and re.search(r'貯金も、ちゃんと増えている|口座も増えた', end):
+            t(ws[-1]['sav'] >= 300, f'{tag}: 結末で「貯金が増えた」なのに、ふたりの貯金{ws[-1]["sav"]}万')
+        buyY = None
+        for k, e in enumerate(ws):
+            alltxt = e['book'] + e['out'] + e['nak'] + e['pop'] + e['scene']
+            t('生活費の-' not in alltxt and '大損' not in e['pop'], f'{tag} {e["year"]}: 「生活費の-◯か月分」か「大損」の表示')
+            t(not re.search(r'小学生[^−]*海外研修', e['book']), f'{tag} {e["year"]}: 小学生に「海外研修」')
+            if 'ペアローン 月' in e['book'] or ('マンション' in e['book'] and '住宅ローン 月' in e['book']):
+                t('管理費' in e['book'] and '固定資産税' in e['book'], f'{tag} {e["year"]}: マンションなのに管理費・固定資産税が家計簿にない')
+            # ⑥ 買い物で貯金をマイナスにしない(選ぶ前の貯金 = 選んだ後 + 出費)
+            m = re.search(r'ふたりの貯金 (?:大きな出費|出費)−([\d,]+)万円', e['pop'])
+            if m and e['key'] in BUY_EP:
+                before = e['sav'] + num(m.group(1))
+                t(not (before >= 0 and e['sav'] < -5), f'{tag} {e["year"]}「{e["title"]}」: 貯金{before:.0f}万の家が{num(m.group(1)):.0f}万を現金で払ってマイナスに(足りない分はローンのはず)')
+            # ⑨ 新築して10年未満の家に「外壁と屋根の塗り替え」、8年未満で「給湯器」は出さない(外壁塗装の目安は10〜15年、給湯器の寿命は10年前後)
+            yn = re.search(r'結婚(\d+)年目', e['year'] or '')
+            if yn and buyY is None and re.search(r'(住宅ローン|ペアローン) 月', e['book']):
+                buyY = int(yn.group(1)) - 1
+            if yn and buyY is not None:
+                age = int(yn.group(1)) - buyY
+                t(not ('外壁と屋根' in e['pre']['rows'] and age < 10) and not ('給湯器' in e['pre']['rows'] and age < 8), f'{tag} {e["year"]}: 建てて{age}年の家に外壁塗装・給湯器の故障')
+            if k and '車の買い替え' in e['pre']['rows'] and 'マイカーローン' in e['book']:
+                ng.append(f'{tag} {e["year"]}: マイカーローン返済中に車を買い替えてる')
         # あなたの年収(結婚1年目の家計簿の「あなた 〇万(年収〇万)」)
         for e in ws:
             m = re.search(r'あなた ([\d.]+)万\(年収([\d,]+)万\)', e['book'])
