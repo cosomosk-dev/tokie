@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-04 v53";
+  const APP_VER="2026-11-05 v54";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -2394,8 +2394,57 @@
     return body?(h+body).trim():"";
   }
   const FORGET_RE=/忘れて(ええ|いい|ください|くれ|な$|や$|ね$|よ$|って$|ほしい|もらって)|忘れといて|忘れたって|もう古い|それ古い|古い話や|なかったことに/;
+  // v54 夜メモ：喋ってる途中で「メモしといて」「メモに入れといて」「これ覚えといて」と言うたら、その内容を夜メモ（/memo/）に落とす。
+  // 狙いは「アイデアが消える不安」と「夜にPCで作業し始める」の両方を止めること。ママは「メモしたで」の一言だけで、中身の意見・提案はせん（頭を回させへん）。
+  // 保存先はこのブラウザ（localStorage "tokie_memo_v1"）。/memo/ が同じ場所を読む。
+  const MEMO_TRIG_RE=/^(?:ママ|まま)[、,\s　]*(?:メモ|めも)[。！!、]*$|(?:アイデア|アイディア)?(?:メモ|めも)(?:アプリ|帳)?(?:に|を|は|も)?\s*(?:入れといてくれ|入れといて|入れとって|入れといてな|入れて|入れ|いれといて|いれて|いれ|しといてくれ|しといて|しとって|しとこ|して|し|取っといて|取って|とっといて|とって|残しといて|残して|追加しといて|追加して|追加|登録しといて|登録|頼むわ|頼む|お願い)|覚え(?:といてくれ|といて|とって|とけ|ておいて|とき)/;
+  const MEMO_STRIP_RE=/(それ|これ|あれ|この話|それも|これも|今の|さっきの|あの|あのさ|なあ|ねえ|ママ|まま|トキエ|ちょっと|あと|あ、|ほんで|そんで|それで|で、|お願いします|お願い|頼むわ|頼む|してくれる|してくれ|しといてくれる|してもらえる|ほしい|欲しい|ちょうだい|くれ|ね|な|よ|やで|って|ってやつ|や|わ|か|んだけど|けど|から)/g;
+  function memoAll(){try{const a=JSON.parse(localStorage.getItem("tokie_memo_v1")||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function memoSave(text){
+    const t=String(text||"").replace(/\s+/g," ").trim();if(t.length<2)return null;
+    const a=memoAll();const x={id:String(Date.now())+Math.random().toString(36).slice(2,6),ts:Date.now(),text:t,done:false,from:"tokie"};
+    a.push(x);try{localStorage.setItem("tokie_memo_v1",JSON.stringify(a.slice(-500)));}catch(e){}
+    return x;
+  }
+  function memoExtract(t){ // 合図の言葉を抜いて、中身だけ残す
+    let s=String(t||"").replace(MEMO_TRIG_RE,"　");
+    s=s.replace(/^[\s　、。,.・!！?？…]+|[\s　、。,.・!！?？…]+$/g,"");
+    // 頭と尻の「それ・これ・ママ・お願い」系だけ落とす（真ん中の言葉は触らへん）
+    for(let i=0;i<4;i++){s=s.replace(new RegExp("^(?:"+MEMO_STRIP_RE.source+")[\\s　、。]*"),"").replace(new RegExp("[\\s　、。]*(?:"+MEMO_STRIP_RE.source+")$"),"");}
+    s=s.replace(/^[\s　、。,.・!！?？…]+|[\s　、。,.・!！?？…]+$/g,"");
+    return s.replace(/　+/g," ").trim();
+  }
+  function memoCount(){return memoAll().filter(x=>!x.done).length;}
+  function memoNote(x){ // ママへの合図：一言だけ、中身には触れへん
+    note("【お客さんが今「"+clip(x.text,60)+"」を夜メモに入れた（本人が朝8時に見る。もう保存済み）】次の返事は「メモしたで、朝8時に出しとくわ」くらいの一言だけ。中身について意見・提案・質問・深掘りは一切せん（夜に頭を回させへんのが目的）。言うた後は、その前の話の続きに戻る。（ママの頭の中のメモ）");
+  }
+  function onMemoLine(t){ // true を返したら、その発言はメモとして扱い済み
+    const s=String(t||"").trim();
+    if(session.memoWait&&Date.now()-session.memoWait<120000&&!MEMO_TRIG_RE.test(s)){ // 「メモしといて」の次の一言が中身
+      session.memoWait=0;
+      if(s.replace(/[\s　、。,.・!！?？…]/g,"").length<2)return false;
+      const x=memoSave(s);if(x){memoNote(x);try{showMemoToast(x);}catch(e){}}
+      return true;
+    }
+    if(!MEMO_TRIG_RE.test(s))return false;
+    const body=memoExtract(s);
+    if(body.replace(/[\s　]/g,"").length>=4){ // 同じ一言に中身が入ってる：「ポジティーの表を直す、メモしといて」
+      session.memoWait=0;const x=memoSave(body);if(x){memoNote(x);try{showMemoToast(x);}catch(e){}}
+    }else{ // 「ママ、これメモしといて」だけ：次の一言を待つ
+      session.memoWait=Date.now();
+      note("【お客さんがメモしたいと言うた】「ええで、言うてみ」と短く返すだけ。次にお客さんが言うたことは店の夜メモに入る（朝8時に本人が見る）。中身に意見は言わん。（ママの頭の中のメモ）");
+    }
+    return true;
+  }
+  function showMemoToast(x){ // 画面の端に小さく「メモした」とだけ（中身は出さへん・読ませへん）
+    let el=document.getElementById("memoToast");
+    if(!el){el=document.createElement("div");el.id="memoToast";el.style.cssText="position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:rgba(20,16,12,.85);color:#e8c98a;border:1px solid rgba(232,201,138,.35);border-radius:999px;padding:7px 14px;font-size:13px;z-index:60;pointer-events:none;opacity:0;transition:opacity .4s";document.body.appendChild(el);}
+    el.textContent="夜メモに入れた（"+memoCount()+"件・朝8時に見れる）";el.style.opacity="1";
+    clearTimeout(el._t);el._t=setTimeout(()=>{el.style.opacity="0";},2500);
+  }
   function onUserLine(t){
     if(!session||session.trial)return;
+    try{if(onMemoLine(t))return;}catch(e){} // v54 夜メモは他の処理（訂正・忘れて）より先に拾う
     if(DAYFACT_RE.test(t)&&addDayFact(t)){if(MED_RE.test(t))addAlcBan(t);note(dayFactsBlock()+"\n（ママの頭の中のメモ。これには返事せんでええ）");}
     if(CORR_RE.test(String(t).trim())&&addCorr(t)){
       note(corrBlock()+"\n（ママの頭の中のメモ。いまお客さんに訂正された。次の返事で「ごめん、そうやったな」と一回だけ認めて、自分の前の意見は引っ込めて、この前提で考え直して答える。言い訳はせん）");

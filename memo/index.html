@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0a09">
+<title>夜メモ</title>
+<style>
+  :root{--bg:#0b0a09;--fg:#d9cdb8;--dim:#6f6558;--amber:#e8c98a;--line:rgba(232,201,138,.18)}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;padding:max(18px,env(safe-area-inset-top)) 16px 40px}
+  h1{font-size:15px;font-weight:600;letter-spacing:.12em;color:var(--amber);margin:6px 0 2px}
+  .sub{font-size:12px;color:var(--dim);margin-bottom:18px}
+  .night{margin-top:28vh;text-align:center}
+  .night .big{font-size:22px;color:var(--amber);margin-bottom:10px}
+  .night .n{font-size:13px;color:var(--dim)}
+  ul{list-style:none;margin:0;padding:0}
+  li{display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+  li .t{flex:1;font-size:16px;line-height:1.55;word-break:break-word}
+  li .when{font-size:11px;color:var(--dim);margin-top:4px}
+  li.done .t{color:var(--dim);text-decoration:line-through}
+  button{appearance:none;border:1px solid var(--line);background:transparent;color:var(--amber);border-radius:999px;padding:8px 14px;font-size:13px;font-family:inherit}
+  button.sm{padding:6px 10px;font-size:12px;color:var(--dim)}
+  button.sm.on{color:var(--amber)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px}
+  .row{display:flex;gap:8px;margin-top:18px}
+  input[type=text]{flex:1;background:#141210;border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:11px 12px;font-size:15px;font-family:inherit}
+  .empty{color:var(--dim);font-size:14px;padding:24px 0}
+  .exp{margin-top:26px;padding-top:12px;border-top:1px dashed var(--line);font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(20,16,12,.9);color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none}
+  .toast.on{opacity:1}
+</style>
+</head>
+<body>
+<h1>夜メモ</h1>
+<div class="sub" id="sub"></div>
+<div id="main"></div>
+<div class="toast" id="toast"></div>
+<script>
+(()=>{
+  // しくみ：トキエ（/）で「メモしといて」と言うた内容が、同じブラウザの localStorage "tokie_memo_v1" に溜まる。ここはそれを読むだけ。
+  // 夜（22時〜8時）は中身を見せへん。件数だけ。読み返すと頭が回り出すから。
+  const KEY="tokie_memo_v1", PEEK="tokie_memo_peek_v1";
+  const OPEN_H=8, CLOSE_H=22;
+  const $=(id)=>document.getElementById(id);
+  const main=$("main"), sub=$("sub");
+  function all(){try{const a=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(a)?a:[];}catch(e){return [];}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a.slice(-500)));}catch(e){}}
+  function peek(){return localStorage.getItem(PEEK)==="1";}
+  function isDay(){const h=new Date().getHours();return h>=OPEN_H&&h<CLOSE_H;}
+  function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+  function when(ts){const d=new Date(ts);const md=(d.getMonth()+1)+"/"+d.getDate();const hm=d.getHours()+":"+String(d.getMinutes()).padStart(2,"0");return md+" "+hm;}
+  function toast(t){const el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("on"),1800);}
+  function copyText(t){
+    if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(()=>toast("コピーした"),()=>toast("コピーでけへんかった"));
+    const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("コピーした");}catch(e){toast("コピーでけへんかった");}ta.remove();
+  }
+  function render(){
+    const a=all(), open=a.filter(x=>!x.done);
+    sub.textContent=isDay()?"今日やるのは昼過ぎでええ。終わったら✓":"朝8時〜22時に出す";
+    if(!isDay()&&!peek()){
+      main.innerHTML='<div class="night"><div class="big">'+(open.length?"メモ "+open.length+"件、預かってるで":"今夜はまだ何も")+'</div><div class="n">朝8時に出すわ。今は見んでええ。</div></div>'+expBlock();
+      bind();return;
+    }
+    let h='<div class="bar"><button id="copyAll">全部コピー（Claudeに貼る用）</button><button class="sm" id="showDone">済みも見る</button></div>';
+    const list=(showDone?a:open).slice().reverse();
+    h+=list.length?'<ul>'+list.map(x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+(x.from==="tokie"?"・ママ経由":"")+'</div></div><button class="sm del" title="消す">✕</button></li>').join("")+'</ul>':'<div class="empty">まだ何もない。トキエで「ママ、これメモしといて」と言うたらここに溜まる。</div>';
+    h+='<div class="row"><input type="text" id="manual" placeholder="手で足す（昼用）"><button id="add">足す</button></div>';
+    h+=expBlock();
+    main.innerHTML=h;bind();
+  }
+  let showDone=false;
+  function expBlock(){return '<div class="exp">実験中：夜でも中身を見せる <button class="sm '+(peek()?"on":"")+'" id="peek">'+(peek()?"オン":"オフ")+'</button><span>— 動くのを確かめたら「オフ」にする</span></div>';}
+  function bind(){
+    const p=$("peek");if(p)p.onclick=()=>{localStorage.setItem(PEEK,peek()?"0":"1");render();};
+    const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("昨夜のやつ：\n"+open.map(x=>"・"+x.text).join("\n"));};
+    const sd=$("showDone");if(sd)sd.onclick=()=>{showDone=!showDone;render();};
+    const ad=$("add");if(ad)ad.onclick=()=>{const v=$("manual").value.trim();if(!v)return;const a=all();a.push({id:String(Date.now()),ts:Date.now(),text:v,done:false,from:"hand"});save(a);render();};
+    const mi=$("manual");if(mi)mi.onkeydown=(e)=>{if(e.key==="Enter")$("add").click();};
+    main.querySelectorAll("li").forEach(li=>{
+      const id=li.dataset.id;
+      li.querySelector(".chk").onclick=()=>{const a=all();const x=a.find(y=>y.id===id);if(x){x.done=!x.done;save(a);render();}};
+      li.querySelector(".del").onclick=()=>{if(!confirm("消す？"))return;save(all().filter(y=>y.id!==id));render();};
+    });
+  }
+  // 実験中は最初からオン（確かめたら画面下でオフにする）
+  if(localStorage.getItem(PEEK)===null)localStorage.setItem(PEEK,"1");
+  render();
+  window.addEventListener("storage",(e)=>{if(e.key===KEY)render();}); // 別タブのトキエで足された時も即出す
+  setInterval(render,60000);
+})();
+</script>
+</body>
+</html>
