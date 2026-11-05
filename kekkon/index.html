@@ -508,6 +508,7 @@ details.alb summary::-webkit-details-marker{display:none}
       <div class="outcome" id="p-out"></div>
       <div class="nako" id="nako-pro"></div>
       <button class="btn-rose btn-block" id="p-next" style="min-height:60px"></button>
+      <button class="btn-line btn-block" id="p-redo" type="button">↩ 選び直す</button>
     </div>
   </section>
 
@@ -4597,15 +4598,23 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
     $$('#p-choices button').forEach(b=>b.addEventListener('click',()=>proChoose(+b.dataset.i)));
     $('#p-after').hidden=true;window.scrollTo(0,0);
   }
+  // 選んだあとでも「選び直す」で戻せる(足した点を引いて、ボタンを戻す) 2026/11/05
+  let proLast=null;
   function proChoose(i){
     if(!$('#p-after').hidden)return;
-    const h=SEQ()[pi].ch[i];addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
+    const h=SEQ()[pi].ch[i];proLast=h;addX(proX,h.x);if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)+h.sc[k];
     $$('#p-choices button').forEach((b,j)=>{b.disabled=true;b.classList.add(j===i?'picked':'dim');});
     $('#p-out').textContent=typeof h.o==='function'?h.o():h.o;nako('#nako-pro',h.nak,true);
     const seq=SEQ();$('#p-next').textContent=pi===seq.length-1?'体験お見合いでのあなたを見る':(seq[pi+1].who==='N'?'次の質問へ':(pi+1===seq.filter(x=>x.who==='N').length?'あなたにぴったりな'+SN(byId(seq[pi+1].who))+'に会う':(pi===seq.filter(x=>x.who==='N').length?'ほかの3人とも、体験お見合いしてみる':'次の体験お見合いへ')));
     $('#p-after').hidden=false;setTimeout(()=>$('#p-after').scrollIntoView({behavior:'smooth',block:'start'}),60);
   }
-  $('#p-next').addEventListener('click',()=>{if(pi<SEQ().length-1){if(SEQ()[pi].who==='N'&&SEQ()[pi+1].who!=='N')proTop=liveTop();pi++;pers.proPart={pi,x:proX,sc:proScore,top:proTop,inc:proInc};save();renderPro();return;}track('prologue_done',{top:proTop||''});pers.pro={x:proX,sc:proScore,inc:proInc};delete pers.proPart;save();renderPmini();});
+  $('#p-redo').addEventListener('click',()=>{
+    if(!proLast)return;const h=proLast;proLast=null;
+    for(const k in h.x)proX[k]=(proX[k]||0)-h.x[k];if(h.sc)for(const k in h.sc)proScore[k]=(proScore[k]||0)-h.sc[k];
+    $$('#p-choices button').forEach(b=>{b.disabled=false;b.classList.remove('picked','dim');});
+    $('#p-after').hidden=true;$('#p-choices').scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  $('#p-next').addEventListener('click',()=>{proLast=null;if(pi<SEQ().length-1){if(SEQ()[pi].who==='N'&&SEQ()[pi+1].who!=='N')proTop=liveTop();pi++;pers.proPart={pi,x:proX,sc:proScore,top:proTop,inc:proInc};save();renderPro();return;}track('prologue_done',{top:proTop||''});pers.pro={x:proX,sc:proScore,inc:proInc};delete pers.proPart;save();renderPmini();});
   function renderPmini(){
     const sc=scores(pers.pro.x),tk=typeKey(sc),ty=TYPES[tk];
     $('#pm-radar').innerHTML=radarSVG(sc);$('#pm-type').textContent='いまのところ「'+ty.n+'」';$('#pm-desc').textContent=ty.d;$('#pm-compat').innerHTML=compatHTML(tk);
