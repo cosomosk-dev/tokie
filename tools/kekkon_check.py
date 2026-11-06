@@ -60,6 +60,75 @@ def run():
         srv.kill()
     return out
 
+# ⑬ ひとり暮らしの家計簿(結婚前)を、全8職業×住む所3つで検査(2026/11/06 タケオ「全職業で、お金がずれないように厳しく審査」)
+#   都内の29歳の年収: 看護師 賃金構造 令和6年 25〜29歳 486.7万×東京/全国1.095 / 保育士 25〜29歳女性 379.6万(令和5年)×東京/全国 約1.12
+#   事務 ドラマの事務職(手取り22万)・賃金構造 都道府県別 東京/全国1.20 / その他 doda 2025 女性 東京422万÷全国370万=1.14
+#   公務員・教員 地域手当 東京20%(1級地)
+WAGE_TOKYO = {'office': (360, 420), 'nurse': (510, 580), 'civil': (440, 560), 'teacher': (450, 560),
+              'hoiku': (400, 460), 'beauty': (310, 370), 'it': (460, 550), 'other': (420, 490)}
+#   地方は都市部の幅 × 0.94/1.06(賃金構造 都道府県別)
+WAGE_RURAL = {k: (round(a * .94 / 1.06), round(b * .94 / 1.06)) for k, (a, b) in WAGE.items()}
+#   家賃(タケオ指定 2026/11/06): 都内8万(SUUMO 23区ワンルーム平均 約9万・安い区5.6〜6.3万)/都市部6万/地方5万。食費 3.5万(家計調査 単身 34歳以下女性 2022 3.0万×物価2割)
+RENT1 = {'tokyo': 8, 'city': 6, 'rural': 5}
+FOOD1 = 3.5
+#   ひとり暮らしの貯金率(ボーナス別の毎月分): 8〜25%(上限は子なし共働きの SAVE_MAX_NOKID と同じ。J-FLEC 平均は1割強)
+SAVE1 = (8, SAVE_MAX_NOKID)
+
+def run_single():
+    srv = subprocess.Popen(['python3', '-m', 'http.server', '8769', '-d', ROOT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(1)
+    out = {}
+    try:
+        with sync_playwright() as p:
+            b = p.chromium.launch()
+            for job in JOBS:
+                for area in RENT1:
+                    pg = b.new_page()
+                    pg.goto(f'http://localhost:8769/index.html?test=auto&r=B&p={"A"*16}&job={job}&area={area}')
+                    pg.wait_for_function('window.__WS_DONE', timeout=60000)
+                    ws = pg.evaluate('window.__WS')
+                    out[(job, area)] = next((e['book'] for e in ws if 'ひとり暮らし' in e['book']), '')
+                    pg.close()
+            b.close()
+    finally:
+        srv.kill()
+    return out
+
+def check_single(out):
+    ng, ok = [], 0
+    for (job, area), b in out.items():
+        tag = f'ひとり暮らし・{JN[job]}・{area}'
+        def g(rx):
+            m = re.search(rx, b); return num(m.group(1)) if m else None
+        w, inc, live, rent, net = g(r'年収およそ(\d+)万円'), g(r'ボーナスは別\)\+([\d.]+)万'), g(r'生活費 ([\d.]+)万'), g(r'家賃 ([\d.]+)万'), g(r'残るお金([+−][\d.]+)万')
+        food, fr_live = g(r'うち食費([\d.]+)万'), g(r'切り詰めれば生活費は([\d.]+)万')
+        tests = [
+            (None not in (w, inc, live, rent, net, food, fr_live), f'{tag}: 家計簿の項目が足りない'),
+        ]
+        if None not in (w, inc, live, rent, net, food, fr_live):
+            lo, hi = {'tokyo': WAGE_TOKYO, 'city': WAGE, 'rural': WAGE_RURAL}[area][job]
+            rate = net / inc * 100
+            tests += [
+                (lo <= w <= hi * 1.1, f'{tag}: 年収{w:.0f}万が現実({lo}〜{hi}万)から外れてる'),
+                (rent == RENT1[area], f'{tag}: 家賃{rent}万(基準{RENT1[area]}万)'),
+                (food == FOOD1, f'{tag}: 食費{food}万(基準{FOOD1}万)'),
+                (abs(fr_live - (live - FOOD1 + 2)) < .05, f'{tag}: 切り詰めた生活費{fr_live}万が計算と合わない'),
+                (abs(inc - live - rent - net) < .15 or '補助' in b, f'{tag}: 手取り−生活費−家賃が残るお金と合わない'),
+                (SAVE1[0] <= rate <= SAVE1[1] + .5, f'{tag}: 貯金率{rate:.0f}%(基準{SAVE1[0]}〜{SAVE1[1]}%)'),
+                (live < inc - rent, f'{tag}: 赤字'),
+            ]
+        for c, m in tests:
+            if c: ok += 1
+            else: ng.append(m)
+    # 同じ職業なら、生活費は 都内 ≧ 都市部 ≧ 地方(家賃の安い所の方が生活費が高い逆転はおかしい)
+    for job in JOBS:
+        lv = [re.search(r'生活費 ([\d.]+)万', out.get((job, a), '')) for a in ('tokyo', 'city', 'rural')]
+        if all(lv):
+            t, c, r = (num(m.group(1)) for m in lv)
+            if t >= c >= r: ok += 1
+            else: ng.append(f'ひとり暮らし・{JN[job]}: 生活費が 都内{t}・都市部{c}・地方{r} で逆転')
+    return ok, ng
+
 def num(s):
     return float(s.replace('−', '-').replace('+', '').replace(',', ''))
 
@@ -162,6 +231,8 @@ def check(out):
 if __name__ == '__main__':
     out = run()
     ok, ng = check(out)
+    ok1, ng1 = check_single(run_single())
+    ok += ok1; ng += ng1
     print(f'✓ {ok}件')
     for m in sorted(set(ng)):
         print('✗', m)

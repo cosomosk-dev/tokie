@@ -1507,7 +1507,7 @@ details.alb summary::-webkit-details-marker{display:none}
     const hist=s.fpHist||[];const pick=C.find(x=>!hist.includes(x))||C.find(x=>x!==hist[hist.length-1])||C[0];s.fpHist=hist.concat(pick).slice(-3);s.fpLast=pick;return pick;}
   function budgetHTML(s){
     const row=(k,sub,v,cls)=>`<div class="bk-r"><span>${k}</span><small>${esc(sub)}</small><b class="${cls||(v>=0?'pos':'neg')}">${v>=0?'+':'−'}${mn(Math.abs(v))}</b></div>`;
-    if(s.yr==null){const w=WY(),r=TH(w)/w,bon=Math.round(w*(WBON[pers.job]||.15)),inc=Math.round((w-bon)/12*r*10)/10,bonN=Math.round(bon*r),rent=RENT1[pers.area]||6,live=Math.round(Math.min(inc*0.5,10)),fr=Math.round((inc+(pers.hojo?HOJO:0)-(live-FOOD1+2)-rent)*10)/10,AN=pers.area==='tokyo'?'都内で':pers.area==='rural'?'地方で':'都市部で',net=Math.round((inc+(pers.hojo?HOJO:0)-live-rent)*10)/10,yr=Math.round(net*12+bonN*0.5);
+    if(s.yr==null){const w=WY(),r=TH(w)/w,bon=Math.round(w*(WBON[pers.job]||.15)),inc=Math.round((w-bon)/12*r*10)/10,bonN=Math.round(bon*r),rent=RENT1[pers.area]||6,live=Math.ceil(Math.max(inc*0.5,inc*0.75-5)*2)/2,fr=Math.round((inc+(pers.hojo?HOJO:0)-(live-FOOD1+2)-rent)*10)/10,AN=pers.area==='tokyo'?'都内で':pers.area==='rural'?'地方で':'都市部で',net=Math.round((inc+(pers.hojo?HOJO:0)-live-rent)*10)/10,yr=Math.round(net*12+bonN*0.5);
       return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り(毎月の給料・ボーナスは別)',inc)}${pers.hojo?row('補助','家賃補助・寮・社宅(平均)',HOJO):''}${row('支出','生活費 '+mn(live)+'(うち食費'+mn(FOOD1)+') ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>ボーナス(手取り${mn(bonN)})の半分を貯金に回すと、1年で ${yr>=0?'+':'−'}${yen(Math.abs(yr))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(J().n)}・29歳前後の女性の平均は、${AN}年収およそ${w}万円(ボーナス込み)。毎月の手取りは${mn(inc)}ほど。${pers.area==='tokyo'?'都内は家賃が手取りの3割を超えがち。':'家賃は手取りの3割までが目安。'}食費を2万まで切り詰めれば生活費は${mn(live-FOOD1+2)}、毎月${fr>=0?'+':'−'}${mn(Math.abs(fr))}残せて、NISAの積立に回せる。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div><div class="bk-note">※金額は2026年の物価が基準(物価と給料はおおむね一緒に動くため)</div></div>`;}
     if(!s.rid)return '';
     const p=pace(s);
@@ -1733,7 +1733,16 @@ details.alb summary::-webkit-details-marker{display:none}
   // 生活費のうち食費(月・万円・外食込み): 家計調査(単身・勤労)2022 34歳以下の女性 3.0万(うち外食1.0万) ×食料の物価上昇 2022→2026 約2割 → 3.5万
   //  照合: 家計調査 2024年10〜12月 単身34歳以下 4.2万(男女計・外食が多い男性込み)より下、ドラマの事務職(切り詰めて2万)より上。内訳はこれだけ出す(2026/11/06 タケオ了承)
   const FOOD1=3.5;
-  const WY=()=>Math.round((WINC[pers.job]||415)*(AREAS[pers.area]?AREAS[pers.area].k:1));
+  // ひとり暮らしの生活費 = 手取りの半分。ただし手取りの多い看護師・ITでも貯金が手取りの25%(子なし共働きの上限と同じ)を超えないように、いちばん安い家賃(5万)で計算して上乗せ。
+  //  家賃に引っぱられないので、同じ職業なら 都内 ≧ 都市部 ≧ 地方 の順に生活費が高くなる(0.5万単位で切り上げ)
+  // 都内の上乗せは職業ごと(2026/11/06 全職業の審査): 一律×1.18だと看護師・保育士が高すぎた
+  //  看護師 1.10: 賃金構造 令和6年 東京568.9万÷全国519.7万=1.095 / 保育士 1.12: 東京453.5万(令和5年)÷全国406.8万(令和6年)≒1.11〜1.14
+  //  公務員・教員 1.14: 地域手当 東京(1級地)20%÷全国の平均的な地域手当 約5% → 1.20÷1.05
+  //  事務 1.18: 賃金構造 都道府県別 東京375.5÷全国311.8=1.20(本社の事務が集中)/ドラマの事務職 手取り22万と一致
+  //  美容・アパレル・IT・その他 1.14: doda 平均年収2025 女性 東京422万÷全国370万=1.14
+  const TOKYO_K={office:1.18,nurse:1.10,hoiku:1.12,civil:1.14,teacher:1.14,beauty:1.14,it:1.14,other:1.14};
+  const AK=()=>pers.area==='tokyo'?(TOKYO_K[pers.job]||1.14):(AREAS[pers.area]?AREAS[pers.area].k:1);
+  const WY=()=>Math.round((WINC[pers.job]||415)*AK());
   // 家賃補助: 令和7年就労条件総合調査 住宅手当など 平均1.87万円/月(支給企業45.7%)
   const HOJO=1.87;
   // 毎年の昇給(2026/11/04「順調に賃上げされるのは大企業だけ」): 金額は2026年の物価が基準なので、物価を除いた実質の伸び
