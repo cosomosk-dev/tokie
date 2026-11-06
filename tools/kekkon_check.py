@@ -174,7 +174,8 @@ def check(out):
                 need = price // 10 + fee
                 m2 = re.search(r'ふたりの貯金 (?:大きな出費|出費)−([\d,]+)万円', e['pop'])
                 m4 = re.search(r'あなた個人の貯金\(ふたりの貯金とは別\)−([\d,]+)万円', e['pop'])  # 頭金にはあなたの結婚前の貯金も出せる(持ち分にする)
-                before = e['sav'] + (num(m2.group(1)) if m2 else 0) + e.get('mine', 0) + (num(m4.group(1)) if m4 else 0)
+                m5 = re.search(r'夫のもの\(別\) −([\d,]+)万円', e['why'])  # 2026/11/06 夫にも結婚前の貯金がある(J-FLEC 単身30代 保有世帯の中央値300万)。頭金に出した分も数える
+                before = e['sav'] + (num(m2.group(1)) if m2 else 0) + e.get('mine', 0) + (num(m4.group(1)) if m4 else 0) + e.get('hc', 0) + (num(m5.group(1)) if m5 else 0)
                 bought = 'buy' in e['f'].split(',')
                 t(not bought or before >= need, f'{tag} {e["year"]}: 貯金{before:.0f}万で家を買った(頭金1割＋諸費用で{need}万は要る)')
                 t(before >= need or not any(re.search(r'建てよう|買おう', c) for c in e['choices']), f'{tag} {e["year"]}: 貯金{before:.0f}万なのに「買う」選択肢が出てる')
