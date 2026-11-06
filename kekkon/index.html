@@ -1507,8 +1507,8 @@ details.alb summary::-webkit-details-marker{display:none}
     const hist=s.fpHist||[];const pick=C.find(x=>!hist.includes(x))||C.find(x=>x!==hist[hist.length-1])||C[0];s.fpHist=hist.concat(pick).slice(-3);s.fpLast=pick;return pick;}
   function budgetHTML(s){
     const row=(k,sub,v,cls)=>`<div class="bk-r"><span>${k}</span><small>${esc(sub)}</small><b class="${cls||(v>=0?'pos':'neg')}">${v>=0?'+':'−'}${mn(Math.abs(v))}</b></div>`;
-    if(s.yr==null){const w=WY(),r=TH(w)/w,bon=Math.round(w*(WBON[pers.job]||.15)),inc=Math.round((w-bon)/12*r*10)/10,bonN=Math.round(bon*r),rent=Math.round(inc*0.3),live=Math.round(inc*0.5),net=Math.round((inc+(pers.hojo?HOJO:0)-live-rent)*10)/10,yr=Math.round(net*12+bonN*0.5);
-      return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り(毎月の給料)',inc)}${pers.hojo?row('補助','家賃補助・寮・社宅(平均)',HOJO):''}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>ボーナス(手取り${mn(bonN)})の半分を貯金に回すと、1年で ${yr>=0?'+':'−'}${yen(Math.abs(yr))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(J().n)}・29歳前後の女性の平均は、${pers.area==='rural'?'地方で':'都市部で'}年収およそ${w}万円(ボーナス込み)。毎月の手取りは${mn(inc)}ほど。家賃は手取りの3割までが目安。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div><div class="bk-note">※金額は2026年の物価が基準(物価と給料はおおむね一緒に動くため)</div></div>`;}
+    if(s.yr==null){const w=WY(),r=TH(w)/w,bon=Math.round(w*(WBON[pers.job]||.15)),inc=Math.round((w-bon)/12*r*10)/10,bonN=Math.round(bon*r),rent=RENT1[pers.area]||6,live=Math.round(Math.min(inc*0.5,10)),fr=Math.round((inc+(pers.hojo?HOJO:0)-8-rent)*10)/10,AN=pers.area==='tokyo'?'都内で':pers.area==='rural'?'地方で':'都市部で',net=Math.round((inc+(pers.hojo?HOJO:0)-live-rent)*10)/10,yr=Math.round(net*12+bonN*0.5);
+      return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り(毎月の給料・ボーナスは別)',inc)}${pers.hojo?row('補助','家賃補助・寮・社宅(平均)',HOJO):''}${row('支出','生活費 '+mn(live)+' ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>ボーナス(手取り${mn(bonN)})の半分を貯金に回すと、1年で ${yr>=0?'+':'−'}${yen(Math.abs(yr))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(J().n)}・29歳前後の女性の平均は、${AN}年収およそ${w}万円(ボーナス込み)。毎月の手取りは${mn(inc)}ほど。${pers.area==='tokyo'?'都内は家賃が手取りの3割を超えがち。':'家賃は手取りの3割までが目安。'}食費を2万まで切り詰めて生活費8万にすれば、毎月${fr>=0?'+':'−'}${mn(Math.abs(fr))}残せて、NISAの積立に回せる。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div><div class="bk-note">※金額は2026年の物価が基準(物価と給料はおおむね一緒に動くため)</div></div>`;}
     if(!s.rid)return '';
     const p=pace(s);
     if(p.split){const w=p.inW/12,yo=p.yo||0,ca=p.kc.ca/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,inc=p.inc/12,out=live+pk+rent+kc+ins+ot+(p.custH?yo:0),net=inc-out;const k=s.kids||0;
@@ -1725,7 +1725,11 @@ details.alb summary::-webkit-details-marker{display:none}
   const WINC={office:330,nurse:494,civil:404,teacher:420,hoiku:381,beauty:300,it:440,other:400};
   // 賞与(ボーナス)が年収に占める割合。月給 = (年収 − 賞与) ÷ 12
   // 都市部/地方の差: 賃金構造基本統計調査 都道府県別(令和4年) 全国311.8千円・東京375.5・神奈川335.6・大阪330.9 → 東京の高さは本社の管理職が押し上げた分なので、神奈川・大阪なみの都市部×1.06(2026/11/04)、地方×0.94
-  const AREAS={city:{n:'都市部(東京・神奈川・大阪など)',k:1.06},rural:{n:'それ以外の地方',k:0.94}};
+  // 2026/11/06 タケオ「事務職なんてこのようなもの・家賃は6万から都内だと8万」: 東京(都内)を分けた。
+  //  都内×1.18: 都道府県別 東京375.5÷全国311.8=1.20(全年齢)。20代は本社管理職の押し上げが小さいので少し下げる→事務の手取り 約21.7万(ドラマの事務職 手取り22万と一致)
+  const AREAS={tokyo:{n:'東京(都内)',k:1.18},city:{n:'都市部(神奈川・大阪・名古屋など)',k:1.06},rural:{n:'それ以外の地方',k:0.94}};
+  // ひとり暮らしの家賃(月・万円): 都内8(SUUMO 23区ワンルーム平均 約9万・安い区は5.6〜6.3万)/ 都市部6 / 地方5。20代でマンションのローンは組まない前提
+  const RENT1={tokyo:8,city:6,rural:5};
   const WY=()=>Math.round((WINC[pers.job]||415)*(AREAS[pers.area]?AREAS[pers.area].k:1));
   // 家賃補助: 令和7年就労条件総合調査 住宅手当など 平均1.87万円/月(支給企業45.7%)
   const HOJO=1.87;
@@ -4557,7 +4561,7 @@ function secBought(){try{const r=pers.routes.S;return !!(r&&(r.bought||r.unlocke
   if(!pers.job)pers.job='office';
   function renderJobs(){$('#jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<button type="button" data-k="${k}" class="${pers.job===k?'on':''}">${esc(j.n)}</button>`).join('')+(pers.job==='other'?`<input id="job-other" type="text" maxlength="14" placeholder="職業を入力(例: 薬剤師)" value="${esc(pers.jobName||'')}" style="flex:1 1 100%;min-height:44px;border:1.5px solid var(--line);border-radius:12px;padding:0 12px;font:inherit">`:'');$$('#jobs button').forEach(b=>b.addEventListener('click',()=>{pers.job=b.dataset.k;renderJobs();if(b.dataset.k==='other'){const i=$('#job-other');if(i)i.focus();}}));const inp=$('#job-other');if(inp)inp.addEventListener('input',()=>{pers.jobName=inp.value.trim();});}
   renderJobs();
-  // 住んでいる所: 都市部(東京・神奈川・大阪)/地方。家賃補助は1チェックだけ
+  // 住んでいる所: 東京(都内)/都市部(神奈川・大阪など)/地方。家賃補助は1チェックだけ
   if(!pers.area)pers.area='city';
   function renderAreas(){$('#areas').innerHTML=Object.entries(AREAS).map(([k,a])=>`<button type="button" data-k="${k}" class="${pers.area===k?'on':''}">${esc(a.n)}</button>`).join('');$$('#areas button').forEach(b=>b.addEventListener('click',()=>{pers.area=b.dataset.k;save();renderAreas();}));$('#hojo').checked=!!pers.hojo;}
   renderAreas();$('#hojo').addEventListener('change',e=>{pers.hojo=e.target.checked;save();});
@@ -5063,7 +5067,7 @@ async function makeCard(kind){
     const rid=q.get('r')||'C',pk=q.get('p')||'';
     if(!pers.name){pers.name='あなた';me='あなた';}
     if(!pers.pro)pers.pro={x:{},sc:{A:0,B:0,C:0,D:0,S:0}};
-    if(q.get('job'))pers.job=q.get('job');
+    if(q.get('job'))pers.job=q.get('job');if(q.get('area'))pers.area=q.get('area');
     cur=rid==='S'?SEC:P.find(x=>x.id===rid);const r=R();r.bought=true;r.preApplied=false;if(q.get('lap'))r.laps=+q.get('lap');
     st=Object.assign(clone(START),{f:{},x:clone(pers.pro.x||{})});ci=0;r.ci=0;r.st=clone(st);r.picks=[];r.done=false;save();
     const list=EP[cur.id];window.__WS=[];
