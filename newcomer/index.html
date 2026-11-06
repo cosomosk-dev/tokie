@@ -2241,6 +2241,10 @@
     if(base)go(base);else leakMute.pendingRanges=ranges;
   }
   function leakModeChange(mode){
+    if(AL.on){ // v58 声の時刻表で消してる時は、音量は時刻表の方だけで決める（喋る/聞くの切り替わりで勝手に戻さへん）
+      if(mode!=="speaking"){while(rangeTimers.length)clearTimeout(rangeTimers.pop());leakMute.pendingRanges=null;leakMute.pending=null;}
+      alApply();return;
+    }
     if(mode==="speaking"&&leakMute.pendingRanges){const rr=leakMute.pendingRanges;leakMute.pendingRanges=null;setTimeout(()=>muteRanges(rr,true),0);}
     if(mode!=="speaking"){while(rangeTimers.length)clearTimeout(rangeTimers.pop());leakMute.pendingRanges=null;}
     if(mode==="speaking"){
@@ -2248,10 +2252,65 @@
       if(leakMute.pending){const p=leakMute.pending;leakMute.pending=null;muteMama(p.all?null:p.ms);}
     }else{leakMute.pending=null;if(leakMute.on){clearTimeout(leakMute.timer);setMamaVol(1);}}
   }
+  // v58 声の「文字の時刻表」で心の声をその場で消す（11/5に「お客さん少し考えてから待つ」が声に出た）。
+  // これまでは返事の文（agent_response）が届いてから声を消してたけど、文は声より遅れて届くことがあって、短い心の声は消す前に喋り終わってた。
+  // ElevenLabs は声のかたまりごとに「どの字を何ミリ秒目に言うか」を一緒に送ってくる（alignment）。それが届いた瞬間に文を判定して、
+  // 心の声の字が鳴る時間だけ音量を0にする。時刻表が届かへん時は、これまでのやり方（文が届いてから消す）のまま。
+  const AL={on:false,buf:"",times:[],lastEnd:0,done:0,wins:[],tmr:[],n:0,hits:0};
+  function alReset(){AL.buf="";AL.times=[];AL.lastEnd=0;AL.done=0;}
+  function alStop(){AL.on=false;alReset();AL.wins=[];while(AL.tmr.length)clearTimeout(AL.tmr.pop());}
+  function alApply(){ // 今この瞬間に消す時間帯に入ってたら音量0、出たら戻す
+    const now=Date.now();AL.wins=AL.wins.filter(w=>w.b>now);
+    const mute=AL.wins.some(w=>w.a<=now);
+    if(mute!==leakMute.on)setMamaVol(mute?0:1);
+  }
+  function alWin(i0,i1,tag){ // 字の番号 i0〜i1 が鳴る時間を消す（前後に少し余白）
+    const a0=AL.times[i0],a1=AL.times[i1];if(!a0||!a1)return;
+    const w={a:a0[0]-200,b:a1[1]+450,tag};AL.wins.push(w);const now=Date.now();
+    AL.tmr.push(setTimeout(alApply,Math.max(0,w.a-now)),setTimeout(alApply,Math.max(0,w.b-now)+5));alApply();
+  }
+  function alSpan(from,to){ // 空白を除いた中身の範囲
+    while(from<to&&/\s/.test(AL.buf[from]))from++;while(to>from&&/\s/.test(AL.buf[to-1]))to--;return [from,to];
+  }
+  function alJudge(){
+    const s=AL.buf;let st=AL.done;
+    for(let i=AL.done;i<s.length;i++){
+      if(/[。．！？!?\n]/.test(s[i])){
+        const [a,b]=alSpan(st,i+1);
+        AL.wins=AL.wins.filter(w=>w.tag!=="tail"+st); // 途中で仮に消してた分は、文が揃ったら判定し直す
+        if(b>a&&isLeak(s.slice(a,b))){AL.hits++;alWin(a,b-1,"s"+a);try{console.warn("[tokie] 心の声を声の時刻表で消した:",s.slice(a,b));}catch(e){}}
+        st=i+1;AL.done=st;
+      }
+    }
+    // まだ「。」が来てへん続き：はっきり心の声やと分かる時だけ、先に消しとく（揃ったら上で判定し直す）
+    const [a,b]=alSpan(AL.done,s.length);
+    AL.wins=AL.wins.filter(w=>w.tag!=="tail"+AL.done);
+    if(b-a>=6&&isLeak(s.slice(a,b)))alWin(a,b-1,"tail"+AL.done);
+    alApply();
+  }
+  function alChunk(al){
+    if(!al)return;
+    const ch=al.chars||al.characters,st=al.char_start_times_ms||al.charStartTimesMs,du=al.char_durations_ms||al.charDurationsMs;
+    if(!ch||!ch.length||!st||!st.length)return;
+    const chars=Array.isArray(ch)?ch:Array.from(String(ch));
+    const s0=Number(st[0])||0;
+    const now=Date.now();
+    if(AL.lastEnd&&now-AL.lastEnd>1500)alReset(); // 前の声から1.5秒以上あいたら、新しい返事
+    AL.on=true;AL.n++;
+    const base=Math.max(now,AL.lastEnd||0); // 前のかたまりがまだ鳴ってる間は、その後ろに並ぶ
+    for(let i=0;i<chars.length;i++){
+      const t=base+((Number(st[i])||0)-s0),d=(du&&du[i]!=null?Number(du[i]):80);
+      AL.buf+=String(chars[i]);AL.times.push([t,t+Math.max(20,d)]);
+      if(String(chars[i]).length>1)for(let j=1;j<String(chars[i]).length;j++)AL.times.push([t,t+Math.max(20,d)]); // 1要素に2字以上入ってた時も字の番号をそろえる
+    }
+    AL.lastEnd=AL.times.length?AL.times[AL.times.length-1][1]:now;
+    alJudge();
+  }
   // ママの返事が届いた時：心の声があれば声を消す手配をして、字幕・手帳用には抜いた文を返す
   function guardLeak(raw){
     const r=splitLeak(raw);if(!r.leak)return raw;
     try{console.warn("[tokie] 心の声を消した:",r.leak);}catch(e){}
+    if(AL.on)return r.keep; // v58 声の時刻表がある時は、声はもう時刻表の方で消してある。ここでは字幕・手帳から抜くだけ
     const speaking=session&&session.mode==="speaking";
     if(!r.keep){ // 全部が心の声 → この返事の声は全部消す
       if(speaking)muteMama(null);else leakMute.pending={all:true};
@@ -2874,6 +2933,7 @@
                 :{memory, visit_count:String(visitCount()), last_visit:lastVisitText(), greeting:(session&&session.silentGreet)?"":((session&&session.greetNext)||(extension?GREETING_EXT:giftGreeting(session)+makeGreeting()))};
       if(session){session.greetNext="";session.silentGreet=false;}
       const useOv=!ovNG()&&!!((SEATS[session&&session.seat]||SEATS.box).llm)&&!(session&&session.trial);if(session){session.ovTried=useOv;session.ovOk=false;}
+      alStop(); // v58 前の会話の時刻表は持ち越さへん
       const gen=++convGen; // 入り直し（延長・席の移動）の時、前の会話の遅れて届く「切れた」合図で今の会話を閉めへんように
       conv=await Conversation.startSession({
         agentId:AGENT_ID,
@@ -2910,6 +2970,7 @@
           const c=session&&session.capture;
           if(c){if(mode==="speaking"){c.spoke=true;if(!c.speakAt)c.speakAt=Date.now();clearTimeout(c.t2);}else if(c.spoke){clearTimeout(c.t2);c.t2=setTimeout(c.quietDone,2500);}}
         },
+        onAudioAlignment:(al)=>{if(gen!==convGen)return;try{alChunk(al);}catch(e){}}, // v58 声の時刻表（字ごとの鳴る時間）で心の声をその場で消す
         onVadScore:(v)=>{const s=(v&&typeof v==="object")?(v.vadScore??v.score??0):(typeof v==="number"?v:0);if(s>0.6&&session)session.lastVad=Date.now();},
         onError:(msg,ctx)=>{serverErr={msg:String(msg&&msg.message?msg.message:msg),ctx:ctx||{}};errEl.textContent="エラー："+serverErr.msg;}
       });
@@ -2924,6 +2985,8 @@
   async function end(d){
     if(ending)return;ending=true;
     const c=conv;conv=null;convGen++; // この会話から後で届く合図は全部無視
+    try{if(AL.n)localStorage.setItem("tokienew_align_stat_v1",JSON.stringify({at:Date.now(),chunks:AL.n,hits:AL.hits}));}catch(e){} // 時刻表が届いてたか・何回消したかの控え（確認用）
+    alStop();AL.n=0;AL.hits=0;if(leakMute.on)setMamaVol(1);
     stopTick();
     try{if(c)await c.endSession();}catch(e){}
     stage.classList.remove("speaking","on");
