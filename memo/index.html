@@ -47,6 +47,15 @@
   .cloud.ok{color:#8fbf9a}
   .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:rgba(20,16,12,.9);color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .toast.on{opacity:1}
+  /* 日付ごとの区切り */
+  .day{margin-top:14px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .dayH{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#141210;cursor:pointer;user-select:none}
+  .dayH .dt{flex:1;font-size:15px;color:var(--amber);font-weight:600;letter-spacing:.04em}
+  .dayH .dt small{font-size:11px;color:var(--dim);font-weight:400;margin-left:6px;letter-spacing:0}
+  .dayH .arw{font-size:12px;color:var(--dim);width:14px;text-align:center}
+  .day ul{padding:0 12px}
+  .day li:last-child{border-bottom:none}
+  .day.shut ul{display:none}
 </style>
 </head>
 <body>
@@ -72,6 +81,25 @@
   function isDay(){const h=new Date().getHours();return h>=OPEN_H&&h<CLOSE_H;}
   function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
   function when(ts){const d=new Date(ts);return (d.getMonth()+1)+"/"+d.getDate()+" "+d.getHours()+":"+String(d.getMinutes()).padStart(2,"0");}
+  // 日付の区切り：朝8時で日付を切り替える（夜中2時のメモは「前の晩」の分にまとめる）
+  const WD="日月火水木金土";
+  function dayKey(ts){const d=new Date(ts-OPEN_H*3600000);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  function dayLabel(k){
+    const [y,m,dd]=k.split("-").map(Number);const d=new Date(y,m-1,dd);
+    const base=m+"/"+dd+"（"+WD[d.getDay()]+"）";
+    const today=dayKey(Date.now());const yest=dayKey(Date.now()-86400000);
+    const tag=k===today?(isDay()?"今日":"今夜"):(k===yest?(isDay()?"昨夜":"昨日"):"");
+    return {base,tag};
+  }
+  function groupByDay(list){ // 新しい日が上。日の中は新しいメモが上
+    const g=new Map();
+    list.slice().sort((a,b)=>b.ts-a.ts).forEach(x=>{const k=dayKey(x.ts);if(!g.has(k))g.set(k,[]);g.get(k).push(x);});
+    return [...g.entries()];
+  }
+  function dayText(k,items){const l=dayLabel(k);return "【"+l.base+"の夜メモ】\n"+items.slice().sort((a,b)=>a.ts-b.ts).map(x=>"・"+x.text).join("\n");}
+  const OPEN_DAYS="tokie_memo_days_open_v1"; // 手で開け閉めした日を覚えとく
+  function dayOpenMap(){try{return JSON.parse(localStorage.getItem(OPEN_DAYS)||"{}")||{};}catch(e){return {};}}
+  function setDayOpen(k,v){const o=dayOpenMap();o[k]=v;try{localStorage.setItem(OPEN_DAYS,JSON.stringify(o));}catch(e){}}
   function toast(t){const el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("on"),2000);}
   function copyText(t){
     if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(()=>toast("コピーした"),()=>toast("コピーでけへんかった"));
@@ -249,8 +277,15 @@
       bind();return;
     }
     let h='<div class="bar"><button id="copyAll">全部コピー（Claudeに貼る用）</button><button class="sm" id="showDone">'+(showDone?"済みを隠す":"済みも見る")+'</button></div>';
-    const list=(showDone?a:open).slice().reverse();
-    h+=list.length?'<ul>'+list.map(x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+({tokie:"・ママ経由",ear:"・声",hand:"・手"}[x.from]||"")+'</div></div><button class="sm del" title="消す">✕</button></li>').join("")+'</ul>':'<div class="empty">まだ何もない。喋るだけでここに溜まる。トキエで「ママ、これメモしといて」でも入る。</div>';
+    const list=showDone?a:open;
+    const days=groupByDay(list), om=dayOpenMap();
+    const li=x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+({tokie:"・ママ経由",ear:"・声",hand:"・手"}[x.from]||"")+'</div></div><button class="sm del" title="消す">✕</button></li>';
+    h+=days.length?days.map(([k,items],i)=>{
+      const l=dayLabel(k);const isOpen=(k in om)?om[k]:i<2; // 何もしてへん時は新しい2日分だけ開いとく
+      const n=items.filter(x=>!x.done).length;
+      return '<div class="day'+(isOpen?"":" shut")+'" data-day="'+k+'"><div class="dayH"><span class="arw">'+(isOpen?"▾":"▸")+'</span><span class="dt">'+l.base+(l.tag?'<small>'+l.tag+'</small>':'')+'<small>'+n+'件</small></span><button class="sm dayCopy">この日をコピー</button></div><ul>'+items.map(li).join("")+'</ul></div>';
+    }).join(""):'<div class="empty">まだ何もない。喋るだけでここに溜まる。トキエで「ママ、これメモしといて」でも入る。</div>';
+    if(days.length)h+='<div class="sub" style="margin-top:8px">朝8時で日付が切り替わる（夜中のメモは前の晩の分）</div>';
     h+='<div class="row"><input type="text" id="manual" placeholder="手で足す"><button id="add">足す</button></div>';
     h+=rejBlock()+expBlock();
     main.innerHTML=h;bind();
@@ -259,11 +294,16 @@
     const rt=$("rjT");if(rt)rt.onclick=()=>{showRj=!showRj;render();};
     main.querySelectorAll(".rjBack").forEach(b=>b.onclick=()=>{const a=rejects();const i=+b.dataset.i;const x=a[i];if(!x)return;a.splice(i,1);try{localStorage.setItem(RJ,JSON.stringify(a));}catch(e){}addMemo(x.text,"ear");});
     const p=$("peek");if(p)p.onclick=()=>{localStorage.setItem(PEEK,peek()?"0":"1");render();};
-    const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("昨夜のやつ：\n"+open.map(x=>"・"+x.text).join("\n"));};
+    const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("夜メモ（日付ごと）：\n\n"+groupByDay(open).reverse().map(([k,items])=>dayText(k,items)).join("\n\n"));};
+    main.querySelectorAll(".day").forEach(d=>{
+      const k=d.dataset.day;
+      d.querySelector(".dayH").onclick=(e)=>{if(e.target.closest(".dayCopy"))return;setDayOpen(k,d.classList.contains("shut"));render();};
+      d.querySelector(".dayCopy").onclick=(e)=>{e.stopPropagation();const items=(showDone?all():all().filter(x=>!x.done)).filter(x=>dayKey(x.ts)===k);if(!items.length)return toast("空やで");copyText(dayText(k,items));};
+    });
     const sd=$("showDone");if(sd)sd.onclick=()=>{showDone=!showDone;render();};
     const ad=$("add");if(ad)ad.onclick=()=>{const v=$("manual").value.trim();if(!v)return;$("manual").value="";addMemo(v,"hand");};
     const mi=$("manual");if(mi){mi.onkeydown=(e)=>{if(e.key==="Enter")$("add").click();};mi.onfocus=()=>{if(stream){const w=wantEar;earStop();wantEar=w;}};mi.onblur=()=>{if(wantEar)earStart();};}
-    main.querySelectorAll("li").forEach(li=>{
+    main.querySelectorAll("li[data-id]").forEach(li=>{
       const id=li.dataset.id;
       li.querySelector(".chk").onclick=()=>{const a=all();const x=a.find(y=>y.id===id);if(x){x.done=!x.done;save(a);render();if(x.done)api({op:"sent",ids:[id]}).catch(()=>{});else pushOne(x);}};
       li.querySelector(".del").onclick=()=>{if(!confirm("消す？"))return;save(all().filter(y=>y.id!==id));render();api({op:"del",ids:[id]}).catch(()=>{});};
