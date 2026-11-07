@@ -863,6 +863,7 @@
     const v={id:current.id,kind:"visit",date:jstDate(new Date(current.start)),biz:bizDate(current.start),time:jstTime(new Date(current.start)),mins,
       silent:Math.round((current.silentMs||0)/60000),ext:current.ext||0,memo:digest(current.msgs)};
     if(current.crisis)v.crisis=true;
+    if(session&&session.start===current.start){const c=costInfo();v.yen=c.yen;v.seat=session.seat;} // v62 この来店の原価（今日の合計に使う）
     if(current.mamaNote)v.mamaNote=current.mamaNote;
     if(current.endKind)v.endKind=current.endKind;
     if(current.endWhy)v.endWhy=current.endWhy;
@@ -2965,6 +2966,7 @@
     let text="";
     if(byVoice){
       // 声の「お会計」はママにも聞こえてる。ママの返事（まとめ→一言→「ほな、またな」）を、最後まで喋り終わるまで待つ
+      {const bl=billLine();if(bl)note("（ママの頭の中のメモ。返事せんでええ）"+bl.trim());} // v62 声のお会計でも原価を言えるように、すぐ数字を渡す
       text=await captureReply(70000);
       if(session!==mine||!mine.closing)return; // 「すぐ出る」か「もうちょっと」
       if(wantSummary&&text.length<80){ // まとめを言わんと締めた時だけ、もう一回頼む
@@ -2978,6 +2980,11 @@
       if(session!==mine||!mine.closing)return;
     }
     if(text&&current&&wantSummary){current.mamaNote=text;}
+    { // v62 原価を言わんと締めた時は、一言だけ言い足してもらう（毎回必ず）
+      const c=costInfo();
+      if(billLine()&&!costSaid(text,c)){const p2=captureReply(20000);
+        if(inject(`【お会計の言い忘れ】今夜の原価をまだ言うてへん。「あ、言い忘れた。${costWords(c)}。ほな、またな」とだけ言う。ほかは何も言わん。`)){await p2;if(session!==mine||!mine.closing)return;}}
+    }
     await new Promise(r=>setTimeout(r,900)); // 最後の一音まで聞かせてから切る
     if(session!==mine||!mine.closing)return;
     end({reason:"user"});
@@ -3119,6 +3126,7 @@
     const ru=session&&session.rankUp!=null&&talked&&!(NEWCOMER&&session.crisis)?session.rankUp:null;
     const trialRes=session&&session.trial?Object.assign({},session.trial,{ms:connectedAt?Date.now()-connectedAt:0,silentMs:current?current.silentMs||0:0,talked}):null;
     if(current&&session&&session.endWhy)current.endWhy=session.endWhy;
+    const billTxt=(session&&current&&!session.trial&&billLine())?(()=>{const c=costInfo();return `（今夜 ${c.min}分・原価 約${c.yen.toLocaleString()}円／今日の合計 ${c.dayN}回・${c.dayMin}分・約${c.dayYen.toLocaleString()}円）`;})():""; // v62 画面にも原価を残す
     const ltMsgs=(current&&!current.trial&&talked)?current.msgs.slice():null;
     const ltKey=current?current.id:null;
     const trialNote=(NEWCOMER&&current&&current.trial&&talked)?current.msgs.filter(m=>m.who==="user").map(m=>m.text).join("／"):"";
@@ -3133,9 +3141,9 @@
     if(trialRes&&trialRes.ms>0&&(r.kind==="trial"||r.kind==="user"||r.kind==="dropped")){
       showTrialEnd(trialRes);
     }else if(r.kind==="user"){
-      statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな";},1200);
+      statusEl.textContent="ママが手帳に書いてる…";setTimeout(()=>{statusEl.textContent="またおいでな"+billTxt;},1200);
     }else if(r.kind==="closed"){
-      statusEl.textContent="今日はここまで。またおいでな";
+      statusEl.textContent="今日はここまで。またおいでな"+billTxt;
       showNotice("maxdur","ママ：ほな、おやすみ","営業時間になったから閉店にした。今日のまとめはママが手帳に書いといた（看板の下に出る）。",null,null);
     }else if(r.kind==="idle"){
       statusEl.textContent="しばらく静かやったから、静かにお会計しといた";
@@ -3291,13 +3299,27 @@
     if(session.trial)return "\n【今夜のお会計】立ち飲みの無料体験。お金の話はせん。";
     if(NEWCOMER)return "";
     const boxLine=session.seat==="box"?"\n【ボックス席のお会計】今夜はボックス席。まとめはいつもより細かく、今夜の話を4〜5行で、お客さんが言うた具体的な言葉・数字・決めたことまで拾て言う。最後に一度だけ「次はカウンターでもええし、特別な夜はボックスな」と軽う添える。":"";
-    const i=bottleInfo(bottles());
-    const pMin=(session.passMs||0)/60000,bMin=(session.bottleMs||0)/60000;
-    const yen=Math.round(pMin*PRICES.pass/PASS_MIN+bMin*(PRICES[i.c.brand]||PRICES.ao)/i.size);
-    const dr=tonightDrinkSpent();
-    const el=Math.max(1,Math.round((Date.now()-session.start)/60000));
-    return `\n【今夜のお会計】おった時間は${el}分、そのうち減った（喋った）ぶんは約${Math.round(pMin+bMin)}分（${pMin>0?`常連パスから${Math.round(pMin)}分`:""}${pMin>0&&bMin>0?"・":""}${bMin>0?`ボトルから${Math.round(bMin)}分`:""}${pMin+bMin>0?"、":""}時間ぶんは約¥${yen.toLocaleString()}）${dr?`、ドリンクが¥${dr.toLocaleString()}`:""}。${session.seat==="box"&&!session.gift?"（ボックス席料で瓶は1.5倍減ってる）":""}まとめの前に一言だけ「今夜は${el}分、${(yen+dr).toLocaleString()}円ぶんやで」と明るく言う（お金の話はこの一言だけ。しつこう言わん）。`+boxLine;
+    // v62（11/7 お客さん「お会計のたびに原価を教えて」）：ママが言うのは今夜の原価（ElevenLabsの通話代＋頭脳代の目安）。売値のデモの話はせん
+    const c=costInfo();
+    return `\n【今夜のお会計】おった時間は${c.min}分（うち黙っとった時間 約${c.sil}分）。今夜の原価はざっと${c.yen.toLocaleString()}円（${c.seat}席・1分約${c.rate}円の目安、黙っとった時間はほぼタダ）。${c.prevN>0?`今日（朝5時までは同じ日）はこれで${c.dayN}回目の来店で、今日の合計は${c.dayMin}分・原価ざっと${c.dayYen.toLocaleString()}円。`:""}まとめの前に一言だけ「${costWords(c)}」と明るく言う（数字はこのとおりに言う。お金の話はこの一言だけ。しつこう言わん）。`+boxLine;
   }
+  // v62 今夜の原価の目安：(おった時間 − 黙っとった時間×95%) × 席の1分あたり原価
+  function costInfo(){
+    if(!session)return {min:0,sil:0,yen:0,rate:0,seat:""};
+    const sk=SEATS[session.seat]?session.seat:"box",rate=SEATS[sk].yen;
+    const ms=Math.max(0,Date.now()-session.start),silMs=Math.min(ms,current?current.silentMs||0:0);
+    const yen=Math.round(Math.max(0,ms-silMs*(1-SILENCE_RATE))/60000*rate);
+    // 今日の合計：朝5時で切り替える「スナックの今日」。0時をまたいでも、同じ夜の来店は全部足す（出て入り直した分も）
+    const biz=bizDate(session.start),cid=current?current.id:"";
+    const prev=visitsOnly().filter(v=>vBiz(v)===biz&&v.id!==cid);
+    const pYen=prev.reduce((a,v)=>a+visitYen(v),0),pMin=prev.reduce((a,v)=>a+(v.mins||0),0);
+    const min=Math.max(1,Math.round(ms/60000));
+    return {min,sil:Math.round(silMs/60000),yen,rate,seat:SEATS[sk].name,prevN:prev.length,dayN:prev.length+1,dayMin:pMin+min,dayYen:pYen+yen};
+  }
+  // 前の来店の原価（v62より前の来店は記録が無いので、分数と黙ってた時間から目安で出す）
+  function visitYen(v){if(v&&typeof v.yen==="number")return v.yen;const r=settings().yenPerMin||14.5;return Math.round(Math.max(0,(v.mins||0)-(v.silent||0)*(1-SILENCE_RATE))*r);}
+  const costWords=(c)=>`今夜は${c.min}分、原価はざっと${c.yen.toLocaleString()}円やったで`+(c.prevN>0?`。今日はこれで${c.dayN}回目、合計${c.dayMin}分で${c.dayYen.toLocaleString()}円や`:"");
+  const costSaid=(t,c)=>{const n=String(t||"").replace(/[,，、\s]/g,"");return n.includes(String(c.yen))||/原価/.test(t);};
   // 立ち飲み（商用版の無料枠）のデモ：インストール1人につき3分だけ無料。月の予算を使い切ったら止める
   const TRIAL_KEY="tokienew_trial_demo_v1";
   function trialState(){let t=null;try{t=JSON.parse(localStorage.getItem(TRIAL_KEY)||"null");}catch(e){}const now=ym(Date.now());if(!t||t.ym!==now)t={ym:now,n:0,yen:0};if(typeof t.yen!=="number")t.yen=t.n*TRIAL_MIN*settings().yenPerMin;return t;}

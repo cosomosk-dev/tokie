@@ -15,6 +15,7 @@
     8. 喋ってる最中に「立ち飲みを試す」を押しても、黙って無視せえへんか
     9. 前から続いてる話（入院など）を「今日起きた」と取り違えへんように、起きた日が届いてるか（2026/10/31）
    10. 決めたこと帳（理由つき）・声で「忘れて」が効くか（2026/10/31）。分野を選ぶ仕組みは11/7に廃止（点数表に一本化）
+   12. お会計のたびにママが今夜の原価を言う（言い忘れたら言い足す）・画面にも残る（2026/11/7）
    11. 話題の点数表：日をまたいで何回も出た話ほど上・古い話は点が減る・言い直させた話は1回で上がる・渡すのは上位20件（2026/11/7）
 
   使い方（初回だけ）:
@@ -121,7 +122,7 @@ const PORT = server.address().port;
 
 const STUB = `const noop=()=>{};
 export const Conversation={startSession:async(o)=>{window.__o=o;setTimeout(()=>{o.onConnect&&o.onConnect({});o.onModeChange&&o.onModeChange({mode:"listening"});},50);
- return new Proxy({endSession:async()=>{o.onDisconnect&&o.onDisconnect({reason:"user"});},sendContextualUpdate:(t)=>{(window.__notes=window.__notes||[]).push(t);}},{get:(t,k)=>k==="then"?undefined:(k in t?t[k]:noop)});}};`;
+ return new Proxy({endSession:async()=>{o.onDisconnect&&o.onDisconnect({reason:"user"});},sendContextualUpdate:(t)=>{(window.__notes=window.__notes||[]).push(t);},sendUserMessage:(t)=>{(window.__sent=window.__sent||[]).push(t);}},{get:(t,k)=>k==="then"?undefined:(k in t?t[k]:noop)});}};`;
 
 const browser = await chromium.launch({ executablePath: findChrome(), args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"] });
 const results = [];
@@ -239,6 +240,61 @@ try {
     ok("点数表：手帳に点数と日数が出る", /点・\d+日/.test(top), top);
     ok("点数表：画面のエラーなし", errs.length === 0, errs.join(" / "));
     await ctx.close();
+  }
+  { // v62 11/7「お会計のたびに原価を教えて」：ボタンでも声でも、ママが今夜の原価を言う。言い忘れたら一言足す。画面にも残る
+    const say = async (p, txt) => {
+      await p.evaluate(() => window.__o.onModeChange({ mode: "speaking" }));
+      await p.evaluate((t) => window.__o.onMessage({ message: t, source: "ai" }), txt);
+      await p.evaluate(() => window.__o.onModeChange({ mode: "listening" }));
+    };
+    { // ボタンのお会計
+      const { p, ctx, errs } = await page("counter");
+      await enter(p);
+      await p.evaluate(() => window.__o.onMessage({ message: "今日はアプリの話をしたいねん", source: "user" }));
+      await p.waitForTimeout(300);
+      await p.tap("#btn"); await p.waitForTimeout(500);
+      const sent = await p.evaluate(() => (window.__sent || []).join("\n"));
+      ok("お会計ボタン：ママに今夜の原価の数字が渡って「原価はざっと○円やったで」と言うよう頼む", /【今夜のお会計】[^\n]*原価はざっと\d+円[^\n]*今夜は\d+分、原価はざっと\d+円やったで/.test(sent), sent.slice(-300));
+      ok("お会計ボタン：売値のデモ（○円ぶん）は言わせへん", !/円ぶんやで/.test(sent), sent.slice(-200));
+      await say(p, "はいよ、お会計な。今日はアプリの話やったな。今夜は1分、原価はざっと0円やったで。ほな、またな");
+      await p.waitForTimeout(13000);
+      const st = await p.textContent("#status");
+      ok("お会計のあと、画面にも「今夜 ○分・原価 約○円」が残る", /今夜 \d+分・原価 約\d+円/.test(st), st);
+      const sent2 = await p.evaluate(() => (window.__sent || []).join("\n"));
+      ok("ママが原価を言うた時は、言い足しを頼まへん", !sent2.includes("【お会計の言い忘れ】"), "言い足しを頼んでる");
+      ok("原価（お会計ボタン）：画面のエラーなし", errs.length === 0, errs.join(" / "));
+      await ctx.close();
+    }
+    { // 声のお会計で、ママが原価を言い忘れた（今日もう1回来てる：今日の合計も言う）
+      const { p, ctx, errs } = await page("counter");
+      await p.evaluate(() => {
+        const b = JSON.parse(localStorage.getItem("tokie_notebook_v1"));
+        const biz = new Date(Date.now() - 5 * 3600000).toLocaleDateString("ja-JP", { year: "numeric", month: "numeric", day: "numeric", timeZone: "Asia/Tokyo" });
+        b.visits.unshift({ id: "v62prev", kind: "visit", date: biz, biz, time: "21:00", mins: 20, silent: 0, yen: 300, memo: "客: 目印サッキ：さっきの来店" });
+        localStorage.setItem("tokie_notebook_v1", JSON.stringify(b));
+      });
+      await p.reload(); await p.waitForTimeout(1200);
+      await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
+      await enter(p);
+      await p.evaluate(() => window.__o.onMessage({ message: "今日はアプリの話をしたいねん", source: "user" }));
+      await p.waitForTimeout(300);
+      await p.evaluate(() => window.__o.onMessage({ message: "お会計", source: "user" }));
+      await p.waitForTimeout(500);
+      const notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+      ok("声のお会計：その場でママに今夜の原価の数字が渡る", /【今夜のお会計】[^\n]*原価はざっと\d+円/.test(notes), notes.slice(-200));
+      await say(p, "はいよ、お会計な。今日はアプリの話をようしてくれたな。ポジティーもバスターも頑張っとるやん、ほんまに偉いで。ママはちゃんと見とるからな。寒なってきたし、体だけは大事にして、また話しにおいでな。待っとるで。ほな、またな");
+      await p.waitForTimeout(20000); // 字幕1文字0.13秒ぶん喋り終わるまで待つ
+      const sent = await p.evaluate(() => (window.__sent || []).join("\n"));
+      ok("ママが原価を言い忘れたら、一言だけ言い足すよう頼む", /【お会計の言い忘れ】[^\n]*原価はざっと\d+円やったで/.test(sent), sent.slice(-200));
+      const tot = (sent.match(/今日はこれで(\d+)回目、合計(\d+)分で([\d,]+)円や/) || []);
+      ok("一回出て入り直した日は、今日の合計（回数・分・原価）も言う", tot.length === 4 && +tot[1] >= 2 && +tot[2] >= 21 && +tot[3].replace(/,/g, "") >= 300, tot[0] || sent.slice(-200));
+      await say(p, "あ、言い忘れた。今夜は1分、原価はざっと0円やったで。ほな、またな");
+      await p.waitForTimeout(13000);
+      const st = await p.textContent("#status");
+      ok("声のお会計のあとも、画面に原価と今日の合計が残る", /原価 約\d+円／今日の合計 \d+回・\d+分・約[\d,]+円/.test(st), st);
+      ok("原価（声のお会計）：画面のエラーなし", errs.length === 0, errs.join(" / "));
+      await ctx.close();
+    }
   }
   { // 会話の途中で大事な話が昇格するか
     const { p, ctx } = await page("counter", { gemini: true });
