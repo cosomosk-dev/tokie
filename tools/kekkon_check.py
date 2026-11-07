@@ -54,8 +54,13 @@ WED_PP, GIFT_PP = 4.5, 4.5
 OPT_OOPS = ['インプラント', '保険のきかない詰め物', '実家への仕送り', '車の買い替え']
 # ⑧ 車の買い替えは買ってから9年ごと(自動車検査登録情報協会の平均使用年数 約13年より短め)。ローン返済中に買い替えない
 
-def run():
-    srv = subprocess.Popen(['python3', '-m', 'http.server', '8766', '-d', ROOT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+AREAS = ('city', 'tokyo', 'rural')  # 2026/11/07 タケオ「そうしてくれ」: 結婚後の家計簿も、都内・都市部・地方の3つ全部で毎回通す
+AREA_N = {'city': '都市部', 'tokyo': '都内', 'rural': '地方'}
+PORT = {'city': 8766, 'tokyo': 8776, 'rural': 8786}
+
+def run(area='city'):
+    port = PORT[area]
+    srv = subprocess.Popen(['python3', '-m', 'http.server', str(port), '-d', ROOT], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(1)
     out = {}
     try:
@@ -65,9 +70,9 @@ def run():
                 for r in 'ABCDS':
                     for pat in ['A', 'B', 'AB', 'BA', 'AAAAB', 'BBBBA'] + (['A2', 'B2'] if r == 'C' else []):  # 悠太は2周目(授からない分岐)も
                         pg = b.new_page()
-                        pg.goto(f'http://localhost:8766/index.html?test=auto&r={r}&p={(pat[0]*16) if pat.endswith("2") else (pat*16)[:16]}&job={job}' + ('&lap=1' if pat.endswith('2') else ''))
+                        pg.goto(f'http://localhost:{port}/index.html?test=auto&r={r}&p={(pat[0]*16) if pat.endswith("2") else (pat*16)[:16]}&job={job}&area={area}' + ('&lap=1' if pat.endswith('2') else ''))
                         pg.wait_for_function('window.__WS_DONE', timeout=60000)
-                        out[(job, r, pat)] = {'ws': pg.evaluate('window.__WS'), 'err': pg.evaluate('window.__WS_ERR||""'), 'end': pg.evaluate('window.__WS_END||""')}
+                        out[(job, r, pat, area)] = {'ws': pg.evaluate('window.__WS'), 'err': pg.evaluate('window.__WS_ERR||""'), 'end': pg.evaluate('window.__WS_END||""')}
                         pg.close()
             b.close()
     finally:
@@ -153,8 +158,8 @@ def check(out):
         nonlocal ok
         if cond: ok += 1
         else: ng.append(msg)
-    for (job, r, pat), v in out.items():
-        tag = f'{JN[job]}・{r}{pat}'
+    for (job, r, pat, area), v in out.items():
+        tag = f'{JN[job]}・{AREA_N[area]}・{r}{pat}'
         t(not v['err'], f'{tag}: エラー {v["err"][:80]}')
         ws = v['ws']
         end = v.get('end', '')
@@ -228,7 +233,7 @@ def check(out):
         for e in ws:
             m = re.search(r'あなた ([\d.]+)万\(年収([\d,]+)万\)', e['book'])
             if m:
-                g = num(m.group(2)); lo, hi = WAGE[job]
+                g = num(m.group(2)); lo, hi = {'tokyo': WAGE_TOKYO, 'city': WAGE, 'rural': WAGE_RURAL}[area][job]
                 t(lo <= g <= hi * 1.1, f'{tag} {e["year"]}: あなたの年収{g:.0f}万が現実({lo}〜{hi}万)から外れてる')
                 break
         for e in ws:
@@ -268,7 +273,11 @@ def check(out):
     return ok, ng
 
 if __name__ == '__main__':
-    out = run()
+    from concurrent.futures import ProcessPoolExecutor
+    out = {}
+    with ProcessPoolExecutor(max_workers=3) as ex:  # 3地域を同時に走らせる(時間は1地域分とほぼ同じ)
+        for o in ex.map(run, AREAS):
+            out.update(o)
     ok, ng = check(out)
     ok1, ng1 = check_single(run_single())
     ok += ok1; ng += ng1
