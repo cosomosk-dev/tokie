@@ -15,6 +15,7 @@
     8. 喋ってる最中に「立ち飲みを試す」を押しても、黙って無視せえへんか
     9. 前から続いてる話（入院など）を「今日起きた」と取り違えへんように、起きた日が届いてるか（2026/10/31）
    10. 決めたこと帳（理由つき）・選んだ分野の底上げ・声で「忘れて」が効くか（2026/10/31）
+   11. 話題の点数表：日をまたいで何回も出た話ほど上・古い話は点が減る・言い直させた話は1回で上がる・渡すのは上位20件（2026/11/7）
 
   使い方（初回だけ）:
     npm i --prefix tools playwright@1.47.2
@@ -206,6 +207,37 @@ try {
       ok("「ママに渡してる中身を見る」ボタンで中身と版が出る", dump.includes("版：") && dump.includes(MARK.dream.slice(0, 6)) , dump.slice(0, 80));
     }
     ok(`${nm}：画面のエラーなし`, errs.length === 0, errs.join(" / "));
+    await ctx.close();
+  }
+  { // v60 話題の点数表：日をまたいで何回も出た話ほど上、古い話は点が減る、言い直させた話は1回で上がる（2026/11/7）
+    const { p, ctx, errs } = await page("counter");
+    await p.evaluate(([now]) => {
+      const b = JSON.parse(localStorage.getItem("tokie_notebook_v1"));
+      const W = 7 * 86400e3;
+      b.lt = [
+        { t: "目印テンスウタカイ：都知事選に挑む", imp: 3, nights: { d1: 1, d2: 1, d3: 1, d4: 1, d5: 1 }, legacy: 0, lastTs: now },
+        { t: "目印オナジバン：雨の日の話", imp: 3, nights: { d1: 3 }, legacy: 0, lastTs: now },
+        { t: "目印フルイハナシ：前の車の話", imp: 3, nights: { d1: 1, d2: 1, d3: 1, d4: 1, d5: 1 }, legacy: 0, lastTs: now - 12 * W },
+        { t: "目印イイナオシ：お酒が飲めへん理由はもう言うた", imp: 3, corr: 1, nights: { d1: 1 }, legacy: 0, lastTs: now },
+        { t: "目印イッカイ：昨日のランチ", imp: 2, nights: { d1: 1 }, legacy: 0, lastTs: now },
+      ].concat(Array.from({ length: 30 }, (_, i) => ({ t: "目印ウメクサ" + i + "：別の話" + i, imp: 3, nights: { a: 1, b: 1, c: 1 }, legacy: 0, lastTs: now - 3 * W })));
+      localStorage.setItem("tokie_notebook_v1", JSON.stringify(b));
+    }, [now]);
+    await p.reload(); await p.waitForTimeout(1200);
+    await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
+    const { memory } = await enter(p);
+    const blk = (memory.split("【ママが絶対に忘れへんこと")[1] || "").split("\n\n")[0];
+    const at = (k) => blk.indexOf(k);
+    ok("点数表：日をまたいで何回も出た話が、同じ晩に3回言うた話より上に来る", at("目印テンスウタカイ") >= 0 && at("目印オナジバン") >= 0 && at("目印テンスウタカイ") < at("目印オナジバン"), blk.slice(0, 200));
+    ok("点数表：日をまたいだ話には「○日にわたって」と添えて届く", /目印テンスウタカイ[^\n]*5日にわたって/.test(blk), (blk.match(/[^\n]*目印テンスウタカイ[^\n]*/) || ["（届いてへん）"])[0]);
+    ok("点数表：何週間も出てへん話は点が減って、最近の話より下になる", at("目印フルイハナシ") < 0 || at("目印フルイハナシ") > at("目印オナジバン"), blk.slice(0, 200));
+    ok("点数表：ママが忘れて言い直させた話は1回で上がって「言い直させた話」と届く", /目印イイナオシ[^\n]*前に忘れて言い直させた話/.test(blk), (blk.match(/[^\n]*目印イイナオシ[^\n]*/) || ["（届いてへん）"])[0]);
+    ok("点数表：1回だけの雑談は「絶対忘れへんこと」に入らへん", at("目印イッカイ") < 0, "1回の雑談が入ってる");
+    const n = (blk.match(/^・/gm) || []).length;
+    ok("点数表：ママに渡す「絶対忘れへんこと」は上位20件まで", n <= 20 && n >= 5, n + "件");
+    const top = await p.evaluate(() => { document.getElementById("notebtn").click(); const r = [...document.querySelectorAll("#ltbook .ltrow b")].map((e) => e.textContent).join(" | "); return r; });
+    ok("点数表：手帳に点数と日数が出る", /点・\d+日/.test(top), top);
+    ok("点数表：画面のエラーなし", errs.length === 0, errs.join(" / "));
     await ctx.close();
   }
   { // 会話の途中で大事な話が昇格するか
