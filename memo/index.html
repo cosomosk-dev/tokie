@@ -56,6 +56,26 @@
   .day ul{padding:0 12px}
   .day li:last-child{border-bottom:none}
   .day.shut ul{display:none}
+  /* 表示の切り替え（優先順／日付ごと） */
+  .tabs{display:flex;gap:6px;margin:12px 0 4px}
+  .tabs button{flex:1;padding:9px 6px;font-size:13px;color:var(--dim)}
+  .tabs button.on{color:#0b0a09;background:var(--amber);border-color:var(--amber);font-weight:600}
+  /* 何回も言うてる順の一覧 */
+  .pri{counter-reset:p}
+  .grp{border-bottom:1px solid var(--line);padding:12px 0}
+  .grpH{display:flex;gap:10px;align-items:flex-start}
+  .rank{flex:0 0 28px;height:28px;border-radius:50%;border:1px solid var(--line);color:var(--amber);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center}
+  .grp.hot .rank{background:var(--amber);color:#0b0a09;border-color:var(--amber)}
+  .grpB{flex:1;min-width:0}
+  .grpT{font-size:16px;line-height:1.5;word-break:break-word}
+  .grp.hot .grpT{font-weight:600}
+  .cnt{display:inline-block;font-size:12px;color:var(--amber);border:1px solid var(--line);border-radius:999px;padding:1px 8px;margin-top:5px}
+  .grp.hot .cnt{background:rgba(232,201,138,.14)}
+  .grpD{font-size:11px;color:var(--dim);margin-top:4px}
+  .grpL{margin:8px 0 0 38px;display:none}
+  .grp.open .grpL{display:block}
+  .grpL div{font-size:13px;color:var(--dim);line-height:1.5;padding:4px 0;border-top:1px dashed var(--line)}
+  .how{font-size:11px;color:var(--dim);margin:6px 0 2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -100,6 +120,64 @@
   const OPEN_DAYS="tokie_memo_days_open_v1"; // 手で開け閉めした日を覚えとく
   function dayOpenMap(){try{return JSON.parse(localStorage.getItem(OPEN_DAYS)||"{}")||{};}catch(e){return {};}}
   function setDayOpen(k,v){const o=dayOpenMap();o[k]=v;try{localStorage.setItem(OPEN_DAYS,JSON.stringify(o));}catch(e){}}
+  // ── 何回も言うてる順（優先順）──────────────
+  // 同じ話を何回も言うてる＝本人の中で優先度が高い、という考え方で並べる。
+  //  1) まず端末の中だけで「似てる文」を束ねる（すぐ出る・ネット不要）
+  //  2) Geminiのキー（トキエと同じ）があれば、言い換えも同じ話として束ね直す（「ポジティーの広告」と「ポジティの宣伝動画」など）。結果は覚えとく
+  // 並び：言うた回数 → 言うた日数 → 最後に言うた日が新しい順
+  const VIEW="tokie_memo_view_v1", GCACHE="tokie_memo_groups_v1";
+  function view(){try{return localStorage.getItem(VIEW)||"pri";}catch(e){return "pri";}}
+  function norm(s){return String(s).toLowerCase().replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60)).replace(/[ー〜~\s、。，,・…！？!?「」『』（）()【】\-]/g,"");}
+  function grams(s){const t=norm(s),g=new Set();for(let i=0;i<t.length-1;i++)g.add(t.slice(i,i+2));return g;}
+  function alike(a,b){let n=0;for(const x of a)if(b.has(x))n++;if(n<3)return false;const small=Math.min(a.size,b.size)||1;return n/small>=0.5||n/(a.size+b.size-n)>=0.3;}
+  function localGroups(list){
+    const g=list.map(x=>grams(x.text)),p=list.map((_,i)=>i);
+    const f=i=>p[i]===i?i:(p[i]=f(p[i]));
+    for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)if(alike(g[i],g[j]))p[f(i)]=f(j);
+    const m=new Map();list.forEach((x,i)=>{const r=f(i);if(!m.has(r))m.set(r,[]);m.get(r).push(x);});
+    return [...m.values()].map(items=>({title:"",items}));
+  }
+  function setHash(list){return list.map(x=>x.id+":"+x.text.length).sort().join("|");}
+  function cachedAI(list){try{const c=JSON.parse(localStorage.getItem(GCACHE)||"null");if(!c||c.h!==setHash(list))return null;const byId=new Map(list.map(x=>[x.id,x]));const used=new Set();const out=[];
+    for(const gr of c.g){const items=gr.ids.map(i=>byId.get(i)).filter(Boolean).filter(x=>!used.has(x.id));items.forEach(x=>used.add(x.id));if(items.length)out.push({title:gr.title||"",items});}
+    list.forEach(x=>{if(!used.has(x.id))out.push({title:"",items:[x]});});return out;}catch(e){return null;}}
+  let aiBusy=false, aiTried="";
+  async function aiGroup(list){
+    const key=gKey();const h=setHash(list);if(!key||aiBusy||aiTried===h||list.length<2)return;
+    aiBusy=true;aiTried=h;
+    const prompt="次は、ある人が夜に吹き込んだメモの一覧です。同じ話・同じやること・同じアイデアを言い換えて何回も言うているものを1つのまとまりに束ねてください。"+
+      "違う話は別のまとまりにします（似た単語が入っていても、やることが違えば別）。1件だけの話もそのまま1つのまとまりにします。"+
+      "各まとまりに、何の話か一目で分かる短い見出し（20文字以内・本人の言葉に近く・体言止め）を付けてください。"+
+      "答えはJSONだけ：{\"groups\":[{\"title\":\"見出し\",\"ids\":[番号,...]}]}。番号は全部どこかに1回ずつ入れること。\n\n"+
+      list.map((x,i)=>i+": "+x.text).join("\n");
+    try{
+      for(const m of J_MODELS){
+        try{
+          const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),25000);
+          const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},signal:ctl.signal,
+            body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0,responseMimeType:"application/json"}})});
+          clearTimeout(t);if(!r.ok)continue;
+          const j=await r.json();const txt=((((j.candidates||[])[0]||{}).content||{}).parts||[]).map(p=>p.text||"").join("");
+          const o=JSON.parse(txt.replace(/^```(?:json)?|```$/g,"").trim());
+          const g=(o.groups||[]).map(x=>({title:String(x.title||"").slice(0,30),ids:(x.ids||[]).map(n=>list[+n]&&list[+n].id).filter(Boolean)})).filter(x=>x.ids.length);
+          if(!g.length)continue;
+          try{localStorage.setItem(GCACHE,JSON.stringify({h,g}));}catch(e){}
+          if(view()==="pri")render();return;
+        }catch(e){}
+      }
+    }finally{aiBusy=false;}
+  }
+  function priority(list){
+    const ai=cachedAI(list);
+    const groups=(ai||localGroups(list)).map(gr=>{
+      const items=gr.items.slice().sort((a,b)=>b.ts-a.ts);
+      const days=[...new Set(items.map(x=>dayKey(x.ts)))];
+      return {title:gr.title||items[0].text,items,n:items.length,d:days.length,last:items[0].ts,days};
+    }).sort((a,b)=>b.n-a.n||b.d-a.d||b.last-a.last);
+    return {groups,ai:!!ai};
+  }
+  function priText(list){return "夜メモ（何回も言うてる順）：\n"+priority(list).groups.map((g,i)=>(i+1)+". "+g.title+"（"+g.n+"回）"+(g.n>1?"\n"+g.items.map(x=>"   ・"+when(x.ts)+" "+x.text).join("\n"):"")).join("\n");}
+
   function toast(t){const el=$("toast");el.textContent=t;el.classList.add("on");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("on"),2000);}
   function copyText(t){
     if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t).then(()=>toast("コピーした"),()=>toast("コピーでけへんかった"));
@@ -264,7 +342,7 @@
   document.addEventListener("visibilitychange",()=>{if(document.hidden){if(stream){const w=wantEar;earStop();wantEar=w;}}else if(wantEar)earStart();});
 
   // ── 画面 ─────────────────────────────
-  let showDone=false;
+  let showDone=false; const openGrp=new Set();
   function openCount(){return all().filter(x=>!x.done).length;}
   function rejBlock(){const a=rejects();if(!a.length)return "";return '<div class="exp" style="display:block"><button class="sm" id="rjT">テレビ・音楽として弾いた分（'+a.length+'件）'+(showRj?'を隠す':'を見る')+'</button>'+(showRj?'<ul>'+a.slice().reverse().map((x,i)=>'<li><div class="t" style="font-size:14px;color:var(--dim)">'+esc(x.text)+'<div class="when">'+when(x.ts)+'</div></div><button class="sm rjBack" data-i="'+(a.length-1-i)+'">メモに戻す</button></li>').join("")+'</ul>':'')+'</div>';}
   let showRj=false;
@@ -276,8 +354,29 @@
       main.innerHTML='<div class="night"><div class="big">'+(open.length?"メモ "+open.length+"件、預かってる":"今夜はまだ何も")+'</div><div class="n">朝8時にClaudeが並べて出す。今は見んでええ。</div></div>'+expBlock();
       bind();return;
     }
-    let h='<div class="bar"><button id="copyAll">全部コピー（Claudeに貼る用）</button><button class="sm" id="showDone">'+(showDone?"済みを隠す":"済みも見る")+'</button></div>';
+    const v=view();
+    let h='<div class="tabs"><button data-v="pri" class="'+(v==="pri"?"on":"")+'">何回も言うてる順</button><button data-v="day" class="'+(v==="day"?"on":"")+'">日付ごと</button></div>';
+    h+='<div class="bar"><button id="copyAll">全部コピー（Claudeに貼る用）</button>'+(v==="day"?'<button class="sm" id="showDone">'+(showDone?"済みを隠す":"済みも見る")+'</button>':'')+'</div>';
     const list=showDone?a:open;
+    if(v==="pri"){
+      const src=open; // 優先順は「まだ済んでへん分」だけで数える
+      if(!src.length){h+='<div class="empty">まだ何もない。喋るだけでここに溜まる。トキエで「ママ、これメモしといて」でも入る。</div>';}
+      else{
+        const pr=priority(src);
+        h+='<div class="how">'+(pr.ai?"言い換えも同じ話としてまとめた":(gKey()?"言い換えもまとめ中…":"似てる文だけまとめてる"))+'・回数が多い順</div><div class="pri">';
+        h+=pr.groups.map((g,i)=>{
+          const hot=g.n>=2;
+          const dl=g.days.slice().reverse().map(k=>dayLabel(k).base.replace(/（.）/,"")).join("・");
+          return '<div class="grp'+(hot?" hot":"")+(openGrp.has(g.items[0].id)?" open":"")+'" data-ids="'+g.items.map(x=>x.id).join(",")+'"><div class="grpH"><div class="rank">'+(i+1)+'</div><div class="grpB"><div class="grpT">'+esc(g.title)+'</div>'+
+            '<span class="cnt">'+(hot?"★ "+g.n+"回言うてる":"1回")+(g.d>1?"・"+g.d+"日":"")+'</span><div class="grpD">'+(g.n>1?dl+"　▸タップで中身":when(g.items[0].ts)+({tokie:"・ママ経由",ear:"・声",hand:"・手"}[g.items[0].from]||""))+'</div></div>'+
+            '<button class="sm gchk" title="済み">✓</button></div>'+(g.n>1?'<div class="grpL">'+g.items.map(x=>'<div>'+when(x.ts)+'　'+esc(x.text)+'</div>').join("")+'</div>':'')+'</div>';
+        }).join("")+'</div>';
+        if(!pr.ai)aiGroup(src);
+      }
+      h+='<div class="row"><input type="text" id="manual" placeholder="手で足す"><button id="add">足す</button></div>';
+      h+=rejBlock()+expBlock();
+      main.innerHTML=h;bind();return;
+    }
     const days=groupByDay(list), om=dayOpenMap();
     const li=x=>'<li class="'+(x.done?"done":"")+'" data-id="'+x.id+'"><button class="sm chk" title="済み">'+(x.done?"↩":"✓")+'</button><div><div class="t">'+esc(x.text)+'</div><div class="when">'+when(x.ts)+({tokie:"・ママ経由",ear:"・声",hand:"・手"}[x.from]||"")+'</div></div><button class="sm del" title="消す">✕</button></li>';
     h+=days.length?days.map(([k,items],i)=>{
@@ -294,7 +393,13 @@
     const rt=$("rjT");if(rt)rt.onclick=()=>{showRj=!showRj;render();};
     main.querySelectorAll(".rjBack").forEach(b=>b.onclick=()=>{const a=rejects();const i=+b.dataset.i;const x=a[i];if(!x)return;a.splice(i,1);try{localStorage.setItem(RJ,JSON.stringify(a));}catch(e){}addMemo(x.text,"ear");});
     const p=$("peek");if(p)p.onclick=()=>{localStorage.setItem(PEEK,peek()?"0":"1");render();};
-    const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText("夜メモ（日付ごと）：\n\n"+groupByDay(open).reverse().map(([k,items])=>dayText(k,items)).join("\n\n"));};
+    const c=$("copyAll");if(c)c.onclick=()=>{const open=all().filter(x=>!x.done);if(!open.length)return toast("空やで");copyText(view()==="pri"?priText(open):"夜メモ（日付ごと）：\n\n"+groupByDay(open).reverse().map(([k,items])=>dayText(k,items)).join("\n\n"));};
+    main.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{try{localStorage.setItem(VIEW,b.dataset.v);}catch(e){}render();});
+    main.querySelectorAll(".grp").forEach(g=>{
+      const ids=g.dataset.ids.split(",");
+      g.querySelector(".grpH").onclick=(e)=>{if(e.target.closest(".gchk"))return;if(ids.length<2)return;openGrp.has(ids[0])?openGrp.delete(ids[0]):openGrp.add(ids[0]);render();};
+      g.querySelector(".gchk").onclick=(e)=>{e.stopPropagation();if(ids.length>1&&!confirm("この話の"+ids.length+"件をまとめて済みにする？"))return;const a=all();a.forEach(x=>{if(ids.includes(x.id))x.done=true;});save(a);render();api({op:"sent",ids}).catch(()=>{});toast("済みにした");};
+    });
     main.querySelectorAll(".day").forEach(d=>{
       const k=d.dataset.day;
       d.querySelector(".dayH").onclick=(e)=>{if(e.target.closest(".dayCopy"))return;setDayOpen(k,d.classList.contains("shut"));render();};
