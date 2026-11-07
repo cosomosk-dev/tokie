@@ -723,7 +723,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-06 v58";
+  const APP_VER="2026-11-07 v59";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -772,6 +772,10 @@
   }
   /* ───────── Claudeから毎日届くメモ（暗号化して digest.enc に置いてある。鍵はこの端末だけに保存） ───────── */
   const DKEY="tokie_digest_key", MAX_DIGEST_CHARS=6000;
+  /* v59（2026/11/7 タケオさんが決定）：Claudeから毎日届くメモは止めた。商用版のお客さんには無い仕組みで、
+     しかもママに渡す記憶の枠を最大9千バイト使って、昔の記憶（1ヶ月の記憶・基本情報）を押し出してたため。
+     届いてる分は捨てへん。決まった枠には入れず、「思い出す」（話題が出た時に探して取り出す）の材料にだけ使う。 */
+  const DIGEST_IN_MEMORY=false;
   try{
     const m=location.hash.match(/k=([A-Za-z0-9_-]{20,})/);
     if(m){localStorage.setItem(DKEY,m[1]);history.replaceState(null,"",location.pathname);}
@@ -1322,7 +1326,7 @@
      優先順（入りきらん時は下から削る）：
        ①話の続き帳 ②直近3回の来店 ③今日の出来事 ④何回も言うた話 ⑤昨日の出来事 ⑥見せてもろた写真
        ⑦基本情報（要約・核だけ） ⑧手書きメモ ⑨1ヶ月の記憶 */
-  const MEM_PLAN=[["threads",2200],["v0",4200],["v1",2600],["v2",1600],["today",6000],["lt",4100],["yday",2600],["photo",900],["profile",4500],["notes",1500],["month",3500]];
+  const MEM_PLAN=[["threads",2200],["v0",4200],["v1",2600],["v2",1600],["today",6000],["lt",4100],["yday",2600],["photo",900],["profile",6000],["notes",2500],["month",5000]]; // v59 自動メモを止めて空いた分（today・yday）を、昔の記憶（基本情報・手書きメモ・1ヶ月の記憶）に回した
 
   /* 話の続き帳：進行中の話・これからやること・結果待ちを、お会計のたびに拾う（片付いたら閉じる・21日出えへんかったら消える） */
   const TH_MAX=14, TH_DAYS=21;
@@ -1358,7 +1362,7 @@
   async function seedThreadsFromDigest(d){
     try{
       if(!gKey()||localStorage.getItem("tokie_threads_seeded_v1")||threadsOpen().length)return;
-      if(!d||d.status!=="ok"||!d.days.length)return;
+      if(!DIGEST_IN_MEMORY||!d||d.status!=="ok"||!d.days.length)return;
       const lines=d.days.slice(0,2).flatMap(x=>relDays(digestClean(x.text),dkey(x.date)).split("\n")).map(l=>l.replace(/^・/,"").trim()).filter(l=>l.length>=6&&!/頼みたい/.test(l));
       if(!lines.length)return;
       localStorage.setItem("tokie_threads_seeded_v1","1");
@@ -1474,7 +1478,7 @@
 
     const visits=b.visits.filter(v=>v.kind!=="note"&&!(extension&&current&&v.id===current.id));
     const notes=b.visits.filter(v=>v.kind==="note");
-    const days=(digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
+    const days=(DIGEST_IN_MEMORY&&digest&&digest.status==="ok"&&Array.isArray(digest.days))?digest.days:[];
     const todayKey=dkey(todayBiz());
     const olderDays=days.filter(x=>dkey(x.date)!==todayKey);
     // 直近3回の来店（2つめ以降は「別の日」を優先：同じ日に何回も来ても、前の日の話が押し出されへんように）
@@ -1506,6 +1510,7 @@
       const t=make[k](Math.min(cap,room));
       if(t){got[k]=t;room-=jbytes(t)+SEP;}
     }
+    if(!extension)lastMemIds=new Set(["v0","v1","v2"].filter(k=>got[k]&&picks[+k[1]]).map(k=>picks[+k[1]].id)); // v59 思い出す：詳しく渡した来店は探す対象から外す
     // 並び：変わらん話→最近の話→いちばん新しい話（末尾ほど新しい。モデルは末尾をよう覚えてる）
     const parts=[...head];
     if(got.profile)parts.push(got.profile);
@@ -1545,6 +1550,73 @@
       body+=line+"\n";
     }
     return body?h+body.trim():"";
+  }
+  /* ───────── v59 思い出す（2026/11/7）─────────
+     決まった枠に全部詰め込むやり方は、思い出が増えるほど古い話から落ちる（「えぐいほど昔を覚えてへん」）。
+     本物のママは「あ、あの話な」と、話題が出た時に思い出す。せやから、お客さんの言葉から大事な言葉
+     （漢字・カタカナ・英数字のかたまり）を拾い、手帳の昔の来店・手書きメモ・片付いた話・前に届いた自動メモから
+     その言葉が出てくる話を探して、その場でママの頭に入れる。手帳は何年分でも消さへんから、何か月前の話でも出てくる。 */
+  let lastMemIds=new Set();
+  const RECALL_STOP=new Set(["今日","昨日","明日","今夜","今朝","今晩","昨夜","今回","前回","最近","自分","本当","本気","時間","一緒","全部","普通","毎日","大丈夫","感じ","結構","意味","理由","関係","場合","部分","問題","必要","大事","気持","元気","予定","確認","連絡","電話","相手","何回","一回","今度","最初","最後","途中","以上","以下","一番","多分","絶対","全然","仕方","ママ","トキエ","タケオ","お客","客","ほんま","ちょっと","ーー"]);
+  function recallTerms(t){
+    const s=String(t||"").replace(/[「」『』（）()【】、。！？!?…・\s]/g," ");
+    const m=s.match(/[一-龠々〆ヵヶ]{2,}|[ァ-ヴー]{2,}|[A-Za-zＡ-Ｚａ-ｚ0-9０-９]{2,}/g)||[];
+    const out=[];for(const w of m){const x=w.toLowerCase();if(RECALL_STOP.has(x)||/^\d{1,2}$/.test(x)||/^ー+$/.test(x))continue;if(!out.includes(x))out.push(x);}
+    return out.slice(0,12);
+  }
+  function recallPool(){
+    const b=loadBook();const pool=[];
+    for(const v of b.visits){
+      if(current&&v.id===current.id)continue;
+      const lines=String(v.memo||"").split("\n").filter(l=>l.startsWith("客: ")).map(l=>l.slice(3).trim()).filter(l=>l.length>=4);
+      if(v.mamaNote)lines.unshift("ママのまとめ: "+String(v.mamaNote).replace(/\s+/g," "));
+      if(!lines.length)continue;
+      pool.push({id:v.id,date:vBiz(v)||v.date,kind:v.kind==="note"?"手書きメモ":"来店",lines});
+    }
+    for(const x of (b.threads||[]))if(x&&x.done&&x.t)pool.push({id:"th:"+(x.id||x.t),date:x.last||x.first||"",kind:"片付いた話",lines:[String(x.t)+(x.next?"（その後："+x.next+"）":"")]});
+    const days=(digestCache&&digestCache.status==="ok"&&Array.isArray(digestCache.days))?digestCache.days:[];
+    for(const x of days){const key=dkey(x.date);const lines=relDays(digestClean(x.text),key).split("\n").map(l=>l.replace(/^[・\-\*\s#■]+/,"").trim()).filter(l=>l.length>=6&&!/頼みたい/.test(l));
+      if(lines.length)pool.push({id:"dg:"+key,date:x.date,kind:"その日の出来事（前に届いた自動メモ）",lines});}
+    for(const e of pool)e.low=e.lines.join("\n").toLowerCase();
+    return pool;
+  }
+  function recallFind(t,max){
+    const terms=recallTerms(t);if(!terms.length)return [];
+    if(!session.recallPool)session.recallPool=recallPool();
+    const pool=session.recallPool.filter(e=>!lastMemIds.has(e.id)&&!(session.recalled&&session.recalled.has(e.id)));
+    if(!pool.length)return [];
+    const N=session.recallPool.length;
+    const w={};for(const x of terms){const df=session.recallPool.filter(e=>e.low.includes(x)).length;if(!df||df>Math.max(3,N*0.3))continue;w[x]=Math.log(1+N/df)*(x.length>=3?1.5:1);} // どこにでも出てくる言葉は手がかりにならへん
+    const keys=Object.keys(w);if(!keys.length)return [];
+    const hits=[];
+    for(const e of pool){const got=keys.filter(x=>e.low.includes(x));if(!got.length)continue;
+      const sc=got.reduce((n,x)=>n+w[x],0);
+      if(got.length<2&&!got.some(x=>x.length>=3))continue; // 2文字の言葉1個だけでは決めつけへん
+      if(sc<2)continue;hits.push({e,got,sc});}
+    hits.sort((a,b)=>b.sc-a.sc||String(b.e.date).localeCompare(String(a.e.date)));
+    return hits.slice(0,max||2);
+  }
+  function recallBlock(hits){
+    const today=todayBiz();
+    const parts=hits.map(({e,got})=>{
+      const key=dkey(e.date);const ago=key?dayDiff(today,key.replace(/-/g,"/")):NaN;
+      const when=key?shortDate(key)+(Number.isFinite(ago)&&ago>0?`（${ago}日前）`:""):"日付不明";
+      const ls=e.lines.map((l,i)=>({l,i,n:got.filter(x=>l.toLowerCase().includes(x)).length})).filter(x=>x.n).sort((a,b)=>b.n-a.n||a.i-b.i).slice(0,3).sort((a,b)=>a.i-b.i).map(x=>"・"+clip(x.l,100));
+      return `■${when}の${e.kind}\n`+ls.join("\n");
+    });
+    return "【思い出した昔の話（お客さんが今「"+hits[0].got.slice(0,3).join("・")+"」の話をしたから、ママが手帳をめくって思い出した。日付はその時のこと）】\n"+parts.join("\n")+
+      "\n使い方：今の話とつながる時だけ「そういえば前に〜言うてたやん」と1回だけ自然に触れる。細かいとこは聞き返してええ。今夜お客さんが言うたことと食い違う時は、今夜の話が正しい（前の話は古い）。ここに無いことは作らへん。（ママの頭の中のメモ。これには返事せんでええ）";
+  }
+  const RECALL_MAX_NIGHT=24, RECALL_GAP_TURNS=2;
+  function recallOnLine(t){
+    if(!session||session.trial||!conv)return false;
+    if((session.recallN||0)>=RECALL_MAX_NIGHT)return false;
+    const turn=session.userTurns||0;
+    if(session.recallTurn!=null&&turn-session.recallTurn<RECALL_GAP_TURNS)return false; // 立て続けには出さへん
+    const hits=recallFind(t,2);if(!hits.length)return false;
+    session.recalled=session.recalled||new Set();for(const h of hits)session.recalled.add(h.e.id);
+    session.recallN=(session.recallN||0)+1;session.recallTurn=turn;
+    return note(recallBlock(hits));
   }
   // 今夜の会話の流れ（延長で入り直す時と、途中で渡す【今夜の流れ】メモ用）
   function tonightBlock(nTurns){
@@ -2524,6 +2596,7 @@
       if(session.nowState.length>5)session.nowState.shift();
       pinTonight();return;
     }
+    try{recallOnLine(t);}catch(e){} // v59 思い出す
     session.userTurns=(session.userTurns||0)+1;
     if(session.userTurns%SUM_EVERY_USER===0)updateNightSum();
     if(session.userTurns%LT_EVERY_USER===0)midLongterm();
@@ -2701,7 +2774,7 @@
   function stopTick(){if(session&&session.timer){clearInterval(session.timer);session.timer=null;}}
   // v24: 喋ってる間に新しい自動メモ（1日6回）が届いたら、その場でママの頭に入れる（次の入店まで待たへん）
   async function refreshDigestMidSession(){
-    if(!session||session.trial||session.digBusy)return;
+    if(!DIGEST_IN_MEMORY||!session||session.trial||session.digBusy)return;
     const mine=session;mine.digBusy=true;
     try{
       const prev=digestCache&&digestCache.updated;

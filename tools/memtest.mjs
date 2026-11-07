@@ -70,6 +70,7 @@ const MARK = {
   thread: "目印ツヅキ：ウェディングの発注資料をbuntyanに送る",
   threadAsk: "ウェディングの発注資料",
   v2: "目印サンカイマエ：六本木の店の話",
+  old: "目印ムカシ：白老の別荘地を売るか迷ってる",
 };
 const profile = "名前はタケオ。" + "平塚で生まれ育った。毎日いろいろある話を書いておく。".repeat(180) + MARK.record + "。" + MARK.dream + "。";
 const visits = [];
@@ -80,6 +81,9 @@ for (let i = 0; i < 25; i++) {
     mamaNote: i === 0 ? "今夜は" + MARK.prevVisit + "。ほな、またな。" : i === 2 ? "今夜は" + MARK.v2 + "をした。" : (i % 2 ? "" : "今夜はアプリの話をようけした。"),
     memo: Array.from({ length: 30 }, (_, j) => "客: 今日はこんな話をしたんやけど、ほんまにいろいろあってな" + j + "\nママ: へえ").join("\n") });
 }
+// v59 思い出す：2か月前の来店（1ヶ月の記憶より前）
+visits.push({ id: "vOld", date: jstYmd(now - 60 * 86400e3).replace(/-/g, "/"), time: "21:00", mins: 60, kind: "visit", mamaNote: "",
+  memo: "客: " + MARK.old + "、親父と相談せなあかん\nママ: へえ" });
 const book = { __photo: MARK.photo, profile, visits,
   threads: [{ id: "T1", t: MARK.thread, ask: MARK.threadAsk, next: "送ったか", first: "", last: "", lastTs: now - 86400e3, done: false },
     // v38 まだ先の予定（日付なしの古い書き方）。いちばん新しいけど、入店の第一声で「どうなったん？」と聞いたらあかん
@@ -176,15 +180,15 @@ try {
     const todayBlock = memory.split("【今日タケオさんの身に起きたこと")[1] || "";
     ok(`${nm}：夢（基本情報の最後）が届く`, memory.includes(MARK.dream), "基本情報が削られてる");
     ok(`${nm}：実績（基本情報の最後）が届く`, memory.includes(MARK.record), "基本情報が削られてる");
-    ok(`${nm}：今日の自動メモが届く`, todayBlock.includes(MARK.todayDig) || todayBlock.includes(MARK.ydayDig), "今日の分が無い／削られてる");
-    ok(`${nm}：「ママに頼みたいこと」まで届く`, todayBlock.includes("目印タノミ"), "今日の分の最後が切れてる");
+    // v59（11/7）Claudeからの毎日の自動メモはタケオさんの判断で停止。商用版に無い仕組みで、昔の記憶を押し出してたため。決まった枠には入れへん
+    ok(`${nm}：止めた自動メモは決まった枠に入らへん（昔の記憶の場所を取らへん）`, !memory.includes("【今日タケオさんの身に起きたこと") && !memory.includes(MARK.todayDig) && !memory.includes("【昨日（前の日）タケオさん"), (memory.match(/[^\n]*目印キョウ[^\n]*/) || [""])[0]);
+    ok(`${nm}：2か月前の来店は、入店の時点では渡さへん（話題が出たら思い出す）`, !memory.includes(MARK.old), "昔の話が最初から入ってる");
     ok(`${nm}：前回の来店の話が届く`, memory.includes(MARK.prevVisit), "前回の来店が削られてる");
     ok(`${nm}：3回前の来店まで届く`, memory.includes(MARK.v2), "直近3回の来店が入ってへん");
     ok(`${nm}：話の続き（途中の話）が届く`, memory.includes(MARK.thread), "話の続き帳が入ってへん");
     ok(`${nm}：入店の第一声で「あれどうなったん？」と聞く`, greeting.includes(MARK.threadAsk) && greeting.includes("どうなった"), greeting);
     ok(`${nm}：まだ先の予定は第一声で「どうなったん？」と聞かへん`, !greeting.includes("血液検査"), greeting);
     ok(`${nm}：まだ先の予定は「まだ先・結果は聞かへん」と添えて届く`, /目印サキ[^\n]*まだ先[^\n]*結果は聞かへん/.test(memory), (memory.match(/目印サキ[^\n]*/) || [""])[0]);
-    ok(`${nm}：前の日の自動メモの「今日」は、その日の日付に直して届く`, LATE ? true : (memory.includes(mdOf(YDAY) + "、目印カコ") && !memory.includes("今日、目印カコ")), (memory.match(/[^\n]{0,30}目印カコ[^\n]{0,10}/) || ["（届いてへん）"])[0]);
     ok(`${nm}：話の続きに「起きた日」が聞いた日と分けて届く`, new RegExp("目印オキタ[^\\n]*起きたのは" + mdOf(DBY3) + "（3日前）").test(memory), (memory.match(/目印オキタ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：起きた日が分からん話は「今日とは限らへん」と添えて届く`, /目印フメイ[^\n]*起きた日は未確認/.test(memory), (memory.match(/目印フメイ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：「話に出た日と起きた日は別」のルールが届く`, memory.includes("『話に出た日』と『起きた日』は別"), "時系列のルールに無い");
@@ -280,6 +284,26 @@ try {
     await p.evaluate(() => window.__tokieTest.silentRefresh()); await p.waitForTimeout(2500);
     const m = await p.evaluate(() => { const o = window.__o || {}; const dv = o.dynamicVariables || (o.overrides && o.overrides.dynamicVariables) || {}; return dv.memory || ""; });
     ok("長話＋静かな入り直しのあとも、訂正された前提を持ってる", m.includes("目印テイセイ") && m.includes("プロフィール充実"), "入り直したら訂正が消えてる");
+    await ctx.close();
+  }
+  { // v59 思い出す：話題が出た瞬間に、手帳の昔の話を探してママに渡すか（2026/11/7「えぐいほど昔を覚えてない」）
+    const { p, ctx } = await page("counter", { gemini: true });
+    await enter(p);
+    const say = async (t) => { await p.evaluate((t) => window.__o.onMessage({ message: t, source: "user" }), t); await p.waitForTimeout(150);
+      await p.evaluate(() => window.__o.onMessage({ message: "へえ、そうなん", source: "ai" })); await p.waitForTimeout(80); };
+    await say("今日はちょっと疲れたわ");
+    let notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+    ok("思い出す：関係ない話では昔の話を出さへん", !notes.includes("【思い出した昔の話"), (notes.match(/【思い出した昔の話[^\n]*/) || [""])[0]);
+    await say("そういえば白老の別荘地、どうしよかな");
+    notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+    ok("思い出す：2か月前の話が、話題が出たその場でママに届く", notes.includes("【思い出した昔の話") && notes.includes("目印ムカシ") && /日前）/.test(notes), (notes.match(/【思い出した昔の話[\s\S]{0,160}/) || ["（届いてへん）"])[0]);
+    await say("いや別にええねん");
+    await say("ほんで白老の別荘地の話やけど");
+    notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+    ok("思い出す：同じ話は一晩に何回も出さへん", (notes.match(/目印ムカシ/g) || []).length === 1, String((notes.match(/目印ムカシ/g) || []).length));
+    await say("ワンポチの見積もりって結局どうなったっけ");
+    notes = await p.evaluate(() => (window.__notes || []).join("\n"));
+    ok("思い出す：前に届いた自動メモ（止める前の分）からも探して思い出す", notes.includes("目印キノウ") && notes.includes("前に届いた自動メモ"), (notes.match(/【思い出した昔の話[^\n]*\n[^\n]*/g) || ["（届いてへん）"]).join(" / "));
     await ctx.close();
   }
   { // 喋ってる最中に「立ち飲みを試す」
