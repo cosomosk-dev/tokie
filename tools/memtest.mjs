@@ -14,7 +14,7 @@
     7. 会話の途中で、何回も言うた大事な話がその場で昇格するか
     8. 喋ってる最中に「立ち飲みを試す」を押しても、黙って無視せえへんか
     9. 前から続いてる話（入院など）を「今日起きた」と取り違えへんように、起きた日が届いてるか（2026/10/31）
-   10. 決めたこと帳（理由つき）・選んだ分野の底上げ・声で「忘れて」が効くか（2026/10/31）
+   10. 決めたこと帳（理由つき）・声で「忘れて」が効くか（2026/10/31）。分野を選ぶ仕組みは11/7に廃止（点数表に一本化）
    11. 話題の点数表：日をまたいで何回も出た話ほど上・古い話は点が減る・言い直させた話は1回で上がる・渡すのは上位20件（2026/11/7）
 
   使い方（初回だけ）:
@@ -93,7 +93,7 @@ const book = { __photo: MARK.photo, profile, visits,
     { id: "T2", t: "目印オキタ：母が肺炎で入院中", ask: "お母さんの具合", next: "退院", since: DBY3, first: "", last: "", lastTs: now - 5 * 86400e3, done: false },
     { id: "T3", t: "目印フメイ：会長と揉めてる件", ask: "会長との件", next: "仲直り", first: "", last: "", lastTs: now - 6 * 86400e3, done: false }],
   lt: [{ t: MARK.lt, imp: 4, nights: { a: 1, b: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
-    // v46 大事さ4・1回だけ。家族は「特に覚えといてほしい分野」（既定）なので1段上がって昇格するはず
+    // v61 大事さ4・1回だけ。分野の底上げは廃止したので、1回だけでは昇格せえへんはず
     { t: "目印カゾク：母が10/28から入院中", imp: 4, cat: "family", nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
     { t: "目印キモチ：ハロウィンのインスタが楽しそうで悔しかった", imp: 3, cat: "", emo: 2, feel: "悔しい", nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now },
     { id: "LTW", t: "目印ワスレ：前の店の話", imp: 3, nights: { a: 1 }, legacy: 0, pin: false, manual: false, lastTs: now }],
@@ -194,7 +194,7 @@ try {
     ok(`${nm}：起きた日が分からん話は「今日とは限らへん」と添えて届く`, /目印フメイ[^\n]*起きた日は未確認/.test(memory), (memory.match(/目印フメイ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：「話に出た日と起きた日は別」のルールが届く`, memory.includes("『話に出た日』と『起きた日』は別"), "時系列のルールに無い");
     ok(`${nm}：決めたことが理由と日付つきで届く`, /目印キメタ[^\n]*に決めた[^\n]*理由：体調と対人疲労/.test(memory) && memory.includes("ここに書いてある理由だけを使う"), (memory.match(/目印キメタ[^\n]*/) || ["（届いてへん）"])[0]);
-    ok(`${nm}：選んだ分野の話は1段上がって早めに昇格する`, /【ママが絶対に忘れへんこと[\s\S]*目印カゾク[^\n]*いちばん大事/.test(memory) && memory.includes("【お客さんが特に覚えといてほしい分野】"), (memory.match(/[^\n]*目印カゾク[^\n]*/) || ["（届いてへん）"])[0]);
+    ok(`${nm}：分野の案内はもう渡さへん・大事さ4を1回言うただけでは昇格せえへん（v61 点数表に一本化）`, !memory.includes("【お客さんが特に覚えといてほしい分野】") && !/【ママが絶対に忘れへんこと[^【]*目印カゾク/.test(memory), (memory.match(/[^\n]*目印カゾク[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：気持ちが強く出た話は1回で昇格して「気持ちが強く出た話」と添えて届く`, /【ママが絶対に忘れへんこと[\s\S]*目印キモチ[^\n]*気持ちが強く出た話（悔しい）/.test(memory), (memory.match(/[^\n]*目印キモチ[^\n]*/) || ["（届いてへん）"])[0]);
     ok(`${nm}：前後の暦と時系列のルールが届く`, memory.includes("これから来る日（まだ先）") && memory.includes("【時系列のルール"), "暦が無い");
     ok(`${nm}：何回も言うた話が届く`, memory.includes(MARK.lt), "絶対忘れへんことが入ってへん");
@@ -261,7 +261,7 @@ try {
     ok("声で「それ忘れて」と言うたら、その場でママに伝わる", notes.includes("忘れとくわ") && notes.includes("目印ワスレ"), "忘れてのメモが届いてへん");
     ok("声で「それ忘れて」と言うた話は手帳から消える", !JSON.stringify(bk.lt || []).includes("目印ワスレ"), JSON.stringify((bk.lt || []).map((x) => x.t)));
     const pb = await p.evaluate(() => [document.querySelectorAll("#guidesheet .priobox button").length, document.querySelectorAll("#sheet .priobox button").length]);
-    ok("最初の案内と手帳に「特に覚えといてほしい分野」の選択がある", pb[0] === 6 && pb[1] === 6, JSON.stringify(pb));
+    ok("最初の案内と手帳に「分野を選ぶ」ボタンはもう出えへん（v61 廃止）", pb[0] === 0 && pb[1] === 0, JSON.stringify(pb));
     ok("体調・薬・お酒の話は、言うたその場で「今夜の決まりごと」としてママに届く", notes.includes("今夜の決まりごと") && notes.includes("睡眠薬"), "決まりごとのメモが届いてへん");
     await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
     const again = await enter(p);
@@ -278,7 +278,7 @@ try {
     const lk52 = await p.evaluate(() => { const f = window.__tokieTest && window.__tokieTest.isLeak; if (!f) return "フック無し"; return [f("話を聞く。"), f("急かさない。"), f("黙って待機。"), f("店の時計の合図なので返事しない。"), f("お客さんが話し終わるのを待つべきだ。"), f("また明日。"), f("今日はアプリの話と、お母さんの入院の話をした。"), f("ありがとう。"), f("大丈夫やで。"), f("それは無理。")].join(","); });
     ok("v52 一覧に無い心の声も「関西弁ゼロの書き言葉」なら消す（ふつうのセリフ・挨拶・まとめは消さへん）", lk52 === "true,true,true,true,true,false,false,false,false,false", lk52);
     const pm = await p.evaluate(() => document.querySelectorAll(".priobox.prio-main button").length);
-    ok("入店前の画面で「今夜とくに覚えといてほしいこと」を毎回切り替えられる", pm === 6, String(pm));
+    ok("入店前の画面に「分野を選ぶ」ボタンはもう出えへん（v61 廃止）", pm === 0, String(pm));
     await ctx.close();
   }
   { // 静かな入り直し（長話の頭脳代の上がり止め）：挨拶なしで、今夜の話を持ったまま入り直すか
@@ -347,18 +347,16 @@ try {
     ok("喋ってる最中に「立ち飲みを試す」→ 確認が出て立ち飲みの選択に進む", (p.__dialogs || []).length > 0 && open.includes("trialsheet"), "黙って無視してる");
     await ctx.close();
   }
-  { // v49 10/31「途中で何を覚えてもらいたいか変えられない」：喋ってる最中に分野のボタンが全部押せて、押したらママに届くか
-    const { p, ctx } = await page("counter");
+  { // v61 11/7 分野を選ぶ仕組みは廃止：喋ってる最中もボタンが出えへんこと・前に選んだ分野が残ってても効かへんこと
+    const { p, ctx, errs } = await page("counter");
+    await p.evaluate(() => { const s = JSON.parse(localStorage.getItem("tokie_settings_v1") || "{}"); s.prio = ["family", "work"]; s.prioSet = true; localStorage.setItem("tokie_settings_v1", JSON.stringify(s)); });
+    await p.reload(); await p.waitForTimeout(1200);
     await p.evaluate(() => document.querySelectorAll(".sheet.open").forEach((s) => s.classList.remove("open")));
-    await enter(p);
-    const reach = await p.evaluate(() => { const bs = [...document.querySelectorAll(".priobox.prio-main button")]; let n = 0;
-      for (const b of bs) { b.scrollIntoView({ block: "center", inline: "center" }); const r = b.getBoundingClientRect(); const x = r.left + r.width / 2, y = r.top + r.height / 2;
-        if (r.width > 0 && x >= 0 && x <= innerWidth && document.elementFromPoint(x, y) === b) n++; } return [bs.length, n]; });
-    ok("喋ってる最中も「覚えてほしい分野」のボタンが全部画面の中で押せる", reach[0] === 6 && reach[1] === 6, JSON.stringify(reach));
-    const b0 = await p.$(".priobox.prio-main button"); await b0.scrollIntoViewIfNeeded(); await b0.tap(); await p.waitForTimeout(300);
-    const notes = await p.evaluate(() => (window.__notes || []).join("\n"));
-    const pn = await p.textContent("#prionote");
-    ok("喋ってる最中に分野を押したら、その場でママに伝わる", notes.includes("覚えといてほしい分野を変えた") && pn.includes("ここから効く"), pn);
+    const { memory } = await enter(p);
+    const n = await p.evaluate(() => document.querySelectorAll(".priobox button").length);
+    ok("喋ってる最中も「分野を選ぶ」ボタンは出えへん（v61 廃止）", n === 0, String(n));
+    ok("前に分野を選んでた設定が残ってても、ママに分野の案内は渡さへん", !memory.includes("【お客さんが特に覚えといてほしい分野】"), "分野の案内が入ってる");
+    ok("分野を消しても画面のエラーなし", errs.length === 0, errs.join(" / "));
     await ctx.close();
   }
 } finally {

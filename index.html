@@ -404,11 +404,6 @@
       <div class="sd" id="strengthdesc"></div>
       <div class="sn" id="strengthnote"></div>
     </div>
-    <div class="priopick" id="priopick">
-      <div class="sl prio-sl">今夜とくに覚えてほしいこと<small class="prio-live">喋ってる途中でも押して変えられる</small></div>
-      <div class="priobox prio-main"></div>
-      <div class="sn" id="prionote"></div>
-    </div>
     <div class="strength" id="seatpick">
       <div class="sl">今夜の席 <button class="q" id="seatq" aria-label="席の説明">？</button></div>
       <div class="opts">
@@ -446,9 +441,6 @@
     <div class="row"><input type="text" id="ltnew" placeholder="これは絶対覚えといて（1行）"><button class="amber" id="ltadd">覚えさせる</button></div>
     <div class="saved" id="ltsaved"></div>
 
-    <label>ママに特に覚えといてほしい分野（押して選ぶ・いくつでも）</label>
-    <div class="hint">選んだ分野の話は「大事さ」が1段上がって、早めに「絶対忘れへんこと」に上がる。</div>
-    <div class="priobox"></div>
 
     <label>決めたこと帳（何を・いつ・なぜ）</label>
     <div class="hint">「やめとく」「待つ」「やる」と決めた話は、喋ってる途中とお会計の時に、理由と日付つきで自動でここに残る。決め直したら上書き。ママは理由をここからだけ言う。声で「それ忘れて」「もう古い」と言うたら、その話は消える。</div>
@@ -600,8 +592,7 @@
 
     <div class="gsec">
       <h3><span>📒</span>覚えてほしいこと</h3>
-      <p><b>大事な分野</b>を選んどいて。そこは優先して覚える。</p>
-      <div class="priobox"></div>
+      <p>選ばんでええ。<b>何回も・何日も話したこと</b>ほど、ママは大事な話やと思て覚えとく。「これ覚えといて」と言うたら一発で覚える。</p>
     </div>
 
     <div class="gsec gpriv">
@@ -723,7 +714,7 @@
   const stage=$("stage"),btn=$("btn"),statusEl=$("status"),caption=$("caption"),errEl=$("err"),clockEl=$("clock"),letterEl=$("letter");
   let conv=null;
   // 版の確認：スマホのブラウザが古い版を覚えてても、新しい版が出てたら自動で入れ替える（会話中はせん）
-  const APP_VER="2026-11-07 v60";
+  const APP_VER="2026-11-07 v61";
   try{document.getElementById("ver").textContent="版 "+APP_VER;}catch(e){}
   async function checkUpdate(){
     if(conv)return false;
@@ -1762,7 +1753,7 @@
   /* v46 お客さんが選ぶ「特に覚えといてほしい分野」。選んだ分野の話は大事さを1段上げて、早めに昇格させる */
   const PRIO_CATS=[["family","家族・大事な人"],["health","体調・体のこと"],["work","仕事・やってること"],["love","恋愛・女性の話"],["dream","夢・目標"],["decide","決めたこと"]];
   const PRIO_KEYS=PRIO_CATS.map(x=>x[0]);
-  function prioNow(){const a=settings().prio;return Array.isArray(a)?a.filter(k=>PRIO_KEYS.includes(k)):[];}
+  function prioNow(){return [];} // v61 分野を選ぶ仕組みは廃止（11/7 タケオさん「消して」）。何回も・何日も話した話を点数表で上げる形に一本化
   const ltImpE=(x,pr)=>Math.min(5,ltImp(x)+((Array.isArray(pr)?pr:prioNow()).includes(x&&x.cat)?1:0)); // filter(ltHot) の2番目（番号）が来ても大丈夫なように // 分野の底上げ込みの大事さ
   const LT_FORGET_DAYS={1:7,2:21,3:60,4:180,5:1e9};
   const ltImp=(x)=>Math.max(1,Math.min(5,parseInt(x&&x.imp,10)||3));
