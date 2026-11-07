@@ -1511,16 +1511,16 @@ details.alb summary::-webkit-details-marker{display:none}
       return `<div class="bk"><div class="bk-h">📒 今月の家計簿<i>ひとり暮らし</i></div>${row('収入','あなたの手取り(毎月の給料・ボーナスは別)',inc)}${pers.hojo?row('補助','家賃補助・寮・社宅(平均)',HOJO):''}${row('支出','生活費 '+mn(live)+'(うち食費'+mn(FOOD1)+') ・ 家賃 '+mn(rent),-(live+rent))}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>ボーナス(手取り${mn(bonN)})の半分を貯金に回すと、1年で ${yr>=0?'+':'−'}${yen(Math.abs(yr))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(J().n)}・29歳前後の女性のまん中(中央値)は、${AN}年収およそ${w}万円(ボーナス込み)。毎月の手取りは${mn(inc)}ほど。${pers.area==='tokyo'?'都内は家賃が手取りの3割を超えがち。':'家賃は手取りの3割までが目安。'}食費を2万まで切り詰めれば生活費は${mn(live-FOOD1+2)}、毎月${fr>=0?'+':'−'}${mn(Math.abs(fr))}残せて、NISAの積立に回せる。結婚で家賃と光熱費が1つになるのが、いちばん効く節約。</div><div class="bk-note">※金額は2026年の物価が基準(物価と給料はおおむね一緒に動くため)</div></div>`;}
     if(!s.rid)return '';
     const p=pace(s);
-    if(p.split){const w=p.inW/12,yo=p.yo||0,ca=p.kc.ca/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,inc=p.inc/12,out=live+pk+rent+kc+ins+ot+(p.custH?yo:0),net=inc-out;const k=s.kids||0;
-      const who=[w?'あなたの手取り '+mn(w):'',(!p.custH&&yo)?'養育費(元夫から) '+mn(yo):'',ca?'児童手当 '+mn(ca):''].filter(Boolean).join(' + ');
+    if(p.split||p.sepW){const w=p.inW/12,yo=p.yo||0,ca=p.kc.ca/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,ot=p.ot/12,inc=p.inc/12,out=live+pk+rent+kc+ins+ot+(p.custH?yo:0),net=inc-out;const k=s.kids||0;
+      const who=[w?'あなたの手取り '+mn(w)+(p.wl?'('+p.wl+')':''):'',(!p.custH&&yo)?(p.kon?'婚姻費用(夫から) ':'養育費(元夫から) ')+mn(yo):'',ca?'児童手当 '+mn(ca):''].filter(Boolean).join(' + ');
       const lines=[row('暮らし','食費 '+mn(p.food*0.72)+' ・ 光熱・通信 '+mn(p.util*0.72)+' ・ 日用品・服・医療・交通 '+mn(p.daily*0.72)+' ・ 交際・娯楽 '+mn(p.fun*0.72),-live)];
       if(pk)lines.push(row('お小遣い','あなた '+mn(pk),-pk));
-      lines.push(row('家賃',s.divRentL||(s.divRent!=null?'':'ひとり(+子ども)の部屋'),-rent));
+      lines.push(row('家賃',p.kon?(s.rentL||'別居のアパート 月7万'):(s.divRentL||(s.divRent!=null?'':'ひとり(+子ども)の部屋')),-rent));
       if(kc)lines.push(row('子ども',p.kc.l+(p.kc.age<3?'(食費・服・保育料)':p.kc.age<6?'(食費・服・給食費・教材費)':p.kc.age<18?'(食費・服・学校・塾)':'(食費・服・学費)'),-kc));
       if(p.custH&&yo)lines.push(row('養育費','元夫へ(子どもは元夫と暮らす)',-yo));
       if(ins)lines.push(row('保険','ひとり分',-ins));if(ot)lines.push(row('ほか',p.oth.map(c=>c.l).join('・'),-ot));
-      const fp=!w?'まず自分の収入をつくるのが先。養育費は公正証書(強制執行認諾文言つき)で確実に。':p.custH?'養育費を払う側でも、面会と学費の分担は公正証書に。自分の年金記録(厚生年金)は20年分が分け方の対象。':(yo?'養育費は算定表が目安で月'+mn(yo)+'。公正証書の額は、自動では変わらない。元夫の収入が落ちれば、減額を求められることもある。':'')+(k&&(s.W||0)<=400?(yo?'児童扶養手当は、養育費の8割も収入に数えるので、ほぼ対象外。':'児童扶養手当は年収'+Math.round(s.W||0)+'万なら月数千円〜。'):'ひとりの家計は「固定費を手取りの半分以下」が目安。');
-      return `<div class="bk"><div class="bk-h">📒 離婚後の、あなたの家計簿<i>結婚${s.yr}年目</i></div>${row('手取り(月平均)',who||'収入なし',inc).split(' + ').join('<br>')}<div class="bk-note">( )は額面の年収。手取り＝そこから税金・社会保険(2〜3割)を引いた額。ボーナスは12で割って月に足しています。</div>${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fp)}</div></div>`;}
+      const fp=p.kon?'別居中の生活費(婚姻費用)は、裁判所の算定表で月'+mn(yo)+'ほど。夫の収入が上がれば、増額を求められる。夫の手取りと店の借金は、夫の家計。別居のあとにあなたが貯めた分は、財産分与の対象にならない。':!w?'まず自分の収入をつくるのが先。養育費は公正証書(強制執行認諾文言つき)で確実に。':p.custH?'養育費を払う側でも、面会と学費の分担は公正証書に。自分の年金記録(厚生年金)は20年分が分け方の対象。':(yo?'養育費は算定表が目安で月'+mn(yo)+'。公正証書の額は、自動では変わらない。元夫の収入が落ちれば、減額を求められることもある。':'')+(k&&(s.W||0)<=400?(yo?'児童扶養手当は、養育費の8割も収入に数えるので、ほぼ対象外。':'児童扶養手当は年収'+Math.round(s.W||0)+'万なら月数千円〜。'):'ひとりの家計は「固定費を手取りの半分以下」が目安。');
+      return `<div class="bk"><div class="bk-h">📒 ${p.kon?'別居中の、あなたの家計簿':'離婚後の、あなたの家計簿'}<i>結婚${s.yr}年目</i></div>${row('手取り(月平均)',who||'収入なし',inc).split(' + ').join('<br>')}<div class="bk-note">( )は額面の年収。手取り＝そこから税金・社会保険(2〜3割)を引いた額。ボーナスは12で割って月に足しています。</div>${lines.join('')}<div class="bk-r tot"><span>今月、残るお金</span><b>${net>=0?'+':'−'}${mn(Math.abs(net))}</b><em>→ 1年で ${net>=0?'+':'−'}${yen(Math.abs(Math.round(net*12)))}</em></div><div class="bk-fp">💡<b>FPのひとこと</b>${esc(fp)}</div></div>`;}
     const inc=p.inc/12,live=p.live/12,pk=p.pk/12,rent=p.rent/12,kc=p.kc.a/12,ins=p.ins/12,sp=p.sp/12,ot=p.ot/12,out=live+pk+rent+kc+ins+sp+ot,net=inc-out;
     const gy=v=>'年収'+Math.round(v).toLocaleString()+'万';const who=[p.inH?'夫 '+mn(p.inH/12)+(s.H>0?'('+gy(s.H)+')':''):'',p.inW?'あなた '+mn(p.inW/12)+(p.wl?'('+p.wl+(p.wl==='育休'?'の給付金':'')+')':(s.W>0?'('+gy(s.W)+')':'')):'',p.inR?(s.Rl||'ほか')+' '+mn(p.inR/12):'',p.kc.ca?'児童手当 '+mn(p.kc.ca/12):'',p.lc?'住宅ローン控除 '+mn(p.lc/12):''].filter(Boolean).join(' + ');
     const kids=s.kids||0;
@@ -1677,11 +1677,15 @@ details.alb summary::-webkit-details-marker{display:none}
   // 選んだ直後(d と f を当てた後)の共通処理: 別居した日の貯金を控え、離婚したらその半分が「あなたの貯金」になる(財産分与の基準は別居時)。この選択で動いた分(慰謝料など)はそのまま足す
   function afterPick(s,b){if(!s.f)return s;
     if(s.f.separate&&!s.f.divorce&&!s.f.sign&&s.sepSav==null)s.sepSav=s.sav;
-    if((s.f.divorce||s.f.sign)&&s.divSav==null){const base=s.sepSav!=null?s.sepSav:(b?b.sav:s.sav);const delta=b?s.sav-b.sav:0;s.divSav=base;s.divYr=s.yr||0;s.sav=(s.noSplit?base:(base>0?Math.round(base/2):0))+delta+(s.mine||0);s.divMine=s.mine||0;s.mine=0;}
+    if((s.f.divorce||s.f.sign)&&s.divSav==null){const base=s.sepSav!=null?s.sepSav:(b?b.sav:s.sav);const delta=b?s.sav-b.sav:0;s.divSav=base;s.divYr=s.yr||0;s.sav=(s.noSplit?base:(base>0?Math.round(base/2):0))+delta+(s.mine||0)+((s.sepSav!=null&&b)?Math.round(b.sav-s.sepSav):0);s.divMine=s.mine||0;s.mine=0;}
     return s;}
   // 養育費(裁判所の標準算定方式の近似): 基礎収入 × 子の生活費指数(0〜14歳62・15歳〜85) ÷ (100+指数) × 義務者の負担割合。上限は1人20万(表の外は上限で合意する扱い)。custH なら子は元夫と暮らし、あなたが払う側
   // 婚姻費用(別居中・夫→妻): 権利者側(妻+子)の生活費 = (夫+妻の基礎収入)×(100+子の指数)÷(200+子の指数) − 妻の基礎収入
   function konpi(s){const k=s.kids||0;const H=s.H||0,W=s.W||0;const self=!!(s.selfH||(s.rid==='D'&&s.f&&(s.f.open||s.f.tv)));const kh=H*(self?0.52:(H<=500?0.44:H<=1000?0.40:0.37)),kw=W*(W<=500?0.44:0.40);if(kh<=0)return 0;const age=s.kidY!=null?(s.yr||0)-s.kidY:5;const idx=(age>=15?85:62)*k;const m=((kh+kw)*(100+idx)/(200+idx)-kw)/12;return Math.max(0,Math.min(30,Math.round(m)));}
+  // 2026/11/07 蓮14年目「右手のけが」: 店の利益(テレビのギャラを除く)と、半年休んだ時に減る手取り。貯金が足りない家に「貯金で休もう」は出さない(悠太の「頭金がない時は待とう」と同じ考え)
+  function teBase(s){return Math.max(0,(s.H||0)-(s.f&&s.f.tv?1500:0));}
+  function teLoss(s,v){const H=s.H||0,b=teBase(s),g=v==='close'?b*0.5+6*(s.f&&s.f.open?47:32):v==='staff'?b*0.25:b*0.3;return Math.round(TH(H)-TH(Math.max(0,H-g)));}
+  function teVar(s){if(s.f&&s.f.tv&&s.f.open)return 'staff';return (s.sav||0)>=teLoss(s,'close')+100?'close':'itaku';}
   function yoiku(s){const k=s.kids||0;if(!k||!(s.f&&(s.f.divorce||s.f.sign)))return 0;const self=!!(s.selfH||(s.rid==='D'&&s.f&&(s.f.open||s.f.tv))||(!(s.H||0)&&(s.R||0)>0));
     const H=(s.H||0)+((s.H||0)?0:(s.R||0)),W=s.W||0,kh=H*(self?0.52:(H<=500?0.44:H<=1000?0.40:0.37)),kw=W*(W<=500?0.44:0.40);const pay=s.custH?kw:kh,rec=s.custH?kh:kw;if(pay<=0)return 0;
     const age=s.kidY!=null?(s.yr||0)-s.kidY:5;const idx=(age>=15?85:62)*k;const cost=pay*idx/(100+idx);let m=cost*(pay/((pay+rec)||1))/12;m=Math.min(m,20+8*(k-1));return Math.max(k*2,Math.round(m));}
@@ -1780,7 +1784,7 @@ details.alb summary::-webkit-details-marker{display:none}
   //  ③ 0〜2歳の認可保育料(母が働いている時だけ): 世帯年収×0.4%/月(年収800万で月3.2万、上限6.5万)、2人目は半額。3〜5歳は無償化(2019年〜)
   //  児童手当(2024年10月〜): 0〜2歳 1.5万/月、3歳〜高校生 1万/月
   function kidCost(s,y){const k=s.kids||0;if(!k||s.kidY==null)return {a:0,ca:0,l:''};const age=y-s.kidY;if(age<0)return {a:0,ca:0,l:''};let a,l,ca=12;
-    const P=!!s.eduP&&!(s.eduP===2&&age<12),G=(s.H||0)+(s.W||0)+(s.R||0);
+    const P=!!s.eduP&&!(s.eduP===2&&age<12),dv2=!!(s.f&&(s.f.divorce||s.f.sign)),sp2=!!(s.f&&s.f.separate&&!s.f.reunite&&!dv2),G=((dv2||sp2)&&!s.custH)?(s.W||0)+12*(dv2?yoiku(s):konpi(s)):(s.H||0)+(s.W||0)+(s.R||0); // 2026/11/07 別居中・離婚後の子どもの費用は、あなたの家(あなたの年収+養育費/婚姻費用)の格で決める(元夫の年収で塾・家庭教師を上乗せしない)
     const tokyo=/都内|東京|代々木|表参道|高円寺|谷中|渋谷|豊洲|恵比寿|目黒|世田谷|^2DKの賃貸$/.test(s.home||''),niigata=/新潟|雪国|蔵/.test(s.home||'');
     const hoiku=((s.W||0)>0&&age>=1&&!tokyo)?Math.min(78,Math.max(0,Math.round(G*(niigata?0.06:0.048)))):0; // 育休中(0歳)は入園前。東京は2025年9月から第1子の0〜2歳も無償
     if(age<3){a=24+hoiku;l='0〜2歳'+(hoiku?'・保育園':'');ca=18;}
@@ -1829,10 +1833,11 @@ details.alb summary::-webkit-details-marker{display:none}
     let spm=spM,ph=pkH,pw=pkW,cut=0;const need=()=>(inc/12)-(liveM+ph+pw+rent/12+kc.a/12+insM+spm+ot/12);
     if(!split&&need()<0){const c1=Math.min(-need(),spm*0.5);spm-=c1;cut+=c1;if(need()<0){const r=Math.min(1,-need()/((ph+pw)*0.3||1))*0.3;ph=Math.max(ph*(1-r),Math.min(ph,1.5));pw=Math.max(pw*(1-r),Math.min(pw,1.5));cut+=1e-9;/* 赤字で削っても、お小遣いは1.5万が下限(SBI新生銀行の調査の下の方・2026/11/06 地方の審査) */}}
     const live=Math.round(liveM*12),pk=Math.round((ph+pw)*12),sp=Math.round(spm*12),ins=Math.round(insM*12);
-    if(split){ // 離婚後は「あなたの家計簿」: 手取り+養育費+児童手当 − ひとりの生活費 − 家賃 − 子ども − 保険。custH なら子は元夫と暮らし、養育費はあなたが払う
-      const yo=yoiku(s),cH=!!s.custH,k2=cH?0:k,wW=TH(s.W||0),inc2=wW+(cH?0:yo*12)+(cH?0:kc.ca);const D2=(wW+(cH?0:yo*12))/12;const b2=B2(D2,k2,false);
-      const live2=Math.round((b2.food+b2.util+b2.daily+b2.fun)*0.72*12),pk2=Math.round(((s.W||0)>0?b2.pk*0.85:1)*12),ins2=Math.round((b2.ins*0.6+(s.ins?2:0))*12),rent2=Math.round((s.divRent!=null?s.divRent:8)*12),kc2=cH?0:kc.a,ot2=ot;
-      return {inH:0,inW:wW,inR:0,yo,custH:cH,inc:inc2,lc:0,live:live2,pk:pk2,pkH:0,pkW:pk2/12,sp:0,rent:rent2,ins:ins2,kc:cH?{a:0,ca:0,l:'',age:kc.age}:kc,wl:'',oth,ot:ot2,sep:false,split,mB:false,cut:false,food:b2.food,util:b2.util,daily:b2.daily,fun:b2.fun,net:inc2-live2-pk2-rent2-kc2-ins2-ot2-(cH?yo*12:0)};}
+    if(split||sep){ // 離婚後は「あなたの家計簿」: 手取り+養育費+児童手当 − ひとりの生活費 − 家賃 − 子ども − 保険。custH なら子は元夫と暮らし、養育費はあなたが払う
+      // 2026/11/07 別居中も「あなたの家計簿」(手取り+婚姻費用+児童手当)。夫の手取り・お小遣い・店の借金は夫の家のもの。別居のあとにあなたが貯めた分は、あなたのもの(財産分与は別居した日が基準)
+      const yo=sep?konpi(s):yoiku(s),cH=!sep&&!!s.custH,k2=cH?0:k,wW=sep?inW:TH(s.W||0),inc2=wW+(cH?0:yo*12)+(cH?0:kc.ca);const D2=(wW+(cH?0:yo*12))/12;const b2=B2(D2,k2,false);
+      const live2=Math.round((b2.food+b2.util+b2.daily+b2.fun)*0.72*12),pk2=Math.round(((s.W||0)>0?b2.pk*0.85:1)*12),ins2=Math.round((b2.ins*0.6+(s.ins?2:0))*12),rent2=sep?84:Math.round((s.divRent!=null?s.divRent:8)*12),kc2=cH?0:kc.a,oth2=s.rid==='D'?oth.filter(c=>!/店|カウンセリング/.test(c.l)):oth,ot2=oth2.reduce((p,c)=>p+c.a,0);
+      return {inH:0,inW:wW,inR:0,yo,kon:sep,wl:sep?wl:'',custH:cH,inc:inc2,lc:0,live:live2,pk:pk2,pkH:0,pkW:pk2/12,sp:0,rent:rent2,ins:ins2,kc:cH?{a:0,ca:0,l:'',age:kc.age}:kc,oth:oth2,ot:ot2,sep:false,sepW:sep,split,mB:false,cut:false,food:b2.food,util:b2.util,daily:b2.daily,fun:b2.fun,net:inc2-live2-pk2-rent2-kc2-ins2-ot2-(cH?yo*12:0)};}
     return {inH,inW,inR,inc,lc,live,pkc:b.pkc,pk,pkH:ph,pkW:pw,sp,rent,ins,kc:s.abroad?Object.assign({},kc,{ca:0}):kc,wl,oth,ot,sep,split,mB,cut:cut>0,infl,jt:jt*mul,kosin,food:mB?0:b.food*mul,util:mB?0:b.util*mul,daily:mB?0:b.daily*mul,fun:mB?0:b.fun*mul,net:inc-live-pk-rent-kc.a-ins-sp-ot};}
   // 思わぬ出費(実際の相場)。年1件・上限60万、特別費(帰省・旅行・冠婚葬祭・家電の買い替え)と重なるものは入れない。1周で同じ事は1回。何回遊んでも同じ年には同じことが起きる
   const OOPS=[
@@ -1849,7 +1854,7 @@ details.alb summary::-webkit-details-marker{display:none}
   // タカヒロ編はマイナスの描写を出さない(病気・入院・お葬式・ケガ・事故・収入減)。2026/11/03 タケオさん指示
   const NEG_S=/入院|葬式|香典|法事|通院|骨折|ぶつけて|ボーナスが出なかった|歯の|インプラント/;
   const hsh=t=>{let h=7;for(const ch of String(t))h=(h*31+ch.charCodeAt(0))%100003;return h;};
-  const pickOops=(s,t)=>{const used=s.oopsUsed||(s.oopsUsed=[]);const L=OOPS.filter(o=>(!o.w||o.w(s,t))&&!(o.opt&&(s.sav||0)<50)&&!used.includes(o.l)&&!(s.rid==='S'&&NEG_S.test(o.l)));if(!L.length)return null;const o=L[hsh((s.rid||'')+t)%L.length];used.push(o.l);return {l:o.l,a:Math.min(60,typeof o.a==='function'?o.a(s):o.a)};};
+  const pickOops=(s,t)=>{const used=s.oopsUsed||(s.oopsUsed=[]);const L=OOPS.filter(o=>(!o.w||o.w(s,t))&&!(s.f&&s.f.separate&&!s.f.reunite&&/シャンプー台|ハサミ/.test(o.l))&&!(o.opt&&(s.sav||0)<50)&&!used.includes(o.l)&&!(s.rid==='S'&&NEG_S.test(o.l)));if(!L.length)return null;const o=L[hsh((s.rid||'')+t)%L.length];used.push(o.l);return {l:o.l,a:Math.min(60,typeof o.a==='function'?o.a(s):o.a)};};
   const mrow=(ic,lab,v,sub,cls)=>`<div class="mr ${cls||(v>=0?'up':'dn')}"><span>${ic} ${esc(lab)}${sub?`<small>${esc(sub)}</small>`:''}</span><b>${v>=0?'+':'−'}${yen(Math.abs(v))}</b></div>`;
   const arr=(n,o)=>o==null||Math.abs(n-o)<=Math.max(30,o*0.08)?'':(n>o?' ↑':' ↓');
   // 話の前の「その間に…」: 物語の出来事(pre) + 家計簿
@@ -1870,7 +1875,7 @@ details.alb summary::-webkit-details-marker{display:none}
       g=Math.round(g);const E=ev.reduce((p,e)=>p+e.a,0);const it=s.nisa&&s.sav>0?Math.round(s.sav*0.5*(Math.pow(1.03,dy)-1)):0;
       const b0=s.sav;s.sav=s.sav+g-E+it;s.yr=y;const real=s.sav-b0;
       {
-        rows+=mrow('💰',p0.split?'離婚後の家計簿どおりなら':'家計簿どおりなら',g,ylab(dy)+'で ・ 月平均 '+mn(g/12/Math.max(dy,0.5)));
+        rows+=mrow('💰',p0.split?'離婚後の家計簿どおりなら':p0.sepW?'別居中の、あなたの家計簿どおりなら':'家計簿どおりなら',g,ylab(dy)+'で ・ 月平均 '+mn(g/12/Math.max(dy,0.5)));
         if(E)rows+=mrow('💸','思わぬ出費',-E,ev[0].l+(ev.length>1?' ほか'+(ev.length-1)+'件':''));
         if(it)rows+=mrow('📈','NISAで増えた',it);
         rows+=`<div class="mr tot"><span>${real>0?'この'+ylab(dy)+'で、実際に増えたのは':real<0?'この'+ylab(dy)+'で、貯金は':'この'+ylab(dy)+'、貯金は'}</span><b>${real>0?'+'+yen(real):real<0?yen(-real)+' 減った':'ほとんど残らなかった'}</b></div>`;
@@ -1879,7 +1884,8 @@ details.alb summary::-webkit-details-marker{display:none}
         if(cv.m)rows+=`<div class="mr sub"><span>🧾 足りない分は、あなたの結婚前の貯金から<small>あなた個人の貯金を取り崩した</small></span><b>${yen(cv.m)}</b></div>`;
       }
       s.pH=h0;s.pW=w0;title=title||('結婚'+y+'年目まで');}
-    if(after){applyD(s,pre.d||{});title=pre.title;if(pre.text)lines.push(resolve(pre.text,s));}
+    // late: 家計簿を進めたあとの貯金で決める出来事(2026/11/07 蓮「貯金が100万を超えたら引っ越す」)
+    if(after){const pl=typeof pre.late==='function'?pre.late(s):pre;if(pl){applyD(s,pl.d||{});title=pl.title||title;if(pl.text)lines.push(resolve(pl.text,s));}}
     if(!lines.length&&!rows)return null;return {title:title||'その間に',text:lines.join('\n'),rows,moved,marry:!!(pre&&pre.d&&pre.d.marry)};}
 
   // ---------- 誠一郎 ----------
@@ -2094,7 +2100,7 @@ details.alb summary::-webkit-details-marker{display:none}
   {const c=G('D','表参道の、空き物件');c.ch[0].d=s=>({hw:-620,hc:-620,hcLock:-1,mine:-Math.max(0,Math.round(s.mine||0)),sav:300,T:10,ann:-60});c.ch[1].d={ann:100,L:6};}
   {const c=G('D','100万回再生');c.ch[0].d={ann:300,L:10};c.ch[1].d={ann:200,T:4};
     // シェアサロンを選んだ人は、動画が当たった翌月に620万で6坪の店を出す(以降の「店」の矛盾をなくす)
-    c.pre=s=>{if(!s.f.share)return null;s.f.open=true;s.f.lateopen=true;return {after:true,title:'結婚4年目',text:'動画が当たった翌月、サロンの席では足りなくなった。取っておいた620万と、公庫の融資660万で、表参道の裏に6坪の店「ren」を出した。家賃は月32万。',d:{hw:-620,hc:-620,set:{H:550,Hg:.05,selfH:1},cost:{l:'お店のローンの返済(公庫660万・10年)',a:72,from:4,to:14}}};};}
+    c.pre=s=>{if(!s.f.share)return null;s.f.open=true;s.f.lateopen=true;return {after:true,title:'結婚4年目',text:'動画が当たった翌月、サロンの席では足りなくなった。取っておいた620万と、公庫の融資660万で、表参道の裏に6坪の店「ren」を出した。家賃は月32万。',d:{hw:-620,hc:-620,set:{H:550,Hg:.05,selfH:1},cost:[{l:'お店のローンの返済(公庫660万・10年)',a:72,from:4,to:14},{l:'開店10年目の改装の返済(椅子・シャンプー台・内装 400万・5年)',a:86,from:14,to:19}]}};};} /* 2026/11/07 美容室は10年ほどで椅子・シャンプー台・内装を入れ替える(器具の耐用年数5〜10年・内装10〜15年) */
   {const c=G('D','ふたりめの、通帳');c.ch[0].d={sav:-120,L:12,kids:1};c.ch[1].d={L:8,T:4,kids:1};}
   {const c=G('D','週刊誌');c.k='D_shukan';c.tease='結婚8年目の木曜。朝から、スマホが鳴り止まない。';c.ch[0].d={sav:-150,ann:100,T:14,L:12};}
   EV.D1=[
@@ -2102,7 +2108,7 @@ details.alb summary::-webkit-details-marker{display:none}
       text:()=>'結婚8年目の木曜。夫のスマホが、テーブルの上で光った。ロック画面に、知らない名前。「昨日はありがとう。また閉店後に」。相手は、3年通っている常連の女性客だった。夫は、長い沈黙のあと、認めた。「…半年前から。君と凛が眠ったあと、閉店後の店で話を聞いてもらってた。…それ以上のことも、あった」',
       ch:[{t:'「やり直したい。…ただし、条件がある」',o:'条件は3つ。スマホのロックを外すこと。彼女の予約を、店で受けないこと。月に1回、ふたりでカウンセリングに通うこと。夫は全部、黙ってうなずいた。謝罪の言葉は、何百回聞いても、ハートは戻らなかった。戻り始めたのは、半年後。毎週火曜の夜、夫が店を閉めて、凛と3人でご飯を食べるようになってからだった。',d:{L:-35,T:-8,crack:1},x:{c:2,a:1},f:'rebuild',w:['信頼が、壊れた','言葉では、戻らない'],
           nak:'先に言っとく。これは、あんたが店を開けさせたせいじゃない。やる男はやる。やり直すなら、言葉じゃなく行動で見なさい。それとね、不倫の相手にも慰謝料を請求できるの。離婚しない場合の相場は、数十万〜200万円くらい。請求できるのは、知った時から3年以内。…選ぶのは、あんたよ。'},
-        {t:'「別居する。答えは、すぐには出さない」',o:'あなたは凛を連れて、実家の近くにアパートを借りた。家賃7万円。高円寺の部屋は解約して、夫は店の2階に寝泊まりするようになった。夫は毎週日曜、凛の髪を切りに来る。玄関先で、ハサミを持つ夫の手が、少し震えていた。あなたは、目を合わせなかった。',d:s=>({sav:-150,L:-45,T:-12,crack:2,home:'実家の近くのアパート(家賃7万)',set:{rent:0,rentL:'別居のアパート 月7万(高円寺は解約)',sepSav:(s.sav||0)-150}}),x:{s:3},f:'separate',w:['心が、離れた','玄関先の、震える手'],
+        {t:'「別居する。答えは、すぐには出さない」',o:'あなたは凛を連れて、実家の近くにアパートを借りた。家賃7万円。高円寺の部屋は解約して、夫は店の2階に寝泊まりするようになった。夫は毎週日曜、凛の髪を切りに来る。玄関先で、ハサミを持つ夫の手が、少し震えていた。あなたは、目を合わせなかった。',d:s=>{const mv=70,fm=Math.min(Math.max(0,Math.round(s.mine||0)),mv);return {mine:-fm,sav:-(mv-fm),L:-45,T:-12,crack:2,home:'実家の近くのアパート(家賃7万)',set:{rent:0,rentL:'別居のアパート 月7万(高円寺は解約)',sepSav:(s.sav||0)-(mv-fm)}};},x:{s:3},f:'separate',w:['心が、離れた','玄関先の、震える手'],
           nak:'別居は、離婚の前の「考える時間」よ。別居中でも、収入の多い方は生活費(婚姻費用)を払う義務がある。夫に、ちゃんと払わせなさい。それと、別居した日の通帳のコピーを取っておくこと。財産分与は、別居した日が基準なの。'}],
       talk:[['m','凛、今日も笑ってた？'],['y','笑ってたよ'],['m','…俺は、もう一度、信じてもらえるように生きる'],['m','おやすみ']]},
     G('D','週刊誌')];
@@ -2124,7 +2130,7 @@ details.alb summary::-webkit-details-marker{display:none}
       talk:[['m','水曜、楽しかった'],['y','また行こう'],['m','手帳に、毎月1日書いた'],['m','…最近、手首がちょっと痛い']]},
     {k:'D_juken',title:'凛の、中学受験',img:'budget',tease:'結婚12年目。小学1年の凛が、塾のチラシを持ってきた。',
       text:()=>'結婚12年目。小学1年の凛が、塾のチラシを持ってきた。「友達、みんな受験するって」。中学受験の塾代は、3年間で200万〜300万円。私立中高の6年間は、学費がさらに数百万円。夫は鏡の前でハサミを研ぎながら言った。「凛が、本当にやりたいなら」',
-      ch:[{t:'「凛に、本気かどうか聞いてみよう」→ 受験する',o:'凛は、目をそらさずに言った。「やりたい。美容の授業がある学校に、行きたい」。夫が、ハサミを置いた。その日から、夜9時の塾のお迎えは、夫の担当になった。帰りの車の中、凛の寝顔を見ながら、夫が小声で言った。「…俺より、ずっと頑張ってる」',d:{sav:-250,L:8,T:6,set:{eduP:1}},x:{c:1,m:1},f:'juken',w:['3人で、決められた','塾のお迎えの夫に、少し'],
+      ch:[{t:'「凛に、本気かどうか聞いてみよう」→ 受験する',o:'凛は、目をそらさずに言った。「やりたい。美容の授業がある学校に、行きたい」。夫が、ハサミを置いた。その日から、夜9時の塾のお迎えは、夫の担当になった。帰りの車の中、凛の寝顔を見ながら、夫が小声で言った。「…俺より、ずっと頑張ってる」',d:{sav:-250,L:8,T:6,set:{eduP:2}},x:{c:1,m:1},f:'juken',w:['3人で、決められた','塾のお迎えの夫に、少し'],
           nak:'中学受験は、親の受験でもあるの。続けるなら、塾代の上限を最初に決めておきなさい。高校の授業料は、2026年4月から私立も年45万7,200円まで国が出すようになったわ。'},
         {t:'「公立で、のびのび。浮いたお金は家族の時間に」',o:'凛は地元の公立中学へ。浮いた分で、毎年夏、3人で海に行った。凛は、休みの日に自宅でウィッグを相手に、シャンプーの練習をするようになった。',d:{L:6,T:8},x:{c:1,t:1},f:'koritsu',w:['家族の時間が、増えた','夏の海に、ドキッ'],
           nak:'公立でのびのびも、立派な投資よ。家族の思い出は、学費より利回りがいいの。'}],
@@ -2136,7 +2142,7 @@ details.alb summary::-webkit-details-marker{display:none}
       ch:[{t:'凛を連れて、お見舞いに行く',o:'病室の元夫は、右手を包帯で巻いて、照れくさそうに笑った。「…凛の髪、左手じゃうまく切れなくてさ」。帰り道、凛が言った。「ママ、ちょっと笑ってた」',d:{T:6},x:{a:1},w:['','照れた笑顔に、少し'],nak:'別れても、凛の親どうし。会いに行けるのは、あんたが前を向けてる証拠よ。元夫の店が休業なら、養育費の減額を言ってくるかもしれない。その時は、公正証書を出しなさい。'},
         {t:'「もう、私の人生じゃない」と、凛だけ行かせる',o:'凛は、お見舞いから帰ると「パパ、元気だったよ」とだけ言った。あなたは、新しい職場の資料を広げた。自分の人生を、自分で回していく。',d:{L:-2},x:{s:2},w:['自分の人生を、選んだ',''],nak:'線を引くのも、大事なこと。あんたの人生の主役は、あんたなのよ。'}]},
     G('D','動かない、右手')];
-  {const c=G('D','白髪と、ハサミ');c.k='D_shiraga';c.pre=null;c.tease='結婚20年目。閉店後のサロン。夫が言った。「…今日は、俺に切らせて」';}
+  {const c=G('D','白髪と、ハサミ');c.k='D_shiraga';c.pre=()=>({after:true,late:s=>(!s.f.separate&&!s.f.divorce&&s.mv2===0&&(s.sav||0)>=160)?{after:true,title:'結婚20年目',text:'貯金が100万を超えた春、約束どおり、凛の部屋のある高円寺の2DKへ移った。家賃は月12万。敷金・礼金・引っ越しで、およそ60万。',d:{home:'高円寺の2DK(家賃12万)',sav:-60,set:{rent:144,rentL:'家賃 月12万',mv2:1}}}:null});c.tease='結婚20年目。閉店後のサロン。夫が言った。「…今日は、俺に切らせて」';}
   EV.DF=[
     {k:'D_ex_last',when:s=>!!s.f.divorce,title:'20年目の、鏡',img:'salon',tease:'結婚していれば、20年目の年。凛から連絡があった。',
       text:()=>'結婚していれば、20年目の年。凛は中学2年。美容師になると決めて、毎週、自宅でウィッグを相手にシャンプーの練習をしている。ある日、凛から連絡。「パパが、ママの髪を切りたいって。…最後のお客さんとして」',
@@ -2145,7 +2151,7 @@ details.alb summary::-webkit-details-marker{display:none}
     {k:'D_last2',when:s=>(s.crack||0)>=2,title:'ふたりの、鏡',img:'salon',warn:'この話には、離婚の話し合いの描写があります。',tease:'結婚20年目。閉店後のサロン。夫が、鏡越しにあなたを見ていた。',
       text:()=>'結婚20年目。同じ家にいるのに、会話はほとんどない。閉店後のサロン。夫が鏡越しに言った。「…座って。切らせてほしい」。あなたは座らずに言った。「…私、ひとりで生きてみたい」',
       ch:[{t:'「…じゃあ、最後に1回だけ、切って」',o:'ハサミの音が、首のうしろで鳴る。20年前と同じ音。鏡の中で目が合って、夫が言った。「…君の髪は、一生、俺が切りたい。…まだ、間に合う？」。あなたは、小さくうなずいた。',d:{L:12,T:14,crack:-1},x:{t:2},f:'retry',w:['もう一度、向き合えた','鏡の中の目に、ドキッ'],nak:'最後の1回のつもりが、最初の1回になる。…美容師の夫の、最強の口説き方ね。'},
-        {t:'「離婚届は、もう書いてある」',o:'夫は鏡越しに、しばらくあなたを見ていた。「…最後に、髪だけ整えさせて」。仕上がりは、出会った日の髪型だった。',d:{crack:1,set:{divRent:8,divRentL:'ひとり暮らしの1K 月8万'}},x:{s:3},f:'divorce',w:['終わりを、選んだ',''],nak:'出会った日の髪で、新しい人生へ。…悪くない終わり方よ。養育費は算定表で、公正証書に。夫は自営業だから、分ける厚生年金はないわ。'}]},
+        {t:'「離婚届は、もう書いてある」',o:'夫は鏡越しに、しばらくあなたを見ていた。「…最後に、髪だけ整えさせて」。仕上がりは、出会った日の髪型だった。',d:{crack:1,set:{divRent:8,divRentL:'ひとり暮らしの1K 月8万'}},x:{s:3},f:'divorce',w:['終わりを、選んだ',''],nak:'出会った日の髪で、新しい人生へ。…悪くない終わり方よ。養育費は算定表で、公正証書に。年金分割は厚生年金だけ。夫は自営業だから、会社員だったあんたの方が分ける側よ。'}]},
     G('D','白髪と、ハサミ')];
 
   // ---------- タカヒロ ----------
@@ -2279,19 +2285,29 @@ details.alb summary::-webkit-details-marker{display:none}
    setD(E('C2','C_kibou').ch[1],s=>({H:m(s,'H',0.9)}));
    // 蓮
    G('D','段ボールの底').pre.d.set=Object.assign(G('D','段ボールの底').pre.d.set,{hc0t:'本人いわく「月末はいつもゼロ」',hc0v:null,rid:'D',H:300,Hg:.01,W:W0(),W0:W0(),live:280,rent:132,rentL:'家賃 月11万'});
-   {const c=G('D','表参道の、空き物件');setD(c.ch[0],s=>{const m=Math.max(0,Math.round(s.mine||0)),L=1900-620-m+300;return {set:{H:550,Hg:.05,selfH:1,cvStore:m},cost:cost('お店のローンの返済(公庫'+L.toLocaleString()+'万・10年)',Math.round(L*0.112),3,13)};});setD(c.ch[1],()=>({sav:0,set:{H:450}}));}
+   {const c=G('D','表参道の、空き物件');setD(c.ch[0],s=>{const m=Math.max(0,Math.round(s.mine||0)),L=1900-620-m+300;return {set:{H:550,Hg:.05,selfH:1,cvStore:m},cost:[cost('お店のローンの返済(公庫'+L.toLocaleString()+'万・10年)',Math.round(L*0.112),3,13),cost('開店10年目の改装の返済(椅子・シャンプー台・内装 500万・5年)',107,13,18)]};});setD(c.ch[1],()=>({sav:0,set:{H:450}}));}
    // 妻が店に入る時は専従者給与(月20万)。店の利益のうち240万があなたの年収になる(世帯の合計は同じ)
    {const c=G('D','100万回再生');setD(c.ch[0],()=>({sav:0,set:{W:240},H:160}));setD(c.ch[1],()=>({sav:0,H:150}));}
-   {const c=G('D','週刊誌');setD(c.ch[0],()=>({sav:0,H:100}));setD(c.ch[1],()=>({sav:0,H:200}));}
+   {const c=G('D','週刊誌');setD(c.ch[0],()=>({sav:0,H:100}));setD(c.ch[1],s=>({sav:-Math.round(TH(s.H||0)/26+(s.f.open?23:16))}));} /* 2026/11/07 黙って2週間閉めた方: 年収は上がらず、2週間分の売上と店の家賃(表参道47万/6坪32万の半月分)が出ていく */
    setD(E('D1','D_furin').ch[0],()=>({cost:cost('夫婦カウンセリング',12,8,10)}));
    setD(E('D1','D_furin').ch[1],()=>({}));
-   {const c=G('D','テレビの、レギュラー');c.pre=s=>s.f.separate?{title:'結婚10年目',text:'別居して2年。夫は、店の2階に寝泊まりしている。生活費(婚姻費用)は、毎月きちんと振り込まれる。',d:{}}:{after:true,title:'結婚10年目',text:'凛の部屋がほしくて、代々木の2LDKに引っ越した。家賃は月18万。',d:{home:'代々木の2LDK(家賃18万)',set:{rent:216,rentL:'家賃 月18万'}}};
+   {const c=G('D','テレビの、レギュラー');c.pre=s=>s.f.separate?{title:'結婚10年目',text:'別居して2年。夫は、店の2階に寝泊まりしている。生活費(婚姻費用)は、毎月きちんと振り込まれる。',d:{}}:null; /* 2026/11/07 引っ越しは選んだあと(貯金がマイナスの家が、先に家賃18万の部屋へ移らない) */
     // テレビの出演料は手元1,500万。店があれば2号店(公庫と銀行から1,500万・10年)
-    setD(c.ch[0],s=>Object.assign({sav:0,H:1500,set:{selfH:1}},s.f.open&&!s.f.separate?{cost:cost('2号店の借入の返済(1,500万・10年)',150,10,20)}:{}));}
+    // 2号店の返済は利息こみ(公庫の1店目と同じ 年11.2%=金利2%台・10年)。受けたら、ギャラが入った春に代々木の2LDKへ(敷金・礼金・仲介・引っ越しで約90万)
+    setD(c.ch[0],s=>Object.assign({sav:0,H:1500,set:{selfH:1,Hg:.01}},s.f.separate?{}:{home:'代々木の2LDK(家賃18万)',set:{selfH:1,Hg:.01,rent:216,rentL:'家賃 月18万'},cost:[cost('代々木への引っ越し(敷金・礼金・仲介・引っ越し)',90,s.yr||10,(s.yr||10)+1)].concat(s.f.open?[cost('2号店の借入の返済(1,500万・10年)',Math.round(1500*0.112),10,20)]:[])}));
+    // 断ったら、貯金が120万あれば同じ高円寺の2DKへ(家賃12万・初期費用60万)。なければ、貯まるまで待つ
+    setD(c.ch[1],s=>s.f.separate?{set:{Hg:.01}}:((s.sav||0)>=120?{sav:-60,home:'高円寺の2DK(家賃12万)',set:{Hg:.01,rent:144,rentL:'家賃 月12万',mv2:1}}:{set:{Hg:.01,mv2:0}}));
+    /* 2026/11/07 開業10年目からの伸びは年1%(金額は2026年の物価が基準=実質。前は5%のままで、20年目に年収5,000万を超えた) */}
    setD(E('D2','D_bekkyo').ch[0],s=>({home:s.f.tv?'代々木の2LDK(家賃18万)':'高円寺の2DK(家賃12万)',set:{rent:s.f.tv?216:144,rentL:s.f.tv?'家賃 月18万':'家賃 月12万'}}));
-   setD(E('D2','D_juken').ch[0],()=>({sav:0,cost:cost('中学受験の塾代(小4〜小6)',80,15,18)}));
-   {const c=G('D','動かない、右手');c.pre=s=>s.f.tv&&s.f.open?{after:true,title:'結婚13年目',text:'テレビで顔が売れ、店は2店舗、スタッフは6人になった。表参道に近い3LDKへ引っ越した。家賃は月38万。',d:{home:'表参道に近い3LDK(家賃38万)',H:800,live:150,set:{rent:456,rentL:'家賃 月38万'}}}:(s.f.tv?{after:true,title:'結婚13年目',text:'テレビのおかげで、店は2店舗になった。',d:{H:400}}:null);
-    setD(c.ch[0],s=>({sav:0,set:{H:Math.max(450,Math.round((s.H||0)*0.4))}}));setD(c.ch[1],s=>({sav:-Math.round(TH(s.H||0)*0.5)}));}
+   // 2026/11/07 貯金が300万ない家は、私立の中学受験を選ばない(私立中の学費は年156万=文科省 子供の学習費調査 令和5年度)(悠太の「頭金がない時は待とう」と同じ)。目指すのは学費のかからない公立中高一貫校(塾は3年で120万ほど)
+   setD(E('D2','D_juken').ch[0],s=>(s.sav||0)>=300?{sav:0,set:{eduP:2,jkP:1},cost:cost('中学受験の塾代(小4〜小6)',80,15,18)}:{sav:0,set:{eduP:0,jkP:0},cost:cost('公立中高一貫校の受検の塾代(小4〜小6)',40,15,18)});
+   // 2026/11/07 テレビを断った時「凛の部屋は、貯金が100万を超えてから」と待った家は、貯まったら引っ越す(3人で1LDKのまま、ずっとは住まない)
+   E('DF','D_last2').pre=()=>({after:true,late:s=>(!s.f.separate&&!s.f.divorce&&s.mv2===0&&(s.sav||0)>=160)?{after:true,title:'結婚20年目',text:'貯金が100万を超えた春、約束どおり、凛の部屋のある高円寺の2DKへ移った。家賃は月12万。敷金・礼金・引っ越しで、およそ60万。',d:{home:'高円寺の2DK(家賃12万)',sav:-60,set:{rent:144,rentL:'家賃 月12万',mv2:1}}}:null});
+   E('D2','D_juken').pre=()=>({after:true,late:s=>(!s.f.tv&&!s.f.separate&&s.mv2===0&&(s.sav||0)>=160)?{after:true,title:'結婚12年目',text:'貯金が100万を超えた春、約束どおり、凛の部屋のある高円寺の2DKへ移った。家賃は月12万。敷金・礼金・引っ越しで、およそ60万。',d:{home:'高円寺の2DK(家賃12万)',sav:-60,set:{rent:144,rentL:'家賃 月12万',mv2:1}}}:null});
+   {const c=G('D','動かない、右手');c.pre=s=>s.f.tv&&s.f.open?{after:true,title:'結婚13年目',text:'テレビで顔が売れ、店は2店舗、スタッフは6人になった。表参道に近い3LDKへ引っ越した。家賃は月38万。',d:{home:'表参道に近い3LDK(家賃38万)',H:800,live:150,cost:cost('表参道への引っ越し(敷金・礼金・仲介・引っ越し)',170,s.yr||14,(s.yr||14)+1),set:{rent:456,rentL:'家賃 月38万'}}}:(s.f.tv?{after:true,title:'結婚13年目',text:'テレビのおかげで、店は2店舗になった。',d:{H:400}}:{after:true,late:s=>(!s.f.separate&&s.mv2===0&&(s.sav||0)>=160)?{title:'結婚14年目',text:'貯金が100万を超えた春、約束どおり、凛の部屋のある高円寺の2DKへ移った。家賃は月12万。敷金・礼金・引っ越しで、およそ60万。',d:{home:'高円寺の2DK(家賃12万)',sav:-60,set:{rent:144,rentL:'家賃 月12万',mv2:1}}}:null});
+    // 2026/11/07 前は「年収を4割にしてずっとそのまま」で、20年目に借金1,400万のまま幸せな結末になっていた。けがは2年で戻る形に(1年目は店の利益が半分・講師の給料150万、2年目は2割減)
+    setD(c.ch[0],s=>{const y=s.yr||14,H=s.H||0,b=teBase(s),l1=Math.round(TH(H)-TH(Math.max(0,H-b*0.5+150))),l2=Math.round(TH(H)-TH(Math.max(0,H-b*0.2)));return {sav:0,cost:[cost('右手のけがで減った店の利益(1年目・講師の給料は引いた)',l1,y,y+1),cost('右手のけがで減った店の利益(2年目・回復中)',l2,y+1,y+2)]};});
+    setD(c.ch[1],s=>{const v=teVar(s),need=teLoss(s,v),y=s.yr||14;return v==='close'?{sav:-need,set:{teV:v}}:{sav:0,set:{teV:v},cost:cost(v==='staff'?'夫が半年ハサミを置いた分の売上減':'夫の椅子を半年、業務委託の美容師に貸した分の売上減',need,y,y+1)};});}
    // タカヒロ
    G('S','会長の試験').pre.d.set=Object.assign(G('S','会長の試験').pre.d.set,{hc0t:'マンションと預金、あわせて',hc0v:10000,hwA:'マンション',hc:2500,rid:'S',H:320,Hg:.01,Hstop:20,R:340,Rl:'夫のマンションの家賃(月40万・経費と税を引いて)',W:W0(),W0:W0(),live:320,rent:144,rentL:'家賃 月12万'});
    {const c=G('S','会長の試験');setD(c.ch[0],()=>({set:{rent:30,rentL:'固定資産税と修繕 年30万',own:1}}));setD(c.ch[1],()=>({set:{rent:192,rentL:'海の見える2DK 家賃 月16万'}}));}
@@ -2337,12 +2353,12 @@ details.alb summary::-webkit-details-marker{display:none}
       s:s=>{const base=s.f.separate?(s.sepSav||0):(s.divSav!=null?s.divSav:s.sav);const furin=!!(s.f.rebuild||s.f.separate);
         const bunyo=s.f.separate?('分けたのは、別居した日のふたりの貯金。'+(base>0?'約'+yen(base)+'の半分、'+yen(Math.round(base/2))+'があなたの分。':'あの時は借金で、分けるものはなかった。')+'別居のあとに夫が稼いだ分は、入らない。'):('ふたりの貯金は、原則は半分こ。離婚の日までの分だけ。');
         const mise=s.f.open?'店は、元手が結婚前のお金だから夫のもの。借金も、夫が引き継いだ。':'';
-        const kane=(furin?'慰謝料200万と、':'')+'養育費は裁判所の算定表のとおり。公正証書にした。夫は自営業だから、分ける厚生年金はない。';
+        const kane=(furin?'慰謝料200万と、':'')+'養育費は裁判所の算定表のとおり。公正証書にした。'+(pers.job==='other'?'年金分割は厚生年金だけが対象。夫は自営業で、分ける厚生年金はほとんどない。':s.f.recep?'年金分割は厚生年金だけが対象(国民年金は分けない)。厚生年金があるのは、会社員だったあなたの最初の数年分だけ。分ける側はあなただったが、夫は求めなかった。':'年金分割は厚生年金だけが対象(国民年金は分けない)。厚生年金に入っていたのは、会社員を続けたあなたのほう。分ける側はあなただったが、夫は求めなかった。');
         const head=s.f.rin_cut?'凛のぎこちないハサミが、首のうしろで鳴る。20年前、同じ音を立てた人は、もう隣にいない。':s.f.ex_cut?'閉店後のサロンで、元夫は最後の客として、あなたの髪を切った。':'離婚届を出す前の夜、元夫は閉店後のサロンで、最後にあなたの髪を整えた。';
         const tail=s.f.rin_cut?'月曜、新しい髪で職場に行った。凛は春から、美容学校に行くと決めている。':'鏡の中のあなたは、出会った日より、少しだけ強い顔をしていた。';
         return head+bunyo+mise+kane+tail;}},
     Object.assign(o[0],{test:s=>!!(s.f.tv&&s.f.open)&&!(s.crack>0),s:s=>'テレビで顔が売れ、腕で予約が埋まり、店は2店舗になった。'+(s.f.recep?'経営はあなた、ハサミは夫。':'あなたは自分の仕事を続け、夫の店には週末だけ顔を出す。')+'雑誌の表紙には、30年近くぶりに夫が載った。今度は、美容師として。'}),
-    Object.assign(o[1],{test:s=>(s.crack||0)>=1||hearts(s.T)<=2,s:s=>'店は続いている。夫の腕も、まだ確か。'+(s.f.rebuild?'一度壊れた信頼には、まだ少しだけ、ひびが残っている。':'')+(s.f.lonely?'夫婦の会話は、今もスタンプが多い。':'')+'家計を支えたのは、あなたの給料だった月も多い。顔は、まだ100点。'}),
+    Object.assign(o[1],{test:s=>(s.crack||0)>=1||hearts(s.T)<=2,s:s=>'店は続いている。夫の腕も、まだ確か。'+(s.f.rebuild?'一度壊れた信頼には、まだ少しだけ、ひびが残っている。':'')+(s.f.lonely?'夫婦の会話は、今もスタンプが多い。':'')+((s.H||0)>(s.W||0)*2&&(s.sav||0)>=0?'お金には、もう困っていない。':(s.sav||0)<0?'家計は、いつもぎりぎりだ。':'家計を支えたのは、あなたの給料だった月も多い。')+'顔は、まだ100点。'}),
     Object.assign(o[2],{s:s=>(s.f.reunite?'一度は、離れて暮らした。でも、あの立ち食いそばの夜から、夫は一度も約束を破らなかった。':'')+'20年たっても、夫は閉店後のサロンで、あなたの髪を切る。「君の髪は一生、俺が切る」。あの日の約束は、まだ続いている。'})];}
   {const o=END.S;END.S=[
     {id:'S4',k:'rikon',t:'肩書きを、置いていく',test:s=>!!s.f.divorce,nak:'肩書きより大事なものを、あんたは教えたのよ。財産分与は、離婚から5年のうちに決めること。年金も分けられるのよ。…次は、あんたが主役の人生ね。',
@@ -3387,7 +3403,7 @@ details.alb summary::-webkit-details-marker{display:none}
       nak:'出会いの場所に、もう一度。…ずるいわね。効いたのは、4年間の行動が先にあったから。戻るなら、毎週の「今週どうだった？」は続けさせなさい。',
       lt:[12,14,'4年、約束を守った夫を信じた','23時のそばで、あの夜が戻る']},
      {t:'「離婚届に、サインして」',
-      o:s=>'夫は震える手でサインした。財産分与は、別居した日の貯金が基準。'+((s.sepSav||0)>0?'別居後に夫が稼いだ分は入らない。':'あの時は借金で、分けるものはなかった。')+'慰謝料200万と養育費は、公正証書にした。最後に、夫が言った。「…一回だけ、髪を切らせて」',
+      o:s=>'夫は震える手でサインした。財産分与は、別居した日の貯金が基準。'+((s.sepSav||0)>0?'別居後に夫が稼いだ分は入らない。':(s.sepSav||0)<0?'あの時は借金で、分けるものはなかった。':'あの時の貯金は、ほとんど残っていなかった。')+'慰謝料200万と養育費は、公正証書にした。最後に、夫が言った。「…一回だけ、髪を切らせて」',
       nak:'養育費は公正証書に。「払わなければ差し押さえOK」の一文を入れるの。不倫相手に慰謝料を請求できるのは、知ってから3年まで。もう過ぎたから、夫に離婚の慰謝料を求めたのは正解よ。',
       lt:[-12,-14,'離婚を選び、関係を終えた','最後のハサミで、恋も終わる']}
     ]},
@@ -3412,8 +3428,8 @@ details.alb summary::-webkit-details-marker{display:none}
     text:'「ママ、みんな受験するって」。小1の凛が、塾のチラシを差し出した。塾代は3年で200万〜300万円。私立の中高6年は、さらに数百万円。夫が、ハサミを研ぐ手を止めた。「凛が本気なら、店の椅子を1台減らしてでも出す」',
     talk:[['m','凛、今日も頑張ってた'],['y','パパに似たね'],['m','…君に似たんだよ'],['m','手首が痛い。母さんと同じとこ']],
     ch:[
-     {t:'「凛に、本気か聞こう。本気なら受験」',
-      o:'凛は目をそらさずに言った。「やりたい。美容の授業がある学校に行きたい」。夜9時の塾のお迎えは、夫の担当になった。寝顔を見ながら、夫が小声で言う。「…俺より、ずっと頑張ってる」',
+     {t:s=>(s.sav||0)>=300?'「凛に、本気か聞こう。本気なら受験」':'「本気なら受験。ただ、学費のかからない公立の中高一貫校で」',
+      o:s=>s.jkP?'凛は目をそらさずに言った。「やりたい。美容の授業がある学校に行きたい」。夜9時の塾のお迎えは、夫の担当になった。寝顔を見ながら、夫が小声で言う。「…俺より、ずっと頑張ってる」':'貯金の少ない家に、私立の6年は重い。目指すのは、学費のかからない公立の中高一貫校。凛は目をそらさずに言った。「やる」。夜9時の塾のお迎えは、夫の担当になった。寝顔を見ながら、夫が小声で言う。「…俺より、ずっと頑張ってる」',
       nak:'中学受験は、親の受験でもあるの。塾代の上限は、最初に決めなさい。高校は2026年4月から、私立も授業料を年45万7,200円まで国が出すわ。',
       lt:[6,0,'凛の本気を、3人で聞けた','娘の受験の話。恋とは別']},
      {t:'「公立でのびのび。浮いた分は家族の時間に」',
@@ -3445,8 +3461,8 @@ details.alb summary::-webkit-details-marker{display:none}
       o:s=>'夫は美容学校の非常勤講師になった。'+(s.f.recep?'店の経営は、あなたが全部引き受けた。':'あなたは仕事を続けながら、店の経営も引き受けた。')+'売上は半分に落ちた。'+(s.f.tv?'テレビは、教壇の夫を映した。':'')+'夫は学生の手首の角度ばかり直す。1年後、右手はゆっくり動き始めた。',
       nak:'期限のない看病は、恨みになるの。「半年」と期限を切りなさい。それと自営業には、会社員のような傷病手当金がない。就業不能保険は、元気なうちに入るものよ。',
       lt:[12,-7,'動かない右手の夫を、支えた','店と仕事で、余裕がない']},
-     {t:s=>((s.W||0)>0&&!s.f.recep)?'「店を半年閉める。私の給料で、ふたりで休もう」':'「店を半年閉める。貯金で、ふたりで休もう」',
-      o:s=>((s.W||0)>0&&!s.f.recep)?'店は半年閉め、暮らしはあなたの給料で回した。夫は毎朝リハビリへ。左手で、凛の髪を不器用に結んだ日もある。半年後、右手は治った。「…半年、妻に食わせてもらった」。夫はそれを、一生の自慢にした。':(s.sav<0?'店は半年閉めた。貯金は底をつき、足りない分は借りた。':'店は半年閉め、貯金で暮らした。')+'夫は毎朝リハビリへ。左手で、凛の髪を不器用に結んだ日もある。半年後、右手は治った。「…母さんは、休めなかったんだ」。夫は通帳を閉じて、笑った。',
+     {t:s=>{const v=teVar(s);return v==='staff'?'「半年、ハサミを置いて。店はスタッフに任せよう」':v==='itaku'?'「半年、ハサミを置いて。椅子は、ほかの美容師に貸そう」':((s.W||0)>0&&!s.f.recep)?'「店を半年閉める。私の給料と貯金で、ふたりで休もう」':'「店を半年閉める。貯金で、ふたりで休もう」';},
+      o:s=>{const v=s.teV,mid='夫は毎朝リハビリへ。左手で、凛の髪を不器用に結んだ日もある。半年後、右手は治った。';return v==='staff'?'夫は半年、ハサミを置いた。2つの店は、スタッフ6人が回した。'+mid+'「…母さんは、休めなかったんだ」。夫は、スタッフ全員に頭を下げた。':v==='itaku'?'貯金で半年休める家では、なかった。夫の椅子には半年だけ、業務委託の美容師が座った。売上の6割は、その人の取り分。'+mid+'「…母さんは、休めなかったんだ」。夫は帳簿を閉じて、笑った。':((s.W||0)>0&&!s.f.recep)?'店は半年閉め、暮らしはあなたの給料と貯金で回した。'+mid+'「…半年、君に支えてもらった」。夫はそれを、一生の自慢にした。':'店は半年閉め、貯金で暮らした。'+mid+'「…母さんは、休めなかったんだ」。夫は通帳を閉じて、笑った。';},
       nak:'稼ぎ頭が入れ替わる半年を、笑って越えた夫婦は強いわ。自営業には、会社員のような傷病手当金がないの。就業不能保険は、元気なうちに入るものよ。',
       lt:[12,7,'弱った夫を、ふたりで休ませた','左手で結ぶ夫に、キュン']}
     ]},
@@ -3496,15 +3512,15 @@ details.alb summary::-webkit-details-marker{display:none}
  },
  ends:{
   'D4':s=>{const base=s.f.separate?(s.sepSav||0):(s.divSav!=null?s.divSav:s.sav);const furin=!!s.f.separate;
-    const bunyo=s.f.separate?('分けたのは、別居した日の貯金。'+(base>0?'約'+yen(base)+'の半分、'+yen(Math.round(base/2))+'があなたの分。':'あの時は借金で、分けるものはなかった。')):'貯金は、離婚の日までの分を原則半分ずつ。';
+    const bunyo=s.f.separate?('分けたのは、別居した日の貯金。'+(base>0?'約'+yen(base)+'の半分、'+yen(Math.round(base/2))+'があなたの分。別居のあとにあなたが貯めた分は、あなたのもの。':base<0?'あの時は借金で、分けるものはなかった。':'あの時の貯金は、ほとんど残っていなかった。')):'貯金は、離婚の日までの分を原則半分ずつ。';
     const mise=s.f.open?'店も借金も、夫が引き継いだ。':'';
-    const kane=(furin?'慰謝料200万と、':'')+'養育費は公正証書に。年金分割は厚生年金だけが対象。自営業の夫からは、ほぼ受け取れない。';
+    const kane=(furin?'慰謝料200万と、':'')+'養育費は公正証書に。'+(pers.job==='other'?'年金分割は厚生年金だけが対象。夫は自営業で、分ける厚生年金はほとんどない。':s.f.recep?'年金分割は厚生年金だけが対象(国民年金は分けない)。厚生年金があるのは、会社員だったあなたの最初の数年分だけ。分ける側はあなただったが、夫は求めなかった。':'年金分割は厚生年金だけが対象(国民年金は分けない)。厚生年金に入っていたのは、会社員を続けたあなたのほう。分ける側はあなただったが、夫は求めなかった。');
     const head=s.f.rin_cut?'凛のぎこちないハサミが、首のうしろで鳴る。同じ音を立てた人は、もう隣にいない。':s.f.ex_cut?'閉店後のサロンで、元夫はあなたを最後の客として切った。':'離婚届を出す前の夜、夫は最後にあなたの髪を整えた。';
     const tail=s.f.rin_cut?'凛は、美容科のある高校を目指している。':'鏡の中のあなたは、出会った日より少し強い顔をしていた。';
     return head+bunyo+mise+kane+tail;},
   'D3':s=>'表紙の撮影の日、夫は一つだけ頼んだ。「顔じゃなくて、右手を写してください」。今度は「REN」じゃない。美容師の蓮として。店は2店舗になった。'+(s.f.recep?'経営はあなた、ハサミは夫。':'あなたは自分の仕事を続け、週末だけ店に顔を出す。')+'見本誌の1冊目は、夫の母に届けた。',
-  'D2':s=>'閉店後の店で、夫がひとりハサミを研いでいる。'+(s.f.rebuild?'信頼には、まだ細いひびが残る。':'')+(s.f.lonely?'会話は、今もスタンプが多い。':'')+'家計を支えたのは、あなたの給料だった月も多い。それでも夫は、たまに聞く。「…切ろうか？」。あなたは三回に一回だけ、うなずく。鏡越しの夫の顔は、まだ100点だ。',
-  'D1':s=>(s.f.reunite?'一度は離れて暮らした。でも、あの立ち食いそばの夜から、夫は約束を破らなかった。':'')+'20年たっても、夫は閉店後のサロンであなたの髪を切る。棚には「店」「ふたりめ」、そして新しい通帳「みっつめ」。中身を聞くと、夫は照れた。「…君と行く、旅行」。「君の髪は一生、俺が切る」。あの日の約束は、まだ続いている。'
+  'D2':s=>'閉店後の店で、夫がひとりハサミを研いでいる。'+(s.f.rebuild?'信頼には、まだ細いひびが残る。':'')+(s.f.lonely?'会話は、今もスタンプが多い。':'')+((s.H||0)>(s.W||0)*2&&(s.sav||0)>=0?'お金には、もう困っていない。':(s.sav||0)<0?'家計は、いつもぎりぎりだ。':'家計を支えたのは、あなたの給料だった月も多い。')+'それでも夫は、たまに聞く。「…切ろうか？」。あなたは三回に一回だけ、うなずく。鏡越しの夫の顔は、まだ100点だ。',
+  'D1':s=>(s.f.reunite?'一度は離れて暮らした。でも、あの立ち食いそばの夜から、夫は約束を破らなかった。':'')+'20年たっても、夫は閉店後のサロンであなたの髪を切る。'+((s.sav||0)<0?'棚には「店」「ふたりめ」の通帳。改装の借入は、あと少し残っている。「みっつめは、返し終わってから。…君と行く、旅行」。':'棚には「店」「ふたりめ」、そして新しい通帳「みっつめ」。中身を聞くと、夫は照れた。「…君と行く、旅行」。')+'「君の髪は一生、俺が切る」。あの日の約束は、まだ続いている。'
  }
 };
   STORY2.S={
@@ -4375,9 +4391,9 @@ STORY3.D={
     ]},
 
   '100万回再生':{
-    text:s=>'動画は一晩で100万回。1週間で500万回。夜中、夫のスマホにDMが光った。「REN、会いたい」。夫は黙って画面を伏せた。あなたにも仕事がある。'+J().daily+'。夫が言った。「受付と経営、一番任せたいのは君。でも、君の仕事も大事だ」',
+    text:s=>'動画は一晩で100万回。1週間で500万回。夜中、夫のスマホにDMが光った。「REN、会いたい」。夫は黙って画面を伏せた。あなたにも仕事がある。'+J().daily+'。受付を1人雇えば、月20万はかかる。夫が言った。「受付と経営、一番任せたいのは君。でも、君の仕事も大事だ」',
     ch:[
-     {nak:'会社を辞めると、厚生年金は止まるの。夫婦とも国民年金だけなら、老後はふたりで月14万ほど。足りない分は、iDeCoと小規模企業共済で作りなさい。'},
+     {nak:'妻の給料を経費にするなら「青色事業専従者給与」。税務署に届出(払い始めて2か月以内)を出した額までよ。会社を辞めると厚生年金は止まる。夫婦とも国民年金だけなら、老後はふたりで月14万ほど。iDeCoと小規模企業共済で足しなさい。'},
      {}
     ]},
 
@@ -4411,9 +4427,9 @@ STORY3.D={
     text:s=>s.f.separate?'日曜のカットのあと、玄関先で夫が振り向いた。「テレビの話が、また来た。年2,000万。間に入るのは柏木さん」。別居して2年。「決めてほしいわけじゃない。最初に、君に言いたかった」。奥から凛が叫ぶ。「パパ、テレビ出るの!?」':'柏木社長が、正式な依頼を持ってきた。週1回のテレビのレギュラーで、年2,000万。夫は言った。「今は腕がある。今なら、顔だけで使われない気がする」。帰り際、柏木はあなたにだけ聞いた。「あいつが17で表紙に出た理由、聞いてる？」',
     ch:[
      {t:s=>s.f.separate?'「テレビ、受けて。私はもう止める立場じゃない」':'「テレビ、受けて。今の蓮なら大丈夫」',
-      o:s=>s.f.separate?'夫はテレビに出た。日曜は、マネージャーの車で来るようになった。生活費の振り込みは、翌月から増えた。玄関先の夫は、前より少しだけ遠い。':'夫はテレビに出た。予約は1年待ちになり、2号店を出した。生放送の最後、夫はカメラに小さく指を立てる。ふたりだけの合図だ。ただ、家で話す時間は少しずつ減っていった。'},
+      o:s=>s.f.separate?'夫はテレビに出た。日曜は、マネージャーの車で来るようになった。生活費の振り込みは、翌月から増えた。玄関先の夫は、前より少しだけ遠い。':'夫はテレビに出た。予約は1年待ちになり、2号店を出した。ギャラが入った春、凛の部屋がほしくて代々木の2LDKへ移った(家賃18万)。生放送の最後、夫はカメラに小さく指を立てる。ふたりだけの合図だ。ただ、家で話す時間は少しずつ減っていった。'},
      {t:s=>s.f.separate?'「テレビは断って。凛のパパでいて」':'「テレビは断って。鏡の前の蓮が好き」',
-      o:s=>s.f.separate?'翌週の日曜。夫は「…断ったよ」とだけ言い、凛の髪を切った。柏木社長は「もったいない」と3回言ったらしい。帰り際、夫が振り向いた。「凛のパパで、いる。…それと」。続きは、言わなかった。':'夫は断った。柏木社長は「もったいない」と3回言い、最後に笑った。「…幸せそうだな」。その夜、夫はあなたの髪をとかしながら、目をそらした。「…ほんとは、誰かにそう言われたかった」'}
+      o:s=>s.f.separate?'翌週の日曜。夫は「…断ったよ」とだけ言い、凛の髪を切った。柏木社長は「もったいない」と3回言ったらしい。帰り際、夫が振り向いた。「凛のパパで、いる。…それと」。続きは、言わなかった。':'夫は断った。柏木社長は「もったいない」と3回言い、最後に笑った。「…幸せそうだな」。その夜、夫はあなたの髪をとかしながら、目をそらした。「…ほんとは、誰かにそう言われたかった」'+(s.mv2?'春、凛の部屋がほしくて、同じ高円寺の2DKへ移った(家賃12万)。':'凛の部屋は、貯金が100万を超えてから。引っ越しは、それまで待つ。')}
     ]},
 
   'ev:D_surechigai':{
